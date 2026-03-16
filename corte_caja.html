@@ -576,7 +576,7 @@ function requireAuth(roles){const s=getSession();if(!s){window.location.href='lo
 function logout(){if(confirm('¿Cerrar sesión?')){clearSession();window.location.href='login.html';}}
 const ROLE_LABELS={ADMIN:'Administrador',DIR_GENERAL:'Dir. General',DIR_FINANZAS:'Dir. Finanzas',ANALISTA_FIN:'Analista Fin.',ANALISTA_NOM:'Analista Nóm.',ANALISTA_FULL:'Analista Full'};
 function renderUserChip(s){document.getElementById('userChip').textContent=s.nombre+' — '+(ROLE_LABELS[s.rol]||s.rol);}
-const APPS_SCRIPT_URL=localStorage.getItem('trikles_api_url')||'https://script.google.com/macros/s/AKfycbwP9wUZ3U6gC-TIvp_PgfverSY27FTmgVotN-wjHVrtN63cn7ZZrF01NTNQPTjWLN60/exec';
+const APPS_SCRIPT_URL=localStorage.getItem('trikles_api_url')||'https://script.google.com/macros/s/AKfycbz8eGNd6YBdbSItidW59xTomTEFcjIBsaz8b5QHdxUCi1F62t4HlTwHgdyvWInELTOLvw/exec';
 async function apiCall(action,data){const s=getSession();const payload={action,...data,empresa:s?.empresa||'TRIKLES',usuarioCaptura:s?.usuario||''};try{await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});return{success:true};}catch(e){return{success:false,error:e.toString()};}}
 function showToast(type,title,msg,dur=4000){const icons={success:'✅',error:'❌',info:'💡',warning:'⚠️'};const t=document.getElementById('toast');t.className='toast show '+type;t.querySelector('.t-icon').textContent=icons[type]||'ℹ️';t.querySelector('.t-title').textContent=title;t.querySelector('.t-msg').textContent=msg;clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),dur);}
 function today(){return new Date().toISOString().slice(0,10);}
