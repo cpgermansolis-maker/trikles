@@ -767,7 +767,9 @@ function renderEmpresas(){
       <td><span class="badge ${e.activa==='SI'?'badge-green':'badge-red'}">${e.activa==='SI'?'✓ Activa':'✗ Inactiva'}</span></td>
       <td class="td-actions">
         <button class="btn btn-secondary btn-sm" onclick='editEmpresa(${JSON.stringify(e)})'>✏️ Editar</button>
-        ${e.activa==='SI'?`<button class="btn btn-danger btn-sm" onclick="bajaEmpresa('${e.id}','${e.nombre}')">⛔ Dar de baja</button>`:'<span class="badge badge-gray">Inactiva</span>'}
+        ${e.activa==='SI'
+          ?`<button class="btn btn-danger btn-sm" onclick="bajaEmpresa('${e.id}','${e.nombre}')">⛔ Dar de baja</button>`
+          :`<button class="btn btn-success btn-sm" onclick="reactivarEmpresa('${e.id}','${e.nombre}')">✅ Reactivar</button>`}
       </td>
     </tr>
   `).join('');
@@ -838,9 +840,22 @@ function bajaEmpresa(id,nombre){
   document.getElementById('confirm_yes').onclick=async()=>{
     closeModal('confirm');
     try{
-      await apiPost({action:'baja_empresa',id});
-      toast('success','Empresa dada de baja','Se desactivó correctamente.');
-      loadEmpresas();
+      const r=await apiPost({action:'baja_empresa',id});
+      if(r&&r.success){toast('success','Empresa dada de baja','Se desactivó correctamente.');loadEmpresas();}
+      else toast('error','Error',r?.error||'No se pudo procesar.');
+    }catch(e){toast('error','Error','No se pudo procesar.');}
+  };
+  document.getElementById('modal_confirm').classList.add('open');
+}
+
+function reactivarEmpresa(id,nombre){
+  document.getElementById('confirm_msg').textContent=`¿Reactivar la empresa "${nombre}"? Los usuarios asociados podrán volver a iniciar sesión.`;
+  document.getElementById('confirm_yes').onclick=async()=>{
+    closeModal('confirm');
+    try{
+      const r=await apiPost({action:'reactivar_empresa',id});
+      if(r&&r.success){toast('success','Empresa reactivada','✅ La empresa está activa nuevamente.');loadEmpresas();}
+      else toast('error','Error',r?.error||'No se pudo reactivar.');
     }catch(e){toast('error','Error','No se pudo procesar.');}
   };
   document.getElementById('modal_confirm').classList.add('open');
