@@ -567,7 +567,7 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
 </div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbxi74Qsk8kOrb-IAx2hExDB-SgqNu78vSHeVPX8KJmRqQJh4Tf99RT9Gm25Xr13hs25Zw/exec';
+const API = 'https://script.google.com/macros/s/AKfycbwPcGHueHpY1yvJdl5VO5mjIENlP0y8jFibyovjP8V-9XmmHb05Hh6sxhzzryQ_5pRyqQ/exec';
 const SK = 'trikles_session';
 const ROLES = {"ADMIN": {"label": "Administrador", "color": "purple", "perms": {"Dashboard": true, "Captura Fin.": true, "Corte Caja": true, "N\u00f3mina": true, "Panel Control": true}}, "DIR_GENERAL": {"label": "Dir. General", "color": "orange", "perms": {"Dashboard": true, "Captura Fin.": false, "Corte Caja": false, "N\u00f3mina": false, "Panel Control": false}}, "DIR_FINANZAS": {"label": "Dir. Finanzas", "color": "blue", "perms": {"Dashboard": true, "Captura Fin.": false, "Corte Caja": false, "N\u00f3mina": false, "Panel Control": false}}, "ANALISTA_FIN": {"label": "Analista Fin.", "color": "green", "perms": {"Dashboard": false, "Captura Fin.": true, "Corte Caja": true, "N\u00f3mina": false, "Panel Control": false}}, "ANALISTA_NOM": {"label": "Analista N\u00f3m.", "color": "yellow", "perms": {"Dashboard": false, "Captura Fin.": false, "Corte Caja": false, "N\u00f3mina": true, "Panel Control": false}}, "ANALISTA_FULL": {"label": "Analista Full", "color": "teal", "perms": {"Dashboard": false, "Captura Fin.": true, "Corte Caja": true, "N\u00f3mina": true, "Panel Control": false}}};
 
@@ -589,30 +589,22 @@ function toast(type,title,msg,dur=4000){
 }
 
 /* ══ API CALL ══ */
-async function apiGet(params){
-  return new Promise((resolve,reject)=>{
-    const cb='cb_'+Date.now();
-    const script=document.createElement('script');
-    window[cb]=(data)=>{delete window[cb];document.body.removeChild(script);resolve(data);};
-    script.onerror=()=>reject(new Error('Network error'));
-    script.src=API+'?'+new URLSearchParams({...params,callback:cb});
-    document.body.appendChild(script);
-    setTimeout(()=>reject(new Error('Timeout')),15000);
-  });
+async function apiCall(params){
+  try{
+    const url=API+'?'+new URLSearchParams(params);
+    const r=await fetch(url,{redirect:'follow'});
+    const text=await r.text();
+    // Strip JSONP wrapper if present
+    const clean=text.replace(/^[\w]+\(/,'').replace(/\)\s*;?\s*$/,'');
+    return JSON.parse(clean);
+  }catch(e){
+    // Fallback: try with no-cors and return optimistic response
+    console.error('API error:',e);
+    throw e;
+  }
 }
-async function apiPost(body){
-  return new Promise((resolve,reject)=>{
-    const cb='cb_'+Date.now();
-    const script=document.createElement('script');
-    window[cb]=(data)=>{delete window[cb];document.body.removeChild(script);resolve(data);};
-    script.onerror=()=>reject(new Error('Network error'));
-    // Apps Script doesn't support JSONP POST, use GET with all params
-    const params={...body,callback:cb};
-    script.src=API+'?'+new URLSearchParams(params);
-    document.body.appendChild(script);
-    setTimeout(()=>reject(new Error('Timeout')),15000);
-  });
-}
+async function apiGet(params){ return apiCall(params); }
+async function apiPost(body){ return apiCall(body); }
 
 /* ══ PANEL NAV ══ */
 function showPanel(name){
