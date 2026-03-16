@@ -150,6 +150,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     <a class="btn-nav" href="captura_financiera.html">📋 Captura</a>
     <a class="btn-nav" href="corte_caja.html">🗃 Corte</a>
     <a class="btn-nav" href="captura_nomina.html">👥 Nómina</a>
+    <a class="btn-nav" href="panel_control.html" id="btnPanel" style="display:none">⚙️ Panel</a>
     <button class="btn-pdf" onclick="exportPDF()">📄 PDF</button>
     <div class="user-pill"><div class="u-dot"></div><span id="userChip">...</span></div>
     <button class="btn-out" onclick="logout()">Salir ✕</button>
@@ -1100,6 +1101,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   const s=reqAuth(['ADMIN','DIR_GENERAL','DIR_FINANZAS','ANALISTA_FIN','ANALISTA_FULL']);
   if(!s)return;
   renderChip(s);
+  if(s.rol==='ADMIN'){const b=document.getElementById('btnPanel');if(b)b.style.display='inline-flex';}
   // Populate year selectors
   const yrs=getYears();
   ['yearSel5'].forEach(id=>{
