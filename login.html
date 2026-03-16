@@ -434,8 +434,7 @@ body {
     <div class="empresa-selector">
       <label>🏢 Empresa</label>
       <select class="empresa-select" id="empresaSelect">
-        <option value="">— Selecciona empresa —</option>
-        <option value="TRIKLES">TRIKLES</option>
+        <option value="">Cargando empresas...</option>
       </select>
     </div>
 
@@ -519,12 +518,13 @@ const CONFIG = {
 // ROLES Y PERMISOS
 // ══════════════════════════════════════════════════════════
 const ROLES = {
-  ADMIN:          { label:'Administrador',       redirect:'panel_control.html',    accesos:['dashboard','captura_fin','captura_nom','panel'] },
-  DIR_GENERAL:    { label:'Director General',    redirect:'dashboard.html',        accesos:['dashboard'] },
-  DIR_FINANZAS:   { label:'Director de Finanzas',redirect:'dashboard.html',        accesos:['dashboard'] },
-  ANALISTA_FIN:   { label:'Analista Financiero', redirect:'captura_financiera.html',accesos:['captura_fin'] },
-  ANALISTA_NOM:   { label:'Analista de Nómina',  redirect:'captura_nomina.html',   accesos:['captura_nom'] },
-  ANALISTA_FULL:  { label:'Analista Completo',   redirect:'captura_financiera.html',accesos:['captura_fin','captura_nom'] },
+  SUPER_ADMIN:    { label:'Super Administrador', redirect:'dashboard_ejecutivo.html', accesos:['dashboard','captura_fin','captura_nom','panel'] },
+  ADMIN:          { label:'Administrador',       redirect:'panel_control.html',       accesos:['dashboard','captura_fin','captura_nom','panel'] },
+  DIR_GENERAL:    { label:'Director General',    redirect:'dashboard_ejecutivo.html', accesos:['dashboard'] },
+  DIR_FINANZAS:   { label:'Director de Finanzas',redirect:'dashboard_ejecutivo.html', accesos:['dashboard'] },
+  ANALISTA_FIN:   { label:'Analista Financiero', redirect:'captura_financiera.html',  accesos:['captura_fin'] },
+  ANALISTA_NOM:   { label:'Analista de Nómina',  redirect:'captura_nomina.html',      accesos:['captura_nom'] },
+  ANALISTA_FULL:  { label:'Analista Completo',   redirect:'captura_financiera.html',  accesos:['captura_fin','captura_nom'] },
 };
 
 // ══════════════════════════════════════════════════════════
@@ -569,6 +569,69 @@ function clearSession() {
 
 // Exponer globalmente para que otras páginas puedan usarla
 window.TRIKLES_AUTH = { getSession, clearSession, saveSession, ROLES };
+
+// Cargar empresas dinámicamente desde Google Sheets
+async function cargarEmpresas() {
+  const sel = document.getElementById('empresaSelect');
+  try {
+    const result = await new Promise((resolve, reject) => {
+      const cbName = 'empLogin_' + Date.now();
+      const script = document.createElement('script');
+      let done = false;
+      window[cbName] = (data) => {
+        if(done) return; done = true;
+        delete window[cbName];
+        if(script.parentNode) script.parentNode.removeChild(script);
+        resolve(data);
+      };
+      script.onerror = () => {
+        if(done) return; done = true;
+        delete window[cbName];
+        if(script.parentNode) script.parentNode.removeChild(script);
+        reject(new Error('error'));
+      };
+      script.src = CONFIG.APPS_SCRIPT_URL + '?action=getEmpresas&callback=' + cbName;
+      document.head.appendChild(script);
+      setTimeout(() => {
+        if(done) return; done = true;
+        delete window[cbName];
+        if(script.parentNode) script.parentNode.removeChild(script);
+        reject(new Error('timeout'));
+      }, 10000);
+    });
+
+    if (result && result.success && result.data && result.data.length > 0) {
+      // Normalizar y filtrar solo activas
+      const get = (obj, ...keys) => {
+        for(const k of keys){
+          const found = Object.keys(obj).find(ok => ok.toLowerCase() === k.toLowerCase());
+          if(found !== undefined && obj[found] !== undefined && obj[found] !== '') return obj[found];
+        }
+        return '';
+      };
+      const activas = result.data.filter(e => {
+        const activa = String(get(e,'activa','Activa','active','status') || 'SI').toUpperCase();
+        return activa === 'SI';
+      });
+      sel.innerHTML = '<option value="">— Selecciona empresa —</option>';
+      activas.forEach(e => {
+        const nombre = get(e,'nombre','Nombre','name') || 'Empresa';
+        const id = get(e,'id','Id','ID') || nombre;
+        sel.innerHTML += '<option value="' + id + '">' + nombre + '</option>';
+      });
+    } else {
+      // Fallback: mostrar TRIKLES si no hay conexión
+      sel.innerHTML = '<option value="">— Selecciona empresa —</option><option value="TRIKLES">TRIKLES</option>';
+    }
+  } catch(e) {
+    // Fallback silencioso
+    sel.innerHTML = '<option value="">— Selecciona empresa —</option><option value="TRIKLES">TRIKLES</option>';
+    console.warn('No se pudieron cargar empresas:', e);
+  }
+}
+
+// Cargar empresas al inicio
+document.addEventListener('DOMContentLoaded', cargarEmpresas);
 
 // ══════════════════════════════════════════════════════════
 // CHECK SESIÓN ACTIVA
