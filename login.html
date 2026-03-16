@@ -671,9 +671,8 @@ async function doLogin() {
     // Intento 1: Verificar contra Apps Script (servidor real)
     let userData = null;
 
-    if (CONFIG.APPS_SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbwP9wUZ3U6gC-TIvp_PgfverSY27FTmgVotN-wjHVrtN63cn7ZZrF01NTNQPTjWLN60/exec') {
-      userData = await loginConSheets(empresa, usuario, pass);
-    }
+    // Siempre intentar login con Google Sheets primero
+    userData = await loginConSheets(empresa, usuario, pass);
 
     // Intento 2: Fallback a usuarios demo (mientras no hay Sheets configurado)
     if (!userData) {
@@ -716,14 +715,54 @@ async function doLogin() {
 // LOGIN CONTRA GOOGLE SHEETS
 // ══════════════════════════════════════════════════════════
 async function loginConSheets(empresa, usuario, pass) {
-  const url = CONFIG.APPS_SCRIPT_URL +
-    '?action=login&empresa=' + encodeURIComponent(empresa) +
-    '&usuario=' + encodeURIComponent(usuario) +
-    '&pass=' + encodeURIComponent(pass);
+  return new Promise((resolve) => {
+    const cbName = 'loginCb_' + Date.now();
+    const script = document.createElement('script');
+    let done = false;
 
-  const res = await fetch(url, { method:'GET', mode:'cors' });
-  const data = await res.json();
-  return data.success ? data.user : null;
+    window[cbName] = (data) => {
+      if(done) return; done = true;
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      if(data && data.success) {
+        // Normalizar respuesta del servidor
+        resolve({
+          usuario:  data.usuario  || usuario,
+          nombre:   data.nombre   || usuario,
+          rol:      data.rol      || 'ADMIN',
+          empresa:  data.empresa  || empresa,
+          email:    data.email    || '',
+          superAdmin: data.rol === 'SUPER_ADMIN',
+        });
+      } else {
+        resolve(null);
+      }
+    };
+
+    script.onerror = () => {
+      if(done) return; done = true;
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      resolve(null);
+    };
+
+    const url = CONFIG.APPS_SCRIPT_URL +
+      '?action=login' +
+      '&empresa=' + encodeURIComponent(empresa) +
+      '&usuario=' + encodeURIComponent(usuario) +
+      '&pass=' + encodeURIComponent(pass) +
+      '&callback=' + cbName;
+
+    script.src = url;
+    document.head.appendChild(script);
+
+    setTimeout(() => {
+      if(done) return; done = true;
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      resolve(null); // timeout — fallback a demo
+    }, 10000);
+  });
 }
 
 // ══════════════════════════════════════════════════════════

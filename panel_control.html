@@ -1035,7 +1035,8 @@ async function guardarUsuario(){
   if(!empresa){toast('error','Campo requerido','Selecciona una empresa.');return;}
   document.getElementById('usr_btn_save').style.display='none';
   document.getElementById('usr_saving').style.display='flex';
-  const params={action:'alta_usuario',nombre,usuario,password:password||undefined,rol,empresa,email};
+  const action = isEdit ? 'editar_usuario' : 'alta_usuario';
+  const params={action,nombre,usuario,password:password||undefined,rol,empresa,email};
   try{
     const r=await apiPost(params);
     if(r.success){
