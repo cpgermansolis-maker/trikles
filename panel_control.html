@@ -567,7 +567,7 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
 </div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbwPcGHueHpY1yvJdl5VO5mjIENlP0y8jFibyovjP8V-9XmmHb05Hh6sxhzzryQ_5pRyqQ/exec';
+const API = 'https://script.google.com/macros/s/AKfycbzVE2ENMnzYKWv8arcolbidvyG6TWId--XmaTIThV7_0uj-eRMpPnczD8QGwVPbbXZEoA/exec';
 const SK = 'trikles_session';
 const ROLES = {"ADMIN": {"label": "Administrador", "color": "purple", "perms": {"Dashboard": true, "Captura Fin.": true, "Corte Caja": true, "N\u00f3mina": true, "Panel Control": true}}, "DIR_GENERAL": {"label": "Dir. General", "color": "orange", "perms": {"Dashboard": true, "Captura Fin.": false, "Corte Caja": false, "N\u00f3mina": false, "Panel Control": false}}, "DIR_FINANZAS": {"label": "Dir. Finanzas", "color": "blue", "perms": {"Dashboard": true, "Captura Fin.": false, "Corte Caja": false, "N\u00f3mina": false, "Panel Control": false}}, "ANALISTA_FIN": {"label": "Analista Fin.", "color": "green", "perms": {"Dashboard": false, "Captura Fin.": true, "Corte Caja": true, "N\u00f3mina": false, "Panel Control": false}}, "ANALISTA_NOM": {"label": "Analista N\u00f3m.", "color": "yellow", "perms": {"Dashboard": false, "Captura Fin.": false, "Corte Caja": false, "N\u00f3mina": true, "Panel Control": false}}, "ANALISTA_FULL": {"label": "Analista Full", "color": "teal", "perms": {"Dashboard": false, "Captura Fin.": true, "Corte Caja": true, "N\u00f3mina": true, "Panel Control": false}}};
 
@@ -589,22 +589,57 @@ function toast(type,title,msg,dur=4000){
 }
 
 /* ══ API CALL ══ */
-async function apiCall(params){
-  try{
-    const url=API+'?'+new URLSearchParams(params);
-    const r=await fetch(url,{redirect:'follow'});
-    const text=await r.text();
-    // Strip JSONP wrapper if present
-    const clean=text.replace(/^[\w]+\(/,'').replace(/\)\s*;?\s*$/,'');
-    return JSON.parse(clean);
-  }catch(e){
-    // Fallback: try with no-cors and return optimistic response
-    console.error('API error:',e);
+// ── API con soporte JSONP para evitar CORS ──
+function jsonpCall(params, timeout=12000){
+  return new Promise((resolve, reject) => {
+    const cbName = 'trkCb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const script = document.createElement('script');
+    let done = false;
+
+    window[cbName] = (data) => {
+      if(done) return; done = true;
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      resolve(data);
+    };
+
+    script.onerror = () => {
+      if(done) return; done = true;
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      reject(new Error('Script load error'));
+    };
+
+    const url = API + '?' + new URLSearchParams({...params, callback: cbName});
+    script.src = url;
+    document.head.appendChild(script);
+
+    setTimeout(() => {
+      if(done) return; done = true;
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      reject(new Error('Timeout'));
+    }, timeout);
+  });
+}
+
+async function apiGet(params){
+  try {
+    return await jsonpCall(params);
+  } catch(e) {
+    console.error('apiGet error:', e);
     throw e;
   }
 }
-async function apiGet(params){ return apiCall(params); }
-async function apiPost(body){ return apiCall(body); }
+
+async function apiPost(body){
+  try {
+    return await jsonpCall(body);
+  } catch(e) {
+    console.error('apiPost error:', e);
+    throw e;
+  }
+}
 
 /* ══ PANEL NAV ══ */
 function showPanel(name){
@@ -637,17 +672,22 @@ async function loadEmpresas(){
   document.getElementById('empresas_empty').style.display='none';
   try{
     const r=await apiGet({action:'getEmpresas'});
-    if(r.success){
+    if(r && r.success){
       EMPRESAS=r.data||[];
       renderEmpresas();
       document.getElementById('st_empresas').textContent=EMPRESAS.filter(e=>e.activa==='SI').length;
       updateEmpresaSelects();
     }else{
       EMPRESAS=[];renderEmpresas();
+      if(r && r.error) toast('warning','Sin datos',r.error);
     }
   }catch(e){
-    toast('error','Error de conexión','No se pudo conectar con el servidor.');
+    console.error('loadEmpresas:',e);
     EMPRESAS=[];renderEmpresas();
+    // Solo mostrar error si el usuario ya navegó a esa sección manualmente
+    if(document.getElementById('panel_empresas').classList.contains('active')){
+      toast('warning','Sin conexión','Verifica tu internet o la configuración del Apps Script.');
+    }
   }
   document.getElementById('empresas_loading').style.display='none';
 }
@@ -782,8 +822,11 @@ async function loadUsuarios(){
       document.getElementById('st_usuarios').textContent=USUARIOS.filter(u=>u.activo==='SI').length;
     }else{USUARIOS=[];renderUsuarios([]);}
   }catch(e){
-    toast('error','Error de conexión','No se pudo conectar con el servidor.');
+    console.error('loadUsuarios:',e);
     USUARIOS=[];renderUsuarios([]);
+    if(document.getElementById('panel_usuarios').classList.contains('active')){
+      toast('warning','Sin conexión','Verifica tu internet o la configuración del Apps Script.');
+    }
   }
   document.getElementById('usuarios_loading').style.display='none';
 }
@@ -953,8 +996,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   const s=reqAuth();if(!s)return;
   const chip=document.getElementById('userChip');
   if(chip)chip.textContent=s.nombre+' — Administrador';
-  // Load initial stats
-  loadEmpresas();
+  // Preload stats silently (no error toast on startup)
+  setTimeout(()=>{
+    loadEmpresas();
+  }, 500);
 });
 </script>
 </body>
