@@ -181,6 +181,12 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     <button class="btn-apply" onclick="applyRange()">Aplicar</button>
   </div>
   <select class="sel" id="yearSel" onchange="onYearChange()" style="display:none"></select>
+  <div id="empSelectorWrap" style="display:none;align-items:center;gap:8px">
+    <span class="fl">🏢 Empresa:</span>
+    <select class="sel" id="empSelector" onchange="onEmpresaChange()">
+      <option value="ALL">Todas las empresas</option>
+    </select>
+  </div>
   <span class="filter-info" id="filterInfo">—</span>
 </div>
 
@@ -1096,12 +1102,68 @@ function exportPDF(){
   },500);
 }
 
+/* ──── SUPER ADMIN — Selector de empresas ──── */
+const API_URL = 'https://script.google.com/macros/s/AKfycbwP9wUZ3U6gC-TIvp_PgfverSY27FTmgVotN-wjHVrtN63cn7ZZrF01NTNQPTjWLN60/exec';
+
+async function loadEmpresasSelector(){
+  try{
+    const cbName='empCb_'+Date.now();
+    const result = await new Promise((resolve,reject)=>{
+      const script=document.createElement('script');
+      let done=false;
+      window[cbName]=(data)=>{if(done)return;done=true;delete window[cbName];script.remove();resolve(data);};
+      script.onerror=()=>{if(done)return;done=true;delete window[cbName];script.remove();reject(new Error('error'));};
+      script.src=API_URL+'?action=getEmpresas&callback='+cbName;
+      document.head.appendChild(script);
+      setTimeout(()=>{if(done)return;done=true;delete window[cbName];script.remove();reject(new Error('timeout'));},10000);
+    });
+    if(result&&result.success&&result.data){
+      const sel=document.getElementById('empSelector');
+      sel.innerHTML='<option value="ALL">👑 Todas las empresas</option>';
+      result.data.filter(e=>{
+        const activa=String(Object.values(e).find((_,i)=>Object.keys(e)[i].toLowerCase()==='activa')||'SI').toUpperCase();
+        return activa==='SI';
+      }).forEach(e=>{
+        const nombre=e.nombre||e.Nombre||Object.values(e)[1]||'Empresa';
+        const id=e.id||e.Id||Object.values(e)[0]||nombre;
+        sel.innerHTML+=`<option value="${id}">${nombre}</option>`;
+      });
+    }
+  }catch(err){
+    console.warn('No se pudo cargar empresas para selector:',err);
+  }
+}
+
+function onEmpresaChange(){
+  const sel=document.getElementById('empSelector');
+  const empresa=sel.value;
+  const s=getS();
+  if(s){
+    s.empresaFiltro=empresa;
+    sessionStorage.setItem(SK,JSON.stringify(s));
+  }
+  // Reload dashboard with selected company filter
+  updateAll();
+  const label=sel.options[sel.selectedIndex].text;
+  toast('info','Empresa seleccionada',label);
+}
+
 /* ──── INIT ──── */
 document.addEventListener('DOMContentLoaded',()=>{
   const s=reqAuth(['ADMIN','DIR_GENERAL','DIR_FINANZAS','ANALISTA_FIN','ANALISTA_FULL']);
   if(!s)return;
   renderChip(s);
-  if(s.rol==='ADMIN'){const b=document.getElementById('btnPanel');if(b)b.style.display='inline-flex';}
+  if(s.rol==='ADMIN'||s.rol==='SUPER_ADMIN'){
+    const b=document.getElementById('btnPanel');if(b)b.style.display='inline-flex';
+  }
+  // SUPER_ADMIN: mostrar selector de empresas
+  if(s.rol==='SUPER_ADMIN'){
+    const wrap=document.getElementById('empSelectorWrap');
+    if(wrap){
+      wrap.style.display='flex';
+      loadEmpresasSelector();
+    }
+  }
   // Populate year selectors
   const yrs=getYears();
   ['yearSel5'].forEach(id=>{
