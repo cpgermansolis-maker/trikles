@@ -352,6 +352,7 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
         <input class="search-inp" id="userSearch" placeholder="🔍  Buscar por nombre, usuario o rol..." oninput="filterUsers()">
         <select class="search-inp" id="userRolFilter" style="max-width:180px" onchange="filterUsers()">
           <option value="">Todos los roles</option>
+          <option value="SUPER_ADMIN">Super Admin</option>
           <option value="ADMIN">Administrador</option>
           <option value="DIR_GENERAL">Dir. General</option>
           <option value="DIR_FINANZAS">Dir. Finanzas</option>
@@ -520,6 +521,7 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
         <label>Rol *</label>
         <select id="usr_rol" onchange="onRolChange()">
           <option value="">— Selecciona un rol —</option>
+          <option value="SUPER_ADMIN">Super Admin</option>
           <option value="ADMIN">Administrador</option>
           <option value="DIR_GENERAL">Dir. General</option>
           <option value="DIR_FINANZAS">Dir. Finanzas</option>
@@ -567,14 +569,22 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
 </div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbxT47j9tsGbRT2p53Yke3UhN5Melpt380hQez2sTVaet6FygDPpNrI5UqRRWASodlV5Xw/exec';
+const API = 'https://script.google.com/macros/s/AKfycbwP9wUZ3U6gC-TIvp_PgfverSY27FTmgVotN-wjHVrtN63cn7ZZrF01NTNQPTjWLN60/exec';
 const SK = 'trikles_session';
-const ROLES = {"ADMIN": {"label": "Administrador", "color": "purple", "perms": {"Dashboard": true, "Captura Fin.": true, "Corte Caja": true, "N\u00f3mina": true, "Panel Control": true}}, "DIR_GENERAL": {"label": "Dir. General", "color": "orange", "perms": {"Dashboard": true, "Captura Fin.": false, "Corte Caja": false, "N\u00f3mina": false, "Panel Control": false}}, "DIR_FINANZAS": {"label": "Dir. Finanzas", "color": "blue", "perms": {"Dashboard": true, "Captura Fin.": false, "Corte Caja": false, "N\u00f3mina": false, "Panel Control": false}}, "ANALISTA_FIN": {"label": "Analista Fin.", "color": "green", "perms": {"Dashboard": false, "Captura Fin.": true, "Corte Caja": true, "N\u00f3mina": false, "Panel Control": false}}, "ANALISTA_NOM": {"label": "Analista N\u00f3m.", "color": "yellow", "perms": {"Dashboard": false, "Captura Fin.": false, "Corte Caja": false, "N\u00f3mina": true, "Panel Control": false}}, "ANALISTA_FULL": {"label": "Analista Full", "color": "teal", "perms": {"Dashboard": false, "Captura Fin.": true, "Corte Caja": true, "N\u00f3mina": true, "Panel Control": false}}};
+const ROLES = {
+  "SUPER_ADMIN":   {"label":"Super Admin",    "color":"red",    "perms":{"Dashboard":true,"Captura Fin.":true,"Corte Caja":true,"Nómina":true,"Panel Control":true,"Todas las empresas":true}},
+  "ADMIN":         {"label":"Administrador",  "color":"purple", "perms":{"Dashboard":true,"Captura Fin.":true,"Corte Caja":true,"Nómina":true,"Panel Control":true,"Todas las empresas":false}},
+  "DIR_GENERAL":   {"label":"Dir. General",   "color":"orange", "perms":{"Dashboard":true,"Captura Fin.":false,"Corte Caja":false,"Nómina":false,"Panel Control":false,"Todas las empresas":false}},
+  "DIR_FINANZAS":  {"label":"Dir. Finanzas",  "color":"blue",   "perms":{"Dashboard":true,"Captura Fin.":false,"Corte Caja":false,"Nómina":false,"Panel Control":false,"Todas las empresas":false}},
+  "ANALISTA_FIN":  {"label":"Analista Fin.",  "color":"green",  "perms":{"Dashboard":false,"Captura Fin.":true,"Corte Caja":true,"Nómina":false,"Panel Control":false,"Todas las empresas":false}},
+  "ANALISTA_NOM":  {"label":"Analista Nóm.",  "color":"yellow", "perms":{"Dashboard":false,"Captura Fin.":false,"Corte Caja":false,"Nómina":true,"Panel Control":false,"Todas las empresas":false}},
+  "ANALISTA_FULL": {"label":"Analista Full",  "color":"teal",   "perms":{"Dashboard":false,"Captura Fin.":true,"Corte Caja":true,"Nómina":true,"Panel Control":false,"Todas las empresas":false}}
+};
 
 /* ══ AUTH ══ */
 function getS(){try{const s=JSON.parse(sessionStorage.getItem(SK)||localStorage.getItem(SK+'_r'));if(s&&s.expires>Date.now())return s;clearS();return null;}catch{return null;}}
 function clearS(){sessionStorage.removeItem(SK);localStorage.removeItem(SK+'_r');}
-function reqAuth(){let s=getS();if(!s){s={nombre:'Administrador',rol:'ADMIN',empresa:'TRIKLES',expires:Date.now()+86400000};sessionStorage.setItem(SK,JSON.stringify(s));}if(s.rol!=='ADMIN'){toast('error','Sin permisos','Solo los Administradores pueden acceder al Panel de Control.');return null;}return s;}
+function reqAuth(){let s=getS();if(!s){s={nombre:'Administrador',rol:'SUPER_ADMIN',empresa:'CORPORATIVO',expires:Date.now()+86400000};sessionStorage.setItem(SK,JSON.stringify(s));}if(s.rol!=='ADMIN'&&s.rol!=='SUPER_ADMIN'){toast('error','Sin permisos','Solo Administradores pueden acceder al Panel de Control.');return null;}return s;}
 function logout(){if(confirm('¿Cerrar sesión?')){clearS();window.location.href='login.html';}}
 
 /* ══ TOAST ══ */
@@ -1102,7 +1112,8 @@ document.getElementById('emp_color2').addEventListener('input',function(){
 document.addEventListener('DOMContentLoaded',()=>{
   const s=reqAuth();if(!s)return;
   const chip=document.getElementById('userChip');
-  if(chip)chip.textContent=s.nombre+' — Administrador';
+  const rolLabel=ROLES[s.rol]?ROLES[s.rol].label:s.rol;
+  if(chip)chip.textContent=s.nombre+' — '+rolLabel+(s.rol==='SUPER_ADMIN'?' 👑':'');
   // Preload stats silently (no error toast on startup)
   setTimeout(()=>{
     loadEmpresas();
