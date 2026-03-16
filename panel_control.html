@@ -729,7 +729,25 @@ async function loadEmpresas(){
   try{
     const r=await apiGet({action:'getEmpresas'});
     if(r && r.success){
-      EMPRESAS=r.data||[];
+      // Normalizar keys de empresas
+      EMPRESAS=(r.data||[]).map(e=>{
+        const get=(obj,...keys)=>{
+          for(const k of keys){
+            const found=Object.keys(obj).find(ok=>ok.toLowerCase()===k.toLowerCase());
+            if(found!==undefined && obj[found]!==undefined) return obj[found];
+          }
+          return '';
+        };
+        return {
+          id:     get(e,'id','Id','ID'),
+          nombre: get(e,'nombre','name','Nombre'),
+          giro:   get(e,'giro','Giro'),
+          mision: get(e,'mision','misión','Mision','Misión'),
+          vision: get(e,'vision','visión','Vision','Visión'),
+          logo:   get(e,'logo','Logo'),
+          activa: String(get(e,'activa','active','Activa','status')||'SI').toUpperCase(),
+        };
+      });
       renderEmpresas();
       document.getElementById('st_empresas').textContent=EMPRESAS.filter(e=>e.activa==='SI').length;
       updateEmpresaSelects();
@@ -886,12 +904,30 @@ async function loadUsuarios(){
   document.getElementById('usuarios_empty').style.display='none';
   try{
     const r=await apiGet({action:'getUsuarios'});
-    if(r.success){
-      USUARIOS=r.data||[];
+    if(r && r.success){
+      // Normalizar keys — Sheets puede devolver headers en español/mayúsculas
+      const get=(obj,...keys)=>{
+        for(const k of keys){
+          const found=Object.keys(obj).find(ok=>ok.toLowerCase()===k.toLowerCase());
+          if(found!==undefined && obj[found]!==undefined && obj[found]!=='') return obj[found];
+        }
+        return '';
+      };
+      USUARIOS=(r.data||[]).map(u=>({
+        empresa: get(u,'empresa','Empresa','company'),
+        usuario: get(u,'usuario','Usuario','user','username'),
+        nombre:  get(u,'nombre','Nombre','name'),
+        rol:     get(u,'rol','Rol','role'),
+        email:   get(u,'email','Email','correo'),
+        activo:  String(get(u,'activo','Activo','active','status')||'SI').toUpperCase(),
+      }));
       USR_FILTERED=[...USUARIOS];
       renderUsuarios(USR_FILTERED);
       document.getElementById('st_usuarios').textContent=USUARIOS.filter(u=>u.activo==='SI').length;
-    }else{USUARIOS=[];renderUsuarios([]);}
+    }else{
+      USUARIOS=[];renderUsuarios([]);
+      if(r&&r.error) toast('warning','Sin datos',r.error);
+    }
   }catch(e){
     console.error('loadUsuarios:',e);
     USUARIOS=[];renderUsuarios([]);
