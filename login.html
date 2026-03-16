@@ -510,7 +510,7 @@ body {
 // CONFIGURACIÓN — Aquí pegas tu URL de Google Apps Script
 // ══════════════════════════════════════════════════════════
 const CONFIG = {
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbz_rY66ELVk8fflnD6ujuqxEpb4wPVGyv6NCz1lITEc9QDXui2A4HtFvO_Ua1fTrTYC2w/exec',  // ← Reemplaza después de publicar el Apps Script
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbytKoIsQK9keeSfL3q-8dddn804G1V5GjXZwr8PclBAlmuTnbMUg24jqdhLAfKOzLcWCA/exec',  // ← Reemplaza después de publicar el Apps Script
   SESSION_KEY: 'trikles_session',
   SESSION_HOURS: 8
 };
@@ -608,7 +608,7 @@ async function doLogin() {
     // Intento 1: Verificar contra Apps Script (servidor real)
     let userData = null;
 
-    if (CONFIG.APPS_SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbz_rY66ELVk8fflnD6ujuqxEpb4wPVGyv6NCz1lITEc9QDXui2A4HtFvO_Ua1fTrTYC2w/exec') {
+    if (CONFIG.APPS_SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbytKoIsQK9keeSfL3q-8dddn804G1V5GjXZwr8PclBAlmuTnbMUg24jqdhLAfKOzLcWCA/exec') {
       userData = await loginConSheets(empresa, usuario, pass);
     }
 
