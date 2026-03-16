@@ -478,8 +478,8 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
       <div class="fg">
         <label>Color Secundario</label>
         <div class="color-row">
-          <input type="color" id="emp_color2" value="#0c0c0c">
-          <span style="font-size:12px;color:var(--light)" id="emp_color2_lbl">#0c0c0c</span>
+          <input type="color" id="emp_color2" value="#1a1a2e" style="width:50px;height:38px;border:2px solid #444;border-radius:8px;background:#1a1a1a;cursor:pointer;padding:2px 3px;">
+          <span style="font-size:12px;color:var(--light)" id="emp_color2_lbl">#1a1a2e</span>
         </div>
       </div>
     </div>
@@ -590,13 +590,28 @@ function toast(type,title,msg,dur=4000){
 
 /* ══ API CALL ══ */
 async function apiGet(params){
-  const url=API+'?'+new URLSearchParams(params);
-  const r=await fetch(url);
-  return await r.json();
+  return new Promise((resolve,reject)=>{
+    const cb='cb_'+Date.now();
+    const script=document.createElement('script');
+    window[cb]=(data)=>{delete window[cb];document.body.removeChild(script);resolve(data);};
+    script.onerror=()=>reject(new Error('Network error'));
+    script.src=API+'?'+new URLSearchParams({...params,callback:cb});
+    document.body.appendChild(script);
+    setTimeout(()=>reject(new Error('Timeout')),15000);
+  });
 }
 async function apiPost(body){
-  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  return await r.json();
+  return new Promise((resolve,reject)=>{
+    const cb='cb_'+Date.now();
+    const script=document.createElement('script');
+    window[cb]=(data)=>{delete window[cb];document.body.removeChild(script);resolve(data);};
+    script.onerror=()=>reject(new Error('Network error'));
+    // Apps Script doesn't support JSONP POST, use GET with all params
+    const params={...body,callback:cb};
+    script.src=API+'?'+new URLSearchParams(params);
+    document.body.appendChild(script);
+    setTimeout(()=>reject(new Error('Timeout')),15000);
+  });
 }
 
 /* ══ PANEL NAV ══ */
