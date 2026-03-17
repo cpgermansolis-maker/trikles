@@ -663,96 +663,60 @@ async function doLogin() {
   const usuario = document.getElementById('inputUser').value.trim();
   const pass    = document.getElementById('inputPass').value;
   const btn     = document.getElementById('btnLogin');
-  const err     = document.getElementById('errMsg');
 
-  // Validaciones básicas
-  if (!empresa) { showError('Selecciona una empresa para continuar'); return; }
+  if (!empresa) { showError('Selecciona una empresa'); return; }
   if (!usuario)  { shakeField('inputUser'); return; }
   if (!pass)     { shakeField('inputPass'); return; }
 
-  // Loading state
   btn.classList.add('loading');
-  err.classList.remove('show');
+  document.getElementById('errMsg').classList.remove('show');
 
-  try {
-    // Login SIEMPRE contra Google Sheets — sin fallback a demo
-    const userData = await loginConSheets(empresa, usuario, pass);
+  const cbName = 'loginCb_' + Date.now();
+  const url = CONFIG.APPS_SCRIPT_URL +
+    '?action=login' +
+    '&empresa=' + encodeURIComponent(empresa) +
+    '&usuario=' + encodeURIComponent(usuario) +
+    '&pass='    + encodeURIComponent(pass) +
+    '&callback=' + cbName;
 
-    if (userData) {
-      saveSession(userData);
-      btn.innerHTML = '<span class="btn-text">✅ ACCESO CONCEDIDO</span>';
-      btn.style.background = 'linear-gradient(135deg, #4CAF50, #388E3C)';
-      setTimeout(() => redirectByRole(userData.rol), 800);
-    } else {
-      showError('Usuario o contraseña incorrectos');
-      btn.classList.remove('loading');
-    }
+  console.log('LOGIN →', empresa, usuario, url);
 
-  } catch(e) {
-    console.error('Login error:', e);
-    showError('Error de conexión. Verifica tu internet e intenta de nuevo.');
+  const result = await new Promise((resolve) => {
+    const script = document.createElement('script');
+    window[cbName] = (data) => {
+      delete window[cbName];
+      script.remove();
+      resolve(data);
+    };
+    script.onerror = () => { delete window[cbName]; script.remove(); resolve(null); };
+    script.src = url;
+    document.head.appendChild(script);
+    setTimeout(() => { 
+      if(window[cbName]) { delete window[cbName]; script.remove(); resolve(null); }
+    }, 15000);
+  });
+
+  console.log('RESULTADO:', JSON.stringify(result));
+
+  if (result && result.success && result.user) {
+    const u = result.user;
+    saveSession({
+      usuario: u.usuario,
+      nombre:  u.nombre,
+      rol:     u.rol,
+      empresa: u.empresa,
+      email:   u.email || '',
+      expires: Date.now() + CONFIG.SESSION_HOURS * 3600000
+    });
+    btn.innerHTML = '<span class="btn-text">✅ ACCESO CONCEDIDO</span>';
+    btn.style.background = 'linear-gradient(135deg, #4CAF50, #388E3C)';
+    setTimeout(() => redirectByRole(u.rol), 800);
+  } else {
+    showError('Usuario, contraseña o empresa incorrectos');
     btn.classList.remove('loading');
   }
 }
 
-// ══════════════════════════════════════════════════════════
-// LOGIN CONTRA GOOGLE SHEETS
-// ══════════════════════════════════════════════════════════
-async function loginConSheets(empresa, usuario, pass) {
-  return new Promise((resolve) => {
-    const cbName = 'loginCb_' + Date.now();
-    const script = document.createElement('script');
-    let done = false;
-
-    window[cbName] = (data) => {
-      if(done) return; done = true;
-      delete window[cbName];
-      if(script.parentNode) script.parentNode.removeChild(script);
-      if(data && data.success) {
-        // Normalizar respuesta del servidor
-        resolve({
-          usuario:  data.usuario  || usuario,
-          nombre:   data.nombre   || usuario,
-          rol:      data.rol      || 'ADMIN',
-          empresa:  data.empresa  || empresa,
-          email:    data.email    || '',
-          superAdmin: data.rol === 'SUPER_ADMIN',
-        });
-      } else {
-        resolve(null);
-      }
-    };
-
-    script.onerror = () => {
-      if(done) return; done = true;
-      delete window[cbName];
-      if(script.parentNode) script.parentNode.removeChild(script);
-      resolve(null);
-    };
-
-    const url = CONFIG.APPS_SCRIPT_URL +
-      '?action=login' +
-      '&empresa=' + encodeURIComponent(empresa) +
-      '&usuario=' + encodeURIComponent(usuario) +
-      '&pass=' + encodeURIComponent(pass) +
-      '&callback=' + cbName;
-
-    console.log('LOGIN → empresa:', empresa, '| usuario:', usuario, '| url:', url);
-    script.src = url;
-    document.head.appendChild(script);
-
-    setTimeout(() => {
-      if(done) return; done = true;
-      delete window[cbName];
-      if(script.parentNode) script.parentNode.removeChild(script);
-      resolve(null); // timeout — fallback a demo
-    }, 15000);
-  });
-}
-
-// ══════════════════════════════════════════════════════════
-// REDIRECCIÓN POR ROL
-// ══════════════════════════════════════════════════════════
 function cerrarSesion() {
   sessionStorage.clear();
   localStorage.clear();
