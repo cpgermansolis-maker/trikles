@@ -428,6 +428,7 @@ body {
     <div class="session-banner" id="sessionBanner">
       <span>✅</span>
       <span id="sessionText">Sesión activa</span>
+      <button onclick="cerrarSesion()" style="background:rgba(231,76,60,.2);border:1px solid rgba(231,76,60,.5);color:#e74c3c;cursor:pointer;font-size:11px;margin-left:10px;padding:3px 10px;border-radius:6px;font-family:Nunito,sans-serif;font-weight:800;">✕ Cerrar sesión</button>
     </div>
 
     <!-- Selector de empresa -->
@@ -681,13 +682,23 @@ async function doLogin() {
     // Siempre intentar login con Google Sheets primero
     userData = await loginConSheets(empresa, usuario, pass);
 
-    // Intento 2: Fallback a usuarios demo (mientras no hay Sheets configurado)
+    // Intento 2: Fallback a usuarios demo SOLO si Sheets no respondió
+    // El fallback también respeta la empresa seleccionada
     if (!userData) {
-      userData = USUARIOS_DEMO.find(u =>
+      const demoUser = USUARIOS_DEMO.find(u =>
         u.usuario === usuario &&
         u.pass === pass &&
-        u.empresa === empresa
+        u.empresa.toLowerCase() === empresa.toLowerCase()
       );
+      if (demoUser) {
+        userData = {
+          usuario: demoUser.usuario,
+          nombre:  demoUser.nombre,
+          rol:     demoUser.rol,
+          empresa: demoUser.empresa,
+          email:   '',
+        };
+      }
     }
 
     if (userData) {
@@ -760,6 +771,7 @@ async function loginConSheets(empresa, usuario, pass) {
       '&pass=' + encodeURIComponent(pass) +
       '&callback=' + cbName;
 
+    console.log('LOGIN → empresa:', empresa, '| usuario:', usuario, '| url:', url);
     script.src = url;
     document.head.appendChild(script);
 
@@ -768,13 +780,19 @@ async function loginConSheets(empresa, usuario, pass) {
       delete window[cbName];
       if(script.parentNode) script.parentNode.removeChild(script);
       resolve(null); // timeout — fallback a demo
-    }, 10000);
+    }, 15000);
   });
 }
 
 // ══════════════════════════════════════════════════════════
 // REDIRECCIÓN POR ROL
 // ══════════════════════════════════════════════════════════
+function cerrarSesion() {
+  sessionStorage.clear();
+  localStorage.clear();
+  location.reload();
+}
+
 function redirectByRole(rol) {
   const role = ROLES[rol];
   const base = getBaseUrl();
