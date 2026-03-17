@@ -569,7 +569,7 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
 </div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycby-xMZIfDJFJt_bjXSDSZ4y0qWlMyFm7KdHb2L57WjeAq_6TmKyQzlK_LLskZuSBumZvg/exec';
+const API = 'https://script.google.com/macros/s/AKfycbwiNcbKP4cy_5n5C9cgX9OsVGYGj1-7Rmft6osUOFTpbLYoLQOBDOW54fdAu91sscU1xg/exec';
 const SK = 'trikles_session';
 const ROLES = {
   "SUPER_ADMIN":   {"label":"Super Admin",    "color":"red",    "perms":{"Dashboard":true,"Captura Fin.":true,"Corte Caja":true,"Nómina":true,"Panel Control":true,"Todas las empresas":true}},
@@ -1004,7 +1004,10 @@ function openUsuarioModal(data){
   document.getElementById('modal_usuario').classList.add('open');
 }
 
-function editUsuario(u){openUsuarioModal(u);}
+function editUsuario(u){
+  document.getElementById('usr_edit_id').value = u.usuario; // guarda usuario original
+  openUsuarioModal(u);
+}
 
 function onRolChange(){
   const rol=document.getElementById('usr_rol').value;
@@ -1036,7 +1039,8 @@ async function guardarUsuario(){
   document.getElementById('usr_btn_save').style.display='none';
   document.getElementById('usr_saving').style.display='flex';
   const action = isEdit ? 'editar_usuario' : 'alta_usuario';
-  const params={action,nombre,usuario,password:password||undefined,rol,empresa,email};
+  const usuarioOriginal = document.getElementById('usr_edit_id').value;
+  const params={action,nombre,usuario,usuario_original:usuarioOriginal||usuario,password:password||undefined,rol,empresa,email};
   try{
     const r=await apiPost(params);
     if(r.success){
