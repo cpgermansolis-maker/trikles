@@ -651,8 +651,7 @@ function checkExistingSession() {
     document.getElementById('sessionText').textContent =
       'Sesión activa: ' + s.nombre + ' (' + (ROLES[s.rol]?.label || s.rol) + ')';
     banner.classList.add('show');
-    // Redirigir automáticamente después de 1.5s
-    setTimeout(() => redirectByRole(s.rol), 1500);
+    // NO redirigir automáticamente — dejar que el usuario decida
   }
 }
 
