@@ -147,9 +147,9 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     <div><div class="tb-name">TRIKLES</div><div class="tb-sub">📊 Dashboard Ejecutivo</div></div>
   </div>
   <div class="tb-right">
-    <a class="btn-nav" href="captura_financiera.html">📋 Captura</a>
-    <a class="btn-nav" href="corte_caja.html">🗃 Corte</a>
-    <a class="btn-nav" href="captura_nomina.html">👥 Nómina</a>
+    <a class="btn-nav" href="captura_financiera.html" id="btnCaptura" style="display:none">📋 Captura</a>
+    <a class="btn-nav" href="corte_caja.html" id="btnCorte" style="display:none">🗃 Corte</a>
+    <a class="btn-nav" href="captura_nomina.html" id="btnNomina" style="display:none">👥 Nómina</a>
     <a class="btn-nav" href="panel_control.html" id="btnPanel" style="display:none">⚙️ Panel</a>
     <button class="btn-pdf" onclick="exportPDF()">📄 PDF</button>
     <div class="user-pill"><div class="u-dot"></div><span id="userChip">...</span></div>
@@ -1153,8 +1153,19 @@ document.addEventListener('DOMContentLoaded',()=>{
   const s=reqAuth(['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS','ANALISTA_FIN','ANALISTA_FULL']);
   if(!s)return;
   renderChip(s);
-  if(s.rol==='ADMIN'||s.rol==='SUPER_ADMIN'){
+  const rol = s.rol;
+  // Panel — solo ADMIN y SUPER_ADMIN
+  if(rol==='ADMIN'||rol==='SUPER_ADMIN'){
     const b=document.getElementById('btnPanel');if(b)b.style.display='inline-flex';
+  }
+  // Captura y Corte — ADMIN, SUPER_ADMIN, ANALISTA_FIN, ANALISTA_FULL
+  if(['ADMIN','SUPER_ADMIN','ANALISTA_FIN','ANALISTA_FULL'].includes(rol)){
+    const bc=document.getElementById('btnCaptura');if(bc)bc.style.display='inline-flex';
+    const bco=document.getElementById('btnCorte');if(bco)bco.style.display='inline-flex';
+  }
+  // Nómina — ADMIN, SUPER_ADMIN, ANALISTA_NOM, ANALISTA_FULL
+  if(['ADMIN','SUPER_ADMIN','ANALISTA_NOM','ANALISTA_FULL'].includes(rol)){
+    const bn=document.getElementById('btnNomina');if(bn)bn.style.display='inline-flex';
   }
   // SUPER_ADMIN: mostrar selector de empresas
   if(s.rol==='SUPER_ADMIN'){
