@@ -510,7 +510,7 @@ body {
 // CONFIGURACIÓN — Aquí pegas tu URL de Google Apps Script
 // ══════════════════════════════════════════════════════════
 const CONFIG = {
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbz8eGNd6YBdbSItidW59xTomTEFcjIBsaz8b5QHdxUCi1F62t4HlTwHgdyvWInELTOLvw/exec',  // ← Reemplaza después de publicar el Apps Script
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzxCuRJJVU9u5bFPJlyuJAbQHq9GC-UB31UOWJm10jdGgBEf-t499i_AQQgO-9eXpSgvQ/exec',  // ← Reemplaza después de publicar el Apps Script
   SESSION_KEY: 'trikles_session',
   SESSION_HOURS: 8
 };
@@ -660,7 +660,7 @@ function checkExistingSession() {
 // ══════════════════════════════════════════════════════════
 async function doLogin() {
   const empresa = document.getElementById('empresaSelect').value;
-  const usuario = document.getElementById('inputUser').value.trim().toLowerCase();
+  const usuario = document.getElementById('inputUser').value.trim();
   const pass    = document.getElementById('inputPass').value;
   const btn     = document.getElementById('btnLogin');
   const err     = document.getElementById('errMsg');
