@@ -770,16 +770,10 @@ async function loginConSheets(empresa, usuario, pass) {
 // ══════════════════════════════════════════════════════════
 function redirectByRole(rol) {
   const role = ROLES[rol];
-  if (role) {
-    // En sistema de un solo archivo, redirigir a sección
-    // En sistema multi-archivo, usar role.redirect
-    alert(
-      '✅ Bienvenido al Sistema TRIKLES\n\n' +
-      'Rol: ' + role.label + '\n' +
-      'Redirigiendo a: ' + role.redirect + '\n\n' +
-      '💡 Una vez tengas todos los archivos del sistema,\n' +
-      'esta función redirigirá automáticamente.'
-    );
+  if (role && role.redirect) {
+    window.location.href = role.redirect;
+  } else {
+    window.location.href = 'dashboard_ejecutivo.html';
   }
 }
 
