@@ -676,33 +676,10 @@ async function doLogin() {
   err.classList.remove('show');
 
   try {
-    // Intento 1: Verificar contra Apps Script (servidor real)
-    let userData = null;
-
-    // Siempre intentar login con Google Sheets primero
-    userData = await loginConSheets(empresa, usuario, pass);
-
-    // Intento 2: Fallback a usuarios demo SOLO si Sheets no respondió
-    // El fallback también respeta la empresa seleccionada
-    if (!userData) {
-      const demoUser = USUARIOS_DEMO.find(u =>
-        u.usuario === usuario &&
-        u.pass === pass &&
-        u.empresa.toLowerCase() === empresa.toLowerCase()
-      );
-      if (demoUser) {
-        userData = {
-          usuario: demoUser.usuario,
-          nombre:  demoUser.nombre,
-          rol:     demoUser.rol,
-          empresa: demoUser.empresa,
-          email:   '',
-        };
-      }
-    }
+    // Login SIEMPRE contra Google Sheets — sin fallback a demo
+    const userData = await loginConSheets(empresa, usuario, pass);
 
     if (userData) {
-      // Login exitoso
       saveSession(userData);
       btn.innerHTML = '<span class="btn-text">✅ ACCESO CONCEDIDO</span>';
       btn.style.background = 'linear-gradient(135deg, #4CAF50, #388E3C)';
@@ -713,19 +690,9 @@ async function doLogin() {
     }
 
   } catch(e) {
-    console.error(e);
-    // En caso de error de red, usar demo
-    const userData = USUARIOS_DEMO.find(u =>
-      u.usuario === usuario && u.pass === pass && u.empresa === empresa
-    );
-    if (userData) {
-      saveSession(userData);
-      btn.innerHTML = '<span class="btn-text">✅ ACCESO CONCEDIDO</span>';
-      setTimeout(() => redirectByRole(userData.rol), 800);
-    } else {
-      showError('Error de conexión. Verifica tu internet.');
-      btn.classList.remove('loading');
-    }
+    console.error('Login error:', e);
+    showError('Error de conexión. Verifica tu internet e intenta de nuevo.');
+    btn.classList.remove('loading');
   }
 }
 
