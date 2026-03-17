@@ -445,7 +445,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 const SK='trikles_session';
 function getS(){try{const s=JSON.parse(sessionStorage.getItem(SK)||localStorage.getItem(SK+'_r'));if(s&&s.expires>Date.now())return s;clearS();return null;}catch{return null;}}
 function clearS(){sessionStorage.removeItem(SK);localStorage.removeItem(SK+'_r');}
-function reqAuth(roles){let s=getS();if(!s){s={nombre:'Administrador',rol:'ADMIN',expires:Date.now()+86400000};sessionStorage.setItem(SK,JSON.stringify(s));}if(roles&&!roles.includes(s.rol)){return s;}return s;}
+function reqAuth(roles){let s=getS();if(!s){window.location.href='login.html';return null;}if(roles&&!roles.includes(s.rol)&&s.rol!=='SUPER_ADMIN'){window.location.href='login.html';return null;}return s;}
 function logout(){if(confirm('¿Cerrar sesión?')){clearS();location.reload();}}
 const RL={ADMIN:'Administrador',DIR_GENERAL:'Dir. General',DIR_FINANZAS:'Dir. Finanzas',ANALISTA_FIN:'Analista Fin.',ANALISTA_NOM:'Analista Nóm.',ANALISTA_FULL:'Analista Full'};
 function renderChip(s){document.getElementById('userChip').textContent=s.nombre+' — '+(RL[s.rol]||s.rol);}
@@ -1150,7 +1150,7 @@ function onEmpresaChange(){
 
 /* ──── INIT ──── */
 document.addEventListener('DOMContentLoaded',()=>{
-  const s=reqAuth(['ADMIN','DIR_GENERAL','DIR_FINANZAS','ANALISTA_FIN','ANALISTA_FULL']);
+  const s=reqAuth(['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS','ANALISTA_FIN','ANALISTA_FULL']);
   if(!s)return;
   renderChip(s);
   if(s.rol==='ADMIN'||s.rol==='SUPER_ADMIN'){
