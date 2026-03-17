@@ -527,6 +527,13 @@ const ROLES = {
   ANALISTA_FULL:  { label:'Analista Completo',   redirect:'captura_financiera.html',  accesos:['captura_fin','captura_nom'] },
 };
 
+// Base URL dinámica — funciona tanto local como en GitHub Pages
+function getBaseUrl() {
+  const path = window.location.pathname;
+  const base = path.substring(0, path.lastIndexOf('/') + 1);
+  return window.location.origin + base;
+}
+
 // ══════════════════════════════════════════════════════════
 // USUARIOS DEMO (temporales — en producción vienen de Sheets)
 // ══════════════════════════════════════════════════════════
@@ -770,10 +777,11 @@ async function loginConSheets(empresa, usuario, pass) {
 // ══════════════════════════════════════════════════════════
 function redirectByRole(rol) {
   const role = ROLES[rol];
+  const base = getBaseUrl();
   if (role && role.redirect) {
-    window.location.href = role.redirect;
+    window.location.href = base + role.redirect;
   } else {
-    window.location.href = 'dashboard_ejecutivo.html';
+    window.location.href = base + 'dashboard_ejecutivo.html';
   }
 }
 
