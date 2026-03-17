@@ -496,7 +496,7 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.5;}
 const SESSION_KEY='trikles_session';
 function getSession(){try{const s=JSON.parse(sessionStorage.getItem(SESSION_KEY)||localStorage.getItem(SESSION_KEY+'_remember'));if(s&&s.expires>Date.now())return s;clearSession();return null;}catch{return null;}}
 function clearSession(){sessionStorage.removeItem(SESSION_KEY);localStorage.removeItem(SESSION_KEY+'_remember');}
-function requireAuth(roles){const s=getSession();if(!s){window.location.href='login.html';return null;}if(roles&&!roles.includes(s.rol)){alert('No tienes permisos para acceder a esta sección.');window.location.href='login.html';return null;}return s;}
+function requireAuth(roles){const s=getSession();if(!s){window.location.href='login.html';return null;}if(roles&&!roles.includes(s.rol)&&s.rol!=='SUPER_ADMIN'){alert('No tienes permisos para acceder a esta sección.');window.location.href='login.html';return null;}return s;}
 function logout(){if(confirm('¿Cerrar sesión?')){clearSession();window.location.href='login.html';}}
 const ROLE_LABELS={ADMIN:'Administrador',DIR_GENERAL:'Dir. General',DIR_FINANZAS:'Dir. Finanzas',ANALISTA_FIN:'Analista Fin.',ANALISTA_NOM:'Analista Nóm.',ANALISTA_FULL:'Analista Full'};
 function renderUserChip(s){document.getElementById('userChip').textContent=s.nombre+' — '+(ROLE_LABELS[s.rol]||s.rol);}
