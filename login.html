@@ -631,7 +631,7 @@ async function cargarEmpresas() {
 }
 
 // Cargar empresas al inicio
-document.addEventListener('DOMContentLoaded', cargarEmpresas);
+
 
 // ══════════════════════════════════════════════════════════
 // CHECK SESIÓN ACTIVA
@@ -821,6 +821,7 @@ document.getElementById('btnLogin').addEventListener('click', function(e) {
 document.addEventListener('DOMContentLoaded', () => {
   checkExistingSession();
   document.getElementById('inputUser').focus();
+  cargarEmpresas();
 });
 </script>
 </body>
