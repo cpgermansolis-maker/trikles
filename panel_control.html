@@ -1096,10 +1096,11 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   setTimeout(async ()=>{
     await loadEmpresas();
-    // Si no es SUPER_ADMIN, aplicar branding de su empresa
+    // Aplicar branding siempre
+    applyBranding(s.empresa);
+    // Si no es SUPER_ADMIN, filtrar empresas
     if(s.rol !== 'SUPER_ADMIN') {
       filtrarEmpresasAdmin(s.empresa);
-      aplicarBrandingEmpresa(s.empresa);
     }
   }, 500);
 });
@@ -1143,6 +1144,126 @@ async function aplicarBrandingEmpresa(empresaId) {
       if(tbLogo) tbLogo.src = logo;
     }
   } catch(e) { console.warn('Branding:', e); }
+}
+
+
+// ── Branding Module ──
+// ═══════════════════════════════════════════════════════
+// TRIKLES SYSTEM — Shared Branding Module v2.0
+// Handles all empresa branding for every page
+// ═══════════════════════════════════════════════════════
+
+const TRIKLES_API = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
+const SESSION_KEY = 'trikles_session';
+
+// ── Session ──────────────────────────────────────────
+function getSession() {
+  try {
+    const s = JSON.parse(
+      sessionStorage.getItem(SESSION_KEY) ||
+      localStorage.getItem(SESSION_KEY + '_remember')
+    );
+    if (s && s.expires > Date.now()) return s;
+    clearSession();
+    return null;
+  } catch { return null; }
+}
+
+function clearSession() {
+  sessionStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(SESSION_KEY + '_remember');
+}
+
+// ── JSONP helper ──────────────────────────────────────
+function jsonpCall(params, timeout = 12000) {
+  return new Promise((resolve, reject) => {
+    const cb = '_cb' + Date.now() + Math.random().toString(36).slice(2);
+    const script = document.createElement('script');
+    let done = false;
+
+    const finish = (fn, val) => {
+      if (done) return;
+      done = true;
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      fn(val);
+    };
+
+    window[cb] = data => finish(resolve, data);
+    script.onerror = () => finish(reject, new Error('script error'));
+    script.src = TRIKLES_API + '?' + new URLSearchParams({ ...params, callback: cb });
+    document.head.appendChild(script);
+    setTimeout(() => finish(reject, new Error('timeout')), timeout);
+  });
+}
+
+// ── Apply branding ────────────────────────────────────
+async function applyBranding(empresaId) {
+  if (!empresaId) return;
+  try {
+    const r = await jsonpCall({ action: 'getEmpresas' });
+    if (!r || !r.success || !r.data) return;
+
+    const emp = r.data.find(e =>
+      (e.id || '').toLowerCase() === empresaId.toLowerCase()
+    );
+    if (!emp) return;
+
+    const nombre = emp.nombre || empresaId;
+    const logo   = emp.logo   || '';
+    const c1     = emp.color1 || '#F5821F';
+    const c2     = emp.color2 || '#1a1a2e';
+
+    // CSS variables
+    const root = document.documentElement;
+    root.style.setProperty('--orange',  c1);
+    root.style.setProperty('--orange2', c1 + 'cc');
+    root.style.setProperty('--border',  c1 + '44');
+    root.style.setProperty('--ora-l',   c1 + '22');
+
+    // Topbar border
+    document.querySelectorAll('.topbar').forEach(el => {
+      el.style.borderBottomColor = c1;
+    });
+
+    // Active nav buttons
+    document.querySelectorAll('.btn-nav.dash, .btn-primary, .mtab.active').forEach(el => {
+      el.style.background = c1;
+      el.style.borderColor = c1;
+    });
+
+    // Sidebar active item
+    document.querySelectorAll('.nav-item.active, .nav-link.active').forEach(el => {
+      el.style.borderLeftColor = c1;
+      el.style.color = c1;
+    });
+
+    // Company name
+    document.querySelectorAll('.tb-name').forEach(el => {
+      el.textContent = nombre.toUpperCase();
+    });
+
+    // Subtitle
+    document.querySelectorAll('.tb-sub').forEach(el => {
+      if (el.textContent.includes('DASHBOARD')) el.textContent = '📊 DASHBOARD EJECUTIVO — ' + nombre.toUpperCase();
+      else if (el.textContent.includes('CAPTURA')) el.textContent = '📋 CAPTURA FINANCIERA DIARIA — ' + nombre.toUpperCase();
+      else if (el.textContent.includes('CORTE'))   el.textContent = '🗃 CORTE DE CAJA — ' + nombre.toUpperCase();
+      else if (el.textContent.includes('PANEL'))   el.textContent = '⚙️ PANEL DE CONTROL — ' + nombre.toUpperCase();
+      else if (el.textContent.includes('NÓMINA'))  el.textContent = '👥 CAPTURA DE NÓMINA — ' + nombre.toUpperCase();
+    });
+
+    // Logo
+    if (logo) {
+      document.querySelectorAll('.tb-logo').forEach(el => {
+        el.src = logo;
+        el.alt = nombre;
+      });
+    }
+
+    return { nombre, logo, c1, c2, emp };
+  } catch (e) {
+    console.warn('[Branding] Error:', e.message);
+  }
 }
 
 </script>
