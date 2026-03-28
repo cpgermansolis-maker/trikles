@@ -1148,6 +1148,86 @@ function onEmpresaChange(){
   toast('info','Empresa seleccionada',label);
 }
 
+/* ──── DATOS DINÁMICOS POR EMPRESA ──── */
+const API_SHEETS = 'https://script.google.com/macros/s/AKfycbwiNcbKP4cy_5n5C9cgX9OsVGYGj1-7Rmft6osUOFTpbLYoLQOBDOW54fdAu91sscU1xg/exec';
+
+async function jsonpSheets(params) {
+  return new Promise((resolve, reject) => {
+    const cb = 'sheetsCb_' + Date.now();
+    const script = document.createElement('script');
+    let done = false;
+    window[cb] = (data) => { if(done)return; done=true; delete window[cb]; script.remove(); resolve(data); };
+    script.onerror = () => { if(done)return; done=true; delete window[cb]; script.remove(); reject(new Error('error')); };
+    script.src = API_SHEETS + '?' + new URLSearchParams({...params, callback: cb});
+    document.head.appendChild(script);
+    setTimeout(() => { if(done)return; done=true; delete window[cb]; script.remove(); reject(new Error('timeout')); }, 15000);
+  });
+}
+
+async function cargarDatosEmpresa(empresaId) {
+  if(empresaId === 'TRIKLES') return; // TRIKLES usa datos del Excel incrustado
+  
+  try {
+    const r = await jsonpSheets({ action: 'get_registros', tipo: 'financiero', empresa: empresaId });
+    if(r && r.success && r.data && r.data.length > 0) {
+      // Tiene datos — reemplazar ALL_DATA con los datos de esta empresa
+      const registros = r.data.map(row => ({
+        f: row.fecha || row[1] || '',
+        y: parseInt(row.año || row[2]) || 0,
+        m: parseInt(row.mes || row[3]) || 0,
+        w: parseInt(row.semana || row[4]) || 0,
+        iy: parseInt(row.año || row[2]) || 0,
+        d: parseInt(row.dia || row[5]) || 0,
+        dow: 0,
+        v: parseFloat(row.ventas || row[6]) || 0,
+        g: parseFloat(row.ganancia || row[7]) || 0,
+        c: parseFloat(row.costo || row[8]) || 0,
+        u: parseFloat(row.utilidad_neta || row[9]) || 0,
+        gt: parseFloat(row.total_gastos || row[10]) || 0,
+        su: parseFloat(row.sueldo || 0),
+        gas: parseFloat(row.gasolina || 0),
+        luz: parseFloat(row.luz || 0),
+        net: parseFloat(row.internet || 0),
+        res: parseFloat(row.reserva || 0),
+        ef: parseFloat(row.efectivo || 0),
+        cob: 0, vcr: 0, vef: 0, com: 0, gti: 0, gca: 0,
+        gant: 0, ing: 0, egr: 0, efs: 0, dif: 0, ret: 0,
+        p1: 0, p2: 0, p3: 0, p4: 0,
+      })).filter(r => r.f);
+
+      if(registros.length > 0) {
+        // Reemplazar datos globales
+        ALL.length = 0;
+        registros.forEach(r => ALL.push(r));
+        setRange('hoy'); // recargar dashboard con nuevos datos
+        // Quitar banners de aviso
+        document.querySelectorAll('.emp-banner').forEach(b => b.remove());
+        return;
+      }
+    }
+    // Sin datos — mostrar ceros
+    mostrarCeros(empresaId);
+  } catch(e) {
+    console.warn('Error cargando datos empresa:', e);
+    mostrarCeros(empresaId);
+  }
+}
+
+function mostrarCeros(empresaId) {
+  // Reemplazar ALL con un registro vacío de hoy
+  const hoy = new Date();
+  const fecha = hoy.toISOString().slice(0,10);
+  ALL.length = 0;
+  ALL.push({
+    f:fecha, y:hoy.getFullYear(), m:hoy.getMonth()+1, w:1, iy:hoy.getFullYear(),
+    d:hoy.getDate(), dow:hoy.getDay(),
+    v:0,g:0,c:0,u:0,gt:0,su:0,gas:0,luz:0,net:0,res:0,
+    ef:0,cob:0,vcr:0,vef:0,com:0,gti:0,gca:0,gant:0,ing:0,egr:0,efs:0,dif:0,ret:0,
+    p1:0,p2:0,p3:0,p4:0
+  });
+  setRange('hoy');
+}
+
 /* ──── BRANDING POR EMPRESA ──── */
 async function cargarBrandingEmpresa(empresaId) {
   if(!empresaId || empresaId === 'CORPORATIVO') return; // SUPER_ADMIN ve TRIKLES por defecto
@@ -1185,36 +1265,24 @@ async function cargarBrandingEmpresa(empresaId) {
         const logo   = get(emp,'logo','Logo') || '';
         const color1 = get(emp,'color1','Color1') || '#F5821F';
 
-        // Actualizar nombre en topbar
-        const tbName = document.querySelector('.tb-name');
-        if(tbName) tbName.textContent = nombre;
-
-        // Actualizar subtítulo
-        const tbSub = document.querySelector('.tb-sub');
-        if(tbSub) tbSub.textContent = '📊 Dashboard Ejecutivo — ' + nombre;
-
         // Actualizar logo
         if(logo) {
           const tbLogo = document.querySelector('.tb-logo');
           if(tbLogo) { tbLogo.src = logo; tbLogo.alt = nombre; }
         }
 
-        // Actualizar color primario
+        // Aplicar colores institucionales
         document.documentElement.style.setProperty('--orange', color1);
-        document.documentElement.style.setProperty('--orange2', color1);
+        document.documentElement.style.setProperty('--orange2', color1 + 'cc');
         document.documentElement.style.setProperty('--border', color1 + '44');
         document.documentElement.style.setProperty('--ora-l', color1 + '22');
 
-        // Si no hay datos para esta empresa, mostrar mensaje
-        if(empresaId !== 'TRIKLES') {
-          const kpiVals = document.querySelectorAll('.kpi-val');
-          // Marcar que los datos son de TRIKLES temporalmente
-          const banner = document.createElement('div');
-          banner.style.cssText = 'background:rgba(245,130,31,.1);border:1px solid rgba(245,130,31,.3);color:#F5821F;padding:10px 28px;font-size:12px;font-weight:700;text-align:center;';
-          banner.innerHTML = '⚠️ Los datos mostrados corresponden a TRIKLES. Cuando ' + nombre + ' tenga capturas registradas, aparecerán aquí automáticamente.';
-          const filterBar = document.querySelector('.filter-bar');
-          if(filterBar) filterBar.parentNode.insertBefore(banner, filterBar.nextSibling);
-        }
+        // Actualizar borde topbar
+        const topbar = document.querySelector('.topbar');
+        if(topbar) topbar.style.borderBottomColor = color1;
+
+        // Quitar banner viejo si existe
+        document.querySelectorAll('.emp-banner').forEach(b => b.remove());
       }
     }
   } catch(e) {
@@ -1248,8 +1316,11 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(rol==='ADMIN'||rol==='SUPER_ADMIN'){
     const b=document.getElementById('btnPanel');if(b)b.style.display='inline-flex';
   }
-  // Cargar branding de la empresa del usuario
+  // Cargar branding y datos de la empresa del usuario
   cargarBrandingEmpresa(s.empresa);
+  if(s.empresa && s.empresa !== 'TRIKLES') {
+    cargarDatosEmpresa(s.empresa);
+  }
   // Captura y Corte — ADMIN, SUPER_ADMIN, ANALISTA_FIN, ANALISTA_FULL
   if(['ADMIN','SUPER_ADMIN','ANALISTA_FIN','ANALISTA_FULL'].includes(rol)){
     const bc=document.getElementById('btnCaptura');if(bc)bc.style.display='inline-flex';
