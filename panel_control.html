@@ -702,6 +702,9 @@ async function loadEmpresas(){
     const r=await apiGet({action:'getEmpresas'});
     if(r && r.success){
       // Normalizar keys de empresas
+      const _sess = JSON.parse(sessionStorage.getItem('trikles_session')||localStorage.getItem('trikles_session_remember')||'null');
+      const _esFiltrado = _sess && _sess.rol !== 'SUPER_ADMIN';
+      const _miEmpresa = _sess ? (_sess.empresa||'').toLowerCase() : '';
       EMPRESAS=(r.data||[]).map(e=>{
         const get=(obj,...keys)=>{
           for(const k of keys){
@@ -718,8 +721,10 @@ async function loadEmpresas(){
           vision: get(e,'vision','visión','Vision','Visión'),
           logo:   get(e,'logo','Logo'),
           activa: String(get(e,'activa','active','Activa','status')||'SI').toUpperCase(),
+          color1: get(e,'color1','Color1')||'#F5821F',
+          color2: get(e,'color2','Color2')||'#1a1a2e',
         };
-      });
+      }).filter(e => !_esFiltrado || e.id.toLowerCase() === _miEmpresa);
       renderEmpresas();
       document.getElementById('st_empresas').textContent=EMPRESAS.filter(e=>e.activa==='SI').length;
       updateEmpresaSelects();
