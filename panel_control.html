@@ -676,6 +676,20 @@ function closeModal(name){document.getElementById('modal_'+name).classList.remov
 document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
 
 /* ══════════════════════════════════
+   FILTRO POR EMPRESA ADMIN
+══════════════════════════════════ */
+function filtrarEmpresasAdmin(empresaId) {
+  if(!empresaId) return;
+  // Filtrar lista de empresas para mostrar solo la del admin
+  EMPRESAS = EMPRESAS.filter(e => 
+    (e.id||'').toLowerCase() === empresaId.toLowerCase() ||
+    e.id === 'CORPORATIVO'
+  );
+  renderEmpresas();
+  document.getElementById('st_empresas').textContent = EMPRESAS.filter(e=>e.activa==='SI').length;
+}
+
+/* ══════════════════════════════════
    EMPRESAS
 ══════════════════════════════════ */
 let EMPRESAS = [];
@@ -1079,9 +1093,26 @@ document.addEventListener('DOMContentLoaded',()=>{
   const chip=document.getElementById('userChip');
   const rolLabel=ROLES[s.rol]?ROLES[s.rol].label:s.rol;
   if(chip)chip.textContent=s.nombre+' — '+rolLabel+(s.rol==='SUPER_ADMIN'?' 👑':'');
-  // Preload stats silently (no error toast on startup)
-  setTimeout(()=>{
-    loadEmpresas();
+
+  setTimeout(async ()=>{
+    await loadEmpresas();
+    // Si no es SUPER_ADMIN, aplicar branding de su empresa
+    if(s.rol !== 'SUPER_ADMIN') {
+      filtrarEmpresasAdmin(s.empresa);
+      const emp = EMPRESAS.find(e => (e.id||'').toLowerCase() === (s.empresa||'').toLowerCase());
+      if(emp) {
+        if(emp.logo){const tbLogo=document.querySelector('.tb-logo');if(tbLogo)tbLogo.src=emp.logo;}
+        const tbName=document.querySelector('.tb-name');
+        if(tbName)tbName.textContent=emp.nombre||s.empresa;
+        const c1=emp.color1||'#F5821F';
+        document.documentElement.style.setProperty('--orange',c1);
+        document.documentElement.style.setProperty('--orange2',c1);
+        document.documentElement.style.setProperty('--border',c1+'44');
+        document.documentElement.style.setProperty('--ora-l',c1+'22');
+        const topbar=document.querySelector('.topbar');
+        if(topbar)topbar.style.borderBottomColor=c1;
+      }
+    }
   }, 500);
 });
 </script>
