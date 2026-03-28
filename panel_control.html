@@ -1099,22 +1099,52 @@ document.addEventListener('DOMContentLoaded',()=>{
     // Si no es SUPER_ADMIN, aplicar branding de su empresa
     if(s.rol !== 'SUPER_ADMIN') {
       filtrarEmpresasAdmin(s.empresa);
-      const emp = EMPRESAS.find(e => (e.id||'').toLowerCase() === (s.empresa||'').toLowerCase());
-      if(emp) {
-        if(emp.logo){const tbLogo=document.querySelector('.tb-logo');if(tbLogo)tbLogo.src=emp.logo;}
-        const tbName=document.querySelector('.tb-name');
-        if(tbName)tbName.textContent=emp.nombre||s.empresa;
-        const c1=emp.color1||'#F5821F';
-        document.documentElement.style.setProperty('--orange',c1);
-        document.documentElement.style.setProperty('--orange2',c1);
-        document.documentElement.style.setProperty('--border',c1+'44');
-        document.documentElement.style.setProperty('--ora-l',c1+'22');
-        const topbar=document.querySelector('.topbar');
-        if(topbar)topbar.style.borderBottomColor=c1;
-      }
+      aplicarBrandingEmpresa(s.empresa);
     }
   }, 500);
 });
+
+async function aplicarBrandingEmpresa(empresaId) {
+  if(!empresaId || empresaId === 'TRIKLES') return;
+  try {
+    const cb = 'brand_' + Date.now();
+    const result = await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      let done = false;
+      window[cb] = d => { if(done)return; done=true; delete window[cb]; s.remove(); resolve(d); };
+      s.onerror = () => { if(done)return; done=true; delete window[cb]; s.remove(); reject(); };
+      s.src = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec?action=getEmpresas&callback=' + cb;
+      document.head.appendChild(s);
+      setTimeout(() => { if(done)return; done=true; delete window[cb]; s.remove(); reject(); }, 10000);
+    });
+    if(!result || !result.success) return;
+    const emp = result.data.find(e => (e.id||'').toLowerCase() === empresaId.toLowerCase());
+    if(!emp) return;
+    const c1 = emp.color1 || '#F5821F';
+    const nombre = emp.nombre || empresaId;
+    const logo = emp.logo || '';
+    // Colores
+    document.documentElement.style.setProperty('--orange', c1);
+    document.documentElement.style.setProperty('--orange2', c1);
+    document.documentElement.style.setProperty('--border', c1 + '44');
+    document.documentElement.style.setProperty('--ora-l', c1 + '22');
+    const topbar = document.querySelector('.topbar');
+    if(topbar) topbar.style.borderBottomColor = c1;
+    // Botones activos
+    document.querySelectorAll('.btn-nav.dash, .btn-nav.active, .btn-primary').forEach(b => {
+      b.style.background = c1;
+    });
+    // Nombre
+    const tbName = document.querySelector('.tb-name');
+    if(tbName) tbName.textContent = nombre;
+    // Logo
+    if(logo) {
+      const tbLogo = document.querySelector('.tb-logo');
+      if(tbLogo) tbLogo.src = logo;
+    }
+  } catch(e) { console.warn('Branding:', e); }
+}
+
 </script>
 </body>
 </html>
