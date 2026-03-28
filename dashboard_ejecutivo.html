@@ -1118,7 +1118,7 @@ function exportPDF(){
 }
 
 /* ──── SUPER ADMIN — Selector de empresas ──── */
-const API_URL = 'https://script.google.com/macros/s/AKfycbwiNcbKP4cy_5n5C9cgX9OsVGYGj1-7Rmft6osUOFTpbLYoLQOBDOW54fdAu91sscU1xg/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
 
 async function loadEmpresasSelector(){
   try{
@@ -1164,7 +1164,7 @@ function onEmpresaChange(){
 }
 
 /* ──── DATOS DINÁMICOS POR EMPRESA ──── */
-const API_SHEETS = 'https://script.google.com/macros/s/AKfycbwiNcbKP4cy_5n5C9cgX9OsVGYGj1-7Rmft6osUOFTpbLYoLQOBDOW54fdAu91sscU1xg/exec';
+const API_SHEETS = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
 
 async function jsonpSheets(params) {
   return new Promise((resolve, reject) => {
@@ -1257,7 +1257,7 @@ async function cargarBrandingEmpresa(empresaId) {
         delete window[cbName]; script.remove(); resolve(data);
       };
       script.onerror = () => { if(done) return; done = true; delete window[cbName]; script.remove(); reject(); };
-      script.src = 'https://script.google.com/macros/s/AKfycbwiNcbKP4cy_5n5C9cgX9OsVGYGj1-7Rmft6osUOFTpbLYoLQOBDOW54fdAu91sscU1xg/exec?action=getEmpresas&callback=' + cbName;
+      script.src = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec?action=getEmpresas&callback=' + cbName;
       document.head.appendChild(script);
       setTimeout(() => { if(done) return; done = true; delete window[cbName]; script.remove(); reject(); }, 10000);
     });
