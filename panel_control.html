@@ -785,13 +785,14 @@ async function guardarEmpresa(){
   if(!giro){toast('error','Campo requerido','El giro comercial es obligatorio.');return;}
   document.getElementById('emp_btn_save').style.display='none';
   document.getElementById('emp_saving').style.display='flex';
+  // No enviar logo en la URL (demasiado largo para JSONP)
+  // El logo se puede editar después
   const params={
     action:'alta_empresa',
     id:document.getElementById('emp_id').value||nombre.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/\s+/g,'_').replace(/[^A-Z0-9_]/g,''),
     nombre,giro,
     mision:document.getElementById('emp_mision').value.trim(),
     vision:document.getElementById('emp_vision').value.trim(),
-    logo:document.getElementById('emp_logo_b64').value,
     color1:document.getElementById('emp_color1').value,
     color2:document.getElementById('emp_color2').value,
   };
