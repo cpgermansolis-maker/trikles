@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- v20260328_234920 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -760,7 +761,7 @@ async function applyBranding(empresaId) {
     });
 
     // Company name
-    document.querySelectorAll('.tb-name').forEach(el => {
+    document.querySelectorAll('.tb-name, .topbar-name').forEach(el => {
       el.textContent = nombre.toUpperCase();
     });
 
@@ -775,7 +776,7 @@ async function applyBranding(empresaId) {
 
     // Logo
     if (logo) {
-      document.querySelectorAll('.tb-logo').forEach(el => {
+      document.querySelectorAll('.tb-logo, .topbar-logo').forEach(el => {
         el.src = logo;
         el.alt = nombre;
       });
