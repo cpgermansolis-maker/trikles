@@ -160,7 +160,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 <!-- ══════ MODULE TABS ══════ -->
 <div class="mod-tabs">
   <button class="mtab active" id="tab_fin" onclick="switchModule('fin')">📊 Financiero</button>
-  <button class="mtab" id="tab_nom" onclick="switchModule('nom')">👥 Nómina</button>
+  <button class="mtab" id="tab_nom" onclick="switchModule('nom')" style="display:none">👥 Nómina</button>
 </div>
 
 <!-- ══════ FILTER BAR ══════ -->
@@ -1166,6 +1166,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   // Nómina — ADMIN, SUPER_ADMIN, ANALISTA_NOM, ANALISTA_FULL
   if(['ADMIN','SUPER_ADMIN','ANALISTA_NOM','ANALISTA_FULL'].includes(rol)){
     const bn=document.getElementById('btnNomina');if(bn)bn.style.display='inline-flex';
+  }
+  // Mostrar tab Nómina solo para roles con acceso
+  if(['SUPER_ADMIN','ADMIN','ANALISTA_NOM','ANALISTA_FULL'].includes(s.rol)){
+    const tn=document.getElementById('tab_nom');if(tn)tn.style.display='inline-block';
   }
   // SUPER_ADMIN: mostrar selector de empresas
   if(s.rol==='SUPER_ADMIN'){

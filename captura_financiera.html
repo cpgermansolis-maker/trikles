@@ -211,7 +211,7 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.5;}
     </div>
   </div>
   <div class="topbar-right">
-    <a class="btn-nav" href="dashboard_ejecutivo.html" style="background:linear-gradient(135deg,rgba(245,130,31,.2),rgba(245,130,31,.1));border-color:rgba(245,130,31,.5);color:#F5821F;font-weight:900;">📊 Dashboard</a>
+    <a class="btn-nav" href="dashboard_ejecutivo.html" id="btnDashboard" style="display:none;background:linear-gradient(135deg,rgba(245,130,31,.2),rgba(245,130,31,.1));border-color:rgba(245,130,31,.5);color:#F5821F;font-weight:900;">📊 Dashboard</a>
     <div class="user-pill"><div class="u-dot"></div><span id="userChip">...</span></div>
     <button class="btn-out" onclick="logout()">Salir ✕</button>
   </div>
@@ -527,6 +527,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   const s=requireAuth(['ADMIN','ANALISTA_FIN','ANALISTA_FULL']);
   if(!s)return;
   renderUserChip(s);
+  if(['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS'].includes(s.rol)){
+    const bd=document.getElementById('btnDashboard');if(bd)bd.style.display='inline-flex';
+  }
   changeDate(today());
 });
 
