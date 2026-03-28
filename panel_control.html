@@ -771,9 +771,21 @@ function previewLogo(input){
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=e=>{
-    const b64=e.target.result;
-    document.getElementById('emp_logo_b64').value=b64;
-    document.getElementById('emp_logo_prev').innerHTML=`<img src="${b64}">`;
+    // Comprimir imagen a máximo 100x100px y calidad 60%
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      const MAX=100;
+      let w=img.width, h=img.height;
+      if(w>h){ if(w>MAX){h=Math.round(h*MAX/w);w=MAX;} }
+      else { if(h>MAX){w=Math.round(w*MAX/h);h=MAX;} }
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const compressed=canvas.toDataURL('image/jpeg',0.6);
+      document.getElementById('emp_logo_b64').value=compressed;
+      document.getElementById('emp_logo_prev').innerHTML=`<img src="${compressed}">`;
+    };
+    img.src=e.target.result;
   };
   reader.readAsDataURL(file);
 }
@@ -785,14 +797,13 @@ async function guardarEmpresa(){
   if(!giro){toast('error','Campo requerido','El giro comercial es obligatorio.');return;}
   document.getElementById('emp_btn_save').style.display='none';
   document.getElementById('emp_saving').style.display='flex';
-  // No enviar logo en la URL (demasiado largo para JSONP)
-  // El logo se puede editar después
   const params={
     action:'alta_empresa',
     id:document.getElementById('emp_id').value||nombre.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/\s+/g,'_').replace(/[^A-Z0-9_]/g,''),
     nombre,giro,
     mision:document.getElementById('emp_mision').value.trim(),
     vision:document.getElementById('emp_vision').value.trim(),
+    logo:document.getElementById('emp_logo_b64').value,
     color1:document.getElementById('emp_color1').value,
     color2:document.getElementById('emp_color2').value,
   };
