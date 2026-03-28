@@ -1148,6 +1148,80 @@ function onEmpresaChange(){
   toast('info','Empresa seleccionada',label);
 }
 
+/* ──── BRANDING POR EMPRESA ──── */
+async function cargarBrandingEmpresa(empresaId) {
+  if(!empresaId || empresaId === 'CORPORATIVO') return; // SUPER_ADMIN ve TRIKLES por defecto
+  
+  try {
+    const cbName = 'brandCb_' + Date.now();
+    const result = await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      let done = false;
+      window[cbName] = (data) => {
+        if(done) return; done = true;
+        delete window[cbName]; script.remove(); resolve(data);
+      };
+      script.onerror = () => { if(done) return; done = true; delete window[cbName]; script.remove(); reject(); };
+      script.src = 'https://script.google.com/macros/s/AKfycbwiNcbKP4cy_5n5C9cgX9OsVGYGj1-7Rmft6osUOFTpbLYoLQOBDOW54fdAu91sscU1xg/exec?action=getEmpresas&callback=' + cbName;
+      document.head.appendChild(script);
+      setTimeout(() => { if(done) return; done = true; delete window[cbName]; script.remove(); reject(); }, 10000);
+    });
+
+    if(result && result.success && result.data) {
+      const get = (obj, ...keys) => {
+        for(const k of keys){
+          const found = Object.keys(obj).find(ok => ok.toLowerCase() === k.toLowerCase());
+          if(found !== undefined && obj[found]) return obj[found];
+        }
+        return '';
+      };
+      const emp = result.data.find(e => {
+        const id = get(e,'id','Id','ID');
+        return id.toLowerCase() === empresaId.toLowerCase();
+      });
+
+      if(emp) {
+        const nombre = get(emp,'nombre','Nombre') || empresaId;
+        const logo   = get(emp,'logo','Logo') || '';
+        const color1 = get(emp,'color1','Color1') || '#F5821F';
+
+        // Actualizar nombre en topbar
+        const tbName = document.querySelector('.tb-name');
+        if(tbName) tbName.textContent = nombre;
+
+        // Actualizar subtítulo
+        const tbSub = document.querySelector('.tb-sub');
+        if(tbSub) tbSub.textContent = '📊 Dashboard Ejecutivo — ' + nombre;
+
+        // Actualizar logo
+        if(logo) {
+          const tbLogo = document.querySelector('.tb-logo');
+          if(tbLogo) { tbLogo.src = logo; tbLogo.alt = nombre; }
+        }
+
+        // Actualizar color primario
+        document.documentElement.style.setProperty('--orange', color1);
+        document.documentElement.style.setProperty('--orange2', color1);
+        document.documentElement.style.setProperty('--border', color1 + '44');
+        document.documentElement.style.setProperty('--ora-l', color1 + '22');
+
+        // Si no hay datos para esta empresa, mostrar mensaje
+        if(empresaId !== 'TRIKLES') {
+          const kpiVals = document.querySelectorAll('.kpi-val');
+          // Marcar que los datos son de TRIKLES temporalmente
+          const banner = document.createElement('div');
+          banner.style.cssText = 'background:rgba(245,130,31,.1);border:1px solid rgba(245,130,31,.3);color:#F5821F;padding:10px 28px;font-size:12px;font-weight:700;text-align:center;';
+          banner.innerHTML = '⚠️ Los datos mostrados corresponden a TRIKLES. Cuando ' + nombre + ' tenga capturas registradas, aparecerán aquí automáticamente.';
+          const filterBar = document.querySelector('.filter-bar');
+          if(filterBar) filterBar.parentNode.insertBefore(banner, filterBar.nextSibling);
+        }
+      }
+    }
+  } catch(e) {
+    console.warn('No se pudo cargar branding:', e);
+  }
+}
+
 /* ──── INIT ──── */
 document.addEventListener('DOMContentLoaded',()=>{
   const s=reqAuth(['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS','ANALISTA_FIN','ANALISTA_FULL']);
@@ -1158,6 +1232,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(rol==='ADMIN'||rol==='SUPER_ADMIN'){
     const b=document.getElementById('btnPanel');if(b)b.style.display='inline-flex';
   }
+  // Cargar branding de la empresa del usuario
+  cargarBrandingEmpresa(s.empresa);
   // Captura y Corte — ADMIN, SUPER_ADMIN, ANALISTA_FIN, ANALISTA_FULL
   if(['ADMIN','SUPER_ADMIN','ANALISTA_FIN','ANALISTA_FULL'].includes(rol)){
     const bc=document.getElementById('btnCaptura');if(bc)bc.style.display='inline-flex';
