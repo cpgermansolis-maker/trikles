@@ -839,7 +839,7 @@ async function guardarEmpresa(){
   document.getElementById('emp_saving').style.display='flex';
   const params={
     action:'alta_empresa',
-    id:document.getElementById('emp_id').value||nombre.toUpperCase().replace(/\s+/g,'_').replace(/[^A-Z0-9_]/g,''),
+    id:document.getElementById('emp_id').value||nombre.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/\s+/g,'_').replace(/[^A-Z0-9_]/g,''),
     nombre,giro,
     mision:document.getElementById('emp_mision').value.trim(),
     vision:document.getElementById('emp_vision').value.trim(),
@@ -852,7 +852,7 @@ async function guardarEmpresa(){
     if(r.success){
       toast('success','Empresa guardada','Los datos se guardaron en Google Sheets.');
       closeModal('empresa');
-      loadEmpresas();
+      setTimeout(()=>loadEmpresas(), 1500);
     }else{
       toast('error','Error al guardar',r.error||'Intenta de nuevo.');
     }
