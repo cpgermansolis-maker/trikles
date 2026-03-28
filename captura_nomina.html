@@ -932,26 +932,7 @@ async function aplicarBrandingEmpresa(empresaId) {
 // ═══════════════════════════════════════════════════════
 
 const TRIKLES_API = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
-const SESSION_KEY = 'trikles_session';
-
-// ── Session ──────────────────────────────────────────
-function getSession() {
-  try {
-    const s = JSON.parse(
-      sessionStorage.getItem(SESSION_KEY) ||
-      localStorage.getItem(SESSION_KEY + '_remember')
-    );
-    if (s && s.expires > Date.now()) return s;
-    clearSession();
-    return null;
-  } catch { return null; }
-}
-
-function clearSession() {
-  sessionStorage.removeItem(SESSION_KEY);
-  localStorage.removeItem(SESSION_KEY + '_remember');
-}
-
+// (session functions already defined)
 // ── JSONP helper ──────────────────────────────────────
 function jsonpCall(params, timeout = 12000) {
   return new Promise((resolve, reject) => {
