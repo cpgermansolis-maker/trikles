@@ -611,6 +611,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS'].includes(s.rol)){
     const bd=document.getElementById('btnDashboard');if(bd)bd.style.display='inline-flex';
   }
+  aplicarBrandingEmpresa(s.empresa);
   changeDate(today());
   calcDenom(); calcFlujo();
 });
