@@ -369,7 +369,7 @@ input.fi::placeholder{color:#444;font-weight:600;}
   <div class="field-row">
     <div class="field">
       <label>Reserva <span class="req">*</span></label>
-      <input type="number" class="fi" id="f_reserva" value="100" min="0" step="0.01" oninput="calcFlujo()">
+      <input type="number" class="fi" id="f_reserva" value="0" min="0" step="0.01" oninput="calcFlujo()">
     </div>
     <div class="field">
       <label>Gastos Anteriores <span class="req">*</span></label>
@@ -766,7 +766,7 @@ async function guardar(){
 function limpiar(){
   if(!confirm('¿Limpiar todos los campos?'))return;
   document.querySelectorAll('input.fi:not([readonly]),select.fi,textarea.fi').forEach(el=>{
-    if(el.id==='f_reserva')el.value='100';
+    if(el.id==='f_reserva')el.value='0';
     else if(el.type!=='date')el.value='';
     el.classList.remove('err','ok');
   });
@@ -893,7 +893,7 @@ async function applyBranding(empresaId) {
     });
 
     // Company name
-    document.querySelectorAll('.tb-name').forEach(el => {
+    document.querySelectorAll('.tb-name, .topbar-name').forEach(el => {
       el.textContent = nombre.toUpperCase();
     });
 
@@ -908,7 +908,7 @@ async function applyBranding(empresaId) {
 
     // Logo
     if (logo) {
-      document.querySelectorAll('.tb-logo').forEach(el => {
+      document.querySelectorAll('.tb-logo, .topbar-logo').forEach(el => {
         el.src = logo;
         el.alt = nombre;
       });
