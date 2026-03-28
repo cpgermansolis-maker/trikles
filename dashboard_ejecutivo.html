@@ -1195,11 +1195,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(rol==='ADMIN'||rol==='SUPER_ADMIN'){
     const b=document.getElementById('btnPanel');if(b)b.style.display='inline-flex';
   }
-  // Aplicar branding y datos de la empresa
+  // Aplicar branding y cargar datos desde Sheets
   applyBranding(s.empresa);
-  if(s.empresa && s.empresa !== 'TRIKLES') {
-    mostrarCerosEmpresa(s.empresa);
-  }
+  cargarDatosDesdeSheets(s.empresa);
   // Captura y Corte — ADMIN, SUPER_ADMIN, ANALISTA_FIN, ANALISTA_FULL
   if(['ADMIN','SUPER_ADMIN','ANALISTA_FIN','ANALISTA_FULL'].includes(rol)){
     const bc=document.getElementById('btnCaptura');if(bc)bc.style.display='inline-flex';
@@ -1230,6 +1228,67 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
   setRange('hoy');
 });
+
+
+// ── Cargar datos desde Sheets ──
+async function cargarDatosDesdeSheets(empresa) {
+  ALL.length = 0;
+  PE_VAL = 0;
+  
+  try {
+    const cb = 'datos_' + Date.now();
+    const result = await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      let done = false;
+      window[cb] = d => { if(done)return; done=true; delete window[cb]; script.remove(); resolve(d); };
+      script.onerror = () => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); };
+      script.src = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec?action=getDatos&empresa=' + encodeURIComponent(empresa) + '&callback=' + cb;
+      document.head.appendChild(script);
+      setTimeout(() => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); }, 15000);
+    });
+    
+    if (result && result.success && result.data && result.data.length > 0) {
+      result.data.forEach(r => {
+        const fecha = String(r.fecha).slice(0,10);
+        const d = new Date(fecha);
+        ALL.push({
+          f: fecha,
+          y: parseInt(r.año) || d.getFullYear(),
+          m: parseInt(r.mes) || d.getMonth()+1,
+          w: parseInt(r.semana) || 1,
+          iy: parseInt(r.año) || d.getFullYear(),
+          d: parseInt(r.dia) || d.getDate(),
+          dow: d.getDay(),
+          v: parseFloat(r.ventas) || 0,
+          g: parseFloat(r.ganancia) || 0,
+          c: parseFloat(r.costo) || 0,
+          u: parseFloat(r.utilidad_neta) || 0,
+          gt: parseFloat(r.total_gastos) || 0,
+          su: parseFloat(r.sueldo) || 0,
+          gas: parseFloat(r.gasolina) || 0,
+          luz: parseFloat(r.luz) || 0,
+          net: parseFloat(r.internet) || 0,
+          res: parseFloat(r.reserva) || 0,
+          ef: parseFloat(r.efectivo) || 0,
+          cob:0,vcr:0,vef:0,com:0,gti:0,gca:0,gant:0,ing:0,egr:0,efs:0,dif:0,ret:0,p1:0,p2:0,p3:0,p4:0
+        });
+      });
+      // Calcular PE para TRIKLES
+      if(empresa === 'TRIKLES') {
+        const totalGastos = ALL.reduce((s,r)=>s+r.gt,0);
+        const diasOp = ALL.filter(r=>r.v>0).length;
+        PE_VAL = diasOp > 0 ? totalGastos/diasOp : 0;
+      }
+      setRange('hoy');
+    } else {
+      // Sin datos — mostrar ceros
+      mostrarCerosEmpresa(empresa);
+    }
+  } catch(e) {
+    console.warn('Error cargando datos:', e);
+    mostrarCerosEmpresa(empresa);
+  }
+}
 
 // ── Mostrar ceros para empresa sin datos ──
 function mostrarCerosEmpresa(empresaId) {
