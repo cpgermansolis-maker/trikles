@@ -862,29 +862,7 @@ function limpiar() {
 // Inicializar horas al cargar
 document.addEventListener('DOMContentLoaded', () => {
   calcHoras();
-}); 
-async function aplicarBrandingEmpresa(empresaId) {
-  if(!empresaId || empresaId === 'TRIKLES') return;
-  try {
-    const cb = 'brand_' + Date.now();
-    const result = await new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      let done = false;
-      window[cb] = (data) => { if(done)return; done=true; delete window[cb]; script.remove(); resolve(data); };
-      script.onerror = () => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); };
-      script.src = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec?action=getEmpresas&callback=' + cb;
-      document.head.appendChild(script);
-      setTimeout(() => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); }, 10000);
-    });
-    if(result && result.success && result.data) {
-      const get = (obj,...keys) => { for(const k of keys){ const f=Object.keys(obj).find(ok=>ok.toLowerCase()===k.toLowerCase()); if(f!==undefined&&obj[f])return obj[f]; } return ''; };
-      const emp = result.data.find(e => (get(e,'id','Id')||'').toLowerCase() === empresaId.toLowerCase());
-      if(emp) {
-        const nombre = get(emp,'nombre','Nombre') || empresaId;
-        const logo = get(emp,'logo','Logo') || '';
-        const c1 = get(emp,'color1','Color1') || '#F5821F';
-        if(logo){ const tbLogo=document.querySelector('.tb-logo'); if(tbLogo)tbLogo.src=logo; }
-        const tbName=document.querySelector('.tb-name'); if(tbName)tbName.textContent=nombre;
+});         const tbName=document.querySelector('.tb-name'); if(tbName)tbName.textContent=nombre;
         document.documentElement.style.setProperty('--orange', c1);
         document.documentElement.style.setProperty('--orange2', c1);
         document.documentElement.style.setProperty('--border', c1+'44');
@@ -894,6 +872,48 @@ async function aplicarBrandingEmpresa(empresaId) {
     }
   } catch(e) { console.warn('Branding:', e); }
 }
+
+async function aplicarBrandingEmpresa(empresaId) {
+  if(!empresaId || empresaId === 'TRIKLES') return;
+  try {
+    const cb = 'brand_' + Date.now();
+    const result = await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      let done = false;
+      window[cb] = d => { if(done)return; done=true; delete window[cb]; s.remove(); resolve(d); };
+      s.onerror = () => { if(done)return; done=true; delete window[cb]; s.remove(); reject(); };
+      s.src = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec?action=getEmpresas&callback=' + cb;
+      document.head.appendChild(s);
+      setTimeout(() => { if(done)return; done=true; delete window[cb]; s.remove(); reject(); }, 10000);
+    });
+    if(!result || !result.success) return;
+    const emp = result.data.find(e => (e.id||'').toLowerCase() === empresaId.toLowerCase());
+    if(!emp) return;
+    const c1 = emp.color1 || '#F5821F';
+    const nombre = emp.nombre || empresaId;
+    const logo = emp.logo || '';
+    // Colores
+    document.documentElement.style.setProperty('--orange', c1);
+    document.documentElement.style.setProperty('--orange2', c1);
+    document.documentElement.style.setProperty('--border', c1 + '44');
+    document.documentElement.style.setProperty('--ora-l', c1 + '22');
+    const topbar = document.querySelector('.topbar');
+    if(topbar) topbar.style.borderBottomColor = c1;
+    // Botones activos
+    document.querySelectorAll('.btn-nav.dash, .btn-nav.active, .btn-primary').forEach(b => {
+      b.style.background = c1;
+    });
+    // Nombre
+    const tbName = document.querySelector('.tb-name');
+    if(tbName) tbName.textContent = nombre;
+    // Logo
+    if(logo) {
+      const tbLogo = document.querySelector('.tb-logo');
+      if(tbLogo) tbLogo.src = logo;
+    }
+  } catch(e) { console.warn('Branding:', e); }
+}
+
 </script>
 </body>
 </html>
