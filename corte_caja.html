@@ -192,9 +192,9 @@ input.fi::placeholder{color:#444;font-weight:600;}
 
 <header class="topbar">
   <div class="topbar-left">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='%23666'%3E🏢%3C/text%3E%3C/svg%3E" class="topbar-logo" alt="TRIKLES">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='%23666'%3E🏢%3C/text%3E%3C/svg%3E" class="topbar-logo" alt="">
     <div>
-      <div class="topbar-name">TRIKLES</div>
+      <div class="topbar-name"></div>
       <div class="topbar-sub">🗃 Corte de Caja Diario</div>
     </div>
   </div>
@@ -607,6 +607,9 @@ const REQUIRED=[
 document.addEventListener('DOMContentLoaded',()=>{
   const s=requireAuth(['ADMIN','ANALISTA_FIN','ANALISTA_FULL']);
   if(!s)return;
+  // Nombre empresa INMEDIATO sin esperar Sheets
+  const _tn=document.querySelector('.topbar-name');
+  if(_tn) _tn.textContent=(s.empresa||'').replace(/_/g,' ').toUpperCase();
   renderUserChip(s);
   if(['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS'].includes(s.rol)){
     const bd=document.getElementById('btnDashboard');if(bd)bd.style.display='inline-flex';

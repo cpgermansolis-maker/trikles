@@ -203,9 +203,9 @@ select.fi option{background:#2a2a2a;}
 
 <header class="topbar">
   <div class="topbar-left">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='%23666'%3E🏢%3C/text%3E%3C/svg%3E" class="topbar-logo" alt="TRIKLES">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='%23666'%3E🏢%3C/text%3E%3C/svg%3E" class="topbar-logo" alt="">
     <div>
-      <div class="topbar-name">TRIKLES</div>
+      <div class="topbar-name"></div>
       <div class="topbar-sub">👥 Captura de Nómina</div>
     </div>
   </div>
@@ -507,7 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const _s = JSON.parse(sessionStorage.getItem('trikles_session') || localStorage.getItem('trikles_session_remember') || 'null');
   if(_s) {
     // Nombre empresa sin flash
-    const _tbName = document.querySelector('.tb-name');
+    const _tbName = document.querySelector('.topbar-name') || document.querySelector('.tb-name');
     if(_tbName) _tbName.textContent = (_s.empresa || '').replace(/_/g,' ').toUpperCase();
     // Usuario sin punto verde
     const _chip = document.getElementById('userChip');
