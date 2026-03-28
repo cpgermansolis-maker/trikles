@@ -1228,6 +1228,22 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(!s)return;
   renderChip(s);
   const rol = s.rol;
+  
+  // Actualizar nombre empresa en topbar INMEDIATAMENTE desde sesión
+  const empNombre = s.empresa || 'TRIKLES';
+  const tbName = document.querySelector('.tb-name');
+  if(tbName && empNombre !== 'TRIKLES') tbName.textContent = empNombre.replace(/_/g,' ');
+  const tbSub = document.querySelector('.tb-sub');
+  if(tbSub && empNombre !== 'TRIKLES') tbSub.textContent = '📊 Dashboard Ejecutivo — ' + empNombre.replace(/_/g,' ');
+  
+  // Mostrar banner si no es TRIKLES
+  if(empNombre !== 'TRIKLES' && empNombre !== 'CORPORATIVO') {
+    const banner = document.createElement('div');
+    banner.style.cssText = 'background:rgba(245,130,31,.12);border-top:2px solid #F5821F;border-bottom:2px solid #F5821F;color:#F5821F;padding:10px 28px;font-size:13px;font-weight:700;text-align:center;';
+    banner.innerHTML = '⚠️ Estás viendo el dashboard de <strong>' + empNombre.replace(/_/g,' ') + '</strong>. Los datos mostrados son de TRIKLES hasta que se capturen datos para esta empresa.';
+    const kpiGrid = document.getElementById('kpiGrid');
+    if(kpiGrid) kpiGrid.parentNode.insertBefore(banner, kpiGrid);
+  }
   // Panel — solo ADMIN y SUPER_ADMIN
   if(rol==='ADMIN'||rol==='SUPER_ADMIN'){
     const b=document.getElementById('btnPanel');if(b)b.style.display='inline-flex';
