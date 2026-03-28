@@ -397,7 +397,7 @@ input.fi::placeholder{color:#444;font-weight:600;}
     </div>
     <div class="rbox">
       <div class="rbox-label">P.E. Diario</div>
-      <div class="rbox-val white">$200.04</div>
+      <div class="rbox-val white" id="r_pe_val">$0.00</div>
     </div>
   </div>
 
@@ -588,7 +588,7 @@ const num=id=>{const v=parseFloat(document.getElementById(id)?.value);return isN
 const setVal=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v;};
 
 
-const PE=200.04;
+const PE=0;
 let currentDate=today();
 
 const DENOMS=[
