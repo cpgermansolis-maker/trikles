@@ -1371,7 +1371,17 @@ async function cargarDatosNomina(empresa) {
     });
     if (result && result.success && result.data) {
       NOM_DATA = result.data.map(r => {
-        const fecha = String(r.fecha).slice(0,10);
+        // Normalizar fecha a formato YYYY-MM-DD
+        let fecha = String(r.fecha||'').trim();
+        // Si viene como "Sun Mar 29 2026..." convertir a ISO
+        if(fecha.length < 10 || isNaN(new Date(fecha+'T12:00:00').getTime())) {
+          const parsed = new Date(fecha);
+          if(!isNaN(parsed.getTime())) {
+            fecha = parsed.getFullYear()+'-'+String(parsed.getMonth()+1).padStart(2,'0')+'-'+String(parsed.getDate()).padStart(2,'0');
+          }
+        } else {
+          fecha = fecha.slice(0,10);
+        }
         const d = new Date(fecha+'T12:00:00');
         return {
           f:    fecha,
