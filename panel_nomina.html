@@ -343,7 +343,12 @@ async function cargarPuestos() {
   try {
     const r = await jsonp({action:'getNominaConfig', empresa:SESSION.empresa});
     if (r.success) {
-      CONFIGS = r.data || [];
+      CONFIGS = (r.data || []).map(c => ({
+        ...c,
+        tablaComisiones: typeof c.tablaComisiones === 'string' 
+          ? (() => { try { return JSON.parse(c.tablaComisiones); } catch(e) { return []; } })()
+          : (c.tablaComisiones || [])
+      }));
       renderPuestos();
     }
   } catch(e) {
