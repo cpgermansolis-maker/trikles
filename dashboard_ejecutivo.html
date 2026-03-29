@@ -1307,7 +1307,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const bn=document.getElementById('btnNomina');if(bn)bn.style.display='inline-flex';
   }
   // Mostrar tab Nómina solo para roles con acceso
-  if(['SUPER_ADMIN','ADMIN','ANALISTA_NOM','ANALISTA_FULL'].includes(s.rol)){
+  if(['SUPER_ADMIN','ADMIN','ANALISTA_NOM','ANALISTA_FULL','DIR_GENERAL','DIR_FINANZAS'].includes(s.rol)){
     const tn=document.getElementById('tab_nom');if(tn)tn.style.display='inline-block';
   }
   // SUPER_ADMIN: mostrar selector de empresas
