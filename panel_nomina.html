@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de Nómina</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange:#F5821F; --orange2:rgba(245,130,31,.8); --dark:#0d0d1a;
+  --dark2:#12121f; --dark3:#1a1a2e; --dark4:#22223a;
+  --light:#e0e0e0; --gray:#888; --green:#2ec4b6; --red:#e63946;
+  --yellow:#f4d35e; --blue:#4361ee;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--light);min-height:100vh;}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:70px;background:var(--dark2);border-bottom:2px solid var(--orange);}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.topbar-logo{height:48px;}
+.topbar-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:5px;color:var(--orange);}
+.topbar-sub{font-size:10px;color:var(--gray);letter-spacing:2px;text-transform:uppercase;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.btn-back{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--light);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+.btn-back:hover{background:rgba(255,255,255,.15);}
+.chip{background:rgba(46,196,182,.15);border:1px solid rgba(46,196,182,.4);color:var(--green);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;}
+.btn-out{background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.3);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;}
+
+/* LAYOUT */
+.main{padding:28px 32px;max-width:1100px;margin:0 auto;}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:4px;color:var(--orange);margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--gray);margin-bottom:24px;}
+
+/* SALARIO MÍNIMO BANNER */
+.sal-banner{background:var(--dark3);border:1px solid rgba(244,211,94,.3);border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.sal-banner-title{font-size:12px;color:var(--yellow);font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.sal-vals{display:flex;gap:24px;flex-wrap:wrap;}
+.sal-val{text-align:center;}
+.sal-val .v{font-size:20px;font-weight:800;color:var(--yellow);}
+.sal-val .l{font-size:11px;color:var(--gray);margin-top:2px;}
+.sal-year{background:rgba(244,211,94,.1);border:1px solid rgba(244,211,94,.3);color:var(--yellow);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+
+/* GRID DE PUESTOS */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--light);}
+.btn-add{background:var(--orange);border:none;color:#fff;padding:9px 18px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;display:flex;align-items:center;gap:6px;}
+.btn-add:hover{background:var(--orange2);}
+
+.puestos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:32px;}
+.puesto-card{background:var(--dark3);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px;position:relative;transition:border-color .2s;}
+.puesto-card:hover{border-color:rgba(245,130,31,.4);}
+.puesto-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.puesto-name{font-size:15px;font-weight:800;color:var(--light);}
+.tipo-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.tipo-DIA{background:rgba(67,97,238,.2);color:#4361ee;border:1px solid rgba(67,97,238,.4);}
+.tipo-HORA{background:rgba(46,196,182,.2);color:var(--green);border:1px solid rgba(46,196,182,.4);}
+.tipo-COMISION{background:rgba(244,211,94,.2);color:var(--yellow);border:1px solid rgba(244,211,94,.4);}
+.tipo-BASE_COMISION{background:rgba(245,130,31,.2);color:var(--orange);border:1px solid rgba(245,130,31,.4);}
+.puesto-info{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.info-item .label{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;}
+.info-item .value{font-size:14px;font-weight:700;color:var(--light);margin-top:2px;}
+.comisiones-mini{background:var(--dark4);border-radius:8px;padding:8px 12px;}
+.comisiones-mini .cm-title{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.cm-row{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;}
+.cm-row .range{color:var(--gray);}
+.cm-row .pct{color:var(--green);font-weight:700;}
+.puesto-actions{display:flex;gap:8px;margin-top:12px;}
+.btn-edit{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--light);padding:7px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;}
+.btn-edit:hover{background:rgba(255,255,255,.12);}
+.btn-del{background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.2);color:var(--red);padding:7px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;}
+
+.empty-state{text-align:center;padding:48px;color:var(--gray);}
+.empty-icon{font-size:48px;margin-bottom:12px;}
+.loading{text-align:center;padding:48px;color:var(--gray);}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+.overlay.open{display:flex;}
+.modal{background:var(--dark3);border:1px solid rgba(255,255,255,.1);border-radius:16px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.08);}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--orange);}
+.btn-close{background:none;border:none;color:var(--gray);font-size:20px;cursor:pointer;padding:4px;}
+.modal-body{padding:24px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.fg{display:flex;flex-direction:column;gap:6px;}
+.fg.full{grid-column:1/-1;}
+.fg label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:1px;}
+.fg input,.fg select{background:var(--dark4);border:1px solid rgba(255,255,255,.1);color:var(--light);padding:10px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--orange);}
+.fg select option{background:var(--dark3);}
+.sal-suggest{background:rgba(244,211,94,.08);border:1px solid rgba(244,211,94,.2);border-radius:6px;padding:8px 12px;font-size:12px;color:var(--yellow);margin-top:4px;cursor:pointer;}
+.sal-suggest:hover{background:rgba(244,211,94,.15);}
+
+/* TABLA COMISIONES */
+.comision-section{margin-top:8px;}
+.comision-toggle{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.toggle-label{font-size:13px;color:var(--light);font-weight:600;}
+.toggle{position:relative;width:40px;height:22px;}
+.toggle input{opacity:0;width:0;height:0;}
+.slider{position:absolute;inset:0;background:rgba(255,255,255,.15);border-radius:11px;cursor:pointer;transition:.3s;}
+.slider::before{content:'';position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;}
+input:checked + .slider{background:var(--orange);}
+input:checked + .slider::before{transform:translateX(18px);}
+
+.tabla-comisiones{background:var(--dark4);border-radius:10px;padding:12px;}
+.tabla-head{display:grid;grid-template-columns:1fr 1fr 80px 40px;gap:8px;margin-bottom:8px;}
+.tabla-head span{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;font-weight:700;}
+.tabla-rows{display:flex;flex-direction:column;gap:6px;}
+.tabla-row{display:grid;grid-template-columns:1fr 1fr 80px 40px;gap:8px;align-items:center;}
+.tabla-row input{background:var(--dark3);border:1px solid rgba(255,255,255,.1);color:var(--light);padding:7px 10px;border-radius:6px;font-family:'Nunito',sans-serif;font-size:13px;width:100%;}
+.btn-row-del{background:rgba(230,57,70,.15);border:1px solid rgba(230,57,70,.3);color:var(--red);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.btn-add-row{background:rgba(46,196,182,.1);border:1px solid rgba(46,196,182,.3);color:var(--green);padding:7px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;margin-top:8px;width:100%;}
+.modal-footer{padding:16px 24px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:12px;justify-content:flex-end;}
+.btn-cancel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--light);padding:10px 20px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;}
+.btn-save{background:var(--orange);border:none;color:#fff;padding:10px 24px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;}
+.btn-save:hover{background:var(--orange2);}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--dark3);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:12px 18px;font-size:13px;font-weight:700;z-index:9999;transform:translateY(80px);opacity:0;transition:.3s;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{border-color:rgba(46,196,182,.5);color:var(--green);}
+.toast.err{border-color:rgba(230,57,70,.5);color:var(--red);}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <img class="topbar-logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='%23666'%3E%F0%9F%8F%A2%3C/text%3E%3C/svg%3E" alt="">
+    <div>
+      <div class="topbar-name"></div>
+      <div class="topbar-sub">⚙️ Panel de Nómina</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <a href="panel_control.html" class="btn-back">← Panel de Control</a>
+    <span class="chip" id="userChip">Cargando...</span>
+    <button class="btn-out" onclick="logout()">Salir ✕</button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="page-title">⚙️ Configuración de Nómina</div>
+  <div class="page-sub">Define el tipo de pago y comisiones por puesto para tu empresa</div>
+
+  <!-- Banner salario mínimo -->
+  <div class="sal-banner">
+    <div>
+      <div class="sal-banner-title">📋 Referencia Salario Mínimo CONASAMI</div>
+      <div style="font-size:11px;color:var(--gray);margin-top:4px;">El sistema sugiere estos montos al configurar cada puesto</div>
+    </div>
+    <div class="sal-vals">
+      <div class="sal-val">
+        <div class="v" id="sal_gen_dia">$315.04</div>
+        <div class="l">Día — Resto del país</div>
+      </div>
+      <div class="sal-val">
+        <div class="v" id="sal_gen_hr">$39.38</div>
+        <div class="l">Hora — Resto del país</div>
+      </div>
+      <div class="sal-val">
+        <div class="v" id="sal_fron_dia">$440.87</div>
+        <div class="l">Día — Frontera Norte</div>
+      </div>
+      <div class="sal-val">
+        <div class="v" id="sal_fron_hr">$55.11</div>
+        <div class="l">Hora — Frontera Norte</div>
+      </div>
+    </div>
+    <span class="sal-year" id="sal_anio">2026</span>
+  </div>
+
+  <!-- Puestos configurados -->
+  <div class="section-head">
+    <div class="section-title">👷 Puestos Configurados</div>
+    <button class="btn-add" onclick="openModal()">+ Agregar Puesto</button>
+  </div>
+
+  <div id="puestos_loading" class="loading">Cargando configuración...</div>
+  <div id="puestos_grid" class="puestos-grid" style="display:none;"></div>
+  <div id="puestos_empty" class="empty-state" style="display:none;">
+    <div class="empty-icon">👷</div>
+    <div>No hay puestos configurados aún</div>
+    <div style="font-size:12px;margin-top:8px;">Haz clic en "+ Agregar Puesto" para comenzar</div>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="overlay" id="modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal_title">Nuevo Puesto</div>
+      <button class="btn-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="fg">
+          <label>Nombre del Puesto *</label>
+          <input type="text" id="m_puesto" placeholder="Ej: Ventas, Admin, Comisionista">
+        </div>
+        <div class="fg">
+          <label>Zona Geográfica *</label>
+          <select id="m_zona" onchange="actualizarSugerencia()">
+            <option value="GENERAL">Resto del país</option>
+            <option value="FRONTERA">Frontera Norte</option>
+          </select>
+        </div>
+        <div class="fg full">
+          <label>Tipo de Pago *</label>
+          <select id="m_tipo" onchange="onTipoChange()">
+            <option value="DIA">Por día</option>
+            <option value="HORA">Por hora</option>
+            <option value="COMISION">Solo comisión</option>
+            <option value="BASE_COMISION">Base + comisión</option>
+          </select>
+        </div>
+        <div class="fg" id="fg_monto">
+          <label>Monto Base *</label>
+          <input type="number" id="m_monto" placeholder="0.00" min="0" step="0.01">
+          <div class="sal-suggest" id="sal_suggest" onclick="aplicarSugerencia()">
+            💡 Usar salario mínimo sugerido: <strong id="sal_val_suggest">$315.04/día</strong>
+          </div>
+        </div>
+        <div class="fg" id="fg_horas" style="display:none;">
+          <label>Horas jornada estándar</label>
+          <input type="number" id="m_horas" value="8" min="1" max="12" step="1">
+        </div>
+
+        <!-- Comisiones -->
+        <div class="fg full comision-section" id="fg_comision">
+          <div class="comision-toggle">
+            <label class="toggle">
+              <input type="checkbox" id="m_comision_activa" onchange="onComisionToggle()">
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-label">¿Aplica comisión por ventas?</span>
+          </div>
+          <div id="tabla_wrap" style="display:none;">
+            <div class="tabla-comisiones">
+              <div class="tabla-head">
+                <span>Ventas desde ($)</span>
+                <span>Ventas hasta ($)</span>
+                <span>Comisión %</span>
+                <span></span>
+              </div>
+              <div class="tabla-rows" id="tabla_rows"></div>
+            </div>
+            <button class="btn-add-row" onclick="addComisionRow()">+ Agregar rango</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="guardarPuesto()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
+const SESSION_KEY = 'trikles_session';
+const SAL_MIN = { GENERAL: { dia: 315.04, hora: 39.38 }, FRONTERA: { dia: 440.87, hora: 55.11 } };
+
+function getSession() {
+  try {
+    const s = JSON.parse(sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY+'_remember'));
+    if (s && s.expires > Date.now()) return s;
+    clearSession(); return null;
+  } catch { return null; }
+}
+function clearSession() {
+  sessionStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(SESSION_KEY+'_remember');
+}
+function logout() { if(confirm('¿Cerrar sesión?')) { clearSession(); window.location.href='login.html'; } }
+
+function jsonp(params, timeout=12000) {
+  return new Promise((resolve,reject) => {
+    const cb = '_cb'+Date.now()+Math.random().toString(36).slice(2);
+    const s  = document.createElement('script');
+    let done = false;
+    const fin = (fn,v) => { if(done)return; done=true; delete window[cb]; s.remove(); fn(v); };
+    window[cb] = d => fin(resolve,d);
+    s.onerror  = () => fin(reject, new Error('error'));
+    s.src = API + '?' + new URLSearchParams({...params, callback:cb});
+    document.head.appendChild(s);
+    setTimeout(() => fin(reject, new Error('timeout')), timeout);
+  });
+}
+
+function toast(type, msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+// ── Init ──
+let SESSION, CONFIGS = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
+  SESSION = getSession();
+  if (!SESSION) { window.location.href = 'login.html'; return; }
+
+  // Topbar
+  const tn = document.querySelector('.topbar-name');
+  if (tn) tn.textContent = (SESSION.empresa||'').replace(/_/g,' ').toUpperCase();
+  document.getElementById('userChip').textContent = SESSION.nombre + ' — ' + SESSION.rol;
+
+  // Branding
+  applyBranding(SESSION.empresa);
+
+  // Cargar salario mínimo
+  try {
+    const r = await jsonp({action:'getSalarioMinimo', zona:'GENERAL', empresa:SESSION.empresa});
+    if (r.success) {
+      document.getElementById('sal_gen_dia').textContent  = '$' + r.salMinDia.toFixed(2);
+      document.getElementById('sal_gen_hr').textContent   = '$' + r.salMinHora.toFixed(2);
+      document.getElementById('sal_anio').textContent     = r.anio;
+      SAL_MIN.GENERAL.dia  = r.salMinDia;
+      SAL_MIN.GENERAL.hora = r.salMinHora;
+    }
+    const r2 = await jsonp({action:'getSalarioMinimo', zona:'FRONTERA', empresa:SESSION.empresa});
+    if (r2.success) {
+      document.getElementById('sal_fron_dia').textContent = '$' + r2.salMinDia.toFixed(2);
+      document.getElementById('sal_fron_hr').textContent  = '$' + r2.salMinHora.toFixed(2);
+      SAL_MIN.FRONTERA.dia  = r2.salMinDia;
+      SAL_MIN.FRONTERA.hora = r2.salMinHora;
+    }
+  } catch(e) { console.warn('Sal mín:', e); }
+
+  cargarPuestos();
+});
+
+// ── Cargar puestos ──
+async function cargarPuestos() {
+  document.getElementById('puestos_loading').style.display = 'block';
+  document.getElementById('puestos_grid').style.display   = 'none';
+  document.getElementById('puestos_empty').style.display  = 'none';
+
+  try {
+    const r = await jsonp({action:'getNominaConfig', empresa:SESSION.empresa});
+    if (r.success) {
+      CONFIGS = r.data || [];
+      renderPuestos();
+    }
+  } catch(e) {
+    toast('err', 'Error cargando configuración');
+  } finally {
+    document.getElementById('puestos_loading').style.display = 'none';
+  }
+}
+
+function renderPuestos() {
+  const grid  = document.getElementById('puestos_grid');
+  const empty = document.getElementById('puestos_empty');
+
+  if (CONFIGS.length === 0) { empty.style.display = 'block'; grid.style.display = 'none'; return; }
+
+  const tipos = { DIA:'Por día', HORA:'Por hora', COMISION:'Solo comisión', BASE_COMISION:'Base+comisión' };
+  grid.innerHTML = CONFIGS.map((c,i) => `
+    <div class="puesto-card">
+      <div class="puesto-card-head">
+        <div class="puesto-name">${c.puesto}</div>
+        <span class="tipo-badge tipo-${c.tipoPago}">${tipos[c.tipoPago]||c.tipoPago}</span>
+      </div>
+      <div class="puesto-info">
+        <div class="info-item">
+          <div class="label">Zona</div>
+          <div class="value">${c.zona === 'FRONTERA' ? 'Frontera Norte' : 'Resto del país'}</div>
+        </div>
+        <div class="info-item">
+          <div class="label">Monto base</div>
+          <div class="value">${c.tipoPago !== 'COMISION' ? '$'+c.montoBase.toFixed(2) : '—'}</div>
+        </div>
+      </div>
+      ${c.comisionActiva && c.tablaComisiones.length > 0 ? `
+      <div class="comisiones-mini">
+        <div class="cm-title">Tabla de comisiones</div>
+        ${c.tablaComisiones.map(t => `
+          <div class="cm-row">
+            <span class="range">$${t.desde.toLocaleString()} – ${t.hasta === 999999 ? '∞' : '$'+t.hasta.toLocaleString()}</span>
+            <span class="pct">${t.pct}%</span>
+          </div>`).join('')}
+      </div>` : ''}
+      <div class="puesto-actions">
+        <button class="btn-edit" onclick="editarPuesto(${i})">✏️ Editar</button>
+        <button class="btn-del" onclick="eliminarPuesto('${c.puesto}')">🗑</button>
+      </div>
+    </div>
+  `).join('');
+  grid.style.display = 'grid';
+}
+
+// ── Modal ──
+let editIndex = -1;
+
+function openModal(cfg=null) {
+  editIndex = -1;
+  document.getElementById('modal_title').textContent = 'Nuevo Puesto';
+  document.getElementById('m_puesto').value  = '';
+  document.getElementById('m_zona').value    = 'GENERAL';
+  document.getElementById('m_tipo').value    = 'DIA';
+  document.getElementById('m_monto').value   = '';
+  document.getElementById('m_horas').value   = '8';
+  document.getElementById('m_comision_activa').checked = false;
+  document.getElementById('tabla_rows').innerHTML = '';
+  document.getElementById('tabla_wrap').style.display = 'none';
+  if (cfg) {
+    editIndex = CONFIGS.indexOf(cfg);
+    document.getElementById('modal_title').textContent = 'Editar Puesto';
+    document.getElementById('m_puesto').value  = cfg.puesto;
+    document.getElementById('m_zona').value    = cfg.zona;
+    document.getElementById('m_tipo').value    = cfg.tipoPago;
+    document.getElementById('m_monto').value   = cfg.montoBase;
+    document.getElementById('m_comision_activa').checked = cfg.comisionActiva;
+    if (cfg.comisionActiva) {
+      document.getElementById('tabla_wrap').style.display = 'block';
+      cfg.tablaComisiones.forEach(t => addComisionRow(t.desde, t.hasta, t.pct));
+    }
+  }
+  onTipoChange();
+  actualizarSugerencia();
+  document.getElementById('modal').classList.add('open');
+}
+
+function editarPuesto(i) { openModal(CONFIGS[i]); }
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+function onTipoChange() {
+  const tipo = document.getElementById('m_tipo').value;
+  const showMonto  = tipo !== 'COMISION';
+  const showHoras  = tipo === 'HORA' || tipo === 'BASE_COMISION';
+  document.getElementById('fg_monto').style.display = showMonto ? 'flex' : 'none';
+  document.getElementById('fg_horas').style.display = showHoras ? 'flex' : 'none';
+  // Auto-activar comisión para tipos que la incluyen
+  if (tipo === 'COMISION' || tipo === 'BASE_COMISION') {
+    document.getElementById('m_comision_activa').checked = true;
+    document.getElementById('tabla_wrap').style.display = 'block';
+  }
+  actualizarSugerencia();
+}
+
+function onComisionToggle() {
+  const activa = document.getElementById('m_comision_activa').checked;
+  document.getElementById('tabla_wrap').style.display = activa ? 'block' : 'none';
+}
+
+function actualizarSugerencia() {
+  const zona = document.getElementById('m_zona').value;
+  const tipo = document.getElementById('m_tipo').value;
+  const sal  = SAL_MIN[zona] || SAL_MIN.GENERAL;
+  const val  = tipo === 'HORA' ? sal.hora : sal.dia;
+  const unidad = tipo === 'HORA' ? '/hora' : '/día';
+  document.getElementById('sal_val_suggest').textContent = '$' + val.toFixed(2) + unidad;
+}
+
+function aplicarSugerencia() {
+  const zona = document.getElementById('m_zona').value;
+  const tipo = document.getElementById('m_tipo').value;
+  const sal  = SAL_MIN[zona] || SAL_MIN.GENERAL;
+  document.getElementById('m_monto').value = tipo === 'HORA' ? sal.hora.toFixed(2) : sal.dia.toFixed(2);
+}
+
+function addComisionRow(desde=0, hasta=0, pct=0) {
+  const rows = document.getElementById('tabla_rows');
+  const div  = document.createElement('div');
+  div.className = 'tabla-row';
+  div.innerHTML = `
+    <input type="number" placeholder="Desde $" value="${desde}" min="0" step="0.01" class="col-desde">
+    <input type="number" placeholder="Hasta $" value="${hasta}" min="0" step="0.01" class="col-hasta">
+    <input type="number" placeholder="%" value="${pct}" min="0" max="100" step="0.1" class="col-pct">
+    <button class="btn-row-del" onclick="this.parentElement.remove()">−</button>
+  `;
+  rows.appendChild(div);
+}
+
+function getTablaComisiones() {
+  const rows = document.querySelectorAll('#tabla_rows .tabla-row');
+  return Array.from(rows).map(r => ({
+    desde: parseFloat(r.querySelector('.col-desde').value) || 0,
+    hasta: parseFloat(r.querySelector('.col-hasta').value) || 999999,
+    pct:   parseFloat(r.querySelector('.col-pct').value)   || 0,
+  })).filter(r => r.pct > 0);
+}
+
+async function guardarPuesto() {
+  const puesto = document.getElementById('m_puesto').value.trim();
+  if (!puesto) { toast('err','El nombre del puesto es obligatorio'); return; }
+
+  const tipo   = document.getElementById('m_tipo').value;
+  const monto  = parseFloat(document.getElementById('m_monto').value) || 0;
+  if (tipo !== 'COMISION' && monto <= 0) { toast('err','Ingresa el monto base'); return; }
+
+  const zona   = document.getElementById('m_zona').value;
+  const sal    = SAL_MIN[zona] || SAL_MIN.GENERAL;
+  const comAct = document.getElementById('m_comision_activa').checked;
+  const tabla  = comAct ? getTablaComisiones() : [];
+
+  const btn = document.querySelector('.btn-save');
+  btn.textContent = 'Guardando...'; btn.disabled = true;
+
+  try {
+    const r = await jsonp({
+      action:           'guardarNominaConfig',
+      empresa:           SESSION.empresa,
+      puesto,
+      tipoPago:          tipo,
+      montoBase:         monto,
+      zona,
+      salMinDia:         sal.dia,
+      salMinHora:        sal.hora,
+      anioSalMin:        document.getElementById('sal_anio').textContent,
+      comisionActiva:    comAct ? 'SI' : 'NO',
+      tablaComisiones:   JSON.stringify(tabla),
+    });
+    if (r.success) {
+      toast('ok', '✓ Puesto guardado correctamente');
+      closeModal();
+      cargarPuestos();
+    } else {
+      toast('err', r.error || 'Error al guardar');
+    }
+  } catch(e) {
+    toast('err', 'Error de conexión');
+  } finally {
+    btn.textContent = '💾 Guardar'; btn.disabled = false;
+  }
+}
+
+async function eliminarPuesto(puesto) {
+  if (!confirm('¿Eliminar configuración de "' + puesto + '"?')) return;
+  try {
+    await jsonp({ action:'guardarNominaConfig', empresa:SESSION.empresa, puesto, activo:'NO', tipoPago:'DIA', montoBase:0, zona:'GENERAL', salMinDia:0, salMinHora:0, anioSalMin:2026, comisionActiva:'NO', tablaComisiones:'[]' });
+    toast('ok', 'Puesto eliminado');
+    cargarPuestos();
+  } catch(e) { toast('err','Error al eliminar'); }
+}
+
+// ── Branding ──
+async function applyBranding(empresaId) {
+  if (!empresaId) return;
+  try {
+    const r = await jsonp({action:'getEmpresas'});
+    if (!r?.success) return;
+    const emp = r.data.find(e => (e.id||'').toLowerCase() === empresaId.toLowerCase());
+    if (!emp) return;
+    const c1 = emp.color1 || '#F5821F';
+    document.documentElement.style.setProperty('--orange', c1);
+    document.documentElement.style.setProperty('--orange2', c1+'cc');
+    const tn = document.querySelector('.topbar-name');
+    if (tn) tn.textContent = (emp.nombre||empresaId).toUpperCase();
+    const logo = document.querySelector('.topbar-logo');
+    if (logo && emp.logo) { logo.src = emp.logo; }
+  } catch(e) { console.warn('Branding:', e); }
+}
+</script>
+</body>
+</html>
