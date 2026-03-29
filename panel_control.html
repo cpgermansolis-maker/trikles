@@ -902,6 +902,9 @@ async function loadUsuarios(){
         }
         return '';
       };
+      const _sess2 = JSON.parse(sessionStorage.getItem('trikles_session')||localStorage.getItem('trikles_session_remember')||'null');
+      const _esFiltradoUsr = _sess2 && _sess2.rol !== 'SUPER_ADMIN';
+      const _miEmpresaUsr = _sess2 ? (_sess2.empresa||'').toLowerCase() : '';
       USUARIOS=(r.data||[]).map(u=>({
         empresa: get(u,'empresa','Empresa','company'),
         usuario: get(u,'usuario','Usuario','user','username'),
@@ -909,7 +912,7 @@ async function loadUsuarios(){
         rol:     get(u,'rol','Rol','role'),
         email:   get(u,'email','Email','correo'),
         activo:  String(get(u,'activo','Activo','active','status')||'SI').toUpperCase(),
-      }));
+      })).filter(u => !_esFiltradoUsr || (u.empresa||'').toLowerCase() === _miEmpresaUsr);
       USR_FILTERED=[...USUARIOS];
       renderUsuarios(USR_FILTERED);
       document.getElementById('st_usuarios').textContent=USUARIOS.filter(u=>u.activo==='SI').length;
