@@ -515,7 +515,11 @@ function filterData(f,t){
   if(!f&&!t)return ALL;
   return ALL.filter(r=>(!f||r.f>=f)&&(!t||r.f<=t));
 }
-function lastDate(){return ALL[ALL.length-1].f;}
+function lastDate(){
+  if(ACTIVE_MOD==='nom' && NOM_DATA.length > 0) return NOM_DATA[NOM_DATA.length-1].f;
+  if(ALL.length === 0) return new Date().toISOString().slice(0,10);
+  return ALL[ALL.length-1].f;
+}
 function fmt8(d){return d.toISOString().slice(0,10);}
 function addDays(s,n){const d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return fmt8(d);}
 function startOfMonth(s){return s.slice(0,7)+'-01';}
@@ -604,7 +608,9 @@ function switchModule(mod){
 /* ──── UPDATE ALL ──── */
 function updateAll(){
   const data=filterData(GF.from,GF.to);
-  if(!data.length){toast('warning','Sin datos','No hay registros en el rango.');return;}
+  // En modo nómina no necesitamos datos financieros
+  if(ACTIVE_MOD !== 'nom' && !data.length){toast('warning','Sin datos','No hay registros en el rango.');return;}
+  if(ACTIVE_MOD === 'nom' && !data.length && NOM_DATA.length === 0){toast('warning','Sin datos','No hay registros de nómina en el rango.');return;}
   updateKPIs(data);
   updateFilterInfo(data);
   if(ACTIVE_MOD==='fin'){
