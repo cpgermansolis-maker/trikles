@@ -1118,15 +1118,18 @@ document.addEventListener('DOMContentLoaded',()=>{
       const btnNE = document.getElementById('btnNuevaEmpresa');
       if(btnNE) btnNE.style.display = 'none';
       // Ocultar menú Empresas del sidebar
-      document.querySelectorAll('.nav-item, .nav-link').forEach(el => {
-        if(el.textContent.includes('Empresas')) el.style.display = 'none';
+      const sbEmp = document.getElementById('sb_empresas');
+      if(sbEmp) sbEmp.style.display = 'none';
+      // Ocultar card Empresas en inicio
+      document.querySelectorAll('[onclick*="empresas"]').forEach(el => {
+        el.style.display = 'none';
       });
       // Ocultar rol Super Admin del selector de roles
       document.querySelectorAll('.role-superadmin').forEach(el => {
         el.style.display = 'none';
       });
-      // Si está en sección empresas, redirigir a usuarios
-      showSection('usuarios');
+      // Ir directo a usuarios
+      showPanel('usuarios');
     }
   }, 500);
 });
