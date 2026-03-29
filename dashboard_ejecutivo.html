@@ -980,19 +980,62 @@ function updatePEStats(data){
 
 /* ─────────────── NÓMINA ─────────────── */
 function buildNomina(data){
-  const byM=groupByMonth(data);
-  const labels=byM.map(r=>MES[r.mo-1]+' '+r.y);
+  // Usar datos de Nomina_Captura si están disponibles, sino usar campo su de financiero
+  const nomFiltrada = filterNomData(GF.from, GF.to);
+  const usarNomData = nomFiltrada.length > 0;
+
   const opt=JSON.parse(JSON.stringify(BASE_OPT));
   opt.plugins.tooltip.callbacks={label:ctx=>' '+ctx.dataset.label+': '+fmtK(ctx.parsed.y)};
 
-  // N1: Sueldo semanal
-  const byW=groupByWeek(data);
-  mk('cn1','cvn1','bar',{
-    labels:byW.map(r=>'S'+r.w+'/'+r.iy),
-    datasets:[{label:'Sueldo Semanal',data:byW.map(r=>r.su),
-      backgroundColor:'rgba(245,130,31,.7)',borderColor:'#F5821F',borderWidth:1,borderRadius:4,borderSkipped:false}]
-  },opt);
-  document.getElementById('bn1').textContent=byW.length+' semanas';
+  // N1: Pagos por empleado por semana
+  if (usarNomData) {
+    // Agrupar por empleado y semana
+    const empSemana = {};
+    nomFiltrada.forEach(r => {
+      const key = 'S'+r.w+'/'+r.iy;
+      if (!empSemana[r.empleado]) empSemana[r.empleado] = {};
+      empSemana[r.empleado][key] = (empSemana[r.empleado][key]||0) + r.pagoTotal;
+    });
+    const semanas = [...new Set(nomFiltrada.map(r => 'S'+r.w+'/'+r.iy))].sort();
+    const empleados = Object.keys(empSemana);
+    const colors = ['#F5821F','#2ec4b6','#4361ee','#f4d35e','#e63946','#a8dadc'];
+    mk('cn1','cvn1','bar',{
+      labels: semanas,
+      datasets: empleados.map((emp,i) => ({
+        label: emp.split(' ')[0],
+        data: semanas.map(s => empSemana[emp][s]||0),
+        backgroundColor: colors[i%colors.length]+'aa',
+        borderColor: colors[i%colors.length],
+        borderWidth:1, borderRadius:4, borderSkipped:false
+      }))
+    },opt);
+    document.getElementById('bn1').textContent = empleados.length+' empleados';
+  } else {
+    const byW=groupByWeek(data);
+    mk('cn1','cvn1','bar',{
+      labels:byW.map(r=>'S'+r.w+'/'+r.iy),
+      datasets:[{label:'Sueldo Semanal',data:byW.map(r=>r.su),
+        backgroundColor:'rgba(245,130,31,.7)',borderColor:'#F5821F',borderWidth:1,borderRadius:4,borderSkipped:false}]
+    },opt);
+    document.getElementById('bn1').textContent=byW.length+' semanas';
+  }
+
+  // Agrupar por mes para N2 en adelante
+  const byM = usarNomData 
+    ? (() => {
+        const meses = {};
+        nomFiltrada.forEach(r => {
+          const key = r.y+'-'+String(r.m).padStart(2,'0');
+          if (!meses[key]) meses[key] = {y:r.y, mo:r.m, su:0, com:0, desc:0};
+          meses[key].su   += r.pagoTotal;
+          meses[key].com  += r.montoComision;
+          meses[key].desc += r.descuentos;
+        });
+        return Object.values(meses).sort((a,b) => a.y-b.y||a.mo-b.mo);
+      })()
+    : groupByMonth(data);
+
+  const labels=byM.map(r=>MES[r.mo-1]+' '+r.y);
 
   // N2: Nómina por mes
   mk('cn2','cvn2','bar',{
@@ -1205,6 +1248,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   // Aplicar branding y cargar datos desde Sheets
   applyBranding(s.empresa);
   cargarDatosDesdeSheets(s.empresa);
+  cargarDatosNomina(s.empresa);
   // Captura y Corte — ADMIN, SUPER_ADMIN, ANALISTA_FIN, ANALISTA_FULL
   if(['ADMIN','SUPER_ADMIN','ANALISTA_FIN','ANALISTA_FULL'].includes(rol)){
     const bc=document.getElementById('btnCaptura');if(bc)bc.style.display='inline-flex';
@@ -1295,6 +1339,58 @@ async function cargarDatosDesdeSheets(empresa) {
     console.warn('Error cargando datos:', e);
     mostrarCerosEmpresa(empresa);
   }
+}
+
+
+// ── Datos de nómina desde Nomina_Captura ──
+let NOM_DATA = [];
+
+async function cargarDatosNomina(empresa) {
+  NOM_DATA = [];
+  try {
+    const cb = 'nom_'+Date.now();
+    const result = await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      let done = false;
+      window[cb] = d => { if(done)return; done=true; delete window[cb]; script.remove(); resolve(d); };
+      script.onerror = () => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); };
+      script.src = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec?action=getNominaRegistros&empresa=' + encodeURIComponent(empresa) + '&callback=' + cb;
+      document.head.appendChild(script);
+      setTimeout(() => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); }, 15000);
+    });
+    if (result && result.success && result.data) {
+      NOM_DATA = result.data.map(r => {
+        const fecha = String(r.fecha).slice(0,10);
+        const d = new Date(fecha+'T12:00:00');
+        return {
+          f:    fecha,
+          y:    d.getFullYear(),
+          m:    d.getMonth()+1,
+          w:    getISOWeek(d),
+          iy:   d.getFullYear(),
+          empleado:     r.empleado,
+          puesto:       r.puesto,
+          pagoTotal:    parseFloat(r.pagoTotal)    || 0,
+          montoBase:    parseFloat(r.montoBase)    || 0,
+          montoComision:parseFloat(r.montoComision)|| 0,
+          descuentos:   parseFloat(r.descuentos)   || 0,
+          ventas:       parseFloat(r.ventas)        || 0,
+          horas:        parseFloat(r.horasTrabajadas)|| 0,
+        };
+      });
+    }
+  } catch(e) { console.warn('Nomina data:', e); }
+}
+
+function getISOWeek(d) {
+  const jan4 = new Date(d.getFullYear(), 0, 4);
+  const startOfWeek = new Date(jan4);
+  startOfWeek.setDate(jan4.getDate() - (jan4.getDay() || 7) + 1);
+  return Math.ceil(((d - startOfWeek) / 86400000 + 1) / 7);
+}
+
+function filterNomData(from, to) {
+  return NOM_DATA.filter(r => r.f >= from && r.f <= to);
 }
 
 // ── Mostrar ceros para empresa sin datos ──
