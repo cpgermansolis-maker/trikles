@@ -473,7 +473,8 @@ const TAB = {
   Menudeo: {sueldoPorHora: 40},
 };
 
-const EMPLEADOS = [
+// Empleados se cargan desde Sheets según la empresa activa
+const EMPLEADOS_TRIKLES = [
   {nombre:'Josue',                   puesto:'Comisionista'},
   {nombre:'Luz Arely Pérez Rivera',  puesto:'Comisionista'},
   {nombre:'Gaby',                    puesto:'Ventas'},
@@ -489,6 +490,7 @@ const EMPLEADOS = [
   {nombre:'Rocio Escobar',          puesto:'Ventas'},
   {nombre:'Nohely',                 puesto:'Ventas'},
 ];
+let EMPLEADOS = []; // Se llena según empresa
 
 
 // ══════════════════════════════════════════════════════════
@@ -514,6 +516,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   applyBranding(s.empresa);
   changeDate(today());
+  // Cargar empleados según empresa
+  if(!s.empresa || s.empresa === 'TRIKLES') {
+    EMPLEADOS = EMPLEADOS_TRIKLES;
+  } else {
+    EMPLEADOS = []; // Sin empleados hasta que se den de alta para esta empresa
+  }
   buildEmpGrid();
 });
 
