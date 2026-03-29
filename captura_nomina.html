@@ -128,33 +128,28 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
   .kpi-bar{grid-template-columns:repeat(3,1fr);}
 }
 
+
 /* ── Tooltips móvil ── */
-@media (hover: none) {
+.help-icon { -webkit-tap-highlight-color: transparent; }
+.help-icon .tt {
+  pointer-events: none;
+  white-space: normal;
+  word-wrap: break-word;
+}
+@media (max-width: 768px) {
   .help-icon .tt {
-    display: none;
-    visibility: visible;
-    opacity: 1;
-    position: fixed;
-    left: 50% !important;
-    top: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 85vw !important;
-    max-width: 320px;
-    z-index: 99999;
-    font-size: 13px;
-    padding: 14px 16px;
-    box-shadow: 0 12px 40px rgba(0,0,0,.8);
+    width: 75vw;
+    max-width: 280px;
+    font-size: 12px;
+    left: auto;
+    right: 0;
+    transform: none;
   }
-  .help-icon .tt::before { display: none; }
-  .help-icon.tt-open .tt { display: block; }
-  .tt-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 99998;
-    background: rgba(0,0,0,.4);
+  .help-icon .tt::before {
+    left: auto;
+    right: 10px;
+    transform: none;
   }
-  .tt-overlay.open { display: block; }
 }
 
 </style>
@@ -832,6 +827,39 @@ async function applyBranding(empresaId) {
     document.querySelector('.topbar').style.borderBottomColor = c1;
   } catch(e) { console.warn('Branding:', e); }
 }
+</script>
+<script>
+// ── Tooltips táctiles ──
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.help-icon').forEach(function(icon) {
+    icon.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const isOpen = icon.style.zIndex === '9999';
+      // Cerrar todos
+      document.querySelectorAll('.help-icon').forEach(function(el) {
+        el.style.zIndex = '';
+        const tt = el.querySelector('.tt');
+        if (tt) { tt.style.visibility = 'hidden'; tt.style.opacity = '0'; }
+      });
+      if (!isOpen) {
+        icon.style.zIndex = '9999';
+        const tt = icon.querySelector('.tt');
+        if (tt) { tt.style.visibility = 'visible'; tt.style.opacity = '1'; }
+      }
+    }, {passive: false});
+  });
+  // Cerrar al tocar fuera
+  document.addEventListener('touchstart', function(e) {
+    if (!e.target.closest('.help-icon')) {
+      document.querySelectorAll('.help-icon').forEach(function(el) {
+        el.style.zIndex = '';
+        const tt = el.querySelector('.tt');
+        if (tt) { tt.style.visibility = 'hidden'; tt.style.opacity = '0'; }
+      });
+    }
+  });
+});
 </script>
 </body>
 </html>
