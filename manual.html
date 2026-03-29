@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual de Usuario — TRIKLES</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --orange:#F5821F;--dark:#0d0d1a;--dark2:#12121f;--dark3:#1a1a2e;--dark4:#22223a;
+  --light:#e0e0e0;--gray:#888;--green:#2ec4b6;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--light);min-height:100vh;}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:70px;background:var(--dark2);border-bottom:2px solid var(--orange);}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.topbar-logo{height:48px;}
+.topbar-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:5px;color:var(--orange);}
+.topbar-sub{font-size:10px;color:var(--gray);letter-spacing:2px;}
+.btn-back{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--light);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;text-decoration:none;}
+.btn-out{background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.3);color:#e63946;padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;}
+
+.main{max-width:800px;margin:0 auto;padding:32px 24px;}
+.manual-header{text-align:center;margin-bottom:40px;}
+.manual-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:4px;color:var(--orange);margin-bottom:8px;}
+.manual-sub{font-size:14px;color:var(--gray);}
+.rol-badge{display:inline-block;background:rgba(245,130,31,.15);border:1px solid rgba(245,130,31,.4);color:var(--orange);padding:6px 16px;border-radius:20px;font-size:13px;font-weight:700;margin-top:12px;}
+
+.seccion{background:var(--dark3);border:1px solid rgba(255,255,255,.07);border-radius:14px;margin-bottom:16px;overflow:hidden;}
+.sec-head{display:flex;align-items:center;gap:12px;padding:18px 20px;cursor:pointer;transition:.2s;}
+.sec-head:hover{background:rgba(255,255,255,.03);}
+.sec-icon{width:36px;height:36px;border-radius:10px;background:rgba(245,130,31,.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.sec-titulo{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--light);flex:1;}
+.sec-arrow{color:var(--gray);font-size:14px;transition:transform .2s;}
+.sec-arrow.open{transform:rotate(180deg);}
+.sec-body{display:none;padding:0 20px 20px;border-top:1px solid rgba(255,255,255,.06);}
+.sec-body.open{display:block;}
+.sec-body p{font-size:14px;line-height:1.8;color:var(--light);margin-top:14px;white-space:pre-line;}
+
+.search-bar{background:var(--dark3);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:24px;}
+.search-bar input{background:none;border:none;color:var(--light);font-family:'Nunito',sans-serif;font-size:14px;width:100%;outline:none;}
+.search-bar input::placeholder{color:var(--gray);}
+
+.no-results{text-align:center;padding:32px;color:var(--gray);}
+
+@media(max-width:600px){
+  .main{padding:20px 16px;}
+  .manual-title{font-size:28px;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <img class="topbar-logo" id="topbar-logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='%23666'%3E%F0%9F%8F%A2%3C/text%3E%3C/svg%3E" alt="">
+    <div>
+      <div class="topbar-name" id="topbar-name"></div>
+      <div class="topbar-sub">📖 MANUAL DE USUARIO</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <a id="btnBack" href="dashboard_ejecutivo.html" class="btn-back">← Regresar</a>
+    <button class="btn-out" onclick="logout()">Salir ✕</button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="manual-header">
+    <div class="manual-title">📖 Manual de Usuario</div>
+    <div class="manual-sub">Guía de uso del sistema TRIKLES por perfil</div>
+    <div class="rol-badge" id="rol-badge">Cargando...</div>
+  </div>
+
+  <div class="search-bar">
+    <span>🔍</span>
+    <input type="text" id="searchInput" placeholder="Buscar en el manual..." oninput="filtrar(this.value)">
+  </div>
+
+  <div id="secciones"></div>
+</main>
+
+<script>
+const SESSION_KEY = 'trikles_session';
+const API = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
+
+const MANUAL = {"SUPER_ADMIN": {"titulo": "👑 Manual — Super Administrador", "secciones": [{"icono": "🏢", "titulo": "Gestión de Empresas", "contenido": "Desde el Panel de Control puedes dar de alta, editar y desactivar empresas.\nCada empresa tiene su propio logo, colores institucionales y productos principales.\nLos datos de cada empresa están completamente separados — un usuario de Centro Médico nunca verá datos de TRIKLES.\n\nPasos para crear una empresa:\n1. Panel de Control → Empresas → + Nueva Empresa\n2. Completa nombre, giro, misión y visión\n3. Sube el logo y define los colores institucionales\n4. Configura los 3 productos principales (aparecerán en la captura financiera)\n5. Guarda — la empresa queda activa de inmediato"}, {"icono": "👥", "titulo": "Gestión de Usuarios", "contenido": "Puedes crear usuarios para cualquier empresa del sistema.\nLos roles disponibles son: Super Admin, Administrador, Director General, Director de Finanzas, Analista Financiero, Analista de Nómina y Analista Full.\n\nReglas importantes:\n— Solo el Super Admin puede crear otros Super Admins\n— Cada usuario solo puede ver datos de su empresa\n— Un usuario inactivo no puede iniciar sesión\n— El username debe ser único en todo el sistema"}, {"icono": "📊", "titulo": "Dashboard Ejecutivo", "contenido": "El dashboard muestra datos de la empresa seleccionada en tiempo real desde Google Sheets.\nPuedes cambiar de empresa usando el selector en la parte superior.\n\nTabs disponibles:\n— Financiero: 12 gráficas con análisis de ventas, ganancias, gastos y punto de equilibrio\n— Nómina: 5 gráficas con análisis de pagos por empleado, mes y comparativas\n\nUsa los filtros de rango para analizar períodos específicos."}, {"icono": "⚙️", "titulo": "Configuración del Sistema", "contenido": "El sistema actualiza automáticamente el salario mínimo cada 1 de enero consultando CONASAMI.\nSi la actualización falla, recibirás un correo de alerta para actualizarlo manualmente.\n\nPara configurar la nómina de una empresa:\nPanel de Control → Configurar Nómina → Agregar Puesto\nDefine el tipo de pago (día/hora/comisión) y la tabla de rangos de comisiones."}]}, "ADMIN": {"titulo": "⚙️ Manual — Administrador", "secciones": [{"icono": "🏢", "titulo": "Mi Empresa", "contenido": "Desde Panel de Control → Mi Empresa puedes actualizar la información de tu empresa:\n— Logo y colores institucionales\n— Misión y visión\n— Los 3 productos principales que aparecerán en la captura financiera\n\nEstos cambios se reflejan inmediatamente en todas las pantallas."}, {"icono": "👥", "titulo": "Gestión de Usuarios", "contenido": "Puedes crear y administrar usuarios de tu empresa.\nLos roles que puedes asignar son: Administrador, Director General, Director de Finanzas, Analista Financiero, Analista de Nómina y Analista Full.\n\nPara crear un usuario:\n1. Panel de Control → Usuarios → + Nuevo Usuario\n2. Completa nombre, usuario y contraseña (mínimo 6 caracteres)\n3. Asigna el rol correspondiente\n4. El usuario podrá iniciar sesión de inmediato"}, {"icono": "💰", "titulo": "Configuración de Nómina", "contenido": "Antes de usar la captura de nómina debes configurar los puestos de tu empresa.\n\nPara cada puesto defines:\n— Tipo de pago: Por día, Por hora, Solo comisión o Base + comisión\n— Monto base (el sistema sugiere el salario mínimo vigente, puedes modificarlo)\n— Tabla de comisiones: rangos de ventas con su porcentaje correspondiente\n\nEjemplo de tabla de comisiones:\n$0 — $1,000 → 5%\n$1,001 — $3,000 → 8%\n$3,001 en adelante → 10%"}, {"icono": "📊", "titulo": "Dashboard Ejecutivo", "contenido": "El dashboard muestra el desempeño financiero y de nómina de tu empresa en tiempo real.\nLos datos se actualizan cada vez que un analista guarda una captura.\n\nTabs:\n— Financiero: ventas, ganancias, gastos y punto de equilibrio\n— Nómina: pagos por empleado y totales mensuales\n\nPuedes exportar a PDF usando el botón correspondiente en el topbar."}]}, "ANALISTA_FIN": {"titulo": "📋 Manual — Analista Financiero", "secciones": [{"icono": "📋", "titulo": "Captura Financiera Diaria", "contenido": "La captura financiera es el registro diario de la operación del negocio.\nDebes capturarla al cierre de cada día de operación.\n\nSecciones a capturar:\n1. Control de Efectivo: cuenta el efectivo físico y compáralo con el sistema\n2. Ventas del Día: total de ventas brutas desglosadas por producto\n3. Crédito y Cobranza: ventas a crédito y cobros del día\n4. Egresos: compras, gastos, reserva y retiro de utilidades\n5. Observaciones: productos agotados o pedidos no surtidos\n\nImportante: el campo Sueldos se pre-llena automáticamente con el total de nómina del día.\nVerifica que el monto sea correcto antes de guardar."}, {"icono": "🗃", "titulo": "Corte de Caja", "contenido": "El corte de caja complementa la captura financiera con el conteo físico de efectivo.\n\nPasos:\n1. Cuenta cada billete y moneda físicamente\n2. Ingresa la cantidad de cada denominación\n3. El sistema calcula el total automáticamente\n4. Compara con el efectivo en sistema — cualquier diferencia debe anotarse\n5. Registra el flujo de efectivo: entradas y salidas del día\n\nRealiza el corte al final de cada turno o día de operación."}, {"icono": "📊", "titulo": "Dashboard", "contenido": "El dashboard muestra el análisis financiero de tu empresa.\nPuedes consultar el desempeño por día, semana, mes o año.\n\nGráficas disponibles:\n— Tendencia diaria vs Punto de Equilibrio\n— Ganancias por producto\n— Comparativas mes actual vs anterior\n— Flujo de efectivo e ingresos/egresos por tipo\n\nPasa el mouse (o toca en móvil) el ícono ? de cada gráfica para entender qué muestra."}]}, "ANALISTA_NOM": {"titulo": "👥 Manual — Analista de Nómina", "secciones": [{"icono": "👥", "titulo": "Captura de Nómina", "contenido": "La captura de nómina registra el pago diario de cada empleado.\n\nPasos para capturar:\n1. Selecciona el empleado en el buscador (o agrégalo si es nuevo)\n2. Si es nuevo, selecciona su puesto — el sistema carga su tabulador automáticamente\n3. Ingresa hora de entrada y salida — las horas se calculan automáticamente\n4. Ingresa las ventas del día si el empleado tiene comisiones\n5. El sistema calcula el pago total en tiempo real\n6. Verifica el desglose (base + comisión − descuentos)\n7. Agrega descuentos si los hay\n8. Guarda el registro\n\nPuedes capturar varios empleados en el mismo día — cada uno queda registrado por separado."}, {"icono": "📊", "titulo": "Tabulador de Comisiones", "contenido": "El tabulador muestra la tabla de comisiones configurada por el administrador para cada puesto.\n\nCómo funciona:\n— El sistema identifica en qué rango de ventas está el empleado\n— Aplica el porcentaje correspondiente a las ventas totales del día\n— Suma el monto base (si el puesto lo tiene) y resta descuentos\n\nEjemplo:\nVentas del día: $1,500\nRango $1,001–$3,000 → 8% de comisión\nComisión: $1,500 × 8% = $120\nBase (8 hrs × $39.38): $315.04\nPago total: $315.04 + $120 = $435.04"}, {"icono": "💡", "titulo": "Consejos importantes", "contenido": "— Captura la nómina antes de que el analista financiero haga la captura diaria.\n  Así el campo Sueldos se pre-llenará automáticamente.\n\n— Si un empleado faltó, no lo captures ese día — no habrá registro de pago.\n\n— Si hay un error en un registro, puedes volver al mismo día y volver a capturar al mismo empleado — el sistema actualizará el registro existente.\n\n— Los registros del día aparecen en la tabla inferior de la pantalla de captura."}]}, "DIR_GENERAL": {"titulo": "📈 Manual — Director General / Finanzas", "secciones": [{"icono": "📊", "titulo": "Dashboard Ejecutivo", "contenido": "El dashboard es tu herramienta principal para tomar decisiones.\nMuestra el desempeño financiero y de nómina de la empresa en tiempo real.\n\nCómo usarlo:\n— Selecciona el período con los botones de rango (Hoy, 7 días, Este mes, etc.)\n— Cambia entre tab Financiero y tab Nómina según lo que quieras analizar\n— Pasa el mouse (o toca en móvil) el ícono ? de cada gráfica para entender qué muestra\n\nIndicadores clave a monitorear:\n— Ventas vs Punto de Equilibrio: ¿estamos siendo rentables?\n— Margen de ganancia bruta: ¿qué porcentaje de las ventas se convierte en ganancia?\n— Flujo de efectivo: ¿hay suficiente liquidez?\n— Nómina vs Ventas: ¿el costo de personal es sostenible?"}, {"icono": "⚖️", "titulo": "Punto de Equilibrio", "contenido": "El Punto de Equilibrio (P.E.) es el monto mínimo de ventas diarias para cubrir todos los gastos.\n\nCómo interpretarlo:\n— Días SOBRE el P.E. (verde): el negocio fue rentable ese día\n— Días BAJO el P.E. (rojo): los gastos superaron las ventas\n\nSi hay muchos días bajo el P.E. consecutivos, es señal de alerta.\nRevisa qué gastos están aumentando o qué está pasando con las ventas."}, {"icono": "📈", "titulo": "Análisis de Tendencias", "contenido": "Las gráficas comparativas te permiten ver si el negocio está creciendo o decreciendo.\n\nGráficas más importantes para dirección:\n— Ganancia por Mes — Año Actual vs Anterior: ¿estamos mejor que el año pasado?\n— Ganancias Acumuladas Mes Actual vs Anterior: ¿vamos bien en el mes?\n— Ganancias por Semana del Año: ¿hay semanas pico que podemos aprovechar?\n\nExporta el dashboard a PDF para presentaciones o reportes usando el botón PDF en el topbar."}]}};
+
+const ROL_MAP = {
+  'SUPER_ADMIN':    'SUPER_ADMIN',
+  'ADMIN':          'ADMIN',
+  'ANALISTA_FIN':   'ANALISTA_FIN',
+  'ANALISTA_NOM':   'ANALISTA_NOM',
+  'ANALISTA_FULL':  'ANALISTA_FIN',
+  'DIR_GENERAL':    'DIR_GENERAL',
+  'DIR_FINANZAS':   'DIR_GENERAL',
+};
+
+function getSession() {
+  try {
+    const s = JSON.parse(sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY+'_remember'));
+    if (s && s.expires > Date.now()) return s;
+    return null;
+  } catch { return null; }
+}
+
+function logout() {
+  if(confirm('¿Cerrar sesión?')) {
+    sessionStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(SESSION_KEY+'_remember');
+    window.location.href = 'login.html';
+  }
+}
+
+function jsonp(params, timeout=10000) {
+  return new Promise((resolve,reject) => {
+    const cb = '_cb'+Date.now()+Math.random().toString(36).slice(2);
+    const s  = document.createElement('script');
+    let done = false;
+    const fin = (fn,v) => { if(done)return; done=true; delete window[cb]; s.remove(); fn(v); };
+    window[cb] = d => fin(resolve,d);
+    s.onerror  = () => fin(reject,new Error('error'));
+    s.src = API + '?' + new URLSearchParams({...params, callback:cb});
+    document.head.appendChild(s);
+    setTimeout(() => fin(reject,new Error('timeout')), timeout);
+  });
+}
+
+let secciones_data = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const s = getSession();
+  if (!s) { window.location.href = 'login.html'; return; }
+
+  // Topbar
+  document.getElementById('topbar-name').textContent = (s.empresa||'').replace(/_/g,' ').toUpperCase();
+
+  // Branding
+  try {
+    const r = await jsonp({action:'getEmpresas'});
+    if (r?.success) {
+      const emp = r.data.find(e => (e.id||'').toLowerCase() === s.empresa.toLowerCase());
+      if (emp) {
+        const c1 = emp.color1 || '#F5821F';
+        document.documentElement.style.setProperty('--orange', c1);
+        document.getElementById('topbar-name').textContent = (emp.nombre||s.empresa).toUpperCase();
+        if (emp.logo) document.getElementById('topbar-logo').src = emp.logo;
+        document.querySelector('.topbar').style.borderBottomColor = c1;
+      }
+    }
+  } catch(e) {}
+
+  // Cargar manual según rol
+  const rolKey = ROL_MAP[s.rol] || 'ADMIN';
+  const manual = MANUAL[rolKey];
+
+  if (!manual) {
+    document.getElementById('secciones').innerHTML = '<div class="no-results">No hay manual disponible para tu perfil.</div>';
+    return;
+  }
+
+  // Badge de rol
+  document.getElementById('rol-badge').textContent = manual.titulo;
+
+  // Guardar secciones para búsqueda
+  secciones_data = manual.secciones;
+  renderSecciones(secciones_data);
+
+  // Botón regresar según rol
+  const backBtn = document.getElementById('btnBack');
+  if (['ANALISTA_FIN','ANALISTA_FULL'].includes(s.rol)) backBtn.href = 'captura_financiera.html';
+  else if (['ANALISTA_NOM'].includes(s.rol)) backBtn.href = 'captura_nomina.html';
+  else backBtn.href = 'dashboard_ejecutivo.html';
+});
+
+function renderSecciones(secs) {
+  const el = document.getElementById('secciones');
+  if (!secs.length) {
+    el.innerHTML = '<div class="no-results">No se encontraron resultados.</div>';
+    return;
+  }
+  el.innerHTML = secs.map((sec, i) => `
+    <div class="seccion">
+      <div class="sec-head" onclick="toggleSec(${i})">
+        <div class="sec-icon">${sec.icono}</div>
+        <div class="sec-titulo">${sec.titulo}</div>
+        <span class="sec-arrow" id="arr_${i}">▼</span>
+      </div>
+      <div class="sec-body" id="body_${i}">
+        <p>${sec.contenido}</p>
+      </div>
+    </div>
+  `).join('');
+
+  // Abrir primera sección por default
+  toggleSec(0);
+}
+
+function toggleSec(i) {
+  const body = document.getElementById('body_'+i);
+  const arr  = document.getElementById('arr_'+i);
+  if (!body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arr.classList.toggle('open', !isOpen);
+}
+
+function filtrar(q) {
+  if (!q.trim()) { renderSecciones(secciones_data); return; }
+  const term = q.toLowerCase();
+  const filtered = secciones_data.filter(s =>
+    s.titulo.toLowerCase().includes(term) ||
+    s.contenido.toLowerCase().includes(term)
+  );
+  renderSecciones(filtered);
+  // Abrir todas cuando hay búsqueda
+  filtered.forEach((_, i) => {
+    const body = document.getElementById('body_'+i);
+    const arr  = document.getElementById('arr_'+i);
+    if (body) body.classList.add('open');
+    if (arr)  arr.classList.add('open');
+  });
+}
+</script>
+</body>
+</html>

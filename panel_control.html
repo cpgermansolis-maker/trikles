@@ -236,6 +236,10 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
   visibility: visible !important;
   opacity: 1 !important;
 }
+
+.btn-help{background:rgba(46,196,182,.1);border:1px solid rgba(46,196,182,.3);color:#2ec4b6;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
+.btn-help:hover{background:rgba(46,196,182,.2);}
+
 </style>
 </head>
 <body>
@@ -250,6 +254,7 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
     <a class="btn-nav dash" href="dashboard_ejecutivo.html">📊 Dashboard</a>
     <a class="btn-nav" href="captura_financiera.html">📋 Captura</a>
     <div class="user-pill"><div class="u-dot"></div><span id="userChip">Cargando...</span></div>
+    <a href="manual.html" class="btn-help" title="Manual de usuario">❓ Ayuda</a>
     <button class="btn-out" onclick="logout()">Salir ✕</button>
   </div>
 </header>
