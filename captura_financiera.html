@@ -475,6 +475,14 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.5;}
     </div>
   </div>
 
+  <div class="field">
+    <label>💰 Sueldos / Nómina del Día <span class="req">*</span>
+      <span id="nomina_badge" style="display:none;margin-left:8px;background:rgba(46,196,182,.2);border:1px solid #2ec4b6;color:#2ec4b6;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;">✓ Pre-llenado desde Nómina</span>
+    </label>
+    <input type="number" class="fi" id="f_sueldo" placeholder="0.00" min="0" step="0.01" oninput="calcular()">
+    <div class="field-hint" id="h_sueldo">Cargando nómina del día...</div>
+  </div>
+
   <div class="field-row">
     <div class="field">
       <label>Reserva del Día <span class="req">*</span></label>
@@ -597,6 +605,9 @@ function changeDate(f){
   currentDate=f;
   document.getElementById('fechaInput').value=f;
   const d=new Date(f+'T12:00:00');
+  // Pre-cargar nómina del día
+  const _ss = JSON.parse(sessionStorage.getItem('trikles_session')||localStorage.getItem('trikles_session_remember')||'null');
+  if(_ss) precargarNomina(_ss.empresa, f);
   document.getElementById('fechaDisplay').textContent=
     d.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   const isHoy=f===today();
@@ -851,6 +862,39 @@ async function applyBranding(empresaId) {
     return { nombre, logo, c1, c2, emp };
   } catch (e) {
     console.warn('[Branding] Error:', e.message);
+  }
+}
+
+
+// ── Pre-llenar nómina desde Sheets ──
+async function precargarNomina(empresa, fecha) {
+  try {
+    const cb = 'nom_' + Date.now();
+    const result = await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      let done = false;
+      window[cb] = d => { if(done)return; done=true; delete window[cb]; script.remove(); resolve(d); };
+      script.onerror = () => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); };
+      script.src = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec?action=getNominaTotal&empresa=' + encodeURIComponent(empresa) + '&fecha=' + encodeURIComponent(fecha) + '&callback=' + cb;
+      document.head.appendChild(script);
+      setTimeout(() => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); }, 10000);
+    });
+    
+    const hint = document.getElementById('h_sueldo');
+    const badge = document.getElementById('nomina_badge');
+    const field = document.getElementById('f_sueldo');
+    
+    if(result && result.success && result.total > 0) {
+      field.value = result.total.toFixed(2);
+      if(badge) badge.style.display = 'inline';
+      if(hint) hint.textContent = 'Pre-llenado: $' + result.total.toFixed(2) + ' (' + (result.registros||0) + ' empleados). Puedes modificar si es necesario.';
+      calcular();
+    } else {
+      if(hint) hint.textContent = 'Sin nómina registrada para este día. Ingresa el monto manualmente.';
+    }
+  } catch(e) {
+    const hint = document.getElementById('h_sueldo');
+    if(hint) hint.textContent = 'No se pudo cargar la nómina. Ingresa el monto manualmente.';
   }
 }
 
