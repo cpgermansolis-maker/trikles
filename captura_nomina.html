@@ -366,6 +366,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Cargar configuración de nómina
   await cargarConfig();
 
+  // Cargar empleados históricos desde Sheets
+  await cargarEmpleadosHistoricos();
+
   // Cargar registros del día
   cargarRegistros();
 });
@@ -687,6 +690,20 @@ async function guardarRegistro() {
   } finally {
     btn.textContent = '💾 Guardar Registro'; btn.disabled = false;
   }
+}
+
+// ── Cargar empleados históricos ──
+async function cargarEmpleadosHistoricos() {
+  try {
+    const r = await jsonp({action:'getNominaRegistros', empresa:SESSION.empresa});
+    if (r.success && r.data) {
+      r.data.forEach(reg => {
+        if (reg.empleado && !EMPLEADOS_VISTOS.includes(reg.empleado)) {
+          EMPLEADOS_VISTOS.push(reg.empleado);
+        }
+      });
+    }
+  } catch(e) { console.warn('Empleados históricos:', e); }
 }
 
 // ── Cargar registros ──
