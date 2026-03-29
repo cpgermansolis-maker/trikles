@@ -352,7 +352,7 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
         <input class="search-inp" id="userSearch" placeholder="🔍  Buscar por nombre, usuario o rol..." oninput="filterUsers()">
         <select class="search-inp" id="userRolFilter" style="max-width:180px" onchange="filterUsers()">
           <option value="">Todos los roles</option>
-          <option value="SUPER_ADMIN">Super Admin</option>
+          <option value="SUPER_ADMIN" class="role-superadmin">Super Admin</option>
           <option value="ADMIN">Administrador</option>
           <option value="DIR_GENERAL">Dir. General</option>
           <option value="DIR_FINANZAS">Dir. Finanzas</option>
@@ -521,7 +521,7 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
         <label>Rol *</label>
         <select id="usr_rol" onchange="onRolChange()">
           <option value="">— Selecciona un rol —</option>
-          <option value="SUPER_ADMIN">Super Admin</option>
+          <option value="SUPER_ADMIN" class="role-superadmin">Super Admin</option>
           <option value="ADMIN">Administrador</option>
           <option value="DIR_GENERAL">Dir. General</option>
           <option value="DIR_FINANZAS">Dir. Finanzas</option>
@@ -1124,9 +1124,9 @@ document.addEventListener('DOMContentLoaded',()=>{
       document.querySelectorAll('[onclick*="empresas"]').forEach(el => {
         el.style.display = 'none';
       });
-      // Ocultar rol Super Admin del selector de roles
+      // Eliminar rol Super Admin del selector de roles
       document.querySelectorAll('.role-superadmin').forEach(el => {
-        el.style.display = 'none';
+        el.remove();
       });
       // Ir directo a usuarios
       showPanel('usuarios');
