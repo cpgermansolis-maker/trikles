@@ -1391,6 +1391,8 @@ async function cargarDatosNomina(empresa) {
       });
     }
   } catch(e) { console.warn('Nomina data:', e); }
+  // Actualizar gráficas si estamos en tab nómina
+  if(ACTIVE_MOD === 'nom') updateAll();
 }
 
 function getISOWeek(d) {
