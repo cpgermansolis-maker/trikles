@@ -119,6 +119,36 @@ input:checked + .slider::before{transform:translateX(18px);}
 .toast.show{transform:translateY(0);opacity:1;}
 .toast.ok{border-color:rgba(46,196,182,.5);color:var(--green);}
 .toast.err{border-color:rgba(230,57,70,.5);color:var(--red);}
+
+/* ── Tooltips móvil ── */
+@media (hover: none) {
+  .help-icon .tt {
+    display: none;
+    visibility: visible;
+    opacity: 1;
+    position: fixed;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 85vw !important;
+    max-width: 320px;
+    z-index: 99999;
+    font-size: 13px;
+    padding: 14px 16px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.8);
+  }
+  .help-icon .tt::before { display: none; }
+  .help-icon.tt-open .tt { display: block; }
+  .tt-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99998;
+    background: rgba(0,0,0,.4);
+  }
+  .tt-overlay.open { display: block; }
+}
+
 </style>
 </head>
 <body>

@@ -143,6 +143,36 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 .help-icon .tt{visibility:hidden;opacity:0;width:280px;background:#1a1a2e;border:1px solid var(--orange);color:#e0e0e0;font-size:12px;font-weight:400;font-family:'Nunito',sans-serif;line-height:1.6;border-radius:10px;padding:10px 14px;position:absolute;z-index:9999;left:50%;transform:translateX(-50%);top:26px;box-shadow:0 8px 24px rgba(0,0,0,.5);transition:opacity .2s;pointer-events:none;text-transform:none;letter-spacing:0;}
 .help-icon .tt::before{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-bottom-color:var(--orange);}
 .help-icon:hover .tt{visibility:visible;opacity:1;}
+
+/* ── Tooltips móvil ── */
+@media (hover: none) {
+  .help-icon .tt {
+    display: none;
+    visibility: visible;
+    opacity: 1;
+    position: fixed;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 85vw !important;
+    max-width: 320px;
+    z-index: 99999;
+    font-size: 13px;
+    padding: 14px 16px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.8);
+  }
+  .help-icon .tt::before { display: none; }
+  .help-icon.tt-open .tt { display: block; }
+  .tt-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99998;
+    background: rgba(0,0,0,.4);
+  }
+  .tt-overlay.open { display: block; }
+}
+
 </style>
 </head>
 <body>
