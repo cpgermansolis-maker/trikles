@@ -136,6 +136,13 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 ::-webkit-scrollbar-thumb{background:var(--orange2);border-radius:3px;}
 @media(max-width:1100px){.g2,.g3,.g12{grid-template-columns:1fr;}}
 @media(max-width:768px){.main,.kpi-grid,.filter-bar,.topbar,.mod-tabs{padding-left:12px;padding-right:12px;}.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+
+/* ── Tooltips dashboard ── */
+.help-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.15);color:var(--light);font-size:11px;font-weight:900;cursor:help;position:relative;flex-shrink:0;transition:background .2s;margin-left:6px;vertical-align:middle;}
+.help-icon:hover{background:var(--orange);}
+.help-icon .tt{visibility:hidden;opacity:0;width:280px;background:#1a1a2e;border:1px solid var(--orange);color:#e0e0e0;font-size:12px;font-weight:400;font-family:'Nunito',sans-serif;line-height:1.6;border-radius:10px;padding:10px 14px;position:absolute;z-index:9999;left:50%;transform:translateX(-50%);top:26px;box-shadow:0 8px 24px rgba(0,0,0,.5);transition:opacity .2s;pointer-events:none;text-transform:none;letter-spacing:0;}
+.help-icon .tt::before{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-bottom-color:var(--orange);}
+.help-icon:hover .tt{visibility:visible;opacity:1;}
 </style>
 </head>
 <body>
@@ -245,7 +252,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     <div class="cc" id="ch1">
       <div class="cc-hdr">
         <div>
-          <div class="cc-ttl">📈 Tendencia Diaria — Ventas vs P.E.</div>
+          <div class="cc-ttl">📈 Tendencia Diaria — Ventas vs P.E.<span class="help-icon">?<span class="tt">Compara tus ventas diarias (línea naranja) contra el Punto de Equilibrio (línea punteada). Los días donde la línea naranja está ARRIBA del P.E. generaste ganancia. Los días ABAJO tuviste pérdida.</span></span></div>
           <div class="cc-sub">Línea naranja = ventas · Línea punteada = Punto de Equilibrio</div>
         </div>
         <div class="cc-badge" id="b1">—</div>
@@ -254,7 +261,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     </div>
     <div class="cc">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">⚖️ P.E. Acumulado</div><div class="cc-sub">Situación del período vs punto de equilibrio</div></div>
+        <div><div class="cc-ttl">⚖️ P.E. Acumulado<span class="help-icon">?<span class="tt">Resumen de tu desempeño vs el Punto de Equilibrio en el período. "Días sobre P.E." = días rentables. El superávit/déficit muestra cuánto ganaste o perdiste en total respecto al P.E.</span></span></div><div class="cc-sub">Situación del período vs punto de equilibrio</div></div>
       </div>
       <div class="slist" id="pe_stats">
         <div class="srow"><span class="srow-l">P.E. Diario</span><span class="srow-v" style="color:var(--yellow)" id="pe_diario_val">$0.00</span></div>
@@ -273,7 +280,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   <div class="g2">
     <div class="cc" id="ch2">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">📊 Ganancias Acumuladas por Mes y Año</div>
+        <div><div class="cc-ttl">📊 Ganancias Acumuladas por Mes y Año<span class="help-icon">?<span class="tt">Muestra la ganancia bruta acumulada de cada mes. Las barras más altas = meses más rentables. Úsala para identificar tus mejores y peores meses del año.</span></span></div>
           <div class="cc-sub">Agrupado mensualmente en el rango seleccionado</div></div>
         <div class="cc-badge" id="b2">—</div>
       </div>
@@ -281,7 +288,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     </div>
     <div class="cc" id="ch3">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">🛒 Ganancias por Producto</div>
+        <div><div class="cc-ttl">🛒 Ganancias por Producto<span class="help-icon">?<span class="tt">Compara cuánto ganó cada producto en el período seleccionado. Te ayuda a identificar cuál es tu producto estrella y cuál necesita atención o puede eliminarse.</span></span></div>
           <div class="cc-sub">4 principales productos en el rango</div></div>
         <div class="cc-badge g" id="b3">—</div>
       </div>
@@ -294,7 +301,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   <div class="g2">
     <div class="cc" id="ch4">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">📅 Ganancias por Día — Mes Actual vs Anterior</div>
+        <div><div class="cc-ttl">📅 Ganancias por Día — Mes Actual vs Anterior<span class="help-icon">?<span class="tt">Compara día a día el mes actual contra el mes pasado. Si la barra del mes actual (color sólido) es más alta, estás mejorando. Ideal para detectar días de la semana más fuertes.</span></span></div>
           <div class="cc-sub">Comparativa día a día · Naranja = mes actual · Azul = mes anterior</div></div>
         <div class="cc-badge" id="b4">—</div>
       </div>
@@ -302,7 +309,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     </div>
     <div class="cc" id="ch9">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">📉 Ganancias Acumuladas — Mes Actual vs Anterior</div>
+        <div><div class="cc-ttl">📉 Ganancias Acumuladas — Mes Actual vs Anterior<span class="help-icon">?<span class="tt">Muestra cómo se acumula la ganancia a lo largo del mes comparado con el mes anterior. Si la línea actual está por encima, vas mejor que el mes pasado.</span></span></div>
           <div class="cc-sub">Acumulado progresivo · Diferencia y % al final</div></div>
         <div class="cc-badge g" id="b9">—</div>
       </div>
@@ -315,7 +322,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   <div class="g2">
     <div class="cc" id="ch5">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">📅 Ganancias por Semana del Año</div>
+        <div><div class="cc-ttl">📅 Ganancias por Semana del Año<span class="help-icon">?<span class="tt">Ganancia de cada semana del año en curso. Permite identificar semanas pico (vacaciones, quincenas) y semanas bajas para planificar mejor tu inventario y personal.</span></span></div>
           <div class="cc-sub">Acumulado semanal · Selecciona el año</div></div>
         <span style="display:flex;gap:6px;align-items:center">
           <select class="sel" id="yearSel5" onchange="buildCh5()"></select>
@@ -326,7 +333,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     </div>
     <div class="cc" id="ch7">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">📆 Ganancia por Mes — Año Actual vs Anterior</div>
+        <div><div class="cc-ttl">📆 Ganancia por Mes — Año Actual vs Anterior<span class="help-icon">?<span class="tt">Comparativa mensual entre este año y el año pasado. Si las barras del año actual son más altas, el negocio está creciendo. Una caída sostenida requiere atención urgente.</span></span></div>
           <div class="cc-sub">Comparativa anual en una misma gráfica</div></div>
         <div class="cc-badge b" id="b7">—</div>
       </div>
@@ -339,7 +346,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   <div class="g2">
     <div class="cc" id="ch8">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">🗓 Ganancias por Día — Semana Actual vs Anterior</div>
+        <div><div class="cc-ttl">🗓 Ganancias por Día — Semana Actual vs Anterior<span class="help-icon">?<span class="tt">Compara los días de esta semana contra la semana pasada. Útil para detectar si un día específico (lunes, fin de semana) está mejorando o empeorando.</span></span></div>
           <div class="cc-sub">Lun–Dom · Naranja = semana actual · Azul = semana anterior</div></div>
         <div class="cc-badge" id="b8">—</div>
       </div>
@@ -347,7 +354,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     </div>
     <div class="cc" id="ch6">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">📉 Ganancias y Pérdidas por Día — Mes Actual</div>
+        <div><div class="cc-ttl">📉 Ganancias y Pérdidas por Día — Mes Actual<span class="help-icon">?<span class="tt">Cada barra representa un día del mes. Verde = día con ganancia. Rojo = día con pérdida (ventas no alcanzaron el P.E.). Más verde = mejor gestión del negocio.</span></span></div>
           <div class="cc-sub">Verde = ganancia · Rojo = pérdida · Línea = tendencia</div></div>
         <div class="cc-badge g" id="b6">—</div>
       </div>
@@ -360,7 +367,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   <div class="g3">
     <div class="cc" id="ch10">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">💵 Flujo de Efectivo</div>
+        <div><div class="cc-ttl">💵 Flujo de Efectivo<span class="help-icon">?<span class="tt">Muestra el movimiento de dinero real: entradas (cobros, ventas en efectivo) vs salidas (gastos, compras, retiros). Si los ingresos superan los egresos, el flujo es positivo.</span></span></div>
           <div class="cc-sub">Efectivo en caja vs sistema · Ingresos y egresos</div></div>
         <div class="cc-badge" id="b10">—</div>
       </div>
@@ -368,7 +375,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     </div>
     <div class="cc" id="ch11">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">⬇️ Ingresos por Tipo</div>
+        <div><div class="cc-ttl">⬇️ Ingresos por Tipo<span class="help-icon">?<span class="tt">Desglosa de dónde viene tu dinero: ventas en efectivo, cobros de crédito, anticipos. Te ayuda a entender qué tan dependiente eres del crédito vs efectivo contado.</span></span></div>
           <div class="cc-sub">Efectivo · Cobranza · Crédito · Anticipos</div></div>
         <div class="cc-badge" id="b11">—</div>
       </div>
@@ -376,7 +383,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     </div>
     <div class="cc" id="ch12">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">⬆️ Egresos por Tipo</div>
+        <div><div class="cc-ttl">⬆️ Egresos por Tipo<span class="help-icon">?<span class="tt">Desglosa en qué gastas tu dinero: compras, sueldos, gastos operativos, retiros. El gasto más grande es donde debes buscar eficiencias primero.</span></span></div>
           <div class="cc-sub">Compras · Gastos tienda · Casa · Anteriores · Retiro</div></div>
         <div class="cc-badge r" id="b12">—</div>
       </div>
@@ -392,7 +399,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   <div class="g2">
     <div class="cc" id="chn1">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">💼 Pagos Semanales por Trabajador</div>
+        <div><div class="cc-ttl">💼 Pagos Semanales por Trabajador<span class="help-icon">?<span class="tt">Muestra cuánto se pagó a cada empleado por semana. Útil para detectar variaciones inusuales en la nómina y comparar el costo por empleado.</span></span></div>
           <div class="cc-sub">Distribución semanal de sueldos en el período</div></div>
         <div class="cc-badge" id="bn1">—</div>
       </div>
@@ -400,7 +407,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     </div>
     <div class="cc" id="chn2">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">📊 Total Nómina por Mes</div>
+        <div><div class="cc-ttl">📊 Total Nómina por Mes<span class="help-icon">?<span class="tt">Gasto total en nómina por mes. Compara contra las ventas del mismo período: si la nómina crece más rápido que las ventas, hay un problema de productividad.</span></span></div>
           <div class="cc-sub">Evolución del gasto en sueldos mes a mes</div></div>
         <div class="cc-badge g" id="bn2">—</div>
       </div>
@@ -410,7 +417,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   <div class="g12">
     <div class="cc" id="chn3">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">⚖️ Sueldos vs Gastos Operativos</div>
+        <div><div class="cc-ttl">⚖️ Sueldos vs Gastos Operativos<span class="help-icon">?<span class="tt">Compara el peso de la nómina contra otros gastos operativos. La nómina no debería superar el 30-35% de las ventas en la mayoría de los negocios.</span></span></div>
           <div class="cc-sub">Sueldo · Gasolina · Luz · Internet · Reserva — evolución mensual</div></div>
         <div class="cc-badge b" id="bn3">—</div>
       </div>
@@ -418,7 +425,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     </div>
     <div class="cc">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">📋 Resumen de Gastos</div><div class="cc-sub">En el período seleccionado</div></div>
+        <div><div class="cc-ttl">📋 Resumen de Gastos<span class="help-icon">?<span class="tt">Vista consolidada de todos tus gastos categorizados. Identifica rápidamente qué categoría consume más recursos y dónde tienes oportunidad de reducir costos.</span></span></div><div class="cc-sub">En el período seleccionado</div></div>
       </div>
       <div class="slist" id="nom_stats">
         <div class="srow"><span class="srow-l">Total Sueldos</span><span class="srow-v" style="color:var(--orange)" id="ns1">—</span></div>
