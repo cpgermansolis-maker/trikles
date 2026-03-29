@@ -503,18 +503,11 @@ let registros   = [];     // registros del día en memoria
 // INIT
 // ══════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  // Aplicar empresa INMEDIATAMENTE antes de cualquier cosa
-  const _s = JSON.parse(sessionStorage.getItem('trikles_session') || localStorage.getItem('trikles_session_remember') || 'null');
-  if(_s) {
-    // Nombre empresa sin flash
-    const _tbName = document.querySelector('.topbar-name') || document.querySelector('.tb-name');
-    if(_tbName) _tbName.textContent = (_s.empresa || '').replace(/_/g,' ').toUpperCase();
-    // Usuario sin punto verde
-    const _chip = document.getElementById('userChip');
-    if(_chip) _chip.textContent = (_s.nombre || _s.usuario || '') + ' — ' + (_s.rol || '');
-  }
   const s = requireAuth(['ADMIN','ANALISTA_NOM','ANALISTA_FULL']);
   if (!s) return;
+  // Nombre empresa INMEDIATO
+  const _tbName = document.querySelector('.topbar-name') || document.querySelector('.tb-name');
+  if(_tbName) _tbName.textContent = (s.empresa || '').replace(/_/g,' ').toUpperCase();
   renderUserChip(s);
   if(['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS'].includes(s.rol)){
     const bd=document.getElementById('btnDashboard');if(bd)bd.style.display='inline-flex';
@@ -872,58 +865,7 @@ function limpiar() {
 // Inicializar horas al cargar
 document.addEventListener('DOMContentLoaded', () => {
   calcHoras();
-});;         const tbName=document.querySelector('.tb-name'); if(tbName)tbName.textContent=nombre;
-        document.documentElement.style.setProperty('--orange', c1);
-        document.documentElement.style.setProperty('--orange2', c1);
-        document.documentElement.style.setProperty('--border', c1+'44');
-        document.documentElement.style.setProperty('--ora-l', c1+'22');
-        const topbar=document.querySelector('.topbar'); if(topbar)topbar.style.borderBottomColor=c1;
-      }
-    }
-  } catch(e) { console.warn('Branding:', e); }
-}
-
-async function aplicarBrandingEmpresa(empresaId) {
-  if(!empresaId || empresaId === 'TRIKLES') return;
-  try {
-    const cb = 'brand_' + Date.now();
-    const result = await new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      let done = false;
-      window[cb] = d => { if(done)return; done=true; delete window[cb]; s.remove(); resolve(d); };
-      s.onerror = () => { if(done)return; done=true; delete window[cb]; s.remove(); reject(); };
-      s.src = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec?action=getEmpresas&callback=' + cb;
-      document.head.appendChild(s);
-      setTimeout(() => { if(done)return; done=true; delete window[cb]; s.remove(); reject(); }, 10000);
-    });
-    if(!result || !result.success) return;
-    const emp = result.data.find(e => (e.id||'').toLowerCase() === empresaId.toLowerCase());
-    if(!emp) return;
-    const c1 = emp.color1 || '#F5821F';
-    const nombre = emp.nombre || empresaId;
-    const logo = emp.logo || '';
-    // Colores
-    document.documentElement.style.setProperty('--orange', c1);
-    document.documentElement.style.setProperty('--orange2', c1);
-    document.documentElement.style.setProperty('--border', c1 + '44');
-    document.documentElement.style.setProperty('--ora-l', c1 + '22');
-    const topbar = document.querySelector('.topbar');
-    if(topbar) topbar.style.borderBottomColor = c1;
-    // Botones activos
-    document.querySelectorAll('.btn-nav.dash, .btn-nav.active, .btn-primary').forEach(b => {
-      b.style.background = c1;
-    });
-    // Nombre
-    const tbName = document.querySelector('.tb-name');
-    if(tbName) tbName.textContent = nombre;
-    // Logo
-    if(logo) {
-      const tbLogo = document.querySelector('.tb-logo');
-      if(tbLogo) tbLogo.src = logo;
-    }
-  } catch(e) { console.warn('Branding:', e); }
-}
-
+});
 
 // ── Branding Module ──
 // ═══════════════════════════════════════════════════════
