@@ -29,8 +29,8 @@ body{background:var(--bg);color:var(--white);font-family:'Nunito',sans-serif;min
   border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;
   transition:.2s;text-decoration:none;display:inline-flex;align-items:center;gap:5px;}
 .btn-nav:hover{border-color:var(--orange);color:var(--orange);}
-.btn-nav.dash{background:linear-gradient(135deg,rgba(245,130,31,.2),rgba(245,130,31,.1));
-  border-color:rgba(245,130,31,.5);color:var(--orange);font-weight:900;}
+.btn-nav.dash{background:var(--orange);
+  border-color:var(--orange);color:#fff;font-weight:900;}
 .user-pill{display:flex;align-items:center;gap:8px;background:rgba(245,130,31,.08);
   border:1px solid var(--border);border-radius:30px;padding:6px 16px;font-size:13px;font-weight:700;color:var(--light);}
 .u-dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
@@ -1242,7 +1242,7 @@ async function aplicarBrandingEmpresa(empresaId) {
     const topbar = document.querySelector('.topbar');
     if(topbar) topbar.style.borderBottomColor = c1;
     // Botones activos
-    document.querySelectorAll('.btn-nav.dash, .btn-nav.active, .btn-primary').forEach(b => {
+    document.querySelectorAll('.btn-primary').forEach(b => {
       b.style.background = c1;
     });
     // Nombre
@@ -1337,7 +1337,7 @@ async function applyBranding(empresaId) {
     });
 
     // Active nav buttons
-    document.querySelectorAll('.btn-nav.dash, .btn-primary, .mtab.active').forEach(el => {
+    document.querySelectorAll('.btn-primary, .mtab.active').forEach(el => {
       el.style.background = c1;
       el.style.borderColor = c1;
     });
