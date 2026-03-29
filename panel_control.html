@@ -236,6 +236,9 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
     <div class="sb-item" id="sb_empresas" onclick="showPanel('empresas')">
       <span class="sb-icon">🏢</span> Empresas
     </div>
+    <div class="sb-item" id="sb_miempresa" onclick="editarMiEmpresa()" style="display:none">
+      <span class="sb-icon">🏢</span> Mi Empresa
+    </div>
     <div class="sb-item" id="sb_usuarios" onclick="showPanel('usuarios')">
       <span class="sb-icon">👥</span> Usuarios
     </div>
@@ -256,7 +259,7 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
     <div class="panel active" id="panel_inicio">
       <div class="pg-hdr">
         <div class="pg-ttl">⚙️ Panel de Control</div>
-        <div class="pg-sub">Gestión centralizada del sistema TRIKLES</div>
+        <div class="pg-sub">Gestión centralizada del sistema</div>
       </div>
       <div class="stats-row" id="statsRow">
         <div class="stat-mini">
@@ -694,6 +697,22 @@ document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>
 /* ══════════════════════════════════
    FILTRO POR EMPRESA ADMIN
 ══════════════════════════════════ */
+function editarMiEmpresa() {
+  // Buscar la empresa del usuario y abrir modal de edición
+  const s = JSON.parse(sessionStorage.getItem('trikles_session') || localStorage.getItem('trikles_session_remember') || 'null');
+  if(!s) return;
+  const emp = EMPRESAS.find(e => (e.id||'').toLowerCase() === (s.empresa||'').toLowerCase());
+  if(emp) {
+    openEmpresaModal(emp);
+  } else {
+    // Si no se han cargado aún, cargar y abrir
+    loadEmpresas().then(() => {
+      const emp2 = EMPRESAS.find(e => (e.id||'').toLowerCase() === (s.empresa||'').toLowerCase());
+      if(emp2) openEmpresaModal(emp2);
+    });
+  }
+}
+
 function filtrarEmpresasAdmin(empresaId) {
   if(!empresaId) return;
   // Solo mostrar la empresa del admin
@@ -1139,6 +1158,9 @@ document.addEventListener('DOMContentLoaded',()=>{
       // Ocultar menú Empresas del sidebar
       const sbEmp = document.getElementById('sb_empresas');
       if(sbEmp) sbEmp.style.display = 'none';
+      // Mostrar Mi Empresa
+      const sbMiEmp = document.getElementById('sb_miempresa');
+      if(sbMiEmp) sbMiEmp.style.display = 'flex';
       // Ocultar card Empresas en inicio
       document.querySelectorAll('[onclick*="empresas"]').forEach(el => {
         el.style.display = 'none';
