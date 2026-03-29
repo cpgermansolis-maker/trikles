@@ -1111,12 +1111,22 @@ document.addEventListener('DOMContentLoaded',()=>{
     await loadEmpresas();
     // Aplicar branding siempre
     applyBranding(s.empresa);
-    // Si no es SUPER_ADMIN, filtrar empresas y ocultar botones de gestión
+    // Si no es SUPER_ADMIN, filtrar y ocultar módulo empresas
     if(s.rol !== 'SUPER_ADMIN') {
       filtrarEmpresasAdmin(s.empresa);
       // Ocultar botón Nueva Empresa
       const btnNE = document.getElementById('btnNuevaEmpresa');
       if(btnNE) btnNE.style.display = 'none';
+      // Ocultar menú Empresas del sidebar
+      document.querySelectorAll('.nav-item, .nav-link').forEach(el => {
+        if(el.textContent.includes('Empresas')) el.style.display = 'none';
+      });
+      // Ocultar rol Super Admin del selector de roles
+      document.querySelectorAll('.role-superadmin').forEach(el => {
+        el.style.display = 'none';
+      });
+      // Si está en sección empresas, redirigir a usuarios
+      showSection('usuarios');
     }
   }, 500);
 });
