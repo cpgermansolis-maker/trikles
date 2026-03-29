@@ -127,6 +127,36 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
   .main-grid{grid-template-columns:1fr;}
   .kpi-bar{grid-template-columns:repeat(3,1fr);}
 }
+
+/* ── Tooltips móvil ── */
+@media (hover: none) {
+  .help-icon .tt {
+    display: none;
+    visibility: visible;
+    opacity: 1;
+    position: fixed;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 85vw !important;
+    max-width: 320px;
+    z-index: 99999;
+    font-size: 13px;
+    padding: 14px 16px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.8);
+  }
+  .help-icon .tt::before { display: none; }
+  .help-icon.tt-open .tt { display: block; }
+  .tt-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99998;
+    background: rgba(0,0,0,.4);
+  }
+  .tt-overlay.open { display: block; }
+}
+
 </style>
 </head>
 <body>
