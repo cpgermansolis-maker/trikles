@@ -309,18 +309,18 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.5;}
   <div class="product-block">
     <div class="product-block-title">🧾 Desglose por Producto</div>
     <div class="field" style="margin-bottom:14px;">
-      <label>NOPALES DESHIDRATADOS <span class="req">*</span></label>
+      <label id="lbl_prod1">Producto 1 <span class="req">*</span></label>
       <input type="number" class="fi" id="f_nopales" placeholder="0.00" min="0" step="0.01" oninput="calcular()">
       <div class="field-hint" id="h_nopales">Obligatorio — escribe 0 si aplica</div>
     </div>
     <div class="field-row">
       <div class="field" style="margin-bottom:0;">
-        <label>Producto 2 <span class="req">*</span></label>
+        <label id="lbl_prod2">Producto 2 <span class="req">*</span></label>
         <input type="number" class="fi" id="f_prod2" placeholder="0.00" min="0" step="0.01" oninput="calcular()">
         <div class="field-hint" id="h_prod2">Obligatorio</div>
       </div>
       <div class="field" style="margin-bottom:0;">
-        <label>Producto 3 <span class="req">*</span></label>
+        <label id="lbl_prod3">Producto 3 <span class="req">*</span></label>
         <input type="number" class="fi" id="f_prod3" placeholder="0.00" min="0" step="0.01" oninput="calcular()">
         <div class="field-hint" id="h_prod3">Obligatorio</div>
       </div>
@@ -781,6 +781,17 @@ async function applyBranding(empresaId) {
         el.alt = nombre;
       });
     }
+
+    // Actualizar nombres de productos
+    const p1 = emp.producto1 || 'Producto 1';
+    const p2 = emp.producto2 || 'Producto 2';
+    const p3 = emp.producto3 || 'Producto 3';
+    const lbl1 = document.getElementById('lbl_prod1');
+    const lbl2 = document.getElementById('lbl_prod2');
+    const lbl3 = document.getElementById('lbl_prod3');
+    if(lbl1) lbl1.innerHTML = p1.toUpperCase() + ' <span class="req">*</span>';
+    if(lbl2) lbl2.innerHTML = p2 + ' <span class="req">*</span>';
+    if(lbl3) lbl3.innerHTML = p3 + ' <span class="req">*</span>';
 
     return { nombre, logo, c1, c2, emp };
   } catch (e) {

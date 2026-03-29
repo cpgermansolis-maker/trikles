@@ -483,6 +483,22 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
           <span style="font-size:12px;color:var(--light)" id="emp_color2_lbl">#1a1a2e</span>
         </div>
       </div>
+      <div class="fg" style="grid-column:1/-1">
+        <label style="color:var(--orange);font-weight:700">🛍️ PRODUCTOS PRINCIPALES</label>
+        <small style="color:var(--gray);display:block;margin-bottom:8px">Estos nombres aparecerán en la pantalla de captura financiera</small>
+      </div>
+      <div class="fg">
+        <label>Producto 1 *</label>
+        <input type="text" class="fi" id="emp_producto1" placeholder="Ej: Nopales deshidratados">
+      </div>
+      <div class="fg">
+        <label>Producto 2</label>
+        <input type="text" class="fi" id="emp_producto2" placeholder="Ej: Cápsulas">
+      </div>
+      <div class="fg">
+        <label>Producto 3</label>
+        <input type="text" class="fi" id="emp_producto3" placeholder="Ej: Otros">
+      </div>
     </div>
     <div class="btn-row">
       <button class="btn btn-primary" onclick="guardarEmpresa()" id="emp_btn_save">
@@ -823,8 +839,11 @@ async function guardarEmpresa(){
     mision:document.getElementById('emp_mision').value.trim(),
     vision:document.getElementById('emp_vision').value.trim(),
     logo:document.getElementById('emp_logo_b64').value,
-    color1:document.getElementById('emp_color1').value,
-    color2:document.getElementById('emp_color2').value,
+    color1:   document.getElementById('emp_color1').value,
+    color2:   document.getElementById('emp_color2').value,
+    producto1:document.getElementById('emp_producto1').value.trim(),
+    producto2:document.getElementById('emp_producto2').value.trim(),
+    producto3:document.getElementById('emp_producto3').value.trim(),
   };
   try{
     const r=await apiPost(params);
