@@ -516,7 +516,12 @@ function filterData(f,t){
   return ALL.filter(r=>(!f||r.f>=f)&&(!t||r.f<=t));
 }
 function lastDate(){
-  if(ACTIVE_MOD==='nom' && NOM_DATA.length > 0) return NOM_DATA[NOM_DATA.length-1].f;
+  // Si estamos en nómina y hay datos de nómina, usar última fecha de nómina
+  if(ACTIVE_MOD==='nom' && NOM_DATA.length > 0) {
+    const sorted = [...NOM_DATA].sort((a,b) => a.f > b.f ? 1 : -1);
+    return sorted[sorted.length-1].f;
+  }
+  // Si ALL está vacío, usar fecha de hoy
   if(ALL.length === 0) return new Date().toISOString().slice(0,10);
   return ALL[ALL.length-1].f;
 }
