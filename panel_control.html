@@ -311,7 +311,7 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
           <div class="pg-ttl">🏢 Empresas</div>
           <div class="pg-sub">Alta, edición y configuración de empresas en el sistema</div>
         </div>
-        <button class="btn btn-primary" onclick="openModal('empresa')">➕ Nueva Empresa</button>
+        <button class="btn btn-primary" id="btnNuevaEmpresa" onclick="openModal('empresa')">➕ Nueva Empresa</button>
       </div>
 
       <div id="empresas_loading" class="loading"><div class="spinner"></div>Cargando empresas...</div>
@@ -1111,9 +1111,12 @@ document.addEventListener('DOMContentLoaded',()=>{
     await loadEmpresas();
     // Aplicar branding siempre
     applyBranding(s.empresa);
-    // Si no es SUPER_ADMIN, filtrar empresas
+    // Si no es SUPER_ADMIN, filtrar empresas y ocultar botones de gestión
     if(s.rol !== 'SUPER_ADMIN') {
       filtrarEmpresasAdmin(s.empresa);
+      // Ocultar botón Nueva Empresa
+      const btnNE = document.getElementById('btnNuevaEmpresa');
+      if(btnNE) btnNE.style.display = 'none';
     }
   }, 500);
 });
