@@ -168,6 +168,13 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   }
 }
 
+
+/* ── Tooltip activo (touch y hover) ── */
+.help-icon.tt-show .tt,
+.help-icon:hover .tt {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
 </style>
 </head>
 <body>
@@ -1577,37 +1584,28 @@ async function applyBranding(empresaId) {
 
 </script>
 <script>
-// ── Tooltips táctiles ──
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.help-icon').forEach(function(icon) {
-    icon.addEventListener('touchstart', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      const isOpen = icon.style.zIndex === '9999';
-      // Cerrar todos
-      document.querySelectorAll('.help-icon').forEach(function(el) {
-        el.style.zIndex = '';
-        const tt = el.querySelector('.tt');
-        if (tt) { tt.style.visibility = 'hidden'; tt.style.opacity = '0'; }
+// ── Tooltips táctiles v3 ──
+(function() {
+  function closeAll() {
+    document.querySelectorAll('.help-icon.tt-show').forEach(function(el) {
+      el.classList.remove('tt-show');
+    });
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.help-icon').forEach(function(icon) {
+      icon.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var wasOpen = icon.classList.contains('tt-show');
+        closeAll();
+        if (!wasOpen) icon.classList.add('tt-show');
       });
-      if (!isOpen) {
-        icon.style.zIndex = '9999';
-        const tt = icon.querySelector('.tt');
-        if (tt) { tt.style.visibility = 'visible'; tt.style.opacity = '1'; }
-      }
-    }, {passive: false});
+    });
+    document.addEventListener('touchend', function(e) {
+      if (!e.target.closest('.help-icon')) closeAll();
+    });
   });
-  // Cerrar al tocar fuera
-  document.addEventListener('touchstart', function(e) {
-    if (!e.target.closest('.help-icon')) {
-      document.querySelectorAll('.help-icon').forEach(function(el) {
-        el.style.zIndex = '';
-        const tt = el.querySelector('.tt');
-        if (tt) { tt.style.visibility = 'hidden'; tt.style.opacity = '0'; }
-      });
-    }
-  });
-});
+})();
 </script>
 </body>
 </html>
