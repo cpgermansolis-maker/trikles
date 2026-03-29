@@ -3,1033 +3,783 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TRIKLES — Captura de Nómina</title>
+<title>Captura de Nómina</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap');
 :root{
-  --bg:#111;--card:#1e1e1e;--card2:#252525;
-  --orange:#F5821F;--orange2:#c96a10;--ora-l:rgba(245,130,31,0.14);
-  --white:#f5f5f5;--gray:#888;--light:#bbb;
-  --green:#3dba6f;--green-l:rgba(61,186,111,0.14);
-  --red:#e84545;--red-l:rgba(232,69,69,0.14);
-  --blue:#4B9FE1;--blue-l:rgba(75,159,225,0.14);
-  --purple:#a855f7;--purple-l:rgba(168,85,247,0.14);
-  --border:rgba(245,130,31,0.22);--border2:rgba(255,255,255,0.07);
+  --orange:#F5821F;--orange2:rgba(245,130,31,.8);--dark:#0d0d1a;
+  --dark2:#12121f;--dark3:#1a1a2e;--dark4:#22223a;
+  --light:#e0e0e0;--gray:#888;--green:#2ec4b6;--red:#e63946;
+  --yellow:#f4d35e;--blue:#4361ee;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--white);font-family:'Nunito',sans-serif;min-height:100vh;font-size:16px;}
+body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--light);min-height:100vh;}
 
 /* TOPBAR */
-.topbar{background:linear-gradient(135deg,#0d0d0d,#1c1c1c);border-bottom:3px solid var(--orange);
-  display:flex;align-items:center;justify-content:space-between;padding:12px 28px;
-  position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,.7);}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:70px;background:var(--dark2);border-bottom:2px solid var(--orange);position:sticky;top:0;z-index:100;}
 .topbar-left{display:flex;align-items:center;gap:14px;}
-.topbar-logo{height:50px;filter:drop-shadow(0 0 10px rgba(245,130,31,.5));}
+.topbar-logo{height:48px;}
 .topbar-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:5px;color:var(--orange);}
-.topbar-sub{font-size:11px;color:var(--gray);letter-spacing:2px;text-transform:uppercase;margin-top:1px;}
-.topbar-right{display:flex;align-items:center;gap:14px;}
-.user-pill{display:flex;align-items:center;gap:8px;background:rgba(245,130,31,.1);
-  border:1px solid var(--border);border-radius:30px;padding:7px 18px;font-size:14px;font-weight:700;color:var(--light);}
-.u-dot{display:none;}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(61,186,111,.5)}50%{box-shadow:0 0 0 5px rgba(61,186,111,0)}}
-.btn-out{background:none;border:1px solid #555;color:var(--gray);padding:7px 16px;
-  border-radius:6px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;}
-.btn-out:hover{border-color:var(--red);color:var(--red);}
+.topbar-sub{font-size:10px;color:var(--gray);letter-spacing:2px;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.btn-nav{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--light);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+.btn-nav:hover{background:rgba(255,255,255,.15);}
+.chip{background:rgba(46,196,182,.15);border:1px solid rgba(46,196,182,.4);color:var(--green);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;}
+.btn-out{background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.3);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;}
 
 /* DATE STRIP */
-.date-strip{background:#151515;border-bottom:1px solid var(--border2);
-  padding:10px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
-.date-nav{display:flex;align-items:center;gap:10px;}
-.date-label{font-size:15px;font-weight:800;color:var(--white);}
-.date-label span{color:var(--orange);}
-.dnav-btn{background:#2a2a2a;border:1px solid #3a3a3a;color:var(--light);
-  width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:18px;
-  display:flex;align-items:center;justify-content:center;transition:.2s;}
-.dnav-btn:hover{background:var(--orange);border-color:var(--orange);color:#fff;}
-input[type=date].date-inp{background:#2a2a2a;border:1px solid #3a3a3a;color:var(--white);
-  padding:7px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
-input[type=date].date-inp:focus{outline:none;border-color:var(--orange);}
-.btn-hoy{background:var(--orange);border:none;color:#fff;padding:7px 18px;
-  border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;}
-.status-tag{font-size:13px;font-weight:700;color:var(--green);}
+.date-strip{background:var(--dark2);border-bottom:1px solid rgba(255,255,255,.06);padding:12px 32px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.btn-nav-date{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:var(--light);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);color:var(--light);padding:8px 12px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;}
+.btn-hoy{background:var(--orange);border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;}
+.fecha-label{font-size:13px;color:var(--green);font-weight:700;}
+.btn-nuevo-reg{background:rgba(46,196,182,.1);border:1px solid rgba(46,196,182,.3);color:var(--green);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-left:auto;}
 
-/* KPI STRIP */
-.kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;
-  padding:16px 28px;background:#151515;border-bottom:1px solid var(--border2);}
-.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center;}
-.kpi-label{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:6px;}
-.kpi-val{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;}
-.orange{color:var(--orange);}.green{color:var(--green);}.red{color:var(--red);}
-.blue{color:var(--blue);}.purple{color:var(--purple);}.white-c{color:var(--white);}
+/* KPI BAR */
+.kpi-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:20px 32px;}
+.kpi{background:var(--dark3);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px 16px;}
+.kpi-label{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.kpi-val{font-size:22px;font-weight:800;}
+.kpi-val.orange{color:var(--orange);}
+.kpi-val.green{color:var(--green);}
+.kpi-val.red{color:var(--red);}
+.kpi-val.yellow{color:var(--yellow);}
+.kpi-val.blue{color:var(--blue);}
 
-/* MAIN */
-.main{padding:24px 28px;max-width:1400px;margin:0 auto;}
-.layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+/* MAIN GRID */
+.main-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:0 32px 32px;}
+.card{background:var(--dark3);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:20px;}
+.card-title{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06);}
+.ct-icon{width:32px;height:32px;border-radius:8px;background:rgba(245,130,31,.15);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.ct-text{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--light);}
 
-/* CARD */
-.card{background:var(--card);border:1px solid var(--border);border-radius:14px;
-  padding:26px;position:relative;overflow:hidden;animation:fadeUp .4s ease forwards;opacity:0;}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,var(--orange),transparent);}
-@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-.card:nth-child(1){animation-delay:.04s}.card:nth-child(2){animation-delay:.08s}
-.card:nth-child(3){animation-delay:.12s}.card:nth-child(4){animation-delay:.16s}
-.card.full{grid-column:1/-1;}
+/* EMPLEADO SELECTOR */
+.emp-search{position:relative;margin-bottom:12px;}
+.emp-search input{width:100%;background:var(--dark4);border:1px solid rgba(255,255,255,.1);color:var(--light);padding:10px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;}
+.emp-search input:focus{outline:none;border-color:var(--orange);}
+.emp-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--dark3);border:1px solid rgba(255,255,255,.1);border-radius:8px;z-index:50;max-height:200px;overflow-y:auto;display:none;}
+.emp-dropdown.open{display:block;}
+.emp-option{padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid rgba(255,255,255,.05);}
+.emp-option:hover{background:rgba(245,130,31,.1);color:var(--orange);}
+.emp-nuevo{padding:10px 14px;cursor:pointer;font-size:13px;color:var(--green);border-top:1px solid rgba(255,255,255,.1);}
 
-.card-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;
-  color:var(--orange);margin-bottom:22px;padding-bottom:12px;
-  border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:10px;}
-.ct-icon{width:34px;height:34px;background:var(--ora-l);border-radius:8px;
-  display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.emp-card{background:var(--dark4);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.emp-avatar{width:40px;height:40px;border-radius:50%;background:rgba(245,130,31,.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.emp-info .name{font-size:14px;font-weight:800;}
+.emp-info .puesto{font-size:12px;color:var(--gray);margin-top:2px;}
+.tipo-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:4px;display:inline-block;}
 
-/* EMPLOYEE SELECTOR */
-.emp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:20px;}
-.emp-btn{background:#1a1a1a;border:2px solid #333;border-radius:10px;padding:14px 12px;
-  cursor:pointer;transition:.2s;text-align:center;position:relative;}
-.emp-btn:hover{border-color:var(--orange);background:var(--ora-l);}
-.emp-btn.active{border-color:var(--orange);background:var(--ora-l);
-  box-shadow:0 0 0 3px rgba(245,130,31,.15);}
-.emp-name{font-size:13px;font-weight:900;color:var(--white);margin-bottom:4px;line-height:1.3;}
-.emp-puesto{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
-.emp-puesto.comisionista{color:var(--purple);}
-.emp-puesto.admin{color:var(--orange);}
-.emp-puesto.ventas{color:var(--blue);}
-.emp-puesto.menudeo{color:var(--green);}
-.emp-check{position:absolute;top:6px;right:8px;font-size:16px;opacity:0;transition:.2s;}
-.emp-btn.active .emp-check{opacity:1;}
+/* CAMPOS */
+.field{margin-bottom:14px;}
+.field label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;}
+.field input,.field select{width:100%;background:var(--dark4);border:1px solid rgba(255,255,255,.1);color:var(--light);padding:10px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;}
+.field input:focus,.field select:focus{outline:none;border-color:var(--orange);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.field-hint{font-size:11px;color:var(--gray);margin-top:4px;}
 
-/* FIELD */
-.field{margin-bottom:16px;}
-.field label{display:block;font-size:13px;font-weight:800;letter-spacing:.5px;
-  color:var(--light);margin-bottom:7px;text-transform:uppercase;}
-.req{color:var(--orange);margin-left:2px;}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+/* TABULADOR */
+.tab-empty{text-align:center;padding:32px;color:var(--gray);}
+.tab-title{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.tab-rows{display:flex;flex-direction:column;gap:6px;}
+.tab-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--dark4);border-radius:8px;border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:.2s;}
+.tab-row:hover{border-color:rgba(245,130,31,.3);}
+.tab-row.active{border-color:var(--orange);background:rgba(245,130,31,.08);}
+.tab-row .range{font-size:12px;color:var(--gray);}
+.tab-row .pct{font-size:14px;font-weight:800;color:var(--green);}
+.tab-row .monto{font-size:14px;font-weight:800;color:var(--orange);}
 
-input.fi,select.fi,textarea.fi{
-  width:100%;background:#161616;border:2px solid #333;color:var(--white);
-  padding:13px 16px;border-radius:10px;font-family:'Nunito',sans-serif;
-  font-size:16px;font-weight:700;transition:.2s;}
-input.fi:focus,select.fi:focus{outline:none;border-color:var(--orange);
-  box-shadow:0 0 0 4px rgba(245,130,31,.12);background:#1a1a1a;}
-input.fi.err{border-color:var(--red);background:rgba(232,69,69,.05);}
-input.fi.ok{border-color:var(--green);}
-input.fi[readonly]{background:#131313;color:var(--gray);border-color:#222;cursor:default;}
-input.fi::placeholder{color:#444;font-weight:600;}
-select.fi option{background:#2a2a2a;}
-.field-hint{font-size:12px;font-weight:700;color:var(--red);margin-top:5px;display:none;}
-.field-hint.show{display:block;}
+/* RESULTADO */
+.resultado-box{background:var(--dark4);border-radius:12px;padding:18px;}
+.res-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.res-row:last-child{border-bottom:none;}
+.res-label{font-size:12px;color:var(--gray);}
+.res-val{font-size:14px;font-weight:700;}
+.res-total{display:flex;justify-content:space-between;align-items:center;padding:14px 0 0;margin-top:8px;border-top:2px solid rgba(245,130,31,.3);}
+.res-total .label{font-size:14px;font-weight:800;color:var(--light);}
+.res-total .val{font-size:24px;font-weight:900;color:var(--orange);}
 
-/* TABULADOR DISPLAY */
-.tab-display{background:#161616;border:2px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;}
-.tab-title{font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;
-  color:var(--gray);margin-bottom:14px;}
-.tab-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;
-  padding:10px 14px;border-radius:8px;cursor:pointer;transition:.2s;margin-bottom:6px;
-  border:2px solid transparent;}
-.tab-row:hover{background:rgba(245,130,31,.06);border-color:rgba(245,130,31,.2);}
-.tab-row.selected{background:var(--ora-l);border-color:var(--orange);}
-.tab-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--orange);min-width:30px;text-align:center;}
-.tab-desc{font-size:14px;font-weight:700;color:var(--light);}
-.tab-desc small{display:block;font-size:12px;font-weight:600;color:var(--gray);}
-.tab-monto{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--green);}
+/* REGISTROS */
+.reg-table{width:100%;border-collapse:collapse;font-size:13px;}
+.reg-table th{font-size:10px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:1px;padding:8px 12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.08);}
+.reg-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);}
+.reg-table tr:hover td{background:rgba(255,255,255,.03);}
+.reg-empty{text-align:center;padding:32px;color:var(--gray);}
 
-/* RESULTADO GRANDE */
-.resultado-card{background:linear-gradient(135deg,rgba(61,186,111,.1),rgba(245,130,31,.05));
-  border:2px solid var(--green);border-radius:14px;padding:24px;text-align:center;margin-top:16px;}
-.resultado-label{font-size:12px;font-weight:900;letter-spacing:3px;text-transform:uppercase;
-  color:var(--gray);margin-bottom:8px;}
-.resultado-monto{font-family:'Bebas Neue',sans-serif;font-size:56px;line-height:1;
-  color:var(--green);text-shadow:0 0 30px rgba(61,186,111,.3);margin-bottom:6px;}
-.resultado-detail{font-size:14px;font-weight:700;color:var(--light);}
-.resultado-descuento{font-size:13px;color:var(--red);margin-top:4px;}
+/* BOTONES */
+.btn-guardar{width:100%;background:var(--orange);border:none;color:#fff;padding:14px;border-radius:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-guardar:hover{background:var(--orange2);}
+.btn-guardar:disabled{opacity:.5;cursor:not-allowed;}
+.btn-limpiar{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--light);padding:10px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px;}
 
-/* HISTORIAL TABLE */
-.hist-table{width:100%;border-collapse:collapse;}
-.hist-table th{font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
-  color:var(--gray);padding:10px 12px;border-bottom:2px solid var(--border2);text-align:left;}
-.hist-table td{padding:12px;font-size:14px;font-weight:700;border-bottom:1px solid var(--border2);}
-.hist-table tr:hover td{background:rgba(245,130,31,.04);}
-.hist-table tr:last-child td{border-bottom:none;}
-.badge{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:900;letter-spacing:1px;}
-.badge-c{background:var(--purple-l);color:var(--purple);border:1px solid var(--purple);}
-.badge-a{background:var(--ora-l);color:var(--orange);border:1px solid var(--orange);}
-.badge-v{background:var(--blue-l);color:var(--blue);border:1px solid var(--blue);}
-.badge-m{background:var(--green-l);color:var(--green);border:1px solid var(--green);}
+/* HELP ICON */
+.help-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.15);color:var(--light);font-size:11px;font-weight:900;cursor:help;position:relative;flex-shrink:0;transition:background .2s;margin-left:6px;vertical-align:middle;}
+.help-icon:hover{background:var(--orange);}
+.help-icon .tt{visibility:hidden;opacity:0;width:260px;background:#1a1a2e;border:1px solid var(--orange);color:#e0e0e0;font-size:12px;font-weight:400;line-height:1.6;border-radius:10px;padding:10px 14px;position:absolute;z-index:9999;left:50%;transform:translateX(-50%);top:26px;box-shadow:0 8px 24px rgba(0,0,0,.5);transition:opacity .2s;pointer-events:none;}
+.help-icon .tt::before{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-bottom-color:var(--orange);}
+.help-icon:hover .tt{visibility:visible;opacity:1;}
 
-/* SEP */
-.sep{height:1px;background:var(--border2);margin:16px 0;}
-
-/* SUBMIT */
-.submit-area{display:flex;gap:14px;margin-top:24px;padding-top:20px;
-  border-top:1px solid var(--border2);flex-wrap:wrap;}
-.btn-save{flex:1;min-width:200px;background:linear-gradient(135deg,var(--orange),var(--orange2));
-  border:none;color:#fff;padding:18px 28px;border-radius:12px;
-  font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;
-  cursor:pointer;transition:.2s;box-shadow:0 6px 20px rgba(245,130,31,.35);}
-.btn-save:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(245,130,31,.55);}
-.btn-save:disabled{background:#444;box-shadow:none;cursor:not-allowed;transform:none;}
-.btn-clear{background:#2a2a2a;border:2px solid #3a3a3a;color:var(--light);
-  padding:16px 22px;border-radius:12px;font-family:'Nunito',sans-serif;
-  font-size:15px;font-weight:800;cursor:pointer;transition:.2s;}
-.btn-clear:hover{background:#333;}
-
-/* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:#1e1e1e;
-  border:1px solid var(--border);border-radius:14px;padding:16px 22px;min-width:300px;max-width:400px;
-  box-shadow:0 12px 40px rgba(0,0,0,.7);transform:translateX(130%);
-  transition:transform .35s cubic-bezier(.22,1,.36,1);display:flex;align-items:flex-start;gap:14px;}
-.toast.show{transform:translateX(0);}
-.t-icon{font-size:24px;line-height:1;margin-top:2px;}
-.t-body{flex:1;}.t-title{font-size:15px;font-weight:900;margin-bottom:3px;}
-.t-msg{font-size:13px;color:var(--light);font-weight:600;}
-.toast.success{border-left:4px solid var(--green);}.toast.error{border-left:4px solid var(--red);}
-.toast.info{border-left:4px solid var(--orange);}
-
-::-webkit-scrollbar{width:6px;height:6px;}
-::-webkit-scrollbar-track{background:#1a1a1a;}
-::-webkit-scrollbar-thumb{background:var(--orange2);border-radius:3px;}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--dark3);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:12px 18px;font-size:13px;font-weight:700;z-index:9999;transform:translateY(80px);opacity:0;transition:.3s;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{border-color:rgba(46,196,182,.5);color:var(--green);}
+.toast.err{border-color:rgba(230,57,70,.5);color:var(--red);}
 
 @media(max-width:900px){
-  .layout{grid-template-columns:1fr;}
-  .card.full{grid-column:1;}
-  .main{padding:14px;}
-  .topbar{padding:10px 14px;}
-  .kpi-strip{padding:12px 14px;}
-  .emp-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}
+  .main-grid{grid-template-columns:1fr;}
+  .kpi-bar{grid-template-columns:repeat(3,1fr);}
 }
-
-/* ── Tooltips de ayuda ── */
-.help-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: rgba(255,255,255,.15);
-  color: var(--light);
-  font-size: 11px;
-  font-weight: 900;
-  cursor: help;
-  position: relative;
-  flex-shrink: 0;
-  transition: background .2s;
-  margin-left: 6px;
-  vertical-align: middle;
-}
-.help-icon:hover { background: var(--orange); }
-.help-icon .tt {
-  visibility: hidden;
-  opacity: 0;
-  width: 280px;
-  background: #1a1a2e;
-  border: 1px solid var(--orange);
-  color: #e0e0e0;
-  font-size: 12px;
-  font-weight: 400;
-  font-family: 'Nunito', sans-serif;
-  line-height: 1.6;
-  border-radius: 10px;
-  padding: 10px 14px;
-  position: absolute;
-  z-index: 9999;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 26px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.5);
-  transition: opacity .2s;
-  pointer-events: none;
-  text-transform: none;
-  letter-spacing: 0;
-}
-.help-icon .tt::before {
-  content: '';
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-bottom-color: var(--orange);
-}
-.help-icon:hover .tt { visibility: visible; opacity: 1; }
 </style>
 </head>
 <body>
 
 <header class="topbar">
   <div class="topbar-left">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='%23666'%3E🏢%3C/text%3E%3C/svg%3E" class="topbar-logo" alt="">
+    <img class="topbar-logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='%23666'%3E%F0%9F%8F%A2%3C/text%3E%3C/svg%3E" alt="" id="topbar-logo">
     <div>
-      <div class="topbar-name"></div>
-      <div class="topbar-sub">👥 Captura de Nómina</div>
+      <div class="topbar-name" id="topbar-name"></div>
+      <div class="topbar-sub">👥 CAPTURA DE NÓMINA</div>
     </div>
   </div>
   <div class="topbar-right">
-    <a class="btn-nav" href="dashboard_ejecutivo.html" id="btnDashboard" style="display:none;background:linear-gradient(135deg,rgba(245,130,31,.2),rgba(245,130,31,.1));border-color:rgba(245,130,31,.5);color:#F5821F;font-weight:900;">📊 Dashboard</a>
-    <div class="user-pill"><div class="u-dot"></div><span id="userChip">Cargando...</span></div>
+    <a href="dashboard_ejecutivo.html" class="btn-nav" id="btnDashboard" style="display:none">📊 Dashboard</a>
+    <span class="chip" id="userChip">Cargando...</span>
     <button class="btn-out" onclick="logout()">Salir ✕</button>
   </div>
 </header>
 
 <!-- DATE STRIP -->
 <div class="date-strip">
-  <div class="date-nav">
-    <button class="dnav-btn" onclick="moveDay(-1)">‹</button>
-    <input type="date" class="date-inp" id="fechaInput" onchange="changeDate(this.value)">
-    <button class="dnav-btn" onclick="moveDay(1)">›</button>
-    <button class="btn-hoy" onclick="changeDate(today())">HOY</button>
-    <div class="date-label">Registrando: <span id="fechaDisplay">—</span></div>
-  </div>
-  <div class="status-tag" id="statusTag">📅 Registro nuevo</div>
+  <button class="btn-nav-date" onclick="cambiarFecha(-1)">‹</button>
+  <input type="date" id="fechaInput" onchange="onFechaChange(this.value)">
+  <button class="btn-nav-date" onclick="cambiarFecha(1)">›</button>
+  <button class="btn-hoy" onclick="setFecha(hoy())">HOY</button>
+  <span class="fecha-label" id="fechaLabel"></span>
+  <button class="btn-nuevo-reg" onclick="limpiarForm()">➕ Registro nuevo</button>
 </div>
 
-<!-- KPI STRIP -->
-<div class="kpi-strip">
-  <div class="kpi"><div class="kpi-label">Nómina del Día</div><div class="kpi-val orange" id="k_total">$0</div></div>
-  <div class="kpi"><div class="kpi-label">Registros Hoy</div><div class="kpi-val white-c" id="k_registros">0</div></div>
-  <div class="kpi"><div class="kpi-label">Sueldo Más Alto</div><div class="kpi-val green" id="k_mayor">$0</div></div>
-  <div class="kpi"><div class="kpi-label">Total Descuentos</div><div class="kpi-val red" id="k_descuentos">$0</div></div>
-  <div class="kpi"><div class="kpi-label">Empleado Activo</div><div class="kpi-val blue" id="k_empleado" style="font-size:16px;font-family:'Nunito',sans-serif;font-weight:900;">—</div></div>
+<!-- KPI BAR -->
+<div class="kpi-bar">
+  <div class="kpi"><div class="kpi-label">Nómina del día</div><div class="kpi-val orange" id="kpi_total">$0.00</div></div>
+  <div class="kpi"><div class="kpi-label">Registros hoy</div><div class="kpi-val blue" id="kpi_regs">0</div></div>
+  <div class="kpi"><div class="kpi-label">Pago más alto</div><div class="kpi-val green" id="kpi_max">$0.00</div></div>
+  <div class="kpi"><div class="kpi-label">Total descuentos</div><div class="kpi-val red" id="kpi_desc">$0.00</div></div>
+  <div class="kpi"><div class="kpi-label">Empleado activo</div><div class="kpi-val yellow" id="kpi_emp">—</div></div>
 </div>
 
-<div class="main">
-<div class="layout">
+<!-- MAIN GRID -->
+<div class="main-grid">
 
-  <!-- ══ IZQUIERDA: SELECCIÓN DE EMPLEADO Y DATOS ══ -->
-  <div>
+  <!-- COL IZQ: SELECCIÓN + DATOS -->
+  <div style="display:flex;flex-direction:column;gap:16px;">
 
-    <!-- CARD: SELECCIONAR EMPLEADO -->
-    <div class="card" style="margin-bottom:20px;">
-      <div class="card-title"><div class="ct-icon">👤</div>SELECCIONAR EMPLEADO<span class="help-icon">?<span class="tt">Elige al empleado del que vas a registrar el pago. Si es nuevo, agrégalo con su nombre y puesto. Cada empleado tiene su propio tabulador de comisiones.</span></span></div>
-
-      <div class="emp-grid" id="empGrid">
-        <!-- Se genera dinámicamente -->
+    <!-- Seleccionar empleado -->
+    <div class="card">
+      <div class="card-title">
+        <div class="ct-icon">👤</div>
+        <div class="ct-text">Seleccionar Empleado</div>
+        <span class="help-icon">?<span class="tt">Elige al empleado. El sistema cargará automáticamente su tipo de pago, monto base y tabla de comisiones configurada por el administrador.</span></span>
       </div>
-
-      <div class="sep"></div>
-
+      <div class="emp-search">
+        <input type="text" id="empSearch" placeholder="Buscar empleado..." oninput="filtrarEmpleados(this.value)" onfocus="mostrarDropdown()" autocomplete="off">
+        <div class="emp-dropdown" id="empDropdown"></div>
+      </div>
+      <div id="empCard" style="display:none;"></div>
       <!-- Nuevo empleado -->
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <span style="font-size:13px;font-weight:800;color:var(--gray);letter-spacing:1px;text-transform:uppercase;">Empleado nuevo:</span>
-        <input type="text" class="fi" id="nuevoEmpleado" placeholder="Nombre completo"
-               style="flex:1;min-width:200px;" oninput="actualizarNombreManual(this.value)">
-        <select class="fi" id="nuevoPuesto" onchange="actualizarPuestoManual(this.value)"
-                style="width:160px;">
-          <option value="">Puesto...</option>
-          <option value="Admin">Admin</option>
-          <option value="Ventas">Ventas</option>
-          <option value="Comisionista">Comisionista</option>
-          <option value="Menudeo">Menudeo</option>
-        </select>
+      <div id="nuevoEmpWrap" style="display:none;">
+        <div class="field-row">
+          <div class="field">
+            <label>Nombre completo *</label>
+            <input type="text" id="nuevoNombre" placeholder="Nombre del empleado">
+          </div>
+          <div class="field">
+            <label>Puesto *</label>
+            <select id="nuevoPuesto">
+              <option value="">Selecciona puesto...</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- CARD: DATOS DEL DÍA -->
-    <div class="card" style="margin-bottom:20px;">
-      <div class="card-title"><div class="ct-icon">📋</div>DATOS DEL DÍA<span class="help-icon">?<span class="tt">Registra las horas trabajadas, ventas generadas y cualquier descuento o bono del día para este empleado.</span></span></div>
-
-      <div style="background:rgba(245,130,31,.06);border:2px solid rgba(245,130,31,.2);
-        border-radius:10px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:14px;">
-        <div style="font-size:32px;" id="empIcon">👤</div>
-        <div>
-          <div style="font-size:18px;font-weight:900;color:var(--white);" id="empNombreDisplay">— Selecciona un empleado —</div>
-          <div style="font-size:13px;font-weight:700;margin-top:2px;" id="empPuestoDisplay" class="gray">Puesto</div>
-        </div>
+    <!-- Datos del día -->
+    <div class="card">
+      <div class="card-title">
+        <div class="ct-icon">📋</div>
+        <div class="ct-text">Datos del Día</div>
+        <span class="help-icon">?<span class="tt">Ingresa las horas trabajadas y las ventas generadas por este empleado en el día. El sistema calculará el pago automáticamente.</span></span>
       </div>
 
-      <div class="field-row">
+      <div id="datos_placeholder" style="text-align:center;padding:24px;color:var(--gray);">
+        — Selecciona un empleado —
+      </div>
+
+      <div id="datos_form" style="display:none;">
+        <div class="field-row">
+          <div class="field">
+            <label>Hora de ingreso</label>
+            <input type="time" id="f_horaIn" value="09:00" onchange="calcHoras()">
+          </div>
+          <div class="field">
+            <label>Hora de salida</label>
+            <input type="time" id="f_horaOut" value="18:00" onchange="calcHoras()">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Horas trabajadas (auto)</label>
+            <input type="number" id="f_horas" readonly style="background:rgba(255,255,255,.04);color:var(--yellow);">
+          </div>
+          <div class="field">
+            <label>Descuentos / Penalizaciones</label>
+            <input type="number" id="f_descuentos" value="0" min="0" step="0.01" oninput="calcPago()">
+          </div>
+        </div>
+        <div class="field" id="f_ventas_wrap">
+          <label>Ventas del día ($) <span class="help-icon">?<span class="tt">Monto total vendido por este empleado hoy. Se usa para calcular la comisión según la tabla configurada.</span></span></label>
+          <input type="number" id="f_ventas" value="0" min="0" step="0.01" oninput="calcPago()">
+          <div class="field-hint" id="hint_ventas"></div>
+        </div>
         <div class="field">
-          <label>Hora de Ingreso <span class="req">*</span></label>
-          <input type="time" class="fi" id="f_horaIn" value="08:00" oninput="calcHoras()">
-          <div class="field-hint" id="h_horaIn">Obligatorio</div>
+          <label>Notas / Observaciones</label>
+          <input type="text" id="f_notas" placeholder="Opcional...">
         </div>
-        <div class="field">
-          <label>Hora de Salida <span class="req">*</span></label>
-          <input type="time" class="fi" id="f_horaOut" value="20:00" oninput="calcHoras()">
-          <div class="field-hint" id="h_horaOut">Obligatorio</div>
-        </div>
+        <button class="btn-guardar" onclick="guardarRegistro()" id="btnGuardar">💾 Guardar Registro</button>
+        <button class="btn-limpiar" onclick="limpiarForm()">🗑 Limpiar</button>
       </div>
-
-      <div class="field-row">
-        <div class="field">
-          <label>Horas Trabajadas (auto)</label>
-          <input type="number" class="fi" id="r_horas" readonly placeholder="Auto">
-        </div>
-        <div class="field">
-          <label>Descuentos / Penalizaciones <span class="req">*</span></label>
-          <input type="number" class="fi" id="f_descuento" placeholder="0.00" min="0" step="0.01" oninput="calcSueldo()">
-          <div class="field-hint" id="h_descuento">Obligatorio — escribe 0 si no hay</div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Notas (opcional)</label>
-        <input type="text" class="fi" id="f_notas" placeholder="Ej: llegó tarde, horas extra, etc.">
-      </div>
-    </div>
-
-  </div><!-- /izquierda -->
-
-  <!-- ══ DERECHA: TABULADOR Y RESULTADO ══ -->
-  <div>
-
-    <!-- CARD: TABULADOR INTERACTIVO -->
-    <div class="card" id="cardTabulador" style="margin-bottom:20px;">
-      <div class="card-title"><div class="ct-icon">📊</div>TABULADOR — <span id="tabPuestoTitle">Selecciona empleado</span></div>
-      <div id="tabContent">
-        <div style="text-align:center;padding:30px;color:var(--gray);">
-          <div style="font-size:48px;margin-bottom:12px;">👆</div>
-          <div style="font-size:15px;font-weight:700;">Selecciona un empleado para ver su tabulador</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- CARD: RESULTADO -->
-    <div class="card" style="margin-bottom:20px;">
-      <div class="card-title"><div class="ct-icon">💰</div>RESULTADO DEL PAGO<span class="help-icon">?<span class="tt">El sistema calcula automáticamente el pago basándose en el tabulador del empleado. Verifica que sea correcto antes de guardar.</span></span></div>
-
-      <div class="resultado-card" id="resultadoCard">
-        <div class="resultado-label">Sueldo Neto a Pagar</div>
-        <div class="resultado-monto" id="r_sueldoNeto">$0.00</div>
-        <div class="resultado-detail" id="r_sueldoDetail">Selecciona empleado y tabulador</div>
-        <div class="resultado-descuento" id="r_descuentoDetail"></div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px;">
-        <div style="background:#161616;border:2px solid var(--border);border-radius:10px;padding:12px;text-align:center;">
-          <div style="font-size:10px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:5px;">Sueldo Bruto</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--white);" id="r_sueldoBruto">$0.00</div>
-        </div>
-        <div style="background:#161616;border:2px solid var(--border);border-radius:10px;padding:12px;text-align:center;">
-          <div style="font-size:10px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:5px;">Descuentos</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--red);" id="r_descuento">$0.00</div>
-        </div>
-        <div style="background:#161616;border:2px solid var(--border);border-radius:10px;padding:12px;text-align:center;">
-          <div style="font-size:10px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:5px;">Horas</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--blue);" id="r_horasDisplay">0</div>
-        </div>
-      </div>
-
-      <div class="submit-area">
-        <button class="btn-save" id="btnGuardar" onclick="guardar()">💾 GUARDAR NÓMINA</button>
-        <button class="btn-clear" onclick="limpiar()">🗑 Limpiar</button>
-      </div>
-    </div>
-
-  </div><!-- /derecha -->
-
-  <!-- ══ HISTORIAL DEL DÍA (ancho completo) ══ -->
-  <div class="card full">
-    <div class="card-title"><div class="ct-icon">📜</div>REGISTROS DEL DÍA — <span id="histFecha">—</span></div>
-    <div style="overflow-x:auto;">
-      <table class="hist-table" id="histTable">
-        <thead>
-          <tr>
-            <th>Empleado</th>
-            <th>Puesto</th>
-            <th>Entrada</th>
-            <th>Salida</th>
-            <th>Horas</th>
-            <th>Funciones / Ventas</th>
-            <th>Sueldo Bruto</th>
-            <th>Descuento</th>
-            <th>Sueldo Neto</th>
-          </tr>
-        </thead>
-        <tbody id="histBody">
-          <tr><td colspan="9" style="text-align:center;color:var(--gray);padding:30px;font-size:14px;">
-            No hay registros para esta fecha aún
-          </td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div style="margin-top:14px;display:flex;justify-content:flex-end;gap:20px;font-size:14px;font-weight:800;">
-      <span style="color:var(--gray);">TOTAL NÓMINA DEL DÍA:</span>
-      <span style="color:var(--green);font-family:'Bebas Neue',sans-serif;font-size:22px;" id="histTotal">$0.00</span>
     </div>
   </div>
 
-</div><!-- /layout -->
-</div><!-- /main -->
+  <!-- COL DER: TABULADOR + RESULTADO + REGISTROS -->
+  <div style="display:flex;flex-direction:column;gap:16px;">
 
-<div class="toast" id="toast">
-  <div class="t-icon"></div>
-  <div class="t-body"><div class="t-title"></div><div class="t-msg"></div></div>
+    <!-- Tabulador -->
+    <div class="card">
+      <div class="card-title">
+        <div class="ct-icon">📊</div>
+        <div class="ct-text">Tabulador</div>
+        <span class="help-icon">?<span class="tt">Muestra la tabla de comisiones del empleado seleccionado. Haz clic en un rango para ver cuánto ganaría con esas ventas.</span></span>
+      </div>
+      <div id="tab_content">
+        <div class="tab-empty">Selecciona un empleado para ver su tabulador</div>
+      </div>
+    </div>
+
+    <!-- Resultado del pago -->
+    <div class="card">
+      <div class="card-title">
+        <div class="ct-icon">💰</div>
+        <div class="ct-text">Resultado del Pago</div>
+        <span class="help-icon">?<span class="tt">Cálculo automático del pago. Verifica que sea correcto antes de guardar. Puedes ajustar descuentos si es necesario.</span></span>
+      </div>
+      <div class="resultado-box" id="resultado_box">
+        <div class="tab-empty">Selecciona un empleado</div>
+      </div>
+    </div>
+
+    <!-- Registros del día -->
+    <div class="card">
+      <div class="card-title">
+        <div class="ct-icon">📋</div>
+        <div class="ct-text">Registros del Día</div>
+        <span class="help-icon">?<span class="tt">Historial de pagos registrados hoy. Puedes editar o eliminar antes de cerrar el día.</span></span>
+      </div>
+      <div id="registros_content">
+        <div class="reg-empty">Sin registros para este día</div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
+const API = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
+const SESSION_KEY = 'trikles_session';
 
-const SESSION_KEY='trikles_session';
-function getSession(){try{const s=JSON.parse(sessionStorage.getItem(SESSION_KEY)||localStorage.getItem(SESSION_KEY+'_remember'));if(s&&s.expires>Date.now())return s;clearSession();return null;}catch{return null;}}
-function clearSession(){sessionStorage.removeItem(SESSION_KEY);localStorage.removeItem(SESSION_KEY+'_remember');}
-function requireAuth(roles){const s=getSession();if(!s){window.location.href='login.html';return null;}if(roles&&!roles.includes(s.rol)&&s.rol!=='SUPER_ADMIN'){alert('No tienes permisos para acceder a esta sección.');window.location.href='login.html';return null;}return s;}
-function logout(){if(confirm('¿Cerrar sesión?')){clearSession();window.location.href='login.html';}}
-const ROLE_LABELS={ADMIN:'Administrador',DIR_GENERAL:'Dir. General',DIR_FINANZAS:'Dir. Finanzas',ANALISTA_FIN:'Analista Fin.',ANALISTA_NOM:'Analista Nóm.',ANALISTA_FULL:'Analista Full'};
-function renderUserChip(s){document.getElementById('userChip').textContent=s.nombre+' — '+(ROLE_LABELS[s.rol]||s.rol);}
-const APPS_SCRIPT_URL=localStorage.getItem('trikles_api_url')||'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
-async function apiCall(action,data){const s=getSession();const payload={action,...data,empresa:s?.empresa||'TRIKLES',usuarioCaptura:s?.usuario||''};try{await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});return{success:true};}catch(e){return{success:false,error:e.toString()};}}
-function showToast(type,title,msg,dur=4000){const icons={success:'✅',error:'❌',info:'💡',warning:'⚠️'};const t=document.getElementById('toast');t.className='toast show '+type;t.querySelector('.t-icon').textContent=icons[type]||'ℹ️';t.querySelector('.t-title').textContent=title;t.querySelector('.t-msg').textContent=msg;clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),dur);}
-function today(){return new Date().toISOString().slice(0,10);}
-function toDateStr(d){return d.toISOString().slice(0,10);}
-function getWeek(d){const j=new Date(d.getFullYear(),0,1);return Math.ceil(((d-j)/86400000+j.getDay()+1)/7);}
-function parseDateMX(s){const d=new Date(s+'T12:00:00');return{fecha:s,año:d.getFullYear(),mes:d.getMonth()+1,semana:getWeek(d)};}
-const fmt=n=>'$'+Number(n||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
-const num=id=>{const v=parseFloat(document.getElementById(id)?.value);return isNaN(v)?0:v;};
-const setVal=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v;};
-const setText=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-
-
-const TAB = {
-  Admin: [
-    {funciones:0, hrs:0,  incentivo:0,         sueldo:50.236967},
-    {funciones:1, hrs:3,  incentivo:55.763033,  sueldo:106},
-    {funciones:2, hrs:6,  incentivo:10.6,       sueldo:111.073934},
-    {funciones:3, hrs:9,  incentivo:11.107393,  sueldo:161.818294},
-    {funciones:4, hrs:12, incentivo:16.181829,  sueldo:217.129697},
-  ],
-  Ventas: [
-    {funciones:0, hrs:0,  incentivo:0,          sueldo:50.236967},
-    {funciones:1, hrs:3,  incentivo:55.76,      sueldo:105.996967},
-    {funciones:2, hrs:6,  incentivo:15.899545,  sueldo:116.373479},
-    {funciones:3, hrs:9,  incentivo:17.456022,  sueldo:168.166922},
-    {funciones:4, hrs:12, incentivo:25.225038,  sueldo:226.172906},
-  ],
-  Comisionista: [
-    // No. ventas → comisión (15% de $249 por venta)
-    {ventas:1,  monto:249,   comision:37.35},
-    {ventas:2,  monto:498,   comision:74.7},
-    {ventas:3,  monto:747,   comision:112.05},
-    {ventas:4,  monto:996,   comision:149.4},
-    {ventas:5,  monto:1245,  comision:186.75},
-    {ventas:6,  monto:1494,  comision:224.1},
-    {ventas:7,  monto:1743,  comision:261.45},
-    {ventas:8,  monto:1992,  comision:298.8},
-    {ventas:9,  monto:2241,  comision:336.15},
-    {ventas:10, monto:2490,  comision:373.5},
-    {ventas:11, monto:2739,  comision:410.85},
-    {ventas:12, monto:2988,  comision:448.2},
-    {ventas:13, monto:3237,  comision:485.55},
-    {ventas:14, monto:3486,  comision:522.9},
-    {ventas:15, monto:3735,  comision:560.25},
-    {ventas:16, monto:3984,  comision:597.6},
-    {ventas:17, monto:4233,  comision:634.95},
-    {ventas:18, monto:4482,  comision:672.3},
-    {ventas:19, monto:4731,  comision:709.65},
-    {ventas:20, monto:4980,  comision:747},
-    {ventas:21, monto:5229,  comision:784.35},
-    {ventas:22, monto:5478,  comision:821.7},
-    {ventas:23, monto:5727,  comision:859.05},
-    {ventas:24, monto:5976,  comision:896.4},
-    {ventas:25, monto:6225,  comision:933.75},
-    {ventas:26, monto:6474,  comision:971.1},
-    {ventas:27, monto:6723,  comision:1008.45},
-    {ventas:28, monto:6972,  comision:1045.8},
-  ],
-  Menudeo: {sueldoPorHora: 40},
-};
-
-// Empleados se cargan desde Sheets según la empresa activa
-const EMPLEADOS_TRIKLES = [
-  {nombre:'Josue',                   puesto:'Comisionista'},
-  {nombre:'Luz Arely Pérez Rivera',  puesto:'Comisionista'},
-  {nombre:'Gaby',                    puesto:'Ventas'},
-  {nombre:'Israel',                  puesto:'Admin'},
-  {nombre:'Edgar Zabdiel Romero Avila', puesto:'Menudeo'},
-  {nombre:'María del Rosario C.',    puesto:'Ventas'},
-  {nombre:'Sarai',                   puesto:'Ventas'},
-  {nombre:'Mamá Nata',               puesto:'Menudeo'},
-  {nombre:'Armando Kaled S.M.',      puesto:'Comisionista'},
-  {nombre:'Ismael Alexander S.M.',   puesto:'Comisionista'},
-  {nombre:'Germán Solís Muñoz',      puesto:'Admin'},
-  {nombre:'Angélica',               puesto:'Ventas'},
-  {nombre:'Rocio Escobar',          puesto:'Ventas'},
-  {nombre:'Nohely',                 puesto:'Ventas'},
-];
-let EMPLEADOS = []; // Se llena según empresa
-
-
-// ══════════════════════════════════════════════════════════
-// ESTADO
-// ══════════════════════════════════════════════════════════
-let currentDate = today();
-let selectedEmp = null;   // {nombre, puesto}
-let selectedTab = null;   // entrada del tabulador seleccionada
-let registros   = [];     // registros del día en memoria
-
-// ══════════════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-  const s = requireAuth(['ADMIN','ANALISTA_NOM','ANALISTA_FULL']);
-  if (!s) return;
-  // Nombre empresa INMEDIATO
-  const _tbName = document.querySelector('.topbar-name') || document.querySelector('.tb-name');
-  if(_tbName) _tbName.textContent = (s.empresa || '').replace(/_/g,' ').toUpperCase();
-  renderUserChip(s);
-  if(['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS'].includes(s.rol)){
-    const bd=document.getElementById('btnDashboard');if(bd)bd.style.display='inline-flex';
-  }
-  applyBranding(s.empresa);
-  changeDate(today());
-  // Cargar empleados según empresa
-  if(!s.empresa || s.empresa === 'TRIKLES') {
-    EMPLEADOS = EMPLEADOS_TRIKLES;
-  } else {
-    EMPLEADOS = []; // Sin empleados hasta que se den de alta para esta empresa
-  }
-  buildEmpGrid();
-});
-
-// ══════════════════════════════════════════════════════════
-// FECHA
-// ══════════════════════════════════════════════════════════
-function changeDate(f) {
-  currentDate = f;
-  document.getElementById('fechaInput').value = f;
-  const d = new Date(f + 'T12:00:00');
-  const label = d.toLocaleDateString('es-MX', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  document.getElementById('fechaDisplay').textContent = label;
-  document.getElementById('histFecha').textContent = label;
-  const isHoy = f === today();
-  const st = document.getElementById('statusTag');
-  st.textContent = isHoy ? '📅 Registro de HOY' : '⚠️ Editando: ' + f;
-  st.style.color = isHoy ? 'var(--green)' : 'var(--orange)';
-  registros = [];
-  renderHistorial();
+function getSession() {
+  try {
+    const s = JSON.parse(sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY+'_remember'));
+    if (s && s.expires > Date.now()) return s;
+    clearSession(); return null;
+  } catch { return null; }
 }
-function moveDay(d) {
-  const dt = new Date(currentDate + 'T12:00:00');
-  dt.setDate(dt.getDate() + d);
-  const n = toDateStr(dt);
-  if (n > today()) { showToast('info','No permitido','No puedes registrar fechas futuras'); return; }
-  changeDate(n);
+function clearSession() {
+  sessionStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(SESSION_KEY+'_remember');
 }
+function logout() { if(confirm('¿Cerrar sesión?')) { clearSession(); window.location.href='login.html'; } }
 
-// ══════════════════════════════════════════════════════════
-// GRID DE EMPLEADOS
-// ══════════════════════════════════════════════════════════
-const PUESTO_ICONS = {Admin:'🏢',Ventas:'🛒',Comisionista:'🤝',Menudeo:'🏪'};
-const PUESTO_CLASS = {Admin:'admin',Ventas:'ventas',Comisionista:'comisionista',Menudeo:'menudeo'};
-
-function buildEmpGrid() {
-  const grid = document.getElementById('empGrid');
-  grid.innerHTML = '';
-  EMPLEADOS.forEach((e, i) => {
-    const div = document.createElement('div');
-    div.className = 'emp-btn';
-    div.innerHTML = `
-      <div class="emp-check">✅</div>
-      <div style="font-size:26px;margin-bottom:6px;">${PUESTO_ICONS[e.puesto]||'👤'}</div>
-      <div class="emp-name">${e.nombre}</div>
-      <div class="emp-puesto ${PUESTO_CLASS[e.puesto]||''}">${e.puesto}</div>`;
-    div.onclick = () => seleccionarEmpleado(e, div);
-    grid.appendChild(div);
+function jsonp(params, timeout=12000) {
+  return new Promise((resolve,reject) => {
+    const cb = '_cb'+Date.now()+Math.random().toString(36).slice(2);
+    const s  = document.createElement('script');
+    let done = false;
+    const fin = (fn,v) => { if(done)return; done=true; delete window[cb]; s.remove(); fn(v); };
+    window[cb] = d => fin(resolve,d);
+    s.onerror  = () => fin(reject, new Error('error'));
+    s.src = API + '?' + new URLSearchParams({...params, callback:cb});
+    document.head.appendChild(s);
+    setTimeout(() => fin(reject, new Error('timeout')), timeout);
   });
 }
 
-function seleccionarEmpleado(emp, btn) {
-  document.querySelectorAll('.emp-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  selectedEmp = emp;
-  selectedTab = null;
-  document.getElementById('nuevoEmpleado').value = '';
-  document.getElementById('nuevoPuesto').value = '';
-  actualizarEmpleadoDisplay(emp.nombre, emp.puesto);
-  renderTabulador(emp.puesto);
+function toast(type, msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast '+type+' show';
+  setTimeout(() => t.className = 'toast', 3000);
 }
 
-function actualizarNombreManual(val) {
-  document.querySelectorAll('.emp-btn').forEach(b => b.classList.remove('active'));
-  selectedEmp = {nombre:val, puesto:document.getElementById('nuevoPuesto').value||''};
-  actualizarEmpleadoDisplay(val, selectedEmp.puesto);
-}
-function actualizarPuestoManual(val) {
-  if (!selectedEmp) selectedEmp = {nombre:'', puesto:''};
-  selectedEmp.puesto = val;
-  actualizarEmpleadoDisplay(selectedEmp.nombre, val);
-  renderTabulador(val);
+function hoy() {
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
 
-function actualizarEmpleadoDisplay(nombre, puesto) {
-  document.getElementById('empNombreDisplay').textContent = nombre || '— Sin nombre —';
-  const pEl = document.getElementById('empPuestoDisplay');
-  pEl.textContent = puesto || '—';
-  pEl.className = PUESTO_CLASS[puesto] || 'gray';
-  document.getElementById('empIcon').textContent = PUESTO_ICONS[puesto] || '👤';
-  document.getElementById('k_empleado').textContent = nombre || '—';
+function fmtFecha(f) {
+  const d = new Date(f+'T12:00:00');
+  return d.toLocaleDateString('es-MX', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
 }
 
-// ══════════════════════════════════════════════════════════
-// TABULADOR INTERACTIVO
-// ══════════════════════════════════════════════════════════
-function renderTabulador(puesto) {
-  const title = document.getElementById('tabPuestoTitle');
-  const content = document.getElementById('tabContent');
-  title.textContent = puesto || 'Selecciona empleado';
+function fmt(v) { return '$'+parseFloat(v||0).toFixed(2); }
 
-  if (!puesto || !TAB[puesto]) {
-    content.innerHTML = `<div style="text-align:center;padding:30px;color:var(--gray);">
-      <div style="font-size:48px;margin-bottom:12px;">👆</div>
-      <div style="font-size:15px;font-weight:700;">Selecciona un empleado para ver su tabulador</div></div>`;
-    return;
+// ── Estado global ──
+let SESSION, CONFIGS = [], REGISTROS = [], EMPLEADOS_VISTOS = [];
+let empActivo = null, configActivo = null;
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', async () => {
+  SESSION = getSession();
+  if (!SESSION) { window.location.href = 'login.html'; return; }
+
+  // Topbar inmediato
+  document.getElementById('topbar-name').textContent = (SESSION.empresa||'').replace(/_/g,' ').toUpperCase();
+  document.getElementById('userChip').textContent = SESSION.nombre + ' — ' + SESSION.rol;
+  if (['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS'].includes(SESSION.rol)) {
+    document.getElementById('btnDashboard').style.display = 'inline-flex';
   }
 
-  if (puesto === 'Admin' || puesto === 'Ventas') {
-    let html = `<div class="tab-title">SELECCIONA EL NÚMERO DE FUNCIONES DEL DÍA</div>`;
-    TAB[puesto].forEach((row, i) => {
-      html += `<div class="tab-row" id="tabrow_${i}" onclick="selectTab(${i},'${puesto}')">
-        <div class="tab-num">${row.funciones}</div>
-        <div class="tab-desc">
-          ${row.funciones === 0 ? 'Sin funciones' : row.funciones + (row.funciones===1?' función':' funciones')}
-          <small>${row.hrs} hrs trabajadas${row.incentivo > 0 ? ' · Incentivo: '+fmt(row.incentivo) : ''}</small>
-        </div>
-        <div class="tab-monto">${fmt(row.sueldo)}</div>
-      </div>`;
-    });
-    content.innerHTML = html;
+  // Branding
+  applyBranding(SESSION.empresa);
 
-  } else if (puesto === 'Comisionista') {
-    let html = `<div class="tab-title">SELECCIONA EL NÚMERO DE VENTAS DEL DÍA</div>
-      <div style="max-height:320px;overflow-y:auto;padding-right:4px;">`;
-    TAB.Comisionista.forEach((row, i) => {
-      html += `<div class="tab-row" id="tabrow_${i}" onclick="selectTab(${i},'Comisionista')">
-        <div class="tab-num">${row.ventas}</div>
-        <div class="tab-desc">
-          ${row.ventas} venta${row.ventas>1?'s':''}
-          <small>Importe: ${fmt(row.monto)} · 15% comisión</small>
-        </div>
-        <div class="tab-monto">${fmt(row.comision)}</div>
-      </div>`;
+  // Fecha de hoy
+  setFecha(hoy());
+
+  // Cargar configuración de nómina
+  await cargarConfig();
+
+  // Cargar registros del día
+  cargarRegistros();
+});
+
+// ── Fecha ──
+function setFecha(f) {
+  document.getElementById('fechaInput').value = f;
+  document.getElementById('fechaLabel').textContent = fmtFecha(f);
+  cargarRegistros();
+}
+
+function onFechaChange(f) {
+  document.getElementById('fechaLabel').textContent = fmtFecha(f);
+  cargarRegistros();
+}
+
+function cambiarFecha(d) {
+  const f = document.getElementById('fechaInput').value || hoy();
+  const dt = new Date(f+'T12:00:00');
+  dt.setDate(dt.getDate() + d);
+  setFecha(dt.toISOString().slice(0,10));
+}
+
+// ── Cargar configuración ──
+async function cargarConfig() {
+  try {
+    const r = await jsonp({action:'getNominaConfig', empresa:SESSION.empresa});
+    if (r.success) {
+      CONFIGS = r.data || [];
+      // Poblar selector de puestos para nuevo empleado
+      const sel = document.getElementById('nuevoPuesto');
+      sel.innerHTML = '<option value="">Selecciona puesto...</option>';
+      CONFIGS.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.puesto;
+        opt.textContent = c.puesto;
+        sel.appendChild(opt);
+      });
+    }
+  } catch(e) { console.warn('Config nómina:', e); }
+}
+
+// ── Empleados ──
+function filtrarEmpleados(q) {
+  const dropdown = document.getElementById('empDropdown');
+  const todos = [...new Set([
+    ...CONFIGS.map(c => c.puesto ? null : null),
+    ...REGISTROS.map(r => r.empleado),
+    ...EMPLEADOS_VISTOS
+  ].filter(Boolean))];
+
+  // Mostrar todos los que coincidan con la búsqueda
+  const opts = EMPLEADOS_VISTOS.filter(e => !q || e.toLowerCase().includes(q.toLowerCase()));
+
+  dropdown.innerHTML = '';
+  if (opts.length === 0 && q) {
+    dropdown.innerHTML = `<div class="emp-nuevo" onclick="agregarNuevoEmpleado('${q}')">➕ Agregar "${q}" como nuevo empleado</div>`;
+  } else {
+    opts.forEach(emp => {
+      const div = document.createElement('div');
+      div.className = 'emp-option';
+      div.textContent = emp;
+      div.onclick = () => seleccionarEmpleado(emp);
+      dropdown.appendChild(div);
+    });
+    if (q) {
+      const div = document.createElement('div');
+      div.className = 'emp-nuevo';
+      div.textContent = '➕ Agregar "'+q+'" como nuevo empleado';
+      div.onclick = () => agregarNuevoEmpleado(q);
+      dropdown.appendChild(div);
+    }
+  }
+  dropdown.classList.add('open');
+}
+
+function mostrarDropdown() {
+  filtrarEmpleados(document.getElementById('empSearch').value);
+}
+
+function agregarNuevoEmpleado(nombre) {
+  document.getElementById('empSearch').value = nombre;
+  document.getElementById('empDropdown').classList.remove('open');
+  document.getElementById('nuevoEmpWrap').style.display = 'block';
+  document.getElementById('nuevoNombre').value = nombre;
+  empActivo = { nombre, puesto: '', esNuevo: true };
+  renderEmpCard(empActivo);
+}
+
+function seleccionarEmpleado(nombre) {
+  document.getElementById('empSearch').value = nombre;
+  document.getElementById('empDropdown').classList.remove('open');
+  document.getElementById('nuevoEmpWrap').style.display = 'none';
+
+  // Buscar en registros del día para conocer su puesto
+  const reg = REGISTROS.find(r => r.empleado === nombre);
+  const puesto = reg ? reg.puesto : '';
+  empActivo = { nombre, puesto, esNuevo: false };
+
+  // Cargar config del puesto
+  if (puesto) {
+    configActivo = CONFIGS.find(c => c.puesto.toLowerCase() === puesto.toLowerCase()) || null;
+  }
+
+  renderEmpCard(empActivo);
+  if (configActivo) renderTabulador();
+  calcPago();
+  document.getElementById('kpi_emp').textContent = nombre.split(' ')[0];
+}
+
+function renderEmpCard(emp) {
+  const tipos = { DIA:'Por día', HORA:'Por hora', COMISION:'Solo comisión', BASE_COMISION:'Base+comisión' };
+  const conf = configActivo || (CONFIGS.find(c => c.puesto === emp.puesto) || null);
+
+  document.getElementById('empCard').style.display = 'flex';
+  document.getElementById('empCard').innerHTML = `
+    <div class="emp-card">
+      <div class="emp-avatar">👤</div>
+      <div class="emp-info">
+        <div class="name">${emp.nombre}</div>
+        <div class="puesto">${emp.puesto || 'Sin puesto asignado'}</div>
+        ${conf ? `<span class="tipo-badge" style="background:rgba(245,130,31,.2);color:var(--orange);border:1px solid rgba(245,130,31,.4)">${tipos[conf.tipoPago]||conf.tipoPago}</span>` : ''}
+      </div>
+    </div>
+  `;
+  document.getElementById('datos_placeholder').style.display = 'none';
+  document.getElementById('datos_form').style.display = 'block';
+  calcHoras();
+}
+
+// ── Asignar puesto a nuevo empleado ──
+document.addEventListener('change', function(e) {
+  if (e.target.id === 'nuevoPuesto') {
+    const puesto = e.target.value;
+    if (empActivo) {
+      empActivo.puesto = puesto;
+      configActivo = CONFIGS.find(c => c.puesto.toLowerCase() === puesto.toLowerCase()) || null;
+      renderEmpCard(empActivo);
+      if (configActivo) renderTabulador();
+      calcPago();
+    }
+  }
+});
+
+// ── Horas ──
+function calcHoras() {
+  const inn  = document.getElementById('f_horaIn').value  || '09:00';
+  const out  = document.getElementById('f_horaOut').value || '18:00';
+  const [h1,m1] = inn.split(':').map(Number);
+  const [h2,m2] = out.split(':').map(Number);
+  let mins = (h2*60+m2) - (h1*60+m1);
+  if (mins < 0) mins += 24*60;
+  const horas = Math.round(mins/60 * 100) / 100;
+  document.getElementById('f_horas').value = horas;
+  calcPago();
+}
+
+// ── Tabulador ──
+function renderTabulador() {
+  const el = document.getElementById('tab_content');
+  if (!configActivo) { el.innerHTML = '<div class="tab-empty">Sin tabulador configurado para este puesto</div>'; return; }
+
+  const tipos = { DIA:'Por día', HORA:'Por hora', COMISION:'Solo comisión', BASE_COMISION:'Base+comisión' };
+  const ventas = parseFloat(document.getElementById('f_ventas')?.value) || 0;
+
+  let html = `<div class="tab-title">Tipo: ${tipos[configActivo.tipoPago]||configActivo.tipoPago} · Base: ${fmt(configActivo.montoBase)}</div>`;
+
+  if (configActivo.comisionActiva && configActivo.tablaComisiones.length > 0) {
+    html += '<div class="tab-rows">';
+    configActivo.tablaComisiones.forEach(t => {
+      const activo = ventas >= t.desde && ventas <= t.hasta;
+      const com = ventas * (t.pct/100);
+      html += `
+        <div class="tab-row ${activo ? 'active' : ''}" onclick="document.getElementById('f_ventas').value='${t.desde}';calcPago();">
+          <span class="range">$${t.desde.toLocaleString()} – ${t.hasta >= 999999 ? '∞' : '$'+t.hasta.toLocaleString()}</span>
+          <span class="pct">${t.pct}%</span>
+          ${activo ? `<span class="monto">${fmt(com)}</span>` : ''}
+        </div>`;
     });
     html += '</div>';
-    content.innerHTML = html;
-
-  } else if (puesto === 'Menudeo') {
-    content.innerHTML = `
-      <div class="tab-title">SUELDO POR HORA — MENUDEO</div>
-      <div style="background:var(--green-l);border:2px solid var(--green);border-radius:10px;padding:20px;text-align:center;margin-bottom:14px;">
-        <div style="font-size:13px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--green);margin-bottom:8px;">TARIFA POR HORA</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--green);">$40.00</div>
-        <div style="font-size:14px;font-weight:700;color:var(--light);margin-top:4px;">por hora trabajada</div>
-      </div>
-      <div style="font-size:13px;color:var(--gray);font-weight:700;text-align:center;">
-        El sueldo se calcula automáticamente según las horas registradas
-      </div>`;
-    selectedTab = {tipo:'menudeo', tarifaHora:40};
-    calcSueldo();
+  } else if (configActivo.tipoPago !== 'COMISION') {
+    html += '<div class="tab-empty" style="padding:16px;">Este puesto no tiene comisiones — pago fijo</div>';
   }
+
+  el.innerHTML = html;
 }
 
-function selectTab(idx, puesto) {
-  document.querySelectorAll('.tab-row').forEach(r => r.classList.remove('selected'));
-  document.getElementById('tabrow_'+idx)?.classList.add('selected');
-  if (puesto === 'Comisionista') {
-    selectedTab = {tipo:'comisionista', ...TAB.Comisionista[idx]};
-  } else {
-    selectedTab = {tipo:'funciones', puesto, ...TAB[puesto][idx]};
+// ── Cálculo de pago ──
+function calcPago() {
+  if (!configActivo) { renderResultado(null); return; }
+
+  const horas      = parseFloat(document.getElementById('f_horas').value) || 0;
+  const ventas     = parseFloat(document.getElementById('f_ventas').value) || 0;
+  const descuentos = parseFloat(document.getElementById('f_descuentos').value) || 0;
+  const conf       = configActivo;
+
+  let montoBase = 0, montoComision = 0, pctComision = 0;
+
+  // Base
+  if (conf.tipoPago === 'DIA') {
+    montoBase = conf.montoBase;
+  } else if (conf.tipoPago === 'HORA') {
+    montoBase = conf.montoBase * horas;
+  } else if (conf.tipoPago === 'COMISION') {
+    montoBase = 0;
+  } else if (conf.tipoPago === 'BASE_COMISION') {
+    montoBase = conf.tipoPago === 'HORA' ? conf.montoBase * horas : conf.montoBase;
   }
-  calcSueldo();
+
+  // Comisión por rango
+  if (conf.comisionActiva && conf.tablaComisiones.length > 0 && ventas > 0) {
+    const rango = conf.tablaComisiones.find(t => ventas >= t.desde && ventas <= t.hasta);
+    if (rango) {
+      pctComision   = rango.pct;
+      montoComision = ventas * (rango.pct / 100);
+    }
+  }
+
+  const pagoTotal = Math.max(0, montoBase + montoComision - descuentos);
+  renderResultado({ montoBase, montoComision, pctComision, descuentos, pagoTotal, horas, ventas });
+  renderTabulador();
+  return { montoBase, montoComision, pctComision, pagoTotal };
 }
 
-// ══════════════════════════════════════════════════════════
-// CÁLCULOS
-// ══════════════════════════════════════════════════════════
-function calcHoras() {
-  const ini = document.getElementById('f_horaIn').value;
-  const fin = document.getElementById('f_horaOut').value;
-  if (!ini || !fin) return;
-  const [h1,m1] = ini.split(':').map(Number);
-  const [h2,m2] = fin.split(':').map(Number);
-  const totalMin = (h2*60+m2) - (h1*60+m1);
-  const horas = totalMin > 0 ? totalMin/60 : 0;
-  setVal('r_horas', horas.toFixed(2));
-  document.getElementById('r_horasDisplay').textContent = horas.toFixed(1);
-  // Para menudeo recalcular automáticamente
-  if (selectedTab?.tipo === 'menudeo') calcSueldo();
+function renderResultado(r) {
+  const el = document.getElementById('resultado_box');
+  if (!r) { el.innerHTML = '<div class="tab-empty">Selecciona un empleado</div>'; return; }
+
+  const tipos = { DIA:'Por día', HORA:'Por hora', COMISION:'Solo comisión', BASE_COMISION:'Base+comisión' };
+
+  el.innerHTML = `
+    <div class="res-row">
+      <span class="res-label">Tipo de pago</span>
+      <span class="res-val">${tipos[configActivo.tipoPago]||configActivo.tipoPago}</span>
+    </div>
+    ${configActivo.tipoPago === 'HORA' ? `
+    <div class="res-row">
+      <span class="res-label">Horas trabajadas</span>
+      <span class="res-val">${r.horas} hrs</span>
+    </div>` : ''}
+    ${configActivo.tipoPago !== 'COMISION' ? `
+    <div class="res-row">
+      <span class="res-label">Pago base</span>
+      <span class="res-val" style="color:var(--blue)">${fmt(r.montoBase)}</span>
+    </div>` : ''}
+    ${r.montoComision > 0 ? `
+    <div class="res-row">
+      <span class="res-label">Comisión (${r.ventas.toLocaleString()} × ${r.pctComision}%)</span>
+      <span class="res-val" style="color:var(--green)">${fmt(r.montoComision)}</span>
+    </div>` : ''}
+    ${r.descuentos > 0 ? `
+    <div class="res-row">
+      <span class="res-label">Descuentos</span>
+      <span class="res-val" style="color:var(--red)">− ${fmt(r.descuentos)}</span>
+    </div>` : ''}
+    <div class="res-total">
+      <span class="label">PAGO TOTAL</span>
+      <span class="val">${fmt(r.pagoTotal)}</span>
+    </div>
+  `;
 }
 
-function calcSueldo() {
-  let bruto = 0, detalle = '—';
-  const descuento = num('f_descuento');
-  const horas = parseFloat(document.getElementById('r_horas')?.value) || 0;
-
-  if (!selectedTab) {
-    document.getElementById('r_sueldoNeto').textContent = '$0.00';
-    document.getElementById('r_sueldoDetail').textContent = 'Selecciona el tabulador';
-    document.getElementById('r_sueldoBruto').textContent = '$0.00';
-    document.getElementById('r_descuento').textContent = fmt(descuento);
-    return;
+// ── Guardar registro ──
+async function guardarRegistro() {
+  if (!empActivo) { toast('err','Selecciona un empleado'); return; }
+  if (!empActivo.puesto && !document.getElementById('nuevoPuesto').value) {
+    toast('err','Selecciona el puesto del empleado'); return;
   }
 
-  if (selectedTab.tipo === 'funciones') {
-    bruto = selectedTab.sueldo;
-    detalle = selectedTab.funciones + ' función(es) · ' + selectedTab.hrs + ' hrs · ' + selectedTab.puesto;
-  } else if (selectedTab.tipo === 'comisionista') {
-    bruto = selectedTab.comision;
-    detalle = selectedTab.ventas + ' venta(s) · importe ' + fmt(selectedTab.monto) + ' · 15%';
-  } else if (selectedTab.tipo === 'menudeo') {
-    bruto = horas * 40;
-    detalle = horas.toFixed(1) + ' hrs × $40.00/hr';
-  }
+  const puesto = empActivo.puesto || document.getElementById('nuevoPuesto').value;
+  if (!puesto) { toast('err','El puesto es obligatorio'); return; }
 
-  const neto = Math.max(0, bruto - descuento);
-  document.getElementById('r_sueldoBruto').textContent = fmt(bruto);
-  document.getElementById('r_descuento').textContent   = fmt(descuento);
-  document.getElementById('r_sueldoNeto').textContent  = fmt(neto);
-  document.getElementById('r_sueldoDetail').textContent = detalle;
-  document.getElementById('r_descuentoDetail').textContent =
-    descuento > 0 ? '⚠️ Descuento aplicado: -' + fmt(descuento) : '';
-}
+  const r = calcPago();
+  if (!r) { toast('err','No se pudo calcular el pago'); return; }
 
-// ══════════════════════════════════════════════════════════
-// GUARDAR
-// ══════════════════════════════════════════════════════════
-function validar() {
-  if (!selectedEmp?.nombre) {
-    showToast('error','Sin empleado','Selecciona un empleado o escribe su nombre.');
-    return false;
-  }
-  if (!selectedEmp?.puesto) {
-    showToast('error','Sin puesto','Selecciona el puesto del empleado.');
-    return false;
-  }
-  if (!selectedTab) {
-    showToast('error','Sin tabulador','Selecciona el número de funciones o ventas del día.');
-    return false;
-  }
-  if (!document.getElementById('f_horaIn').value) {
-    showToast('error','Sin hora','Ingresa la hora de ingreso.');
-    return false;
-  }
-  const descuento = num('f_descuento');
-  if (document.getElementById('f_descuento').value === '') {
-    document.getElementById('f_descuento').classList.add('err');
-    showToast('error','Descuento requerido','Escribe 0 si no hay descuento.');
-    return false;
-  }
-  return true;
-}
+  const fecha = document.getElementById('fechaInput').value;
+  const nombre = empActivo.esNuevo ? document.getElementById('nuevoNombre').value.trim() : empActivo.nombre;
+  if (!nombre) { toast('err','Ingresa el nombre del empleado'); return; }
 
-async function guardar() {
-  if (!validar()) return;
+  // Agregar a lista de empleados vistos
+  if (!EMPLEADOS_VISTOS.includes(nombre)) EMPLEADOS_VISTOS.push(nombre);
 
   const btn = document.getElementById('btnGuardar');
-  btn.disabled = true; btn.textContent = '⏳ Guardando...';
+  btn.textContent = 'Guardando...'; btn.disabled = true;
 
-  const dt = parseDateMX(currentDate);
-  const horas     = parseFloat(document.getElementById('r_horas')?.value) || 0;
-  const descuento = num('f_descuento');
+  try {
+    const res = await jsonp({
+      action:        'guardarNominaRegistro',
+      empresa:        SESSION.empresa,
+      empleado:       nombre,
+      fecha,
+      puesto,
+      tipoPago:       configActivo?.tipoPago || 'DIA',
+      horasBase:      configActivo?.horasBase || 8,
+      horasTrabajadas: parseFloat(document.getElementById('f_horas').value) || 0,
+      montoBase:      r.montoBase,
+      ventas:         parseFloat(document.getElementById('f_ventas').value) || 0,
+      pctComision:    r.pctComision,
+      montoComision:  r.montoComision,
+      descuentos:     parseFloat(document.getElementById('f_descuentos').value) || 0,
+      pagoTotal:      r.pagoTotal,
+      notas:          document.getElementById('f_notas').value,
+    });
 
-  let bruto = 0, funciones = 0, noVentas = 0;
-  if (selectedTab.tipo === 'funciones') {
-    bruto = selectedTab.sueldo; funciones = selectedTab.funciones;
-  } else if (selectedTab.tipo === 'comisionista') {
-    bruto = selectedTab.comision; noVentas = selectedTab.ventas;
-  } else if (selectedTab.tipo === 'menudeo') {
-    bruto = horas * 40;
-  }
-  const neto = Math.max(0, bruto - descuento);
-
-  const datos = {
-    ...dt,
-    nombre:       selectedEmp.nombre,
-    puesto:       selectedEmp.puesto,
-    horaIngreso:  document.getElementById('f_horaIn').value,
-    horaSalida:   document.getElementById('f_horaOut').value,
-    hrsTrabajas:  horas,
-    noFunciones:  funciones,
-    noVentas,
-    sueldo:       bruto,
-    descuento,
-    sueldoNeto:   neto,
-    notas:        document.getElementById('f_notas').value || '',
-  };
-
-  const r = await apiCall('guardar_nomina', datos);
-  btn.disabled = false; btn.textContent = '💾 GUARDAR NÓMINA';
-
-  if (r.success !== false) {
-    showToast('success','✅ Guardado', selectedEmp.nombre + ' — ' + fmt(neto) + ' registrado.');
-    // Agregar al historial local
-    registros.push({...datos, bruto, neto});
-    renderHistorial();
-    limpiarFormulario();
-  } else {
-    showToast('error','Error al guardar', r.error || 'Verifica tu conexión.');
+    if (res.success) {
+      toast('ok', '✓ Registro guardado — Pago: ' + fmt(res.pagoTotal));
+      limpiarForm();
+      cargarRegistros();
+    } else {
+      toast('err', res.error || 'Error al guardar');
+    }
+  } catch(e) {
+    toast('err', 'Error de conexión');
+  } finally {
+    btn.textContent = '💾 Guardar Registro'; btn.disabled = false;
   }
 }
 
-// ══════════════════════════════════════════════════════════
-// HISTORIAL LOCAL
-// ══════════════════════════════════════════════════════════
-const BADGE_CLASS = {Admin:'badge-a',Ventas:'badge-v',Comisionista:'badge-c',Menudeo:'badge-m'};
+// ── Cargar registros ──
+async function cargarRegistros() {
+  const fecha = document.getElementById('fechaInput').value;
+  try {
+    const r = await jsonp({action:'getNominaRegistros', empresa:SESSION.empresa, fecha});
+    if (r.success) {
+      REGISTROS = r.data || [];
+      // Actualizar lista de empleados vistos
+      REGISTROS.forEach(reg => {
+        if (!EMPLEADOS_VISTOS.includes(reg.empleado)) EMPLEADOS_VISTOS.push(reg.empleado);
+      });
+      renderRegistros();
+      updateKPIs();
+    }
+  } catch(e) { console.warn('Registros:', e); }
+}
 
-function renderHistorial() {
-  const body  = document.getElementById('histBody');
-  const total = registros.reduce((s,r)=>s+r.neto,0);
-  const mayor = registros.length ? Math.max(...registros.map(r=>r.neto)) : 0;
-
-  document.getElementById('histTotal').textContent    = fmt(total);
-  document.getElementById('k_total').textContent      = fmt(total);
-  document.getElementById('k_registros').textContent  = registros.length;
-  document.getElementById('k_mayor').textContent      = fmt(mayor);
-  document.getElementById('k_descuentos').textContent = fmt(registros.reduce((s,r)=>s+r.descuento,0));
-
-  if (!registros.length) {
-    body.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--gray);padding:30px;font-size:14px;">
-      No hay registros para esta fecha aún</td></tr>`;
+function renderRegistros() {
+  const el = document.getElementById('registros_content');
+  if (REGISTROS.length === 0) {
+    el.innerHTML = '<div class="reg-empty">Sin registros para este día</div>';
     return;
   }
-
-  body.innerHTML = registros.map(r => `
-    <tr>
-      <td style="font-weight:900;">${r.nombre}</td>
-      <td><span class="badge ${BADGE_CLASS[r.puesto]||''}">${r.puesto}</span></td>
-      <td>${r.horaIngreso}</td>
-      <td>${r.horaSalida}</td>
-      <td>${r.hrsTrabajas?.toFixed(1)||'—'} hrs</td>
-      <td>${r.noFunciones>0?r.noFunciones+' func.':r.noVentas>0?r.noVentas+' ventas':'—'}</td>
-      <td style="color:var(--white);">${fmt(r.bruto)}</td>
-      <td style="color:var(--red);">${r.descuento>0?'-'+fmt(r.descuento):'—'}</td>
-      <td style="color:var(--green);font-weight:900;font-size:16px;">${fmt(r.neto)}</td>
-    </tr>`).join('');
+  el.innerHTML = `
+    <table class="reg-table">
+      <thead><tr>
+        <th>Empleado</th><th>Puesto</th><th>Horas</th><th>Ventas</th><th>Comisión</th><th>Pago</th>
+      </tr></thead>
+      <tbody>
+        ${REGISTROS.map(r => `
+          <tr>
+            <td style="font-weight:700">${r.empleado}</td>
+            <td style="color:var(--gray)">${r.puesto}</td>
+            <td>${r.horasTrabajadas || '—'}</td>
+            <td>${r.ventas > 0 ? fmt(r.ventas) : '—'}</td>
+            <td style="color:var(--green)">${r.montoComision > 0 ? fmt(r.montoComision) : '—'}</td>
+            <td style="font-weight:800;color:var(--orange)">${fmt(r.pagoTotal)}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  `;
 }
 
-// ══════════════════════════════════════════════════════════
-// LIMPIAR
-// ══════════════════════════════════════════════════════════
-function limpiarFormulario() {
-  selectedEmp = null; selectedTab = null;
-  document.querySelectorAll('.emp-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-row').forEach(r=>r.classList.remove('selected'));
-  document.getElementById('f_horaIn').value  = '08:00';
-  document.getElementById('f_horaOut').value = '20:00';
-  document.getElementById('f_descuento').value = '';
+function updateKPIs() {
+  const total   = REGISTROS.reduce((s,r) => s+r.pagoTotal, 0);
+  const max     = Math.max(...REGISTROS.map(r => r.pagoTotal), 0);
+  const desctos = REGISTROS.reduce((s,r) => s+r.descuentos, 0);
+  document.getElementById('kpi_total').textContent = fmt(total);
+  document.getElementById('kpi_regs').textContent  = REGISTROS.length;
+  document.getElementById('kpi_max').textContent   = fmt(max);
+  document.getElementById('kpi_desc').textContent  = fmt(desctos);
+}
+
+function limpiarForm() {
+  empActivo = null; configActivo = null;
+  document.getElementById('empSearch').value = '';
+  document.getElementById('empCard').style.display = 'none';
+  document.getElementById('datos_placeholder').style.display = 'block';
+  document.getElementById('datos_form').style.display = 'none';
+  document.getElementById('nuevoEmpWrap').style.display = 'none';
+  document.getElementById('tab_content').innerHTML = '<div class="tab-empty">Selecciona un empleado para ver su tabulador</div>';
+  document.getElementById('resultado_box').innerHTML = '<div class="tab-empty">Selecciona un empleado</div>';
+  document.getElementById('kpi_emp').textContent = '—';
+  document.getElementById('f_ventas').value = 0;
+  document.getElementById('f_descuentos').value = 0;
   document.getElementById('f_notas').value = '';
-  document.getElementById('nuevoEmpleado').value = '';
-  document.getElementById('nuevoPuesto').value = '';
-  setVal('r_horas','');
-  document.getElementById('r_horasDisplay').textContent = '0';
-  document.getElementById('empNombreDisplay').textContent = '— Selecciona un empleado —';
-  document.getElementById('empPuestoDisplay').textContent = 'Puesto';
-  document.getElementById('empIcon').textContent = '👤';
-  document.getElementById('k_empleado').textContent = '—';
-  document.getElementById('tabPuestoTitle').textContent = 'Selecciona empleado';
-  renderTabulador('');
-  calcSueldo();
+  document.getElementById('f_horaIn').value = '09:00';
+  document.getElementById('f_horaOut').value = '18:00';
+  document.getElementById('empDropdown').classList.remove('open');
 }
 
-function limpiar() {
-  if (!confirm('¿Limpiar el formulario?')) return;
-  limpiarFormulario();
-  showToast('info','Formulario limpio','Listo para el siguiente empleado.');
-}
-
-// Inicializar horas al cargar
-document.addEventListener('DOMContentLoaded', () => {
-  calcHoras();
+// Cerrar dropdown al hacer click fuera
+document.addEventListener('click', e => {
+  if (!e.target.closest('.emp-search')) {
+    document.getElementById('empDropdown').classList.remove('open');
+  }
 });
 
-// ── Branding Module ──
-// ═══════════════════════════════════════════════════════
-// TRIKLES SYSTEM — Shared Branding Module v2.0
-// Handles all empresa branding for every page
-// ═══════════════════════════════════════════════════════
-
-const TRIKLES_API = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
-// (session functions already defined)
-// ── JSONP helper ──────────────────────────────────────
-function jsonpCall(params, timeout = 12000) {
-  return new Promise((resolve, reject) => {
-    const cb = '_cb' + Date.now() + Math.random().toString(36).slice(2);
-    const script = document.createElement('script');
-    let done = false;
-
-    const finish = (fn, val) => {
-      if (done) return;
-      done = true;
-      delete window[cb];
-      if (script.parentNode) script.parentNode.removeChild(script);
-      fn(val);
-    };
-
-    window[cb] = data => finish(resolve, data);
-    script.onerror = () => finish(reject, new Error('script error'));
-    script.src = TRIKLES_API + '?' + new URLSearchParams({ ...params, callback: cb });
-    document.head.appendChild(script);
-    setTimeout(() => finish(reject, new Error('timeout')), timeout);
-  });
-}
-
-// ── Apply branding ────────────────────────────────────
+// ── Branding ──
 async function applyBranding(empresaId) {
   if (!empresaId) return;
   try {
-    const r = await jsonpCall({ action: 'getEmpresas' });
-    if (!r || !r.success || !r.data) return;
-
-    const emp = r.data.find(e =>
-      (e.id || '').toLowerCase() === empresaId.toLowerCase()
-    );
+    const r = await jsonp({action:'getEmpresas'});
+    if (!r?.success) return;
+    const emp = r.data.find(e => (e.id||'').toLowerCase() === empresaId.toLowerCase());
     if (!emp) return;
-
-    const nombre = emp.nombre || empresaId;
-    const logo   = emp.logo   || '';
-    const c1     = emp.color1 || '#F5821F';
-    const c2     = emp.color2 || '#1a1a2e';
-
-    // CSS variables
-    const root = document.documentElement;
-    root.style.setProperty('--orange',  c1);
-    root.style.setProperty('--orange2', c1 + 'cc');
-    root.style.setProperty('--border',  c1 + '44');
-    root.style.setProperty('--ora-l',   c1 + '22');
-
-    // Topbar border
-    document.querySelectorAll('.topbar').forEach(el => {
-      el.style.borderBottomColor = c1;
-    });
-
-    // Active nav buttons
-    document.querySelectorAll('.btn-nav.dash, .btn-primary, .mtab.active').forEach(el => {
-      el.style.background = c1;
-      el.style.borderColor = c1;
-    });
-
-    // Sidebar active item
-    document.querySelectorAll('.nav-item.active, .nav-link.active').forEach(el => {
-      el.style.borderLeftColor = c1;
-      el.style.color = c1;
-    });
-
-    // Company name
-    document.querySelectorAll('.tb-name, .topbar-name').forEach(el => {
-      el.textContent = nombre.toUpperCase();
-    });
-
-    // Subtitle
-    document.querySelectorAll('.tb-sub').forEach(el => {
-      if (el.textContent.includes('DASHBOARD')) el.textContent = '📊 DASHBOARD EJECUTIVO — ' + nombre.toUpperCase();
-      else if (el.textContent.includes('CAPTURA')) el.textContent = '📋 CAPTURA FINANCIERA DIARIA — ' + nombre.toUpperCase();
-      else if (el.textContent.includes('CORTE'))   el.textContent = '🗃 CORTE DE CAJA — ' + nombre.toUpperCase();
-      else if (el.textContent.includes('PANEL'))   el.textContent = '⚙️ PANEL DE CONTROL — ' + nombre.toUpperCase();
-      else if (el.textContent.includes('NÓMINA'))  el.textContent = '👥 CAPTURA DE NÓMINA — ' + nombre.toUpperCase();
-    });
-
-    // Logo
-    if (logo) {
-      document.querySelectorAll('.tb-logo, .topbar-logo').forEach(el => {
-        el.src = logo;
-        el.alt = nombre;
-      });
-    }
-
-    return { nombre, logo, c1, c2, emp };
-  } catch (e) {
-    console.warn('[Branding] Error:', e.message);
-  }
+    const c1 = emp.color1 || '#F5821F';
+    document.documentElement.style.setProperty('--orange', c1);
+    document.documentElement.style.setProperty('--orange2', c1+'cc');
+    const tn = document.getElementById('topbar-name');
+    if (tn) tn.textContent = (emp.nombre||empresaId).toUpperCase();
+    const logo = document.getElementById('topbar-logo');
+    if (logo && emp.logo) logo.src = emp.logo;
+    document.querySelector('.topbar').style.borderBottomColor = c1;
+  } catch(e) { console.warn('Branding:', e); }
 }
-
 </script>
 </body>
 </html>
