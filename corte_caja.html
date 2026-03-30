@@ -671,8 +671,13 @@ function renderUserChip(s){document.getElementById('userChip').textContent=s.nom
 const APPS_SCRIPT_URL=localStorage.getItem('trikles_api_url')||'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
 async function apiCall(action,data){const s=getSession();const payload={action,...data,empresa:s?.empresa||'TRIKLES',usuarioCaptura:s?.usuario||''};try{await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});return{success:true};}catch(e){return{success:false,error:e.toString()};}}
 function showToast(type,title,msg,dur=4000){const icons={success:'✅',error:'❌',info:'💡',warning:'⚠️'};const t=document.getElementById('toast');t.className='toast show '+type;t.querySelector('.t-icon').textContent=icons[type]||'ℹ️';t.querySelector('.t-title').textContent=title;t.querySelector('.t-msg').textContent=msg;clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),dur);}
-function today(){return new Date().toISOString().slice(0,10);}
-function toDateStr(d){return d.toISOString().slice(0,10);}
+function today(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function toDateStr(d){
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
 function getWeek(d){const j=new Date(d.getFullYear(),0,1);return Math.ceil(((d-j)/86400000+j.getDay()+1)/7);}
 function parseDateMX(s){const d=new Date(s+'T12:00:00');return{fecha:s,año:d.getFullYear(),mes:d.getMonth()+1,semana:getWeek(d)};}
 const fmt=n=>'$'+Number(n||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
