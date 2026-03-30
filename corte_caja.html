@@ -427,7 +427,7 @@ input.fi::placeholder{color:#444;font-weight:600;}
 
 <!-- ══ CARD 3: FLUJO DE EFECTIVO ══ -->
 <div class="card">
-  <div class="card-title"><div class="ct-icon">💸</div>FLUJO DE EFECTIVO<span class="help-icon">?<span class="tt">Todos los movimientos de dinero: entradas (cobros, ventas en efectivo) y salidas (pagos, gastos). El saldo final debe coincidir con el efectivo contado.</span></span></div>
+  <div class="card-title"><div class="ct-icon">💸</div>FLUJO DE EFECTIVO<span class="help-icon">?<span class="tt">Registra todos los movimientos de efectivo del día. Los datos capturados aquí se pre-llenarán automáticamente en la Captura Financiera — no tendrás que escribirlos dos veces. con el efectivo contado.</span></span></div>
   <!-- Saldo inicial necesario para cuadre de caja -->
   <div class="field-row" style="margin-bottom:14px;">
     <div class="field">
@@ -472,17 +472,17 @@ input.fi::placeholder{color:#444;font-weight:600;}
         <input type="number" class="fi" id="f_compras" value="0" min="0" step="0.01" oninput="calcFlujo()">
       </div>
       <div class="field">
-        <label>Compras Extraordinarias <span class="req">*</span></label>
+        <label>Compras con $ de Otros Días <span class="req">*</span></label>
         <input type="number" class="fi" id="f_comprasExt" value="0" min="0" step="0.01" oninput="calcFlujo()">
       </div>
     </div>
     <div class="field-row">
       <div class="field">
-        <label>Retiro Gastos <span class="req">*</span></label>
+        <label>Gastos Propios del Negocio <span class="req">*</span></label>
         <input type="number" class="fi" id="f_retiroG" value="0" min="0" step="0.01" oninput="calcFlujo()">
       </div>
       <div class="field">
-        <label>Retiro Inversiones <span class="req">*</span></label>
+        <label>Gastos Ajenos al Negocio <span class="req">*</span></label>
         <input type="number" class="fi" id="f_retiroInv" value="0" min="0" step="0.01" oninput="calcFlujo()">
       </div>
     </div>

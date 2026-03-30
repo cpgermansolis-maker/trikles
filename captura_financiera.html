@@ -440,18 +440,18 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.5;}
 
 <!-- ══ CARD 3: CRÉDITO ══ -->
 <div class="card">
-  <div class="card-title"><div class="ct-icon">📋</div>CRÉDITO Y COBRANZA<span class="help-icon">?<span class="tt">Ventas que no se cobraron ese día (crédito) y cobros de ventas anteriores. Clave para saber cuánto dinero real entró vs cuánto se vendió.</span></span></div>
+  <div class="card-title"><div class="ct-icon">📋</div>CRÉDITO Y COBRANZA <span id="corte_badge" style="display:none;background:rgba(46,196,182,.2);border:1px solid #2ec4b6;color:#2ec4b6;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;">✓ Pre-llenado del Corte</span><span class="help-icon">?<span class="tt">Ventas que no se cobraron ese día (crédito) y cobros de ventas anteriores. Clave para saber cuánto dinero real entró vs cuánto se vendió.</span></span></div>
 
   <div class="field-row">
     <div class="field">
       <label>Ventas a Crédito <span class="req">*</span></label>
       <input type="number" class="fi" id="f_vtaCred" placeholder="0.00" min="0" step="0.01">
-      <div class="field-hint" id="h_vtaCred">Obligatorio</div>
+      <div class="field-hint" id="h_vtaCred">Pre-llenado del Corte de Caja</div>
     </div>
     <div class="field">
       <label>Cobros del Día <span class="req">*</span></label>
       <input type="number" class="fi" id="f_cobros" placeholder="0.00" min="0" step="0.01">
-      <div class="field-hint" id="h_cobros">Obligatorio</div>
+      <div class="field-hint" id="h_cobros">Pre-llenado del Corte de Caja</div>
     </div>
   </div>
 
@@ -459,12 +459,12 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.5;}
     <div class="field">
       <label>Anticipo de Ventas <span class="req">*</span></label>
       <input type="number" class="fi" id="f_anticipo" placeholder="0.00" min="0" step="0.01">
-      <div class="field-hint" id="h_anticipo">Obligatorio</div>
+      <div class="field-hint" id="h_anticipo">Pre-llenado del Corte de Caja</div>
     </div>
     <div class="field">
       <label>Entrega de Mercancía <span class="req">*</span></label>
       <input type="number" class="fi" id="f_entrega" placeholder="0.00" min="0" step="0.01">
-      <div class="field-hint" id="h_entrega">Obligatorio</div>
+      <div class="field-hint" id="h_entrega">Pre-llenado del Corte de Caja</div>
     </div>
   </div>
 
@@ -485,12 +485,12 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.5;}
     <div class="field" style="margin-bottom:0;">
       <label>Compras a Crédito <span class="req">*</span></label>
       <input type="number" class="fi" id="f_comprasCred" placeholder="0.00" min="0" step="0.01">
-      <div class="field-hint" id="h_comprasCred">Obligatorio</div>
+      <div class="field-hint" id="h_comprasCred">Pre-llenado del Corte de Caja</div>
     </div>
     <div class="field" style="margin-bottom:0;">
       <label>Pago de Compras <span class="req">*</span></label>
       <input type="number" class="fi" id="f_pagoComp" placeholder="0.00" min="0" step="0.01">
-      <div class="field-hint" id="h_pagoComp">Obligatorio</div>
+      <div class="field-hint" id="h_pagoComp">Pre-llenado del Corte de Caja</div>
     </div>
   </div>
 </div>
@@ -502,19 +502,19 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.5;}
   <div class="field">
     <label>Compras Totales del Día <span class="req">*</span></label>
     <input type="number" class="fi" id="f_compras" placeholder="0.00" min="0" step="0.01" oninput="calcular()">
-    <div class="field-hint" id="h_compras">Obligatorio</div>
+    <div class="field-hint" id="h_compras">Pre-llenado del Corte de Caja</div>
   </div>
 
   <div class="field-row">
     <div class="field">
       <label>Gastos Propios del Negocio <span class="req">*</span></label>
       <input type="number" class="fi" id="f_gTienda" placeholder="0.00" min="0" step="0.01" oninput="calcular()">
-      <div class="field-hint" id="h_gTienda">Obligatorio</div>
+      <div class="field-hint" id="h_gTienda">Pre-llenado del Corte de Caja</div>
     </div>
     <div class="field">
       <label>Gastos Ajenos al Negocio <span class="req">*</span></label>
       <input type="number" class="fi" id="f_gCasa" placeholder="0.00" min="0" step="0.01" oninput="calcular()">
-      <div class="field-hint" id="h_gCasa">Obligatorio</div>
+      <div class="field-hint" id="h_gCasa">Pre-llenado del Corte de Caja</div>
     </div>
   </div>
 
@@ -542,7 +542,7 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.5;}
   <div class="field">
     <label>Retiro de Utilidades <span class="req">*</span></label>
     <input type="number" class="fi" id="f_retiroUtil" placeholder="0.00" min="0" step="0.01">
-    <div class="field-hint" id="h_retiroUtil">Obligatorio</div>
+    <div class="field-hint" id="h_retiroUtil">Pre-llenado del Corte de Caja</div>
   </div>
 
   <div class="sep"></div>
@@ -661,7 +661,7 @@ function changeDate(f){
   const d=new Date(f+'T12:00:00');
   // Cargar efectivo desde corte de caja
   const _ss2=JSON.parse(sessionStorage.getItem('trikles_session')||localStorage.getItem('trikles_session_remember')||'null');
-  if(_ss2) cargarEfectivoCorte(_ss2.empresa, f);
+  if(_ss2) { cargarEfectivoCorte(_ss2.empresa, f); cargarDatosCorte(_ss2.empresa, f); }
   // Pre-cargar nómina del día
   const _ss = JSON.parse(sessionStorage.getItem('trikles_session')||localStorage.getItem('trikles_session_remember')||'null');
   if(_ss) precargarNomina(_ss.empresa, f);
@@ -1009,6 +1009,49 @@ async function cargarEfectivoCorte(empresa, fecha) {
     hint.textContent = '⚠️ No se pudo cargar el corte. Verifica conexión.';
     hint.style.color = 'var(--red)';
   }
+}
+
+
+// ── Cargar datos del Corte de Caja ──
+async function cargarDatosCorte(empresa, fecha) {
+  function setField(id, val) {
+    const el = document.getElementById(id);
+    if (!el || el.readOnly) return;
+    if (typeof val === 'string') { el.value = val; return; }
+    if (parseFloat(val) > 0) el.value = parseFloat(val).toFixed(2);
+  }
+  try {
+    const cb = 'corte2_'+Date.now();
+    const result = await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      let done = false;
+      window[cb] = d => { if(done)return; done=true; delete window[cb]; script.remove(); resolve(d); };
+      script.onerror = () => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); };
+      script.src = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec?action=getCorteCompleto&empresa='+encodeURIComponent(empresa)+'&fecha='+encodeURIComponent(fecha)+'&callback='+cb;
+      document.head.appendChild(script);
+      setTimeout(() => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); }, 10000);
+    });
+    if (result && result.success && result.data) {
+      const r = result.data;
+    if(r.cobranza !== undefined) { setField('f_cobros', r.cobranza); }
+    if(r.vtaCredito !== undefined) { setField('f_vtaCred', r.vtaCredito); }
+    if(r.compras !== undefined) { setField('f_compras', r.compras); }
+    if(r.comprasExt !== undefined) { setField('f_comprasExt', r.comprasExt); }
+    if(r.retiroGastos !== undefined) { setField('f_gTienda', r.retiroGastos); }
+    if(r.retiroInv !== undefined) { setField('f_gCasa', r.retiroInv); }
+    if(r.retiroUtil !== undefined) { setField('f_retiroUtil', r.retiroUtil); }
+    if(r.comprasCredito !== undefined) { setField('f_comprasCred', r.comprasCredito); }
+    if(r.pagoCompras !== undefined) { setField('f_pagoComp', r.pagoCompras); }
+    if(r.anticipo !== undefined) { setField('f_anticipo', r.anticipo); }
+    if(r.entrega !== undefined) { setField('f_entrega', r.entrega); }
+    if(r.productosTerminados !== undefined) { setField('f_terminado', r.productosTerminados); }
+    if(r.productosPedidos !== undefined) { setField('f_faltante', r.productosPedidos); }
+      calcular();
+      // Show badge
+      const badge = document.getElementById('corte_badge');
+      if (badge) { badge.style.display = 'inline'; }
+    }
+  } catch(e) { console.warn('Datos corte:', e); }
 }
 
 </script>
