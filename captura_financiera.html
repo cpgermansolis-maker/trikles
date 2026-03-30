@@ -420,11 +420,11 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
   <div class="field-row">
     <div class="field">
       <label>¿Producto que se terminó?</label>
-      <input type="text" class="fi" id="f_terminado" placeholder="NADA">
+      <input type="text" class="fi" id="f_terminado" placeholder="NADA" oninput="autoguardarBorrador()">
     </div>
     <div class="field">
       <label>¿Producto que pidieron y no había?</label>
-      <input type="text" class="fi" id="f_faltante" placeholder="NINGUNO">
+      <input type="text" class="fi" id="f_faltante" placeholder="NINGUNO" oninput="autoguardarBorrador()">
     </div>
   </div>
 
@@ -432,13 +432,13 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
     <label>Entrega de Mercancía
       <span class="help-icon">?<span class="tt">Pedidos entregados hoy que ya tenían anticipo pagado de días anteriores. No mueve efectivo — es solo un registro de control de entregas comprometidas.</span></span>
     </label>
-    <input type="text" class="fi" id="f_entrega" placeholder="Ej: 2 cajas de penicilina a cliente Ramírez — o NINGUNA">
+    <input type="text" class="fi" id="f_entrega" placeholder="Ej:" oninput="autoguardarBorrador()" 2 cajas de penicilina a cliente Ramírez — o NINGUNA">
     <div class="fi-hint">Solo para control — no afecta el flujo de caja</div>
   </div>
 
   <div class="field">
     <label>Notas adicionales</label>
-    <textarea class="fi" id="f_notas" rows="3" placeholder="Cualquier observación importante del día..." style="resize:vertical;"></textarea>
+    <textarea class="fi" id="f_notas" rows="3" oninput="autoguardarBorrador()" placeholder="Cualquier observación importante del día..." style="resize:vertical;"></textarea>
   </div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 16px;">
@@ -586,6 +586,8 @@ function calcular() {
     st.textContent = sob >= 0 ? '✅ Sobre P.E.' : '⚠️ Bajo P.E.';
     st.style.color = sob >= 0 ? 'var(--green)' : 'var(--orange)';
   }
+  // Autoguardar borrador en sessionStorage
+  autoguardarBorrador();
 }
 
 function calcContado() {
@@ -606,6 +608,61 @@ function getContado() {
   return total;
 }
 
+
+// ── Borrador en sessionStorage (persiste mientras no se cierre el navegador) ──
+const DRAFT_KEY = 'trikles_draft_captura';
+
+function autoguardarBorrador() {
+  if (!currentDate) return;
+  const campos = [
+    'f_vtaEfvo','f_vtaTarjeta','f_vtaCred',
+    'f_prod1','f_prod2','f_prod3','f_otros','f_ganancia',
+    'f_cobros','f_anticipo',
+    'f_compras','f_comprasExt','f_gTienda','f_gCasa',
+    'f_pagoComp','f_retiroUtil','f_retiroEfvo',
+    'f_sueldo','f_reserva','f_gAnt',
+    'f_terminado','f_faltante','f_notas','f_entrega',
+  ];
+  const denoms = ['d_b1000','d_b500','d_b200','d_b100','d_b50',
+                  'd_b20','d_b10','d_b5','d_b2','d_b1','d_b050'];
+  const draft = { fecha: currentDate };
+  campos.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.readOnly) draft[id] = el.value;
+  });
+  denoms.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) draft[id] = el.value;
+  });
+  sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+}
+
+function restaurarBorrador(fecha) {
+  try {
+    const raw = sessionStorage.getItem(DRAFT_KEY);
+    if (!raw) return false;
+    const draft = JSON.parse(raw);
+    // Solo restaurar si es el mismo día
+    if (draft.fecha !== fecha) return false;
+    // Verificar que hay algo que restaurar
+    const camposConValor = Object.entries(draft)
+      .filter(([k,v]) => k !== 'fecha' && v !== '' && v !== '0' && v !== '0.00')
+      .length;
+    if (camposConValor === 0) return false;
+    // Restaurar campos
+    Object.entries(draft).forEach(([id, val]) => {
+      if (id === 'fecha') return;
+      const el = document.getElementById(id);
+      if (el && !el.readOnly) el.value = val;
+    });
+    return true;
+  } catch(e) { return false; }
+}
+
+function limpiarBorrador() {
+  sessionStorage.removeItem(DRAFT_KEY);
+}
+
 // ── Cambio de fecha ──
 function changeDate(f, silencioso=false) {
   const fechaAnterior = currentDate;
@@ -622,9 +679,21 @@ function changeDate(f, silencioso=false) {
   }
   const s = getS();
   if (s) {
-    cargarSaldoInicial(s.empresa, f);
-    precargarNomina(s.empresa, f);
-    cargarRegistroExistente(s.empresa, f, true);
+    // Intentar restaurar borrador primero
+    const restorado = restaurarBorrador(f);
+    if (restorado) {
+      // Había borrador — solo cargar saldo inicial (readonly)
+      cargarSaldoInicial(s.empresa, f);
+      // Recalcular con los valores restaurados
+      calcContado();
+      calcular();
+      toast('info', 'Borrador restaurado', 'Se recuperó lo que estabas capturando.');
+    } else {
+      // Sin borrador — cargar desde Sheets normalmente
+      cargarSaldoInicial(s.empresa, f);
+      precargarNomina(s.empresa, f);
+      cargarRegistroExistente(s.empresa, f, true);
+    }
   }
 }
 
@@ -825,6 +894,7 @@ async function guardar() {
   try {
     const r = await jsonpCall({action:'guardar_captura', ...datos});
     if (r && r.success !== false) {
+      limpiarBorrador();
       toast('success','Registro guardado','Captura del ' + currentDate + ' guardada correctamente.');
     } else {
       toast('error','Error al guardar', r?.error || 'Verifica tu conexión.');
@@ -840,6 +910,7 @@ async function guardar() {
 // ── Limpiar ──
 function limpiar() {
   if (!confirm('¿Limpiar todos los campos?')) return;
+  limpiarBorrador();
   document.querySelectorAll('input.fi:not([readonly]), textarea.fi').forEach(el => {
     if (el.id === 'f_reserva') { el.value = '0'; return; }
     if (el.type === 'number') { el.value = ''; el.placeholder = el.placeholder || '0.00'; }
