@@ -295,19 +295,11 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
     </div>
   </div>
 
-  <div class="field-row">
-    <div class="field">
-      <label>Anticipos Recibidos <span class="req">*</span>
-        <span class="help-icon">?<span class="tt">Pagos adelantados por pedidos futuros, solo los cobrados en efectivo.</span></span>
-      </label>
-      <input type="number" class="fi" id="f_anticipo" placeholder="0.00" min="0" step="0.01" oninput="calcular()">
-    </div>
-    <div class="field">
-      <label>Entrega de Mercancía <span class="req">*</span>
-        <span class="help-icon">?<span class="tt">Entregas de pedidos que ya tenían anticipo pagado. No entra efectivo nuevo.</span></span>
-      </label>
-      <input type="number" class="fi" id="f_entrega" placeholder="0.00" min="0" step="0.01" oninput="calcular()">
-    </div>
+  <div class="field">
+    <label>Anticipos Recibidos <span class="req">*</span>
+      <span class="help-icon">?<span class="tt">Pagos adelantados por pedidos futuros, solo los cobrados en efectivo. Sí afecta el flujo porque es dinero que entra a la caja.</span></span>
+    </label>
+    <input type="number" class="fi" id="f_anticipo" placeholder="0.00" min="0" step="0.01" oninput="calcular()">
   </div>
 
   <div class="sub-sep">Egresos de efectivo</div>
@@ -434,6 +426,14 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
       <label>¿Producto que pidieron y no había?</label>
       <input type="text" class="fi" id="f_faltante" placeholder="NINGUNO">
     </div>
+  </div>
+
+  <div class="field">
+    <label>Entrega de Mercancía
+      <span class="help-icon">?<span class="tt">Pedidos entregados hoy que ya tenían anticipo pagado de días anteriores. No mueve efectivo — es solo un registro de control de entregas comprometidas.</span></span>
+    </label>
+    <input type="text" class="fi" id="f_entrega" placeholder="Ej: 2 cajas de penicilina a cliente Ramírez — o NINGUNA">
+    <div class="fi-hint">Solo para control — no afecta el flujo de caja</div>
   </div>
 
   <div class="field">
@@ -706,7 +706,7 @@ async function cargarRegistroExistente(empresa, fecha) {
       setF('f_ganancia',   d.ganancia);
       setF('f_cobros',     d.cobros);
       setF('f_anticipo',   d.anticipo);
-      setF('f_entrega',    d.entregaMcia);
+      if (d.entregaMcia && d.entregaMcia !== 'NINGUNA') document.getElementById('f_entrega').value = d.entregaMcia;
       setF('f_compras',    d.compras);
       setF('f_comprasExt', d.comprasExt);
       setF('f_gTienda',    d.gastoTienda);
@@ -792,7 +792,7 @@ async function guardar() {
     saldoInicial:  num('f_saldoInicial'),
     cobros:        num('f_cobros'),
     anticipo:      num('f_anticipo'),
-    entregaMcia:   num('f_entrega'),
+    entregaMcia:   document.getElementById('f_entrega')?.value || 'NINGUNA',
     compras:       num('f_compras'),
     comprasExt:    num('f_comprasExt'),
     gastoTienda:   gT,
