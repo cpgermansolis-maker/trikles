@@ -731,6 +731,7 @@ async function cargarSaldoInicial(empresa, fechaHoy) {
       hint.style.color = 'var(--green)';
       if (badge) badge.style.display = 'inline';
       calcular();
+      autoguardarBorrador();
     } else {
       field.value = '';
       field.placeholder = '0.00';
@@ -757,6 +758,7 @@ async function precargarNomina(empresa, fecha) {
       hint.style.color = 'var(--blue)';
       if (badge) badge.style.display = 'inline';
       calcular();
+      autoguardarBorrador();
     } else {
       hint.textContent = 'Sin nómina registrada — ingresa manualmente';
       hint.style.color = 'var(--gray)';
@@ -818,6 +820,7 @@ async function cargarRegistroExistente(empresa, fecha, forzar=false) {
       if (d.b5)    document.getElementById('d_b5').value    = d.b5;
       calcContado();
       calcular();
+      autoguardarBorrador();
       toast('info','Registro cargado','Se cargó el registro existente de este día.');
     }
     // Si no hay registro y la fecha cambió, limpiar campos
@@ -980,6 +983,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   applyBranding(s.empresa);
   changeDate(today());
+  // Guardar borrador inicial después de que se pre-llenen los campos
+  setTimeout(() => autoguardarBorrador(), 3000);
 });
 
 // Tooltips táctiles
