@@ -191,7 +191,6 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   </div>
   <div class="tb-right">
     <a class="btn-nav" href="captura_financiera.html" id="btnCaptura" style="display:none">📋 Captura</a>
-    <a class="btn-nav" href="corte_caja.html" id="btnCorte" style="display:none">🗃 Corte</a>
     <a class="btn-nav" href="captura_nomina.html" id="btnNomina" style="display:none">👥 Nómina</a>
     <a class="btn-nav" href="panel_control.html" id="btnPanel" style="display:none">⚙️ Panel</a>
     <button class="btn-pdf" onclick="exportPDF()">📄 PDF</button>
@@ -1300,7 +1299,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   // Captura y Corte — ADMIN, SUPER_ADMIN, ANALISTA_FIN, ANALISTA_FULL
   if(['ADMIN','SUPER_ADMIN','ANALISTA_FIN','ANALISTA_FULL'].includes(rol)){
     const bc=document.getElementById('btnCaptura');if(bc)bc.style.display='inline-flex';
-    const bco=document.getElementById('btnCorte');if(bco)bco.style.display='inline-flex';
   }
   // Nómina — ADMIN, SUPER_ADMIN, ANALISTA_NOM, ANALISTA_FULL
   if(['ADMIN','SUPER_ADMIN','ANALISTA_NOM','ANALISTA_FULL'].includes(rol)){
