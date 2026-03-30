@@ -409,7 +409,7 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
       <label>💵 Nómina Pagada en Efectivo <span class="req">*</span>
         <span class="help-icon">?<span class="tt">Parte de la nómina que se pagó en billetes. Esta cantidad sí sale de la caja y afecta el flujo de efectivo. El resto se entiende que fue por transferencia.</span></span>
       </label>
-      <input type="number" class="fi" id="f_sueldoEfvo" placeholder="0.00" min="0" step="0.01" oninput="calcular()">
+      <input type="number" class="fi" id="f_sueldoEfvo" placeholder="0.00" min="0" step="0.01" oninput="calcular();autoguardarBorrador()">
       <div class="fi-hint">Solo el monto pagado en efectivo</div>
     </div>
     <div class="field">
