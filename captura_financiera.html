@@ -607,7 +607,8 @@ function getContado() {
 }
 
 // ── Cambio de fecha ──
-function changeDate(f) {
+function changeDate(f, silencioso=false) {
+  const fechaAnterior = currentDate;
   currentDate = f;
   document.getElementById('fechaInput').value = f;
   const d = new Date(f + 'T12:00:00');
@@ -623,7 +624,7 @@ function changeDate(f) {
   if (s) {
     cargarSaldoInicial(s.empresa, f);
     precargarNomina(s.empresa, f);
-    cargarRegistroExistente(s.empresa, f);
+    cargarRegistroExistente(s.empresa, f, true);
   }
 }
 
@@ -685,14 +686,20 @@ async function precargarNomina(empresa, fecha) {
 }
 
 // ── Cargar registro existente del día ──
-async function cargarRegistroExistente(empresa, fecha) {
+let _guardandoAhora = false;
+async function cargarRegistroExistente(empresa, fecha, forzar=false) {
+  if (_guardandoAhora) return; // No recargar mientras se está guardando
   try {
     const r = await jsonpCall({action:'getCaptura', empresa, fecha});
     if (r && r.success && r.data) {
       const d = r.data;
       const setF = (id, val) => {
         const el = document.getElementById(id);
-        if (el && val !== undefined && val !== null && !el.readOnly) {
+        if (!el || el.readOnly) return;
+        // Solo sobreescribir si el campo está vacío, en 0, o si se fuerza
+        const current = el.value;
+        const isEmpty = current === '' || current === '0' || current === '0.00';
+        if ((isEmpty || forzar) && val !== undefined && val !== null) {
           el.value = typeof val === 'number' ? val.toFixed(2) : val;
         }
       };
@@ -733,6 +740,7 @@ async function cargarRegistroExistente(empresa, fecha) {
       calcular();
       toast('info','Registro cargado','Se cargó el registro existente de este día.');
     }
+    // Si no hay registro y la fecha cambió, limpiar campos
   } catch(e) {}
 }
 
@@ -751,6 +759,7 @@ function validar() {
 // ── Guardar ──
 async function guardar() {
   if (!validar()) return;
+  _guardandoAhora = true;
   const btn = document.getElementById('btnGuardar');
   btn.disabled = true; btn.textContent = '⏳ Guardando...';
   const s = getS();
@@ -824,6 +833,7 @@ async function guardar() {
     toast('error','Error de conexión','No se pudo conectar con el servidor.');
   } finally {
     btn.disabled = false; btn.textContent = '💾 Guardar Registro del Día';
+    setTimeout(() => { _guardandoAhora = false; }, 2000);
   }
 }
 
