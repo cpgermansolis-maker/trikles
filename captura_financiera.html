@@ -303,6 +303,8 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.5;}
   </div>
   <div class="topbar-right">
     <a class="btn-nav" href="dashboard_ejecutivo.html" id="btnDashboard" style="display:none;background:linear-gradient(135deg,rgba(245,130,31,.2),rgba(245,130,31,.1));border-color:rgba(245,130,31,.5);color:#F5821F;font-weight:900;">📊 Dashboard</a>
+    <a class="btn-nav" href="corte_caja.html" id="btnCorte" style="display:none">🗃 Corte</a>
+    <a class="btn-nav" href="captura_nomina.html" id="btnNomina" style="display:none">👥 Nómina</a>
     <div class="user-pill"><div class="u-dot"></div><span id="userChip">Cargando...</span></div>
     <a href="manual.html" class="btn-help" title="Manual de usuario">❓ Ayuda</a>
     <button class="btn-out" onclick="logout()">Salir ✕</button>
@@ -635,8 +637,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   const _tn=document.querySelector('.topbar-name');
   if(_tn) _tn.textContent=(s.empresa||'').replace(/_/g,' ').toUpperCase();
   renderUserChip(s);
-  if(['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS'].includes(s.rol)){
+  if(['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS','ANALISTA_FIN','ANALISTA_FULL'].includes(s.rol)){
     const bd=document.getElementById('btnDashboard');if(bd)bd.style.display='inline-flex';
+  }
+  if(['SUPER_ADMIN','ADMIN','ANALISTA_FIN','ANALISTA_FULL'].includes(s.rol)){
+    const bc=document.getElementById('btnCorte');if(bc)bc.style.display='inline-flex';
+  }
+  if(['SUPER_ADMIN','ADMIN','ANALISTA_NOM','ANALISTA_FULL'].includes(s.rol)){
+    const bn=document.getElementById('btnNomina');if(bn)bn.style.display='inline-flex';
   }
   applyBranding(s.empresa);
   // Aplicar branding de empresa

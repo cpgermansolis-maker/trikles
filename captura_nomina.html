@@ -177,6 +177,8 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
   </div>
   <div class="topbar-right">
     <a href="dashboard_ejecutivo.html" class="btn-nav" id="btnDashboard" style="display:none">📊 Dashboard</a>
+    <a href="captura_financiera.html" class="btn-nav" id="btnCaptura" style="display:none">📋 Captura</a>
+    <a href="corte_caja.html" class="btn-nav" id="btnCorte" style="display:none">🗃 Corte</a>
     <span class="chip" id="userChip">Cargando...</span>
     <a href="manual.html" class="btn-help" title="Manual de usuario">❓ Ayuda</a>
     <button class="btn-out" onclick="logout()">Salir ✕</button>
@@ -390,8 +392,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Topbar inmediato
   document.getElementById('topbar-name').textContent = (SESSION.empresa||'').replace(/_/g,' ').toUpperCase();
   document.getElementById('userChip').textContent = SESSION.nombre + ' — ' + SESSION.rol;
-  if (['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS'].includes(SESSION.rol)) {
+  if (['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS','ANALISTA_FIN','ANALISTA_NOM','ANALISTA_FULL'].includes(SESSION.rol)) {
     document.getElementById('btnDashboard').style.display = 'inline-flex';
+  }
+  if (['SUPER_ADMIN','ADMIN','ANALISTA_FIN','ANALISTA_FULL'].includes(SESSION.rol)) {
+    const bc=document.getElementById('btnCaptura'); if(bc) bc.style.display='inline-flex';
+    const bco=document.getElementById('btnCorte'); if(bco) bco.style.display='inline-flex';
   }
 
   // Branding
