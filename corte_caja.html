@@ -299,6 +299,15 @@ input.fi::placeholder{color:#444;font-weight:600;}
   </div>
 </header>
 
+
+  <!-- Campos de Card 2 eliminada - mantenidos como hidden para compatibilidad JS -->
+  <input type="hidden" id="f_venta" value="0">
+  <input type="hidden" id="f_ganancia" value="0">
+  <input type="hidden" id="f_gTienda" value="0">
+  <input type="hidden" id="f_gCasa" value="0">
+  <input type="hidden" id="f_reserva" value="0">
+  <input type="hidden" id="f_gAnt" value="0">
+
 <!-- DATE STRIP -->
 <div class="date-strip">
   <div class="date-nav">
@@ -316,8 +325,6 @@ input.fi::placeholder{color:#444;font-weight:600;}
   <div class="kpi"><div class="kpi-label">Efectivo Contado</div><div class="kpi-val orange" id="k_contado">$0</div></div>
   <div class="kpi"><div class="kpi-label">Efectivo Sistema</div><div class="kpi-val white" id="k_sistema">$0</div></div>
   <div class="kpi"><div class="kpi-label">Diferencia</div><div class="kpi-val white" id="k_dif">$0</div></div>
-  <div class="kpi"><div class="kpi-label">Venta del Día</div><div class="kpi-val green" id="k_venta">$0</div></div>
-  <div class="kpi"><div class="kpi-label">Utilidad Neta</div><div class="kpi-val green" id="k_util">$0</div></div>
   <div class="kpi"><div class="kpi-label">vs P.E. ($200)</div><div class="kpi-val white" id="k_pe">—</div></div>
 </div>
 
@@ -418,112 +425,25 @@ input.fi::placeholder{color:#444;font-weight:600;}
   </div>
 </div>
 
-<!-- ══ CARD 2: DATOS DEL DÍA ══ -->
-<div class="card">
-  <div class="card-title"><div class="ct-icon">📊</div>DATOS DEL DÍA<span class="help-icon">?<span class="tt">Resumen financiero del día: ventas, ganancia, costo y gastos. Estos datos alimentan el dashboard ejecutivo.</span></span></div>
-
-  <div class="field-row">
-    <div class="field">
-      <label>Saldo Inicial (caja anterior) <span class="req">*</span></label>
-      <input type="number" class="fi" id="f_saldo" placeholder="0.00" min="0" step="0.01" oninput="calcFlujo()">
-      <div class="field-hint" id="h_saldo">Obligatorio</div>
-    </div>
-    <div class="field">
-      <label>Total Venta del Día <span class="req">*</span></label>
-      <input type="number" class="fi" id="f_venta" placeholder="0.00" min="0" step="0.01" oninput="calcFlujo()">
-      <div class="field-hint" id="h_venta">Obligatorio</div>
-    </div>
-  </div>
-
-  <div class="field-row">
-    <div class="field">
-      <label>Ganancia <span class="req">*</span></label>
-      <input type="number" class="fi" id="f_ganancia" placeholder="0.00" min="0" step="0.01" oninput="calcFlujo()">
-      <div class="field-hint" id="h_ganancia">Obligatorio</div>
-    </div>
-    <div class="field">
-      <label>Costo de Ventas (auto)</label>
-      <input type="number" class="fi" id="r_costo" readonly placeholder="Auto">
-    </div>
-  </div>
-
-  <div class="field-row">
-    <div class="field">
-      <label>Gasto Tienda <span class="req">*</span></label>
-      <input type="number" class="fi" id="f_gTienda" placeholder="0.00" min="0" step="0.01" oninput="calcFlujo()">
-      <div class="field-hint" id="h_gTienda">Obligatorio</div>
-    </div>
-    <div class="field">
-      <label>Gasto Casa <span class="req">*</span></label>
-      <input type="number" class="fi" id="f_gCasa" placeholder="0.00" min="0" step="0.01" oninput="calcFlujo()">
-      <div class="field-hint" id="h_gCasa">Obligatorio</div>
-    </div>
-  </div>
-
-  <div class="field-row">
-    <div class="field">
-      <label>Reserva <span class="req">*</span></label>
-      <input type="number" class="fi" id="f_reserva" value="0" min="0" step="0.01" oninput="calcFlujo()">
-    </div>
-    <div class="field">
-      <label>Gastos Anteriores <span class="req">*</span></label>
-      <input type="number" class="fi" id="f_gAnt" placeholder="0.00" min="0" step="0.01" oninput="calcFlujo()">
-      <div class="field-hint" id="h_gAnt">Obligatorio</div>
-    </div>
-  </div>
-
-  <div class="sep"></div>
-
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-    <div class="rbox">
-      <div class="rbox-label">Total Gastos</div>
-      <div class="rbox-val red" id="r_totalGastos">$0.00</div>
-    </div>
-    <div class="rbox">
-      <div class="rbox-label">Utilidad Neta</div>
-      <div class="rbox-val green" id="r_utilidad">$0.00</div>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-    <div class="rbox">
-      <div class="rbox-label">% Utilidad</div>
-      <div class="rbox-val orange" id="r_pct">0.0%</div>
-    </div>
-    <div class="rbox">
-      <div class="rbox-label">P.E. Diario</div>
-      <div class="rbox-val white" id="r_pe_val">$0.00</div>
-    </div>
-  </div>
-
-  <!-- APARTADOS -->
-  <div class="sep"></div>
-  <div style="font-size:12px;font-weight:900;letter-spacing:2px;text-transform:uppercase;
-    color:var(--gray);margin-bottom:12px;">Apartados</div>
-  <div class="field-row">
-    <div class="field">
-      <label>Anticipo de Ventas <span class="req">*</span></label>
-      <input type="number" class="fi" id="f_anticipo" value="0" min="0" step="0.01">
-    </div>
-    <div class="field">
-      <label>Entrega de Mercancía <span class="req">*</span></label>
-      <input type="number" class="fi" id="f_entrega" value="0" min="0" step="0.01">
-    </div>
-  </div>
-  <div class="field-row">
-    <div class="field" style="margin-bottom:0;">
-      <label>Mcía. Pend. Entrega <span class="req">*</span></label>
-      <input type="number" class="fi" id="f_mciaPend" value="0" min="0" step="0.01">
-    </div>
-    <div class="field" style="margin-bottom:0;">
-      <label>Cuentas por Cobrar <span class="req">*</span></label>
-      <input type="number" class="fi" id="f_ctasCobrar" value="0" min="0" step="0.01">
-    </div>
-  </div>
-</div>
-
 <!-- ══ CARD 3: FLUJO DE EFECTIVO ══ -->
 <div class="card">
   <div class="card-title"><div class="ct-icon">💸</div>FLUJO DE EFECTIVO<span class="help-icon">?<span class="tt">Todos los movimientos de dinero: entradas (cobros, ventas en efectivo) y salidas (pagos, gastos). El saldo final debe coincidir con el efectivo contado.</span></span></div>
+  <!-- Saldo inicial necesario para cuadre de caja -->
+  <div class="field-row" style="margin-bottom:14px;">
+    <div class="field">
+      <label>Saldo Inicial (caja anterior) <span class="req">*</span></label>
+      <input type="number" class="fi" id="f_saldo" placeholder="0.00" min="0" step="0.01" oninput="calcFlujo()">
+      <div class="field-hint">Efectivo con que inició el día</div>
+    </div>
+    <div class="field">
+      <label>Total Ingresos Efectivo <span class="req">*</span></label>
+      <input type="number" class="fi" id="f_ingEfvo" placeholder="0.00" min="0" step="0.01" oninput="calcFlujo()">
+      <div class="field-hint" id="h_ingEfvo">Obligatorio</div>
+    </div>
+  </div>
+  <div class="sep"></div>
+
+
 
   <div class="flujo-section">
     <div class="flujo-hdr in">▲ INGRESOS</div>
@@ -542,12 +462,7 @@ input.fi::placeholder{color:#444;font-weight:600;}
         <label>Venta Efectivo <span class="req">*</span></label>
         <input type="number" class="fi" id="f_vtaEfvo" value="0" min="0" step="0.01" oninput="calcFlujo()">
       </div>
-      <div class="field">
-        <label>Total Ingresos Efvo <span class="req">*</span></label>
-        <input type="number" class="fi" id="f_ingEfvo" value="0" min="0" step="0.01" oninput="calcFlujo()">
-      </div>
-    </div>
-  </div>
+      
 
   <div class="flujo-section">
     <div class="flujo-hdr out">▼ EGRESOS</div>
@@ -801,20 +716,14 @@ function calcFlujo(){
   setVal('r_costo',(venta-gan>0?venta-gan:0).toFixed(2));
   setVal('r_egresos',egresos.toFixed(2));
   setVal('r_utDisponible',util.toFixed(2));
-  document.getElementById('r_totalGastos').textContent=fmt(totalG);
-  document.getElementById('r_totalGastos').className='rbox-val '+(totalG>0?'red':'white');
-  document.getElementById('r_utilidad').textContent=fmt(util);
-  document.getElementById('r_utilidad').className='rbox-val '+(util>=0?'green':'red');
-  document.getElementById('r_pct').textContent=(pct*100).toFixed(2)+'%';
+
   document.getElementById('r_efvoSistema').textContent=fmt(efvoSistema);
   document.getElementById('r_difFlujo').textContent=fmt(dif);
   document.getElementById('r_difFlujo').className='rbox-val '+(Math.abs(dif)<.01?'green':'red');
 
   // KPIs
   document.getElementById('k_sistema').textContent=fmt(efvoSistema);
-  document.getElementById('k_venta').textContent=fmt(venta);
-  document.getElementById('k_util').textContent=fmt(util);
-  document.getElementById('k_util').className='kpi-val '+(util>=0?'green':'red');
+
   const sob=venta-PE;
   document.getElementById('k_pe').textContent=venta>0?(sob>=0?'✅ Sobre PE':'⚠️ Bajo PE'):'—';
   document.getElementById('k_pe').className='kpi-val '+(sob>=0?'green':'red');
