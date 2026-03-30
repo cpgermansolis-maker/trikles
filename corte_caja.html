@@ -649,6 +649,9 @@ function changeDate(f){
   const st=document.getElementById('statusTag');
   st.textContent=isHoy?'📅 Corte de HOY':'⚠️ Editando: '+f;
   st.style.color=isHoy?'var(--green)':'var(--orange)';
+  // Pre-llenar saldo inicial desde corte de ayer
+  const _sc=JSON.parse(sessionStorage.getItem('trikles_session')||localStorage.getItem('trikles_session_remember')||'null');
+  if(_sc) cargarSaldoInicial(_sc.empresa, f);
 }
 function moveDay(d){
   const dt=new Date(currentDate+'T12:00:00');dt.setDate(dt.getDate()+d);
