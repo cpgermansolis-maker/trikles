@@ -399,9 +399,18 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
 
   <div class="field-row3">
     <div class="field">
-      <label>💰 Sueldos / Nómina del Día <span class="req">*</span></label>
-      <input type="number" class="fi prefill" id="f_sueldo" placeholder="0.00" min="0" step="0.01" oninput="calcular()">
+      <label>💰 Sueldos / Nómina del Día
+        <span class="help-icon">?<span class="tt">Total de nómina del día, pre-llenado desde el módulo de Nómina. Solo lectura.</span></span>
+      </label>
+      <input type="number" class="fi prefill" id="f_sueldo" readonly placeholder="0.00">
       <div class="fi-hint" id="h_sueldo">Pre-llenado desde módulo de Nómina</div>
+    </div>
+    <div class="field">
+      <label>💵 Nómina Pagada en Efectivo <span class="req">*</span>
+        <span class="help-icon">?<span class="tt">Parte de la nómina que se pagó en billetes. Esta cantidad sí sale de la caja y afecta el flujo de efectivo. El resto se entiende que fue por transferencia.</span></span>
+      </label>
+      <input type="number" class="fi" id="f_sueldoEfvo" placeholder="0.00" min="0" step="0.01" oninput="calcular()">
+      <div class="fi-hint">Solo el monto pagado en efectivo</div>
     </div>
     <div class="field">
       <label>Reserva del Día <span class="req">*</span>
@@ -558,8 +567,9 @@ function calcular() {
   const retiroUtil = num('f_retiroUtil');
   const retiroEfvo = num('f_retiroEfvo');
 
+  const sueldoEfvo = num('f_sueldoEfvo');
   const entradas  = vtaEfvo + cobros + anticipo;
-  const salidas   = compras + compExt + gTienda + gCasa + pagoComp + retiroUtil + retiroEfvo;
+  const salidas   = compras + compExt + gTienda + gCasa + pagoComp + retiroUtil + retiroEfvo + sueldoEfvo;
   const esperado  = saldo + entradas - salidas;
 
   document.getElementById('r_esperado').textContent = fmt(esperado);
@@ -620,7 +630,7 @@ function autoguardarBorrador() {
     'f_cobros','f_anticipo',
     'f_compras','f_comprasExt','f_gTienda','f_gCasa',
     'f_pagoComp','f_retiroUtil','f_retiroEfvo',
-    'f_sueldo','f_reserva','f_gAnt',
+    'f_sueldo','f_sueldoEfvo','f_reserva','f_gAnt',
     'f_terminado','f_faltante','f_notas','f_entrega',
   ];
   const denoms = ['d_b1000','d_b500','d_b200','d_b100','d_b50',
@@ -791,6 +801,7 @@ async function cargarRegistroExistente(empresa, fecha, forzar=false) {
       setF('f_retiroUtil', d.retiroUtil);
       setF('f_retiroEfvo', d.retiroEfvo);
       setF('f_sueldo',     d.sueldo);
+      setF('f_sueldoEfvo', d.sueldoEfvo);
       setF('f_reserva',    d.reserva);
       setF('f_gAnt',       d.gastosAnt);
       if (d.terminado) document.getElementById('f_terminado').value = d.terminado;
@@ -882,6 +893,7 @@ async function guardar() {
     ...denomData,
     // Cierre
     sueldo:        sue,
+    sueldoEfvo:    num('f_sueldoEfvo'),
     reserva:       res,
     gastosAnt:     gA,
     totalGastos:   gT + gC + sue + res + gA,
