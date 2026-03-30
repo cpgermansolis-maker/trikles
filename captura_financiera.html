@@ -689,12 +689,12 @@ function changeDate(f, silencioso=false) {
   }
   const s = getS();
   if (s) {
-    // Intentar restaurar borrador primero
+    // Intentar restaurar borrador primero (síncrono)
     const restorado = restaurarBorrador(f);
     if (restorado) {
-      // Había borrador — solo cargar saldo inicial (readonly)
+      // Había borrador — SOLO cargar saldo inicial (campo readonly, no pisa el borrador)
+      // NO llamar precargarNomina ni cargarRegistroExistente para no pisar el borrador
       cargarSaldoInicial(s.empresa, f);
-      // Recalcular con los valores restaurados
       calcContado();
       calcular();
       toast('info', 'Borrador restaurado', 'Se recuperó lo que estabas capturando.');
@@ -731,7 +731,6 @@ async function cargarSaldoInicial(empresa, fechaHoy) {
       hint.style.color = 'var(--green)';
       if (badge) badge.style.display = 'inline';
       calcular();
-      autoguardarBorrador();
     } else {
       field.value = '';
       field.placeholder = '0.00';
