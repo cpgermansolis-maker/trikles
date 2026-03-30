@@ -360,8 +360,12 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.5;}
 
   <div class="field">
     <label>Efectivo en Caja (contado físico) <span class="req">*</span></label>
-    <input type="number" class="fi" id="f_cajFisico" placeholder="0.00" min="0" step="0.01" oninput="calcular()">
-    <div class="field-hint" id="h_cajFisico">Obligatorio — escribe 0 si aplica</div>
+    <input type="number" class="fi" id="f_cajFisico" placeholder="Cargando corte..." 
+      min="0" step="0.01" readonly 
+      style="background:rgba(46,196,182,.05);border-color:rgba(46,196,182,.3);color:var(--green);">
+    <div class="field-hint" id="h_cajFisico" style="color:var(--green);">
+      🔒 Viene del Corte de Caja — haz el corte primero
+    </div>
   </div>
 
   <div class="field">
@@ -655,6 +659,9 @@ function changeDate(f){
   currentDate=f;
   document.getElementById('fechaInput').value=f;
   const d=new Date(f+'T12:00:00');
+  // Cargar efectivo desde corte de caja
+  const _ss2=JSON.parse(sessionStorage.getItem('trikles_session')||localStorage.getItem('trikles_session_remember')||'null');
+  if(_ss2) cargarEfectivoCorte(_ss2.empresa, f);
   // Pre-cargar nómina del día
   const _ss = JSON.parse(sessionStorage.getItem('trikles_session')||localStorage.getItem('trikles_session_remember')||'null');
   if(_ss) precargarNomina(_ss.empresa, f);
@@ -972,6 +979,38 @@ async function precargarNomina(empresa, fecha) {
     });
   });
 })();
+
+// ── Cargar efectivo contado desde Corte de Caja ──
+async function cargarEfectivoCorte(empresa, fecha) {
+  const field = document.getElementById('f_cajFisico');
+  const hint  = document.getElementById('h_cajFisico');
+  try {
+    const cb = 'corte_'+Date.now();
+    const result = await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      let done = false;
+      window[cb] = d => { if(done)return; done=true; delete window[cb]; script.remove(); resolve(d); };
+      script.onerror = () => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); };
+      script.src = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec?action=getCorteEfectivo&empresa='+encodeURIComponent(empresa)+'&fecha='+encodeURIComponent(fecha)+'&callback='+cb;
+      document.head.appendChild(script);
+      setTimeout(() => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); }, 10000);
+    });
+    if (result && result.success && result.efvoCaja > 0) {
+      field.value = result.efvoCaja.toFixed(2);
+      hint.textContent = '✓ Cargado del Corte de Caja: $' + result.efvoCaja.toFixed(2);
+      hint.style.color = 'var(--green)';
+      calcular();
+    } else {
+      field.value = '';
+      hint.innerHTML = '⚠️ No hay corte de caja para este día. <a href="corte_caja.html" style="color:var(--orange);font-weight:700;">Ir al Corte →</a>';
+      hint.style.color = 'var(--orange)';
+    }
+  } catch(e) {
+    hint.textContent = '⚠️ No se pudo cargar el corte. Verifica conexión.';
+    hint.style.color = 'var(--red)';
+  }
+}
+
 </script>
 </body>
 </html>
