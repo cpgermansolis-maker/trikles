@@ -425,7 +425,7 @@ async function guardar(){
   const gT=num('f_gTienda'),gC=num('f_gCasa'),sue=num('f_sueldo'),res=num('f_reserva'),gA=num('f_gAnt');
   const denomData={};DENOMS.forEach(dn=>denomData[dn.id]=parseFloat(document.getElementById('d_'+dn.id)?.value)||0);
   const datos={
-    empresa:s.empresa,usuario:s.username,fecha:currentDate,
+    empresa:s.empresa,usuario:s.usuario,fecha:currentDate,
     anio:d.getFullYear(),mes:d.getMonth()+1,dia:d.getDate(),diaSemana:d.getDay(),
     vtaEfectivo:vEf,vtaTarjeta:vTar,vtaCredito:vCr,ventas:tv,
     producto1:num('f_prod1'),producto2:num('f_prod2'),producto3:num('f_prod3'),otros:num('f_otros'),
