@@ -599,7 +599,7 @@ function lastDate(){
   return ALL[ALL.length-1].f;
 }
 function fmt8(d){return d.toISOString().slice(0,10);}
-function addDays(s,n){const d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return fmt8(d);}
+function addDays(s,n){const d=new Date((s||'')+'T12:00:00');if(isNaN(d.getTime()))return s||'';d.setDate(d.getDate()+n);return fmt8(d);}
 function startOfMonth(s){return s.slice(0,7)+'-01';}
 function endOfMonth(s){const d=new Date(s.slice(0,7)+'-01T12:00:00');d.setMonth(d.getMonth()+1);d.setDate(0);return fmt8(d);}
 function clearPreset(){document.querySelectorAll('.fb').forEach(b=>b.classList.remove('active'));}
@@ -609,6 +609,8 @@ function setRange(preset){
   const btn=document.getElementById('fb_'+preset);
   if(btn)btn.classList.add('active');
   const last=lastDate();
+  // Validar que last sea una fecha real antes de continuar
+  if(!last||isNaN(new Date(last+'T12:00:00').getTime()))return;
   const lDate=new Date(last+'T12:00:00');
   let f,t=last;
   if(preset==='hoy'){f=t=last;}
@@ -616,7 +618,7 @@ function setRange(preset){
   else if(preset==='mes'){f=startOfMonth(last);}
   else if(preset==='3m'){const d=new Date(lDate);d.setMonth(d.getMonth()-3);f=fmt8(d);}
   else if(preset==='año'){f=lDate.getFullYear()+'-01-01';}
-  else{f=ALL[0].f;t=last;}
+  else{f=ALL.length?ALL[0].f:last;t=last;}
   GF={from:f,to:t};
   document.getElementById('drD').value=f;
   document.getElementById('drH').value=t;
@@ -781,16 +783,20 @@ function updateKPIs(data){
   document.getElementById('ks5').textContent='P.E.× '+data.length+' días';
   document.getElementById('ks6').textContent=data.length+' días analizados';
   // Delta vs período anterior
-  const prevEnd=addDays(GF.from,-1);
-  const gap=data.length;
-  const prevStart=addDays(prevEnd,-(gap-1));
-  const prev=filterData(prevStart,prevEnd);
-  if(prev.length){
-    const pvg=prev.reduce((s,r)=>s+r.g,0);
-    const d1=document.getElementById('kd1');
-    const pct_v=(tg-pvg)/pvg*100;
-    if(d1){d1.textContent=(pct_v>=0?'▲':'▼')+Math.abs(pct_v).toFixed(1)+'%';d1.className='kpi-delta '+(pct_v>=0?'pos':'neg');}
-  }
+  try{
+    if(GF.from&&!isNaN(new Date(GF.from+'T12:00:00').getTime())){
+      const prevEnd=addDays(GF.from,-1);
+      const gap=data.length;
+      const prevStart=addDays(prevEnd,-(gap-1));
+      const prev=filterData(prevStart,prevEnd);
+      if(prev.length){
+        const pvg=prev.reduce((s,r)=>s+r.g,0);
+        const d1=document.getElementById('kd1');
+        const pct_v=(tg-pvg)/pvg*100;
+        if(d1){d1.textContent=(pct_v>=0?'▲':'▼')+Math.abs(pct_v).toFixed(1)+'%';d1.className='kpi-delta '+(pct_v>=0?'pos':'neg');}
+      }
+    }
+  }catch(e){}
 }
 
 /* ──── FILTER INFO ──── */
@@ -1445,8 +1451,8 @@ async function cargarDatosDesdeSheets(empresa) {
     
     if (result && result.success && result.data && result.data.length > 0) {
       result.data.forEach(r => {
-        const fecha = String(r.fecha).slice(0,10);
-        const d = new Date(fecha);
+        const fecha = String(r.f || r.fecha || '').slice(0,10);
+        const d = new Date(fecha + 'T12:00:00');
         ALL.push({
           f:   fecha,
           y:   r.y  || d.getFullYear(),
