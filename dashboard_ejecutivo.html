@@ -212,6 +212,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   <div class="tb-right">
     <a class="btn-nav" href="captura_financiera.html" id="btnCaptura" style="display:none">📋 Captura</a>
     <a class="btn-nav" href="captura_nomina.html" id="btnNomina" style="display:none">👥 Nómina</a>
+    <a class="btn-nav" href="costos_fijos.html" id="btnCostos" style="display:none">💰 Costos</a>
     <a class="btn-nav" href="panel_control.html" id="btnPanel" style="display:none">⚙️ Panel</a>
     <button class="btn-pdf" onclick="exportPDF()">📄 PDF</button>
     <div class="user-pill"><div class="u-dot"></div><span id="userChip">...</span></div>
@@ -1396,6 +1397,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   // Panel — solo ADMIN y SUPER_ADMIN
   if(rol==='ADMIN'||rol==='SUPER_ADMIN'){
     const b=document.getElementById('btnPanel');if(b)b.style.display='inline-flex';
+    const bc2=document.getElementById('btnCostos');if(bc2)bc2.style.display='inline-flex';
   }
   // Aplicar branding y cargar datos desde Sheets
   applyBranding(s.empresa);
@@ -1492,11 +1494,13 @@ async function cargarDatosDesdeSheets(empresa) {
           entrega:   r.entrega   || 'NINGUNA',
         });
       });
-      // Calcular PE para todas las empresas
+      // Iniciar con PE provisional (gastos/días) mientras carga el PE real
       const totalGastos = ALL.reduce((s,r)=>s+r.gt,0);
       const diasOp = ALL.filter(r=>r.v>0).length;
       PE_VAL = diasOp > 0 ? totalGastos/diasOp : 0;
       setRange('hoy');
+      // Cargar PE real desde backend (costos fijos + nómina + margen mensual)
+      cargarPEReal(empresa);
     } else {
       // Sin datos — mostrar ceros
       mostrarCerosEmpresa(empresa);
@@ -1507,6 +1511,38 @@ async function cargarDatosDesdeSheets(empresa) {
   }
 }
 
+
+// ── Cargar PE real desde backend ──
+async function cargarPEReal(empresa) {
+  try {
+    const hoy = new Date();
+    const fecha = hoy.getFullYear() + '-' + String(hoy.getMonth()+1).padStart(2,'0') + '-' + String(hoy.getDate()).padStart(2,'0');
+    const r = await jsonpCall({ action: 'getPuntoEquilibrio', empresa, fecha });
+    if (r && r.success && r.puntoEquilibrio > 0) {
+      PE_VAL = r.puntoEquilibrio;
+      // Refrescar gráficas y stats con el PE real
+      const data = ALL.filter(row => {
+        if (!GF || !GF.from || !GF.to) return true;
+        return row.f >= GF.from && row.f <= GF.to;
+      });
+      if (data.length > 0) {
+        updatePEStats(data);
+        // Actualizar línea PE en la gráfica si existe
+        if (CHS['c1']) {
+          CHS['c1'].data.datasets.forEach(ds => {
+            if (ds.label === 'P.E.') ds.data = data.map(_ => PE_VAL);
+          });
+          CHS['c1'].update('none');
+        }
+      }
+      // Actualizar KPI P.E. Acumulado
+      const peEl = document.getElementById('ks5');
+      if (peEl) peEl.textContent = 'P.E.× ' + (data.length || ALL.length) + ' días';
+    }
+  } catch(e) {
+    console.warn('PE real no disponible, usando cálculo provisional:', e);
+  }
+}
 
 // ── Datos de nómina desde Nomina_Captura ──
 let NOM_DATA = [];
