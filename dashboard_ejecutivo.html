@@ -1492,12 +1492,10 @@ async function cargarDatosDesdeSheets(empresa) {
           entrega:   r.entrega   || 'NINGUNA',
         });
       });
-      // Calcular PE para TRIKLES
-      if(empresa === 'TRIKLES') {
-        const totalGastos = ALL.reduce((s,r)=>s+r.gt,0);
-        const diasOp = ALL.filter(r=>r.v>0).length;
-        PE_VAL = diasOp > 0 ? totalGastos/diasOp : 0;
-      }
+      // Calcular PE para todas las empresas
+      const totalGastos = ALL.reduce((s,r)=>s+r.gt,0);
+      const diasOp = ALL.filter(r=>r.v>0).length;
+      PE_VAL = diasOp > 0 ? totalGastos/diasOp : 0;
       setRange('hoy');
     } else {
       // Sin datos — mostrar ceros
