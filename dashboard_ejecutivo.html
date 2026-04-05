@@ -893,6 +893,7 @@ function updateFilterInfo(data){
 
 /* ─────────────── CHART 1: Evolución mensual puntos vs P.E. ─────────────── */
 function buildCh1(data){
+  console.log('buildCh1 ejecutado con PE_VAL:', PE_VAL);
   const labels=data.map(r=>r.d||r.f.slice(8));
   const peArr=data.map(_=>PE_VAL);
   const colores=data.map(r=>r.v>=PE_VAL?'#2ec4b6':'#e63946');
