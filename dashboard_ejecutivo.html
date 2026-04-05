@@ -621,7 +621,7 @@ let PE_VAL = 0;
 
 const MES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const DOWS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
-const PRODS = ['Nopales Deshid.','Producto 2','Producto 3','Varios'];
+let PRODS = ['Producto 1','Producto 2','Producto 3','Producto 4'];
 const PCOLS = ['#F5821F','#3498db','#2ecc71','#9b59b6'];
 
 /* ──── CHART ENGINE ──── */
@@ -1857,6 +1857,13 @@ async function applyBranding(empresaId) {
     if (!emp) return;
 
     const nombre = emp.nombre || empresaId;
+    // Actualizar nombres de productos dinámicamente
+    PRODS = [
+      emp.producto1 || 'Producto 1',
+      emp.producto2 || 'Producto 2',
+      emp.producto3 || 'Producto 3',
+      emp.producto4 || 'Producto 4',
+    ];
     const logo   = emp.logo   || '';
     const c1     = emp.color1 || '#F5821F';
     const c2     = emp.color2 || '#1a1a2e';
