@@ -893,7 +893,6 @@ function updateFilterInfo(data){
 
 /* ─────────────── CHART 1: Evolución mensual puntos vs P.E. ─────────────── */
 function buildCh1(data){
-  console.log('buildCh1 ejecutado con PE_VAL:', PE_VAL);
   const labels=data.map(r=>r.d||r.f.slice(8));
   const peArr=data.map(_=>PE_VAL);
   const colores=data.map(r=>r.v>=PE_VAL?'#2ec4b6':'#e63946');
@@ -912,8 +911,8 @@ function buildCh1(data){
         pointBackgroundColor:colores,pointBorderColor:borderes,
         pointBorderWidth:1.5,pointRadius:6,pointHoverRadius:9,
         tension:0,spanGaps:false},
-      {label:'P.E.',data:peArr,borderColor:'rgba(244,211,94,.7)',backgroundColor:'transparent',
-        borderWidth:2,borderDash:[6,4],pointRadius:0,tension:0,fill:false},
+      {label:'P.E.',data:peArr,borderColor:'#f4d35e',backgroundColor:'rgba(244,211,94,.08)',
+        borderWidth:2.5,borderDash:[8,4],pointRadius:0,tension:0,fill:true},
     ]
   },opt);
   document.getElementById('b1').textContent=data.length+' días';
@@ -1650,7 +1649,6 @@ async function cargarDatosDesdeSheets(empresa) {
         const ks4b = document.getElementById('ks4b');
         if(ks4b) ks4b.textContent = '$' + cfDia.toFixed(2) + '/día × ' + data.length + ' días';
         // Actualizar KPI P.E. con valor real
-        console.log('PE_VAL al actualizar KPI:', PE_VAL, 'PE_DATA:', PE_DATA);
         const kv5el = document.getElementById('kv5');
         if(kv5el) kv5el.textContent = fmtK(PE_VAL);
         const tgas = (data.reduce((s,r)=>s+r.gti+r.gca+r.su,0)) + (cfDia * data.length);
