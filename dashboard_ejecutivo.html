@@ -1677,8 +1677,12 @@ async function cargarDatosDesdeSheets(empresa) {
 let PE_DATA = null;
 async function cargarPEReal(empresa) {
   try {
+    // Usar la fecha del último registro capturado, no la de hoy
+    // Así los gastos tienda/casa se encuentran correctamente
+    const ultimoReg = ALL.length > 0 ? ALL[ALL.length - 1] : null;
     const hoy = new Date();
-    const fecha = hoy.getFullYear() + '-' + String(hoy.getMonth()+1).padStart(2,'0') + '-' + String(hoy.getDate()).padStart(2,'0');
+    const fechaHoy = hoy.getFullYear() + '-' + String(hoy.getMonth()+1).padStart(2,'0') + '-' + String(hoy.getDate()).padStart(2,'0');
+    const fecha = ultimoReg ? ultimoReg.f : fechaHoy;
     const r = await jsonpCall({ action: 'getPuntoEquilibrio', empresa, fecha });
     if (r && r.success) {
       PE_DATA = r;
