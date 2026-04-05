@@ -46,7 +46,6 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
 .fi{width:100%;background:var(--dark4);border:1px solid rgba(255,255,255,.1);color:var(--light);padding:10px 12px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;transition:.2s;}
 .fi:focus{outline:none;border-color:var(--orange);}
 .fi[readonly]{background:rgba(46,196,182,.05);border-color:rgba(46,196,182,.3);color:var(--green);cursor:default;}
-.fi.fi-readonly-auto{background:rgba(46,196,182,.05);border-color:rgba(46,196,182,.3);color:var(--green);cursor:default;}
 .fi.prefill{background:rgba(67,97,238,.05);border-color:rgba(67,97,238,.3);color:var(--blue);}
 .fi.total{background:rgba(245,130,31,.05);border-color:rgba(245,130,31,.3);color:var(--orange);font-weight:800;font-size:16px;}
 .fi-hint{font-size:11px;color:var(--gray);margin-top:4px;}
@@ -146,7 +145,7 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
   <div class="fr2">
     <div class="field">
       <label>Saldo Inicial (cierre de ayer)</label>
-      <input type="number" class="fi" id="f_saldoInicial" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()">
+      <input type="number" class="fi" id="f_saldoInicial" readonly placeholder="Cargando...">
       <div class="fi-hint" id="h_saldo">Se carga automáticamente del cierre de ayer</div>
     </div>
     <div class="field"><label>Cobros del Día <span class="req">*</span><span class="help-icon">?<span class="tt">Cobros de ventas a crédito de días anteriores.</span></span></label><input type="number" class="fi" id="f_cobros" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
@@ -233,7 +232,7 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
 <div class="toast" id="toast"></div>
 
 <script>
-const API='https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
+const API='https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
 const SK='trikles_session';
 const DRAFT_KEY='trikles_draft_captura';
 const DENOMS=[
@@ -354,26 +353,16 @@ async function cargarSaldoInicial(empresa,fecha){
     const r=await jsonp({action:'getCorteEfectivo',empresa,fecha:ayer});
     if(r&&r.success&&r.efvoCaja>0){
       field.value=r.efvoCaja.toFixed(2);
-      field.readOnly=true;
-      field.classList.add('fi-readonly-auto');
       hint.textContent='✓ Del cierre del '+ayer+': '+fmt(r.efvoCaja);
       hint.style.color='var(--green)';
       if(badge)badge.style.display='inline';
       calcular();
     }else{
-      field.value='';
-      field.readOnly=false;
-      field.classList.remove('fi-readonly-auto');
-      field.placeholder='0.00';
-      hint.textContent='Sin cierre de ayer — ingresa el saldo manualmente';
-      hint.style.color='var(--yellow)';
+      field.value='';field.placeholder='0.00';
+      hint.textContent='Sin cierre de ayer — ingresa manualmente si aplica';
+      hint.style.color='var(--gray)';
     }
-  }catch{
-    field.readOnly=false;
-    field.classList.remove('fi-readonly-auto');
-    hint.textContent='No se pudo cargar — ingresa manualmente';
-    hint.style.color='var(--gray)';
-  }
+  }catch{hint.textContent='No se pudo cargar — ingresa manualmente';hint.style.color='var(--gray)';}
 }
 
 // ── Nómina ──
