@@ -1627,13 +1627,10 @@ async function cargarDatosDesdeSheets(empresa) {
           entrega:   r.entrega   || 'NINGUNA',
         });
       });
-      // Iniciar con PE provisional (gastos/días) mientras carga el PE real
-      const totalGastos = ALL.reduce((s,r)=>s+r.gt,0);
-      const diasOp = ALL.filter(r=>r.v>0).length;
-      PE_VAL = diasOp > 0 ? totalGastos/diasOp : 0;
+      // Primero cargar el PE real, luego renderizar
+      // Así PE_DATA y PE_VAL están disponibles cuando updateKPIs/updatePEStats corren
+      await cargarPEReal(empresa);
       setRange('hoy');
-      // Cargar PE real desde backend (costos fijos + nómina + margen mensual)
-      cargarPEReal(empresa);
     } else {
       // Sin datos — mostrar ceros
       mostrarCerosEmpresa(empresa);
@@ -1652,25 +1649,9 @@ async function cargarPEReal(empresa) {
     const hoy = new Date();
     const fecha = hoy.getFullYear() + '-' + String(hoy.getMonth()+1).padStart(2,'0') + '-' + String(hoy.getDate()).padStart(2,'0');
     const r = await jsonpCall({ action: 'getPuntoEquilibrio', empresa, fecha });
-    if (r && r.success && r.puntoEquilibrio > 0) {
+    if (r && r.success) {
       PE_DATA = r;
-      PE_VAL = r.puntoEquilibrio;
-      // Refrescar gráficas y stats con el PE real
-      const data = ALL.filter(row => {
-        if (!GF || !GF.from || !GF.to) return true;
-        return row.f >= GF.from && row.f <= GF.to;
-      });
-      if (data.length > 0) {
-        updatePEStats(data);
-        buildCh1(data);
-        // Actualizar KPI
-        animN('kv5', PE_VAL, true);
-        const ultimoDia2 = data.length>0?data[data.length-1]:null;
-        const vHoy = ultimoDia2?ultimoDia2.v:0;
-        const logro = PE_VAL>0&&vHoy>0 ? Math.round(vHoy/PE_VAL*100) : 0;
-        const ks5 = document.getElementById('ks5');
-        if(ks5){ ks5.textContent='% de logro: '+logro+'%'; ks5.style.color=logro>=100?'var(--green)':'var(--red)'; }
-      }
+      PE_VAL = r.puntoEquilibrio || 0;
     }
   } catch(e) {
     console.warn('PE real no disponible:', e);
