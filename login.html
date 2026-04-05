@@ -431,13 +431,7 @@ body {
       <button onclick="cerrarSesion()" style="background:rgba(231,76,60,.2);border:1px solid rgba(231,76,60,.5);color:#e74c3c;cursor:pointer;font-size:11px;margin-left:10px;padding:3px 10px;border-radius:6px;font-family:Nunito,sans-serif;font-weight:800;">✕ Cerrar sesión</button>
     </div>
 
-    <!-- Selector de empresa -->
-    <div class="empresa-selector">
-      <label>🏢 Empresa</label>
-      <select class="empresa-select" id="empresaSelect">
-        <option value="">Cargando empresas...</option>
-      </select>
-    </div>
+
 
     <!-- Error -->
     <div class="err-msg" id="errMsg">
@@ -510,7 +504,7 @@ body {
 // CONFIGURACIÓN — Aquí pegas tu URL de Google Apps Script
 // ══════════════════════════════════════════════════════════
 const CONFIG = {
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec',  // ← Reemplaza después de publicar el Apps Script
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec',  // ← Reemplaza después de publicar el Apps Script
   SESSION_KEY: 'trikles_session',
   SESSION_HOURS: 8
 };
@@ -659,12 +653,10 @@ function checkExistingSession() {
 // LOGIN PRINCIPAL
 // ══════════════════════════════════════════════════════════
 async function doLogin() {
-  const empresa = document.getElementById('empresaSelect').value;
   const usuario = document.getElementById('inputUser').value.trim();
   const pass    = document.getElementById('inputPass').value;
   const btn     = document.getElementById('btnLogin');
 
-  if (!empresa) { showError('Selecciona una empresa'); return; }
   if (!usuario)  { shakeField('inputUser'); return; }
   if (!pass)     { shakeField('inputPass'); return; }
 
@@ -674,12 +666,11 @@ async function doLogin() {
   const cbName = 'loginCb_' + Date.now();
   const url = CONFIG.APPS_SCRIPT_URL +
     '?action=login' +
-    '&empresa=' + encodeURIComponent(empresa) +
     '&usuario=' + encodeURIComponent(usuario) +
     '&pass='    + encodeURIComponent(pass) +
     '&callback=' + cbName;
 
-  console.log('LOGIN →', empresa, usuario, url);
+  console.log('LOGIN →', usuario, url);
 
   const result = await new Promise((resolve) => {
     const script = document.createElement('script');
@@ -712,7 +703,7 @@ async function doLogin() {
     btn.style.background = 'linear-gradient(135deg, #4CAF50, #388E3C)';
     setTimeout(() => redirectByRole(u.rol), 800);
   } else {
-    showError('Usuario, contraseña o empresa incorrectos');
+    showError('Usuario o contraseña incorrectos');
     btn.classList.remove('loading');
   }
 }
