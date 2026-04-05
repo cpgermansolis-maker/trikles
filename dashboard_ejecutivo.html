@@ -712,10 +712,14 @@ function getYears(){return [...new Set(ALL.map(r=>r.y))].sort();}
 
 function groupByMonth(data){
   const m={};
+  const cfDia = PE_DATA ? PE_DATA.costoFijoDiario : 0;
   data.forEach(r=>{
     const k=r.y+'-'+String(r.m).padStart(2,'0');
     if(!m[k])m[k]={k,y:r.y,mo:r.m,v:0,g:0,u:0,gt:0,su:0,gas:0,luz:0,net:0,res:0,days:0,p1:0,p2:0,p3:0,p4:0};
-    m[k].v+=r.v;m[k].g+=r.g;m[k].u+=r.u;m[k].gt+=r.gt;
+    m[k].v+=r.v;m[k].g+=r.g;
+    // Utilidad real = ganancia bruta - gastos operativos - costos fijos del día
+    m[k].u+=(r.g - r.gt - cfDia);
+    m[k].gt+=r.gt;
     m[k].su+=r.su;m[k].gas+=r.gas;m[k].luz+=r.luz;m[k].net+=r.net;m[k].res+=r.res;
     m[k].p1+=r.p1;m[k].p2+=r.p2;m[k].p3+=r.p3;m[k].p4+=r.p4;
     m[k].days++;
@@ -725,10 +729,13 @@ function groupByMonth(data){
 
 function groupByWeek(data){
   const m={};
+  const cfDiaSem = PE_DATA ? PE_DATA.costoFijoDiario : 0;
   data.forEach(r=>{
     const k=r.iy+'-'+String(r.w).padStart(2,'0');
     if(!m[k])m[k]={k,iy:r.iy,w:r.w,v:0,g:0,u:0,gt:0,su:0,days:0};
-    m[k].v+=r.v;m[k].g+=r.g;m[k].u+=r.u;m[k].gt+=r.gt;m[k].su+=r.su;m[k].days++;
+    m[k].v+=r.v;m[k].g+=r.g;
+    m[k].u+=(r.g - r.gt - cfDiaSem);
+    m[k].gt+=r.gt;m[k].su+=r.su;m[k].days++;
   });
   return Object.values(m).sort((a,b)=>a.k.localeCompare(b.k));
 }
