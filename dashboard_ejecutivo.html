@@ -1648,7 +1648,8 @@ async function cargarDatosDesdeSheets(empresa) {
         animN('kv4b', cfDia * data.length, true);
         const ks4b = document.getElementById('ks4b');
         if(ks4b) ks4b.textContent = '$' + cfDia.toFixed(2) + '/día × ' + data.length + ' días';
-        // Actualizar KPI P.E. con valor real (directo, sin animación para evitar sobreescritura)
+        // Actualizar KPI P.E. con valor real
+        console.log('PE_VAL al actualizar KPI:', PE_VAL, 'PE_DATA:', PE_DATA);
         const kv5el = document.getElementById('kv5');
         if(kv5el) kv5el.textContent = fmtK(PE_VAL);
         const tgas = (data.reduce((s,r)=>s+r.gti+r.gca+r.su,0)) + (cfDia * data.length);
