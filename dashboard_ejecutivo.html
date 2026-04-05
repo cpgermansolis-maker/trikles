@@ -1450,7 +1450,7 @@ function exportPDF(){
 }
 
 /* ──── SUPER ADMIN — Selector de empresas ──── */
-const API_URL = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
 
 async function loadEmpresasSelector(){
   try{
@@ -1496,7 +1496,7 @@ function onEmpresaChange(){
 }
 
 /* ──── DATOS DINÁMICOS POR EMPRESA ──── */
-const API_SHEETS = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
+const API_SHEETS = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
 
 async function jsonpSheets(params) {
   return new Promise((resolve, reject) => {
@@ -1578,7 +1578,7 @@ async function cargarDatosDesdeSheets(empresa) {
       let done = false;
       window[cb] = d => { if(done)return; done=true; delete window[cb]; script.remove(); resolve(d); };
       script.onerror = () => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); };
-      script.src = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec?action=getDatos&empresa=' + encodeURIComponent(empresa) + '&callback=' + cb;
+      script.src = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec?action=getDatos&empresa=' + encodeURIComponent(empresa) + '&callback=' + cb;
       document.head.appendChild(script);
       setTimeout(() => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); }, 15000);
     });
@@ -1669,7 +1669,7 @@ async function cargarDatosNomina(empresa) {
       let done = false;
       window[cb] = d => { if(done)return; done=true; delete window[cb]; script.remove(); resolve(d); };
       script.onerror = () => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); };
-      script.src = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec?action=getNominaRegistros&empresa=' + encodeURIComponent(empresa) + '&callback=' + cb;
+      script.src = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec?action=getNominaRegistros&empresa=' + encodeURIComponent(empresa) + '&callback=' + cb;
       document.head.appendChild(script);
       setTimeout(() => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); }, 15000);
     });
@@ -1741,7 +1741,7 @@ function mostrarCerosEmpresa(empresaId) {
 // Handles all empresa branding for every page
 // ═══════════════════════════════════════════════════════
 
-const TRIKLES_API = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
+const TRIKLES_API = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
 const SESSION_KEY = 'trikles_session';
 
 // ── Session ──────────────────────────────────────────
