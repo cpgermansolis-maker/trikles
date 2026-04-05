@@ -320,13 +320,13 @@ select.sel:focus{outline:none;border-color:var(--orange);}
       <div class="cc-hdr">
         <div>
           <div class="cc-ttl">⚖️ Punto de Equilibrio<span class="help-icon">?<span class="tt">El Punto de Equilibrio (P.E.) es el mínimo de ventas que necesitas para cubrir todos tus costos y gastos del día. Si vendes más, ganas. Si vendes menos, pierdes. El % de Logro te dice qué tan lejos estás de ese mínimo.</span></span></div>
-          <div class="cc-sub">Desglose del día actual</div>
+          <div class="cc-sub">Totales del período seleccionado</div>
         </div>
       </div>
       <div style="text-align:center;padding:8px 0 14px;">
         <div style="font-size:42px;font-weight:800;line-height:1;" id="pe_logro_pct">—</div>
         <div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">% de logro</div>
-        <div style="font-size:12px;color:var(--gray);margin-top:6px;">P.E. del día: <span style="color:var(--yellow);font-weight:700;" id="pe_diario_val">—</span></div>
+        <div style="font-size:12px;color:var(--gray);margin-top:6px;">P.E. del período: <span style="color:var(--yellow);font-weight:700;" id="pe_diario_val">—</span></div>
       </div>
       <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:12px;">
         <div class="srow" style="padding:4px 0;">
@@ -848,9 +848,13 @@ function updateKPIs(data){
   document.getElementById('ks2').textContent='Margen: '+pct(tg,tv);
   document.getElementById('ks3').textContent=pct(tu,tv)+' margen neto';
   document.getElementById('ks4').textContent='Sueldo+Gas+Luz+Net+Res';
-  const logro=PE_VAL>0&&tv>0?Math.round(tv/data.length/PE_VAL*100):0;
+  const cfDiaKpi=PE_DATA?PE_DATA.costoFijoDiario:0;
+  const tgasKpi=(data.reduce((s,r)=>s+r.gti+r.gca+r.su,0))+(cfDiaKpi*data.length);
+  const margenKpi=tv>0?data.reduce((s,r)=>s+r.g,0)/tv:0;
+  const pePeriKpi=margenKpi>0?tgasKpi/margenKpi:0;
+  const logroKpi=pePeriKpi>0&&tv>0?Math.round(tv/pePeriKpi*100):0;
   const ks5=document.getElementById('ks5');
-  if(ks5){ks5.textContent='% de logro: '+logro+'%';ks5.style.color=logro>=100?'var(--green)':'var(--red)';}
+  if(ks5){ks5.textContent='% de logro: '+logroKpi+'%';ks5.style.color=logroKpi>=100?'var(--green)':'var(--red)';}
   document.getElementById('ks6').textContent=data.length+' días analizados';
   // Delta vs período anterior
   try{
@@ -1190,76 +1194,74 @@ function buildCh12(data){
 
 /* ─────────────── PE STATS ─────────────── */
 function updatePEStats(data){
-  const peEl=document.getElementById('pe_diario_val');
-  if(peEl) peEl.textContent=PE_VAL>0?fmtK(PE_VAL):'—';
+  if(!data||data.length===0) return;
 
-  const ultimoDia=data.length>0?data[data.length-1]:null;
-  const v=ultimoDia?ultimoDia.v:0;
-  const c=ultimoDia?ultimoDia.c:0;
-  const gBruta=v-c;
-  const margen=v>0?gBruta/v:0;
-  const gti=ultimoDia?ultimoDia.gti:0;
-  const gca=ultimoDia?ultimoDia.gca:0;
-  const nom=ultimoDia?ultimoDia.su:0;
-  const cfDia=PE_DATA?PE_DATA.costoFijoDiario:0;
-  const totalG=cfDia+gti+gca+nom;
-  const utilNeta=gBruta-totalG;
-  const logro=PE_VAL>0&&v>0?Math.round(v/PE_VAL*100):0;
+  // Totales del período
+  const tv   = data.reduce((s,r)=>s+r.v,0);
+  const tc   = data.reduce((s,r)=>s+r.c,0);
+  const tg   = data.reduce((s,r)=>s+r.g,0);
+  const tgti = data.reduce((s,r)=>s+r.gti,0);
+  const tgca = data.reduce((s,r)=>s+r.gca,0);
+  const tnom = data.reduce((s,r)=>s+r.su,0);
+  const dias = data.length;
 
+  // Costos fijos del período = costo fijo diario × días
+  const cfDia  = PE_DATA?PE_DATA.costoFijoDiario:0;
+  const tcf    = cfDia * dias;
+
+  // Margen del período
+  const margen = tv>0?tg/tv:0;
+
+  // Total gastos y utilidad del período
+  const tgastos  = tcf + tgti + tgca + tnom;
+  const utilNeta = tg - tgastos;
+
+  // P.E. del período
+  const pePeriodo = margen>0 ? tgastos/margen : 0;
+  const logro     = pePeriodo>0&&tv>0 ? Math.round(tv/pePeriodo*100) : 0;
+
+  // Actualizar P.E. global con el diario para la gráfica
+  // (la gráfica sigue usando PE_VAL diario)
+
+  // % de logro grande
   const pctEl=document.getElementById('pe_logro_pct');
   if(pctEl){
     pctEl.textContent=logro>0?logro+'%':'—';
     pctEl.style.color=logro>=100?'var(--green)':'var(--red)';
   }
 
-  const fmt2=(n,pctBase)=>{
-    const p=pctBase>0?Math.round(n/pctBase*100)+'%':'—';
-    return {v:fmtK(n),p};
-  };
+  // P.E. del período en el subtítulo
+  const peEl=document.getElementById('pe_diario_val');
+  if(peEl) peEl.textContent=pePeriodo>0?fmtK(pePeriodo):'—';
 
-  const setRow=(id,val,pctBase)=>{
+  // Función helper para llenar filas
+  const setRow=(id,val,base)=>{
     const vEl=document.getElementById(id+'_dia');
     const pEl=document.getElementById(id+'_pct');
-    const r=fmt2(val,pctBase);
-    if(vEl)vEl.textContent=r.v;
-    if(pEl)pEl.textContent=r.p;
+    if(vEl) vEl.textContent=fmtK(val);
+    if(pEl) pEl.textContent=base>0?(val/base*100).toFixed(1)+'%':'—';
   };
 
-  setRow('pe_ventas',v,v);
-  setRow('pe_costo',c,v);
-  setRow('pe_gan',gBruta,v);
-  setRow('pe_cf',cfDia,v);
-  setRow('pe_gti',gti,v);
-  setRow('pe_gca',gca,v);
-  setRow('pe_nom',nom,v);
-  setRow('pe_tg',totalG,v);
-  setRow('pe_ut',utilNeta,v);
+  setRow('pe_ventas', tv,   tv);
+  setRow('pe_costo',  tc,   tv);
+  setRow('pe_gan',    tg,   tv);
+  setRow('pe_cf',     tcf,  tv);
+  setRow('pe_gti',    tgti, tv);
+  setRow('pe_gca',    tgca, tv);
+  setRow('pe_nom',    tnom, tv);
+  setRow('pe_tg',     tgastos,  tv);
+  setRow('pe_ut',     utilNeta, tv);
 
+  // Badges
   const tags=document.getElementById('pe_tags');
   if(tags){
     const badge=(txt,color)=>`<span style="background:${color}22;color:${color};border:1px solid ${color}44;border-radius:6px;padding:2px 10px;font-size:11px;font-weight:700;">${txt}</span>`;
-    tags.innerHTML=logro>=100
-      ?badge(logro+'% sobre P.E.','#2ec4b6')+badge('Día rentable','#2ec4b6')
-      :badge(logro+'% del P.E.','#e63946')+badge('Día con pérdida','#e63946');
+    const diasSobre=data.filter(r=>r.v>=PE_VAL).length;
+    const diasBajo=dias-diasSobre;
+    tags.innerHTML=(logro>=100?badge(logro+'% sobre P.E.','#2ec4b6'):badge(logro+'% del P.E.','#e63946'))
+      +badge(diasSobre+' días rentables','#2ec4b6')
+      +(diasBajo>0?badge(diasBajo+' días con pérdida','#e63946'):'');
   }
-
-  const over=data.filter(r=>r.v>=PE_VAL).length;
-  const under=data.length-over;
-  const best=data.length>0?Math.max(...data.map(r=>r.v)):0;
-  const worst=data.length>0?Math.min(...data.map(r=>r.v)):0;
-  const surplus=data.reduce((s,r)=>s+(r.v-PE_VAL),0);
-  const peOver=document.getElementById('pe_over');
-  const peUnder=document.getElementById('pe_under');
-  const peBest=document.getElementById('pe_best');
-  const peWorst=document.getElementById('pe_worst');
-  const peSurplus=document.getElementById('pe_surplus');
-  const peDays=document.getElementById('pe_days');
-  if(peOver)peOver.textContent=over+'/'+data.length+' ('+((data.length>0?over/data.length:0)*100).toFixed(0)+'%)';
-  if(peUnder)peUnder.textContent=under+'/'+data.length;
-  if(peBest)peBest.textContent=fmtK(best);
-  if(peWorst)peWorst.textContent=fmtK(worst);
-  if(peSurplus){peSurplus.textContent=(surplus>=0?'▲':'▼')+fmtK(Math.abs(surplus));peSurplus.style.color=surplus>=0?'var(--green)':'var(--red)';}
-  if(peDays)peDays.textContent=data.length;
 }
 
 /* ─────────────── NÓMINA ─────────────── */
@@ -1663,8 +1665,9 @@ async function cargarPEReal(empresa) {
         buildCh1(data);
         // Actualizar KPI
         animN('kv5', PE_VAL, true);
-        const v = data.reduce((s,r)=>s+r.v,0);
-        const logro = PE_VAL>0&&v>0 ? Math.round(v/data.length/PE_VAL*100) : 0;
+        const ultimoDia2 = data.length>0?data[data.length-1]:null;
+        const vHoy = ultimoDia2?ultimoDia2.v:0;
+        const logro = PE_VAL>0&&vHoy>0 ? Math.round(vHoy/PE_VAL*100) : 0;
         const ks5 = document.getElementById('ks5');
         if(ks5){ ks5.textContent='% de logro: '+logro+'%'; ks5.style.color=logro>=100?'var(--green)':'var(--red)'; }
       }
