@@ -285,9 +285,9 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   </div>
   <div class="kpi y" onclick="scrollTo('ch1')">
     <div class="kpi-ico">⚖️</div>
-    <div class="kpi-lbl">P.E. Acumulado</div>
+    <div class="kpi-lbl">P.E. del día</div>
     <div class="kpi-val y" id="kv5">—</div>
-    <div class="kpi-sub" id="ks5">prom. diario requerido</div>
+    <div class="kpi-sub" id="ks5">% de logro: —</div>
   </div>
   <div class="kpi p" onclick="scrollTo('ch5')">
     <div class="kpi-ico">📅</div>
@@ -318,16 +318,83 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     </div>
     <div class="cc">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">⚖️ P.E. Acumulado<span class="help-icon">?<span class="tt">Resumen de tu desempeño vs el Punto de Equilibrio en el período. "Días sobre P.E." = días rentables. El superávit/déficit muestra cuánto ganaste o perdiste en total respecto al P.E.</span></span></div><div class="cc-sub">Situación del período vs punto de equilibrio</div></div>
+        <div>
+          <div class="cc-ttl">⚖️ Punto de Equilibrio<span class="help-icon">?<span class="tt">El Punto de Equilibrio (P.E.) es el mínimo de ventas que necesitas para cubrir todos tus costos y gastos del día. Si vendes más, ganas. Si vendes menos, pierdes. El % de Logro te dice qué tan lejos estás de ese mínimo.</span></span></div>
+          <div class="cc-sub">Desglose del día actual</div>
+        </div>
       </div>
-      <div class="slist" id="pe_stats">
-        <div class="srow"><span class="srow-l">P.E. Diario</span><span class="srow-v" style="color:var(--yellow)" id="pe_diario_val">$0.00</span></div>
-        <div class="srow"><span class="srow-l">Días sobre P.E.</span><span class="srow-v" style="color:var(--green)" id="pe_over">—</span></div>
-        <div class="srow"><span class="srow-l">Días bajo P.E.</span><span class="srow-v" style="color:var(--red)" id="pe_under">—</span></div>
-        <div class="srow"><span class="srow-l">Venta más alta</span><span class="srow-v" style="color:var(--orange)" id="pe_best">—</span></div>
-        <div class="srow"><span class="srow-l">Venta más baja</span><span class="srow-v" style="color:var(--light)" id="pe_worst">—</span></div>
-        <div class="srow"><span class="srow-l">Superávit / déficit</span><span class="srow-v" id="pe_surplus">—</span></div>
-        <div class="srow"><span class="srow-l">Días analizados</span><span class="srow-v" style="color:var(--blue)" id="pe_days">—</span></div>
+      <div style="text-align:center;padding:8px 0 14px;">
+        <div style="font-size:42px;font-weight:800;line-height:1;" id="pe_logro_pct">—</div>
+        <div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">% de logro</div>
+        <div style="font-size:12px;color:var(--gray);margin-top:6px;">P.E. del día: <span style="color:var(--yellow);font-weight:700;" id="pe_diario_val">—</span></div>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:12px;">
+        <div class="srow" style="padding:4px 0;">
+          <span class="srow-l">Ventas del día</span>
+          <span style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:11px;color:var(--gray);" id="pe_vta_pct">100%</span>
+            <span class="srow-v" style="color:var(--orange);" id="pe_ventas_dia">—</span>
+          </span>
+        </div>
+        <div class="srow" style="padding:4px 0;padding-left:12px;border-left:2px solid rgba(255,255,255,.06);">
+          <span class="srow-l" style="color:var(--gray);">Costo de mercancía</span>
+          <span style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:11px;color:var(--gray);" id="pe_costo_pct">—</span>
+            <span class="srow-v" style="color:var(--red);" id="pe_costo_dia">—</span>
+          </span>
+        </div>
+        <div class="srow" style="padding:6px 8px;background:rgba(255,255,255,.04);border-radius:6px;margin:4px 0;">
+          <span class="srow-l" style="font-weight:700;">Ganancia bruta</span>
+          <span style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:11px;color:var(--green);" id="pe_gan_pct">—</span>
+            <span class="srow-v" style="color:var(--green);" id="pe_gan_dia">—</span>
+          </span>
+        </div>
+        <div style="border-top:1px solid rgba(255,255,255,.06);margin:8px 0;"></div>
+        <div class="srow" style="padding:3px 0;padding-left:12px;border-left:2px solid rgba(255,255,255,.06);">
+          <span class="srow-l" style="color:var(--gray);">Costos fijos</span>
+          <span style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:11px;color:var(--gray);" id="pe_cf_pct">—</span>
+            <span class="srow-v" style="color:var(--red);" id="pe_cf_dia">—</span>
+          </span>
+        </div>
+        <div class="srow" style="padding:3px 0;padding-left:12px;border-left:2px solid rgba(255,255,255,.06);">
+          <span class="srow-l" style="color:var(--gray);">Gastos tienda</span>
+          <span style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:11px;color:var(--gray);" id="pe_gti_pct">—</span>
+            <span class="srow-v" style="color:var(--red);" id="pe_gti_dia">—</span>
+          </span>
+        </div>
+        <div class="srow" style="padding:3px 0;padding-left:12px;border-left:2px solid rgba(255,255,255,.06);">
+          <span class="srow-l" style="color:var(--gray);">Gastos casa</span>
+          <span style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:11px;color:var(--gray);" id="pe_gca_pct">—</span>
+            <span class="srow-v" style="color:var(--red);" id="pe_gca_dia">—</span>
+          </span>
+        </div>
+        <div class="srow" style="padding:3px 0;padding-left:12px;border-left:2px solid rgba(255,255,255,.06);">
+          <span class="srow-l" style="color:var(--gray);">Nómina</span>
+          <span style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:11px;color:var(--gray);" id="pe_nom_pct">—</span>
+            <span class="srow-v" style="color:var(--red);" id="pe_nom_dia">—</span>
+          </span>
+        </div>
+        <div class="srow" style="padding:6px 8px;background:rgba(255,255,255,.04);border-radius:6px;margin:4px 0;">
+          <span class="srow-l" style="font-weight:700;">Total gastos</span>
+          <span style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:11px;color:var(--gray);" id="pe_tg_pct">—</span>
+            <span class="srow-v" style="color:var(--red);" id="pe_tg_dia">—</span>
+          </span>
+        </div>
+        <div style="border-top:1px solid rgba(255,255,255,.06);margin:8px 0;"></div>
+        <div class="srow" style="padding:6px 8px;background:rgba(46,196,182,.08);border:1px solid rgba(46,196,182,.15);border-radius:6px;margin:4px 0;">
+          <span class="srow-l" style="font-weight:700;color:var(--green);">Utilidad neta</span>
+          <span style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:11px;color:var(--green);" id="pe_ut_pct">—</span>
+            <span class="srow-v" style="color:var(--green);" id="pe_ut_dia">—</span>
+          </span>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:10px;justify-content:center;flex-wrap:wrap;" id="pe_tags"></div>
       </div>
     </div>
   </div>
@@ -776,12 +843,14 @@ function updateKPIs(data){
   const prom=tv/data.length;
   const peAcum=PE_VAL*data.length;
   animN('kv1',tv,true); animN('kv2',tg,true); animN('kv3',tu,true);
-  animN('kv4',tgt,true); animN('kv5',peAcum,true); animN('kv6',prom,true);
+  animN('kv4',tgt,true); animN('kv5',PE_VAL,true); animN('kv6',prom,true);
   document.getElementById('ks1').textContent=data.length+' días';
   document.getElementById('ks2').textContent='Margen: '+pct(tg,tv);
   document.getElementById('ks3').textContent=pct(tu,tv)+' margen neto';
   document.getElementById('ks4').textContent='Sueldo+Gas+Luz+Net+Res';
-  document.getElementById('ks5').textContent='P.E.× '+data.length+' días';
+  const logro=PE_VAL>0&&tv>0?Math.round(tv/data.length/PE_VAL*100):0;
+  const ks5=document.getElementById('ks5');
+  if(ks5){ks5.textContent='% de logro: '+logro+'%';ks5.style.color=logro>=100?'var(--green)':'var(--red)';}
   document.getElementById('ks6').textContent=data.length+' días analizados';
   // Delta vs período anterior
   try{
@@ -807,21 +876,28 @@ function updateFilterInfo(data){
   document.getElementById('filterInfo').textContent=data.length+' día(s) · '+d1+(GF.from!==GF.to?' — '+d2:'');
 }
 
-/* ─────────────── CHART 1: Tendencia diaria con PE ─────────────── */
+/* ─────────────── CHART 1: Evolución mensual puntos vs P.E. ─────────────── */
 function buildCh1(data){
-  const labels=data.map(r=>r.f.slice(5));
+  const labels=data.map(r=>r.d||r.f.slice(8));
   const peArr=data.map(_=>PE_VAL);
+  const colores=data.map(r=>r.v>=PE_VAL?'#2ec4b6':'#e63946');
+  const borderes=data.map(r=>r.v>=PE_VAL?'#2ec4b6':'#e63946');
   const opt=JSON.parse(JSON.stringify(BASE_OPT));
-  opt.plugins.tooltip.callbacks={label:ctx=>' '+ctx.dataset.label+': '+fmtK(ctx.parsed.y)};
+  opt.plugins.tooltip.callbacks={label:ctx=>{
+    if(ctx.datasetIndex===1) return ' P.E.: '+fmtK(PE_VAL);
+    const logro=PE_VAL>0?Math.round(ctx.parsed.y/PE_VAL*100):0;
+    return [' Ventas: '+fmtK(ctx.parsed.y),' Logro: '+logro+'%'];
+  }};
   mk('c1','cv1','line',{
     labels,
     datasets:[
-      {label:'Ventas',data:data.map(r=>r.v),borderColor:'#F5821F',backgroundColor:'rgba(245,130,31,.08)',
-        borderWidth:2.5,pointRadius:1.5,pointHoverRadius:5,tension:.4,fill:true},
-      {label:'Ganancia',data:data.map(r=>r.g),borderColor:'#2ecc71',backgroundColor:'rgba(46,204,113,.05)',
-        borderWidth:1.5,pointRadius:1,pointHoverRadius:4,tension:.4,fill:false},
-      {label:'P.E.',data:peArr,borderColor:'rgba(241,196,15,.7)',backgroundColor:'transparent',
-        borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0,fill:false},
+      {label:'Ventas',data:data.map(r=>r.v),
+        borderColor:'transparent',backgroundColor:'transparent',
+        pointBackgroundColor:colores,pointBorderColor:borderes,
+        pointBorderWidth:1.5,pointRadius:6,pointHoverRadius:9,
+        tension:0,spanGaps:false},
+      {label:'P.E.',data:peArr,borderColor:'rgba(244,211,94,.7)',backgroundColor:'transparent',
+        borderWidth:2,borderDash:[6,4],pointRadius:0,tension:0,fill:false},
     ]
   },opt);
   document.getElementById('b1').textContent=data.length+' días';
@@ -1114,21 +1190,76 @@ function buildCh12(data){
 
 /* ─────────────── PE STATS ─────────────── */
 function updatePEStats(data){
-  // Update PE diario display
-  const peEl = document.getElementById('pe_diario_val');
-  if(peEl) peEl.textContent = PE_VAL > 0 ? '$' + PE_VAL.toFixed(2) : '$0.00';
+  const peEl=document.getElementById('pe_diario_val');
+  if(peEl) peEl.textContent=PE_VAL>0?fmtK(PE_VAL):'—';
+
+  const ultimoDia=data.length>0?data[data.length-1]:null;
+  const v=ultimoDia?ultimoDia.v:0;
+  const c=ultimoDia?ultimoDia.c:0;
+  const gBruta=v-c;
+  const margen=v>0?gBruta/v:0;
+  const gti=ultimoDia?ultimoDia.gti:0;
+  const gca=ultimoDia?ultimoDia.gca:0;
+  const nom=ultimoDia?ultimoDia.su:0;
+  const cfDia=PE_DATA?PE_DATA.costoFijoDiario:0;
+  const totalG=cfDia+gti+gca+nom;
+  const utilNeta=gBruta-totalG;
+  const logro=PE_VAL>0&&v>0?Math.round(v/PE_VAL*100):0;
+
+  const pctEl=document.getElementById('pe_logro_pct');
+  if(pctEl){
+    pctEl.textContent=logro>0?logro+'%':'—';
+    pctEl.style.color=logro>=100?'var(--green)':'var(--red)';
+  }
+
+  const fmt2=(n,pctBase)=>{
+    const p=pctBase>0?Math.round(n/pctBase*100)+'%':'—';
+    return {v:fmtK(n),p};
+  };
+
+  const setRow=(id,val,pctBase)=>{
+    const vEl=document.getElementById(id+'_dia');
+    const pEl=document.getElementById(id+'_pct');
+    const r=fmt2(val,pctBase);
+    if(vEl)vEl.textContent=r.v;
+    if(pEl)pEl.textContent=r.p;
+  };
+
+  setRow('pe_ventas',v,v);
+  setRow('pe_costo',c,v);
+  setRow('pe_gan',gBruta,v);
+  setRow('pe_cf',cfDia,v);
+  setRow('pe_gti',gti,v);
+  setRow('pe_gca',gca,v);
+  setRow('pe_nom',nom,v);
+  setRow('pe_tg',totalG,v);
+  setRow('pe_ut',utilNeta,v);
+
+  const tags=document.getElementById('pe_tags');
+  if(tags){
+    const badge=(txt,color)=>`<span style="background:${color}22;color:${color};border:1px solid ${color}44;border-radius:6px;padding:2px 10px;font-size:11px;font-weight:700;">${txt}</span>`;
+    tags.innerHTML=logro>=100
+      ?badge(logro+'% sobre P.E.','#2ec4b6')+badge('Día rentable','#2ec4b6')
+      :badge(logro+'% del P.E.','#e63946')+badge('Día con pérdida','#e63946');
+  }
+
   const over=data.filter(r=>r.v>=PE_VAL).length;
   const under=data.length-over;
-  const best=Math.max(...data.map(r=>r.v));
-  const worst=Math.min(...data.map(r=>r.v));
+  const best=data.length>0?Math.max(...data.map(r=>r.v)):0;
+  const worst=data.length>0?Math.min(...data.map(r=>r.v)):0;
   const surplus=data.reduce((s,r)=>s+(r.v-PE_VAL),0);
-  document.getElementById('pe_over').textContent=over+'/'+data.length+' ('+((over/data.length)*100).toFixed(0)+'%)';
-  document.getElementById('pe_under').textContent=under+'/'+data.length;
-  document.getElementById('pe_best').textContent=fmtK(best);
-  document.getElementById('pe_worst').textContent=fmtK(worst);
-  document.getElementById('pe_surplus').textContent=(surplus>=0?'▲':'▼')+fmtK(Math.abs(surplus));
-  document.getElementById('pe_surplus').style.color=surplus>=0?'var(--green)':'var(--red)';
-  document.getElementById('pe_days').textContent=data.length;
+  const peOver=document.getElementById('pe_over');
+  const peUnder=document.getElementById('pe_under');
+  const peBest=document.getElementById('pe_best');
+  const peWorst=document.getElementById('pe_worst');
+  const peSurplus=document.getElementById('pe_surplus');
+  const peDays=document.getElementById('pe_days');
+  if(peOver)peOver.textContent=over+'/'+data.length+' ('+((data.length>0?over/data.length:0)*100).toFixed(0)+'%)';
+  if(peUnder)peUnder.textContent=under+'/'+data.length;
+  if(peBest)peBest.textContent=fmtK(best);
+  if(peWorst)peWorst.textContent=fmtK(worst);
+  if(peSurplus){peSurplus.textContent=(surplus>=0?'▲':'▼')+fmtK(Math.abs(surplus));peSurplus.style.color=surplus>=0?'var(--green)':'var(--red)';}
+  if(peDays)peDays.textContent=data.length;
 }
 
 /* ─────────────── NÓMINA ─────────────── */
@@ -1317,7 +1448,7 @@ function exportPDF(){
 }
 
 /* ──── SUPER ADMIN — Selector de empresas ──── */
-const API_URL = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
 
 async function loadEmpresasSelector(){
   try{
@@ -1363,7 +1494,7 @@ function onEmpresaChange(){
 }
 
 /* ──── DATOS DINÁMICOS POR EMPRESA ──── */
-const API_SHEETS = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
+const API_SHEETS = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
 
 async function jsonpSheets(params) {
   return new Promise((resolve, reject) => {
@@ -1446,7 +1577,7 @@ async function cargarDatosDesdeSheets(empresa) {
       let done = false;
       window[cb] = d => { if(done)return; done=true; delete window[cb]; script.remove(); resolve(d); };
       script.onerror = () => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); };
-      script.src = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec?action=getDatos&empresa=' + encodeURIComponent(empresa) + '&callback=' + cb;
+      script.src = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec?action=getDatos&empresa=' + encodeURIComponent(empresa) + '&callback=' + cb;
       document.head.appendChild(script);
       setTimeout(() => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); }, 15000);
     });
@@ -1513,12 +1644,14 @@ async function cargarDatosDesdeSheets(empresa) {
 
 
 // ── Cargar PE real desde backend ──
+let PE_DATA = null;
 async function cargarPEReal(empresa) {
   try {
     const hoy = new Date();
     const fecha = hoy.getFullYear() + '-' + String(hoy.getMonth()+1).padStart(2,'0') + '-' + String(hoy.getDate()).padStart(2,'0');
     const r = await jsonpCall({ action: 'getPuntoEquilibrio', empresa, fecha });
     if (r && r.success && r.puntoEquilibrio > 0) {
+      PE_DATA = r;
       PE_VAL = r.puntoEquilibrio;
       // Refrescar gráficas y stats con el PE real
       const data = ALL.filter(row => {
@@ -1527,20 +1660,17 @@ async function cargarPEReal(empresa) {
       });
       if (data.length > 0) {
         updatePEStats(data);
-        // Actualizar línea PE en la gráfica si existe
-        if (CHS['c1']) {
-          CHS['c1'].data.datasets.forEach(ds => {
-            if (ds.label === 'P.E.') ds.data = data.map(_ => PE_VAL);
-          });
-          CHS['c1'].update('none');
-        }
+        buildCh1(data);
+        // Actualizar KPI
+        animN('kv5', PE_VAL, true);
+        const v = data.reduce((s,r)=>s+r.v,0);
+        const logro = PE_VAL>0&&v>0 ? Math.round(v/data.length/PE_VAL*100) : 0;
+        const ks5 = document.getElementById('ks5');
+        if(ks5){ ks5.textContent='% de logro: '+logro+'%'; ks5.style.color=logro>=100?'var(--green)':'var(--red)'; }
       }
-      // Actualizar KPI P.E. Acumulado
-      const peEl = document.getElementById('ks5');
-      if (peEl) peEl.textContent = 'P.E.× ' + (data.length || ALL.length) + ' días';
     }
   } catch(e) {
-    console.warn('PE real no disponible, usando cálculo provisional:', e);
+    console.warn('PE real no disponible:', e);
   }
 }
 
@@ -1556,7 +1686,7 @@ async function cargarDatosNomina(empresa) {
       let done = false;
       window[cb] = d => { if(done)return; done=true; delete window[cb]; script.remove(); resolve(d); };
       script.onerror = () => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); };
-      script.src = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec?action=getNominaRegistros&empresa=' + encodeURIComponent(empresa) + '&callback=' + cb;
+      script.src = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec?action=getNominaRegistros&empresa=' + encodeURIComponent(empresa) + '&callback=' + cb;
       document.head.appendChild(script);
       setTimeout(() => { if(done)return; done=true; delete window[cb]; script.remove(); reject(); }, 15000);
     });
@@ -1628,7 +1758,7 @@ function mostrarCerosEmpresa(empresaId) {
 // Handles all empresa branding for every page
 // ═══════════════════════════════════════════════════════
 
-const TRIKLES_API = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
+const TRIKLES_API = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
 const SESSION_KEY = 'trikles_session';
 
 // ── Session ──────────────────────────────────────────
