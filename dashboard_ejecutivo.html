@@ -893,25 +893,42 @@ function updateFilterInfo(data){
 
 /* ─────────────── CHART 1: Evolución mensual puntos vs P.E. ─────────────── */
 function buildCh1(data){
-  const labels=data.map(r=>r.d||r.f.slice(8));
-  const peArr=data.map(_=>PE_VAL);
-  const colores=data.map(r=>r.v>=PE_VAL?'#2ec4b6':'#e63946');
-  const borderes=data.map(r=>r.v>=PE_VAL?'#2ec4b6':'#e63946');
+  // Construir eje X con todos los días del mes para que la línea PE se extienda
+  const mesActual = data.length > 0 ? data[0].m : new Date().getMonth()+1;
+  const anioActual = data.length > 0 ? data[0].y : new Date().getFullYear();
+  const diasMes = new Date(anioActual, mesActual, 0).getDate();
+  const todosLosDias = Array.from({length: diasMes}, (_, i) => i+1);
+  
+  // Mapear ventas por día
+  const ventasPorDia = {};
+  data.forEach(r => { ventasPorDia[r.d || parseInt(r.f.slice(8))] = r.v; });
+  
+  const labels = todosLosDias;
+  const ventasData = todosLosDias.map(d => ventasPorDia[d] !== undefined ? ventasPorDia[d] : null);
+  const peArr = todosLosDias.map(_ => PE_VAL);
+  const colores = todosLosDias.map(d => {
+    const v = ventasPorDia[d];
+    if(v === undefined) return 'transparent';
+    return v >= PE_VAL ? '#2ec4b6' : '#e63946';
+  });
+  const radios = todosLosDias.map(d => ventasPorDia[d] !== undefined ? 6 : 0);
+
   const opt=JSON.parse(JSON.stringify(BASE_OPT));
   opt.plugins.tooltip.callbacks={label:ctx=>{
     if(ctx.datasetIndex===1) return ' P.E.: '+fmtK(PE_VAL);
+    if(ctx.raw===null) return '';
     const logro=PE_VAL>0?Math.round(ctx.parsed.y/PE_VAL*100):0;
     return [' Ventas: '+fmtK(ctx.parsed.y),' Logro: '+logro+'%'];
   }};
   mk('c1','cv1','line',{
     labels,
     datasets:[
-      {label:'Ventas',data:data.map(r=>r.v),
+      {label:'Ventas',data:ventasData,
         borderColor:'transparent',backgroundColor:'transparent',
-        pointBackgroundColor:colores,pointBorderColor:borderes,
-        pointBorderWidth:1.5,pointRadius:6,pointHoverRadius:9,
+        pointBackgroundColor:colores,pointBorderColor:colores,
+        pointBorderWidth:1.5,pointRadius:radios,pointHoverRadius:9,
         tension:0,spanGaps:false},
-      {label:'P.E.',data:peArr,borderColor:'#f4d35e',backgroundColor:'rgba(244,211,94,.08)',
+      {label:'P.E.',data:peArr,borderColor:'#f4d35e',backgroundColor:'rgba(244,211,94,.06)',
         borderWidth:2.5,borderDash:[8,4],pointRadius:0,tension:0,fill:true},
     ]
   },opt);
