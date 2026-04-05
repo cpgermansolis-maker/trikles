@@ -1627,9 +1627,23 @@ async function cargarDatosDesdeSheets(empresa) {
         });
       });
       // Primero cargar el PE real, luego renderizar
-      // Así PE_DATA y PE_VAL están disponibles cuando updateKPIs/updatePEStats corren
       await cargarPEReal(empresa);
       setRange('hoy');
+      // Forzar actualización del KPI con PE_VAL real (puede haber quedado con valor provisional)
+      if(PE_VAL > 0) {
+        animN('kv5', PE_VAL, true);
+        const data = filterData(GF ? GF.from : '', GF ? GF.to : '');
+        const cfDia = PE_DATA ? PE_DATA.costoFijoDiario : 0;
+        const tgas = (data.reduce((s,r)=>s+r.gti+r.gca+r.su,0)) + (cfDia * data.length);
+        const mg = data.reduce((s,r)=>s+r.v,0) > 0 ? data.reduce((s,r)=>s+r.g,0) / data.reduce((s,r)=>s+r.v,0) : 0;
+        const pePeri = mg > 0 ? tgas / mg : 0;
+        const tv = data.reduce((s,r)=>s+r.v,0);
+        const logro = pePeri > 0 && tv > 0 ? Math.round(tv / pePeri * 100) : 0;
+        const ks5 = document.getElementById('ks5');
+        if(ks5){ ks5.textContent = '% de logro: ' + logro + '%'; ks5.style.color = logro >= 100 ? 'var(--green)' : 'var(--red)'; }
+        updatePEStats(data);
+        buildCh1(data);
+      }
     } else {
       // Sin datos — mostrar ceros
       mostrarCerosEmpresa(empresa);
