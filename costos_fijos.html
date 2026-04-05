@@ -100,7 +100,7 @@ tbody tr:last-child td{border-bottom:none;}
 <div class="topbar">
   <div class="topbar-left">
     <div>
-      <div class="topbar-name">TRIKLES</div>
+      <div class="topbar-name" id="topbar_empresa">—</div>
       <div class="topbar-sub">COSTOS FIJOS</div>
     </div>
   </div>
@@ -304,6 +304,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
   }
 
   document.getElementById('ui_usuario').textContent = SESSION.nombre || SESSION.usuario;
+  const topEmp = document.getElementById('topbar_empresa');
+  if(topEmp) topEmp.textContent = SESSION.empresa || 'TRIKLES';
   document.getElementById('ui_empresa_sub').textContent = SESSION.empresa + ' — configuración de gastos recurrentes para el cálculo del P.E.';
 
   const hoy = new Date();
