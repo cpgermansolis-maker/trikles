@@ -254,7 +254,7 @@ let currentDate='', PE=0;
 
 function getS(){try{const s=JSON.parse(sessionStorage.getItem(SK)||localStorage.getItem(SK+'_remember'));if(s&&s.expires>Date.now())return s;clearS();return null;}catch{return null;}}
 function clearS(){sessionStorage.removeItem(SK);localStorage.removeItem(SK+'_remember');}
-function logout(){if(confirm('¿Cerrar sesión?')){clearS();window.location.href='login.html';}}
+function logout(){if(confirm('¿Cerrar sesión?')){clearS();window.location.href='acceso.html';}}
 function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function fmt(n){return '$'+Number(n||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function num(id){return parseFloat(document.getElementById(id)?.value)||0;}
@@ -429,7 +429,7 @@ async function cargarRegistroExistente(empresa,fecha){
 }
 
 // ── Validar y Guardar ──
-function validar(){const s=getS();if(!s){window.location.href='login.html';return false;}if(!currentDate){toast('error','Sin fecha','Selecciona una fecha.');return false;}return true;}
+function validar(){const s=getS();if(!s){window.location.href='acceso.html';return false;}if(!currentDate){toast('error','Sin fecha','Selecciona una fecha.');return false;}return true;}
 async function guardar(){
   if(!validar())return;
   const btn=document.getElementById('btnGuardar');
@@ -502,7 +502,7 @@ async function applyBranding(empresaId){
 // ── Init ──
 document.addEventListener('DOMContentLoaded',()=>{
   const s=getS();
-  if(!s){window.location.href='login.html';return;}
+  if(!s){window.location.href='acceso.html';return;}
   document.querySelector('.topbar-name').textContent=(s.empresa||'').replace(/_/g,' ').toUpperCase();
   document.getElementById('userChip').textContent=s.nombre+' — '+(s.rol||'');
   if(['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS','ANALISTA_FIN','ANALISTA_FULL'].includes(s.rol))
@@ -514,6 +514,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   applyBranding(s.empresa);
   changeDate(today());
 });
+
+// Navegación con cache-busting automático
+function navegar(url) {
+  var sep = url.indexOf('?') >= 0 ? '&' : '?';
+  window.location.href = url + sep + 'v=' + new Date().getTime();
+}
+
 </script>
 </body>
 </html>

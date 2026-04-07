@@ -314,7 +314,7 @@ function clearSession() {
   sessionStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(SESSION_KEY+'_remember');
 }
-function logout() { if(confirm('¿Cerrar sesión?')) { clearSession(); window.location.href='login.html'; } }
+function logout() { if(confirm('¿Cerrar sesión?')) { clearSession(); window.location.href='acceso.html'; } }
 
 function jsonp(params, timeout=12000) {
   return new Promise((resolve,reject) => {
@@ -342,7 +342,7 @@ let SESSION, CONFIGS = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
   SESSION = getSession();
-  if (!SESSION) { window.location.href = 'login.html'; return; }
+  if (!SESSION) { window.location.href = 'acceso.html'; return; }
 
   // Topbar
   const tn = document.querySelector('.topbar-name');
@@ -602,6 +602,13 @@ async function applyBranding(empresaId) {
     if (logo && emp.logo) { logo.src = emp.logo; }
   } catch(e) { console.warn('Branding:', e); }
 }
+
+// Navegación con cache-busting automático
+function navegar(url) {
+  var sep = url.indexOf('?') >= 0 ? '&' : '?';
+  window.location.href = url + sep + 'v=' + new Date().getTime();
+}
+
 </script>
 <script>
 // ── Tooltips táctiles v3 ──

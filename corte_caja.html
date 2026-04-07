@@ -584,8 +584,8 @@ input.fi::placeholder{color:#444;font-weight:600;}
 const SESSION_KEY='trikles_session';
 function getSession(){try{const s=JSON.parse(sessionStorage.getItem(SESSION_KEY)||localStorage.getItem(SESSION_KEY+'_remember'));if(s&&s.expires>Date.now())return s;clearSession();return null;}catch{return null;}}
 function clearSession(){sessionStorage.removeItem(SESSION_KEY);localStorage.removeItem(SESSION_KEY+'_remember');}
-function requireAuth(roles){const s=getSession();if(!s){window.location.href='login.html';return null;}if(roles&&!roles.includes(s.rol)&&s.rol!=='SUPER_ADMIN'){alert('No tienes permisos para acceder a esta sección.');window.location.href='login.html';return null;}return s;}
-function logout(){if(confirm('¿Cerrar sesión?')){clearSession();window.location.href='login.html';}}
+function requireAuth(roles){const s=getSession();if(!s){window.location.href='acceso.html';return null;}if(roles&&!roles.includes(s.rol)&&s.rol!=='SUPER_ADMIN'){alert('No tienes permisos para acceder a esta sección.');window.location.href='acceso.html';return null;}return s;}
+function logout(){if(confirm('¿Cerrar sesión?')){clearSession();window.location.href='acceso.html';}}
 const ROLE_LABELS={ADMIN:'Administrador',DIR_GENERAL:'Dir. General',DIR_FINANZAS:'Dir. Finanzas',ANALISTA_FIN:'Analista Fin.',ANALISTA_NOM:'Analista Nóm.',ANALISTA_FULL:'Analista Full'};
 function renderUserChip(s){document.getElementById('userChip').textContent=s.nombre+' — '+(ROLE_LABELS[s.rol]||s.rol);}
 const APPS_SCRIPT_URL=localStorage.getItem('trikles_api_url')||'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
@@ -938,6 +938,13 @@ async function applyBranding(empresaId) {
   } catch (e) {
     console.warn('[Branding] Error:', e.message);
   }
+}
+
+
+// Navegación con cache-busting automático
+function navegar(url) {
+  var sep = url.indexOf('?') >= 0 ? '&' : '?';
+  window.location.href = url + sep + 'v=' + new Date().getTime();
 }
 
 </script>
