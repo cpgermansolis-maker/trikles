@@ -767,6 +767,13 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('inputUser').focus();
   cargarEmpresas();
 });
+
+// Navegación con cache-busting automático
+function navegar(url) {
+  var sep = url.indexOf('?') >= 0 ? '&' : '?';
+  window.location.href = url + sep + 'v=' + new Date().getTime();
+}
+
 </script>
 </body>
 </html>
