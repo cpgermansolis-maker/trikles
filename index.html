@@ -7,6 +7,16 @@
 </head>
 <body>
 <script>
+// Registrar service worker para forzar siempre versión nueva
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for (var r of registrations) { r.unregister(); }
+  });
+  navigator.serviceWorker.register('/trikles/sw.js').then(function(reg) {
+    reg.update();
+  });
+}
+// Redirigir con timestamp para romper caché
 var v = new Date().getTime();
 window.location.replace('acceso.html?v=' + v);
 </script>
