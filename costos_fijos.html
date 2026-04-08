@@ -428,7 +428,7 @@ function renderTabla(){
       <td>${tipoBadge}</td>
       <td class="right">${fmt(c.monto)}</td>
       <td class="right muted">$${diario}</td>
-      <td class="right muted">${c.fechaCaptura||'—'}</td>
+      <td class="right muted">${c.fechaCaptura ? new Date(c.fechaCaptura + 'T12:00:00').toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short'}) : '—'}</td>
       <td class="right">${acciones}</td>
     </tr>`;
   }).join('');
