@@ -428,7 +428,7 @@ function renderTabla(){
       <td>${tipoBadge}</td>
       <td class="right">${fmt(c.monto)}</td>
       <td class="right muted">$${diario}</td>
-      <td class="right muted">${c.fechaCaptura ? (d => d.toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short'}))(new Date(c.fechaCaptura + 'T12:00:00')) : '—'}</td>
+      <td class="right muted">${c.fechaCaptura ? fmtFecha(c.fechaCaptura) : '—'}</td>
       <td class="right">${acciones}</td>
     </tr>`;
   }).join('');
@@ -539,6 +539,17 @@ async function guardarCostoDirecto(rubro, monto, tipo, mes, anio){
   }catch{ toast('err','Error de conexión'); }
   finally{ btn.disabled = false; }
 }
+
+function fmtFecha(f) {
+  // f viene como "2026-04-05"
+  var p = f.split('-');
+  if (p.length < 3) return f;
+  var meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  var dias  = ['dom','lun','mar','mié','jue','vie','sáb'];
+  var d = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+  return dias[d.getDay()] + ' ' + parseInt(p[2]) + ' ' + meses[parseInt(p[1])-1];
+}
+
 </script>
 </body>
 </html>
