@@ -510,30 +510,40 @@ async function seleccionarEmpleado(nombre) {
   document.getElementById('nuevoEmpWrap').style.display = 'none';
 
   // Buscar en registros del día para conocer su puesto
-  const reg = REGISTROS.find(r => r.empleado === nombre);
-  const puesto = reg ? reg.puesto : '';
+  const regHoy = REGISTROS.find(r => r.empleado === nombre);
+  let puesto = regHoy ? regHoy.puesto : '';
   empActivo = { nombre, puesto, esNuevo: false };
 
-  // Cargar config del puesto
+  // Cargar config del puesto si ya lo conocemos
   if (puesto) {
     configActivo = CONFIGS.find(c => c.puesto.toLowerCase() === puesto.toLowerCase()) || null;
   }
 
-  renderEmpCard(empActivo);
-  if (configActivo) renderTabulador();
-
-  // Pre-llenar con el último registro histórico del empleado desde backend
+  // Buscar último registro histórico para pre-llenar puesto y datos
   try {
     const ultReg = await jsonp({action:'getUltimoRegistroNomina', empresa:SESSION.empresa, empleado:nombre});
     if (ultReg && ultReg.success && ultReg.data) {
       const d = ultReg.data;
+      // Si no teníamos puesto del día, tomarlo del historial
+      if (!puesto && d.puesto) {
+        puesto = d.puesto;
+        empActivo.puesto = puesto;
+        configActivo = CONFIGS.find(c => c.puesto.toLowerCase() === puesto.toLowerCase()) || null;
+      }
+      renderEmpCard(empActivo);
+      if (configActivo) renderTabulador();
+      // Pre-llenar descuentos si los tiene
       if (d.descuentos) document.getElementById('f_descuentos').value = d.descuentos;
       calcHoras();
-      toast('info', '📋 Datos pre-llenados', 'Último registro de ' + nombre.split(' ')[0] + ' cargado');
+      toast('info', '📋 Datos cargados', 'Perfil de ' + nombre.split(' ')[0] + ' pre-llenado');
     } else {
+      renderEmpCard(empActivo);
+      if (configActivo) renderTabulador();
       calcPago();
     }
   } catch(e) {
+    renderEmpCard(empActivo);
+    if (configActivo) renderTabulador();
     calcPago();
   }
   document.getElementById('kpi_emp').textContent = nombre.split(' ')[0];
