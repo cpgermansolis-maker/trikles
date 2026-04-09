@@ -2,9 +2,6 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Captura de Nómina</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -333,7 +330,7 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
 <div class="toast" id="toast"></div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
+const API = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
 const SESSION_KEY = 'trikles_session';
 
 function getSession() {
@@ -347,7 +344,7 @@ function clearSession() {
   sessionStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(SESSION_KEY+'_remember');
 }
-function logout() { if(confirm('¿Cerrar sesión?')) { clearSession(); window.location.href='acceso.html'; } }
+function logout() { if(confirm('¿Cerrar sesión?')) { clearSession(); window.location.href='login.html'; } }
 
 function jsonp(params, timeout=12000) {
   return new Promise((resolve,reject) => {
@@ -389,7 +386,7 @@ let empActivo = null, configActivo = null;
 // ── Init ──
 document.addEventListener('DOMContentLoaded', async () => {
   SESSION = getSession();
-  if (!SESSION) { window.location.href = 'acceso.html'; return; }
+  if (!SESSION) { window.location.href = 'login.html'; return; }
 
   // Topbar inmediato
   document.getElementById('topbar-name').textContent = (SESSION.empresa||'').replace(/_/g,' ').toUpperCase();
@@ -507,7 +504,7 @@ function agregarNuevoEmpleado(nombre) {
   renderEmpCard(empActivo);
 }
 
-function seleccionarEmpleado(nombre) {
+async function seleccionarEmpleado(nombre) {
   document.getElementById('empSearch').value = nombre;
   document.getElementById('empDropdown').classList.remove('open');
   document.getElementById('nuevoEmpWrap').style.display = 'none';
@@ -524,7 +521,21 @@ function seleccionarEmpleado(nombre) {
 
   renderEmpCard(empActivo);
   if (configActivo) renderTabulador();
-  calcPago();
+
+  // Pre-llenar con el último registro histórico del empleado desde backend
+  try {
+    const ultReg = await jsonp({action:'getUltimoRegistroNomina', empresa:SESSION.empresa, empleado:nombre});
+    if (ultReg && ultReg.success && ultReg.data) {
+      const d = ultReg.data;
+      if (d.descuentos) document.getElementById('f_descuentos').value = d.descuentos;
+      calcHoras();
+      toast('info', '📋 Datos pre-llenados', 'Último registro de ' + nombre.split(' ')[0] + ' cargado');
+    } else {
+      calcPago();
+    }
+  } catch(e) {
+    calcPago();
+  }
   document.getElementById('kpi_emp').textContent = nombre.split(' ')[0];
 }
 
@@ -846,13 +857,6 @@ async function applyBranding(empresaId) {
     document.querySelector('.topbar').style.borderBottomColor = c1;
   } catch(e) { console.warn('Branding:', e); }
 }
-
-// Navegación con cache-busting automático
-function navegar(url) {
-  var sep = url.indexOf('?') >= 0 ? '&' : '?';
-  window.location.href = url + sep + 'v=' + new Date().getTime();
-}
-
 </script>
 <script>
 // ── Tooltips táctiles v3 ──
