@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Captura de Nómina</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --orange:#F5821F;--orange2:rgba(245,130,31,.8);--dark:#0d0d1a;
+  --dark2:#12121f;--dark3:#1a1a2e;--dark4:#22223a;
+  --light:#e0e0e0;--gray:#888;--green:#2ec4b6;--red:#e63946;
+  --yellow:#f4d35e;--blue:#4361ee;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--light);min-height:100vh;}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:70px;background:var(--dark2);border-bottom:2px solid var(--orange);position:sticky;top:0;z-index:100;}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.topbar-logo{height:48px;}
+.topbar-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:5px;color:var(--orange);}
+.topbar-sub{font-size:10px;color:var(--gray);letter-spacing:2px;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.btn-nav{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--light);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+.btn-nav:hover{background:rgba(255,255,255,.15);}
+.chip{background:rgba(46,196,182,.15);border:1px solid rgba(46,196,182,.4);color:var(--green);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;}
+.btn-out{background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.3);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;}
+
+/* DATE STRIP */
+.date-strip{background:var(--dark2);border-bottom:1px solid rgba(255,255,255,.06);padding:12px 32px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.btn-nav-date{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:var(--light);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);color:var(--light);padding:8px 12px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;}
+.btn-hoy{background:var(--orange);border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;}
+.fecha-label{font-size:13px;color:var(--green);font-weight:700;}
+.btn-nuevo-reg{background:rgba(46,196,182,.1);border:1px solid rgba(46,196,182,.3);color:var(--green);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-left:auto;}
+
+/* KPI BAR */
+.kpi-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:20px 32px;}
+.kpi{background:var(--dark3);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px 16px;}
+.kpi-label{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.kpi-val{font-size:22px;font-weight:800;}
+.kpi-val.orange{color:var(--orange);}
+.kpi-val.green{color:var(--green);}
+.kpi-val.red{color:var(--red);}
+.kpi-val.yellow{color:var(--yellow);}
+.kpi-val.blue{color:var(--blue);}
+
+/* MAIN GRID */
+.main-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:0 32px 32px;}
+.card{background:var(--dark3);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:20px;}
+.card-title{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06);}
+.ct-icon{width:32px;height:32px;border-radius:8px;background:rgba(245,130,31,.15);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.ct-text{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--light);}
+
+/* EMPLEADO SELECTOR */
+.emp-search{position:relative;margin-bottom:12px;}
+.emp-search input{width:100%;background:var(--dark4);border:1px solid rgba(255,255,255,.1);color:var(--light);padding:10px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;}
+.emp-search input:focus{outline:none;border-color:var(--orange);}
+.emp-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--dark3);border:1px solid rgba(255,255,255,.1);border-radius:8px;z-index:50;max-height:200px;overflow-y:auto;display:none;}
+.emp-dropdown.open{display:block;}
+.emp-option{padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid rgba(255,255,255,.05);}
+.emp-option:hover{background:rgba(245,130,31,.1);color:var(--orange);}
+.emp-nuevo{padding:10px 14px;cursor:pointer;font-size:13px;color:var(--green);border-top:1px solid rgba(255,255,255,.1);}
+
+.emp-card{background:var(--dark4);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.emp-avatar{width:40px;height:40px;border-radius:50%;background:rgba(245,130,31,.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.emp-info .name{font-size:14px;font-weight:800;}
+.emp-info .puesto{font-size:12px;color:var(--gray);margin-top:2px;}
+.tipo-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:4px;display:inline-block;}
+
+/* CAMPOS */
+.field{margin-bottom:14px;}
+.field label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;}
+.field input,.field select{width:100%;background:var(--dark4);border:1px solid rgba(255,255,255,.1);color:var(--light);padding:10px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;}
+.field input:focus,.field select:focus{outline:none;border-color:var(--orange);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.field-hint{font-size:11px;color:var(--gray);margin-top:4px;}
+
+/* TABULADOR */
+.tab-empty{text-align:center;padding:32px;color:var(--gray);}
+.tab-title{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.tab-rows{display:flex;flex-direction:column;gap:6px;}
+.tab-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--dark4);border-radius:8px;border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:.2s;}
+.tab-row:hover{border-color:rgba(245,130,31,.3);}
+.tab-row.active{border-color:var(--orange);background:rgba(245,130,31,.08);}
+.tab-row .range{font-size:12px;color:var(--gray);}
+.tab-row .pct{font-size:14px;font-weight:800;color:var(--green);}
+.tab-row .monto{font-size:14px;font-weight:800;color:var(--orange);}
+
+/* RESULTADO */
+.resultado-box{background:var(--dark4);border-radius:12px;padding:18px;}
+.res-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.res-row:last-child{border-bottom:none;}
+.res-label{font-size:12px;color:var(--gray);}
+.res-val{font-size:14px;font-weight:700;}
+.res-total{display:flex;justify-content:space-between;align-items:center;padding:14px 0 0;margin-top:8px;border-top:2px solid rgba(245,130,31,.3);}
+.res-total .label{font-size:14px;font-weight:800;color:var(--light);}
+.res-total .val{font-size:24px;font-weight:900;color:var(--orange);}
+
+/* REGISTROS */
+.reg-table{width:100%;border-collapse:collapse;font-size:13px;}
+.reg-table th{font-size:10px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:1px;padding:8px 12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.08);}
+.reg-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);}
+.reg-table tr:hover td{background:rgba(255,255,255,.03);}
+.reg-empty{text-align:center;padding:32px;color:var(--gray);}
+
+/* BOTONES */
+.btn-guardar{width:100%;background:var(--orange);border:none;color:#fff;padding:14px;border-radius:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-guardar:hover{background:var(--orange2);}
+.btn-guardar:disabled{opacity:.5;cursor:not-allowed;}
+.btn-limpiar{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--light);padding:10px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;margin-top:8px;}
+
+/* HELP ICON */
+.help-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.15);color:var(--light);font-size:11px;font-weight:900;cursor:help;position:relative;flex-shrink:0;transition:background .2s;margin-left:6px;vertical-align:middle;}
+.help-icon:hover{background:var(--orange);}
+.help-icon .tt{visibility:hidden;opacity:0;width:260px;background:#1a1a2e;border:1px solid var(--orange);color:#e0e0e0;font-size:12px;font-weight:400;line-height:1.6;border-radius:10px;padding:10px 14px;position:absolute;z-index:9999;left:50%;transform:translateX(-50%);top:26px;box-shadow:0 8px 24px rgba(0,0,0,.5);transition:opacity .2s;pointer-events:none;}
+.help-icon .tt::before{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-bottom-color:var(--orange);}
+.help-icon:hover .tt{visibility:visible;opacity:1;}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--dark3);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:12px 18px;font-size:13px;font-weight:700;z-index:9999;transform:translateY(80px);opacity:0;transition:.3s;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{border-color:rgba(46,196,182,.5);color:var(--green);}
+.toast.err{border-color:rgba(230,57,70,.5);color:var(--red);}
+
+@media(max-width:900px){
+  .main-grid{grid-template-columns:1fr;}
+  .kpi-bar{grid-template-columns:repeat(3,1fr);}
+}
+
+
+/* ── Tooltips móvil ── */
+.help-icon { -webkit-tap-highlight-color: transparent; }
+.help-icon .tt {
+  pointer-events: none;
+  white-space: normal;
+  word-wrap: break-word;
+}
+@media (max-width: 768px) {
+  .help-icon .tt {
+    width: 75vw;
+    max-width: 280px;
+    font-size: 12px;
+    left: auto;
+    right: 0;
+    transform: none;
+  }
+  .help-icon .tt::before {
+    left: auto;
+    right: 10px;
+    transform: none;
+  }
+}
+
+
+/* ── Tooltip activo (touch y hover) ── */
+.help-icon.tt-show .tt,
+.help-icon:hover .tt {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.btn-help{background:rgba(46,196,182,.1);border:1px solid rgba(46,196,182,.3);color:#2ec4b6;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
+.btn-help:hover{background:rgba(46,196,182,.2);}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <img class="topbar-logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='%23666'%3E%F0%9F%8F%A2%3C/text%3E%3C/svg%3E" alt="" id="topbar-logo">
+    <div>
+      <div class="topbar-name" id="topbar-name"></div>
+      <div class="topbar-sub">👥 CAPTURA DE NÓMINA</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <a href="dashboard_ejecutivo.html" class="btn-nav" id="btnDashboard" style="display:none">📊 Dashboard</a>
+    <a href="captura_financiera.html" class="btn-nav" id="btnCaptura" style="display:none">📋 Captura</a>
+    <span class="chip" id="userChip">Cargando...</span>
+    <a href="manual.html" class="btn-help" title="Manual de usuario">❓ Ayuda</a>
+    <button class="btn-out" onclick="logout()">Salir ✕</button>
+  </div>
+</header>
+
+<!-- DATE STRIP -->
+<div class="date-strip">
+  <button class="btn-nav-date" onclick="cambiarFecha(-1)">‹</button>
+  <input type="date" id="fechaInput" onchange="onFechaChange(this.value)">
+  <button class="btn-nav-date" onclick="cambiarFecha(1)">›</button>
+  <button class="btn-hoy" onclick="setFecha(hoy())">HOY</button>
+  <span class="fecha-label" id="fechaLabel"></span>
+  <button class="btn-nuevo-reg" onclick="limpiarForm()">➕ Registro nuevo</button>
+</div>
+
+<!-- KPI BAR -->
+<div class="kpi-bar">
+  <div class="kpi"><div class="kpi-label">Nómina del día</div><div class="kpi-val orange" id="kpi_total">$0.00</div></div>
+  <div class="kpi"><div class="kpi-label">Registros hoy</div><div class="kpi-val blue" id="kpi_regs">0</div></div>
+  <div class="kpi"><div class="kpi-label">Pago más alto</div><div class="kpi-val green" id="kpi_max">$0.00</div></div>
+  <div class="kpi"><div class="kpi-label">Total descuentos</div><div class="kpi-val red" id="kpi_desc">$0.00</div></div>
+  <div class="kpi"><div class="kpi-label">Empleado activo</div><div class="kpi-val yellow" id="kpi_emp">—</div></div>
+</div>
+
+<!-- MAIN GRID -->
+<div class="main-grid">
+
+  <!-- COL IZQ: SELECCIÓN + DATOS -->
+  <div style="display:flex;flex-direction:column;gap:16px;">
+
+    <!-- Seleccionar empleado -->
+    <div class="card">
+      <div class="card-title">
+        <div class="ct-icon">👤</div>
+        <div class="ct-text">Seleccionar Empleado</div>
+        <span class="help-icon">?<span class="tt">Elige al empleado. El sistema cargará automáticamente su tipo de pago, monto base y tabla de comisiones configurada por el administrador.</span></span>
+      </div>
+      <div class="emp-search">
+        <input type="text" id="empSearch" placeholder="Buscar empleado..." oninput="filtrarEmpleados(this.value)" onfocus="mostrarDropdown()" autocomplete="off">
+        <div class="emp-dropdown" id="empDropdown"></div>
+      </div>
+      <div id="empCard" style="display:none;"></div>
+      <!-- Nuevo empleado -->
+      <div id="nuevoEmpWrap" style="display:none;">
+        <div class="field-row">
+          <div class="field">
+            <label>Nombre completo *</label>
+            <input type="text" id="nuevoNombre" placeholder="Nombre del empleado">
+          </div>
+          <div class="field">
+            <label>Puesto *</label>
+            <select id="nuevoPuesto">
+              <option value="">Selecciona puesto...</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Datos del día -->
+    <div class="card">
+      <div class="card-title">
+        <div class="ct-icon">📋</div>
+        <div class="ct-text">Datos del Día</div>
+        <span class="help-icon">?<span class="tt">Ingresa las horas trabajadas y las ventas generadas por este empleado en el día. El sistema calculará el pago automáticamente.</span></span>
+      </div>
+
+      <div id="datos_placeholder" style="text-align:center;padding:24px;color:var(--gray);">
+        — Selecciona un empleado —
+      </div>
+
+      <div id="datos_form" style="display:none;">
+        <div class="field-row">
+          <div class="field">
+            <label>Hora de ingreso</label>
+            <input type="time" id="f_horaIn" value="09:00" onchange="calcHoras()">
+          </div>
+          <div class="field">
+            <label>Hora de salida</label>
+            <input type="time" id="f_horaOut" value="18:00" onchange="calcHoras()">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Horas trabajadas (auto)</label>
+            <input type="number" id="f_horas" readonly style="background:rgba(255,255,255,.04);color:var(--yellow);">
+          </div>
+          <div class="field">
+            <label>Descuentos / Penalizaciones</label>
+            <input type="number" id="f_descuentos" value="0" min="0" step="0.01" oninput="calcPago()">
+          </div>
+        </div>
+        <div class="field" id="f_ventas_wrap">
+          <label>Ventas del día ($) <span class="help-icon">?<span class="tt">Monto total vendido por este empleado hoy. Se usa para calcular la comisión según la tabla configurada.</span></span></label>
+          <input type="number" id="f_ventas" value="0" min="0" step="0.01" oninput="calcPago()">
+          <div class="field-hint" id="hint_ventas"></div>
+        </div>
+        <div class="field">
+          <label>Notas / Observaciones</label>
+          <input type="text" id="f_notas" placeholder="Opcional...">
+        </div>
+        <button class="btn-guardar" onclick="guardarRegistro()" id="btnGuardar">💾 Guardar Registro</button>
+        <button class="btn-limpiar" onclick="limpiarForm()">🗑 Limpiar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COL DER: TABULADOR + RESULTADO + REGISTROS -->
+  <div style="display:flex;flex-direction:column;gap:16px;">
+
+    <!-- Tabulador -->
+    <div class="card">
+      <div class="card-title">
+        <div class="ct-icon">📊</div>
+        <div class="ct-text">Tabulador</div>
+        <span class="help-icon">?<span class="tt">Muestra la tabla de comisiones del empleado seleccionado. Haz clic en un rango para ver cuánto ganaría con esas ventas.</span></span>
+      </div>
+      <div id="tab_content">
+        <div class="tab-empty">Selecciona un empleado para ver su tabulador</div>
+      </div>
+    </div>
+
+    <!-- Resultado del pago -->
+    <div class="card">
+      <div class="card-title">
+        <div class="ct-icon">💰</div>
+        <div class="ct-text">Resultado del Pago</div>
+        <span class="help-icon">?<span class="tt">Cálculo automático del pago. Verifica que sea correcto antes de guardar. Puedes ajustar descuentos si es necesario.</span></span>
+      </div>
+      <div class="resultado-box" id="resultado_box">
+        <div class="tab-empty">Selecciona un empleado</div>
+      </div>
+    </div>
+
+    <!-- Registros del día -->
+    <div class="card">
+      <div class="card-title">
+        <div class="ct-icon">📋</div>
+        <div class="ct-text">Registros del Día</div>
+        <span class="help-icon">?<span class="tt">Historial de pagos registrados hoy. Puedes editar o eliminar antes de cerrar el día.</span></span>
+      </div>
+      <div id="registros_content">
+        <div class="reg-empty">Sin registros para este día</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbzefynvBN77LlIvutbsyP6RVosVoPH6l2OYtb8kDhLShzp77YgyNZyOeC7YKM8oxCoQ0A/exec';
+const SESSION_KEY = 'trikles_session';
+
+function getSession() {
+  try {
+    const s = JSON.parse(sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY+'_remember'));
+    if (s && s.expires > Date.now()) return s;
+    clearSession(); return null;
+  } catch { return null; }
+}
+function clearSession() {
+  sessionStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(SESSION_KEY+'_remember');
+}
+function logout() { if(confirm('¿Cerrar sesión?')) { clearSession(); window.location.href='login.html'; } }
+
+function jsonp(params, timeout=12000) {
+  return new Promise((resolve,reject) => {
+    const cb = '_cb'+Date.now()+Math.random().toString(36).slice(2);
+    const s  = document.createElement('script');
+    let done = false;
+    const fin = (fn,v) => { if(done)return; done=true; delete window[cb]; s.remove(); fn(v); };
+    window[cb] = d => fin(resolve,d);
+    s.onerror  = () => fin(reject, new Error('error'));
+    s.src = API + '?' + new URLSearchParams({...params, callback:cb});
+    document.head.appendChild(s);
+    setTimeout(() => fin(reject, new Error('timeout')), timeout);
+  });
+}
+
+function toast(type, msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast '+type+' show';
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+function hoy() {
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+function fmtFecha(f) {
+  const d = new Date(f+'T12:00:00');
+  return d.toLocaleDateString('es-MX', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+
+function fmt(v) { return '$'+parseFloat(v||0).toFixed(2); }
+
+// ── Estado global ──
+let SESSION, CONFIGS = [], REGISTROS = [], EMPLEADOS_VISTOS = [];
+let empActivo = null, configActivo = null;
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', async () => {
+  SESSION = getSession();
+  if (!SESSION) { window.location.href = 'login.html'; return; }
+
+  // Topbar inmediato
+  document.getElementById('topbar-name').textContent = (SESSION.empresa||'').replace(/_/g,' ').toUpperCase();
+  document.getElementById('userChip').textContent = SESSION.nombre + ' — ' + SESSION.rol;
+  if (['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS','ANALISTA_FIN','ANALISTA_NOM','ANALISTA_FULL'].includes(SESSION.rol)) {
+    document.getElementById('btnDashboard').style.display = 'inline-flex';
+  }
+  if (['SUPER_ADMIN','ADMIN','ANALISTA_FIN','ANALISTA_FULL'].includes(SESSION.rol)) {
+    const bc=document.getElementById('btnCaptura'); if(bc) bc.style.display='inline-flex';
+  }
+
+  // Branding
+  applyBranding(SESSION.empresa);
+
+  // Fecha de hoy
+  setFecha(hoy());
+
+  // Cargar configuración de nómina
+  await cargarConfig();
+
+  // Cargar empleados históricos desde Sheets
+  await cargarEmpleadosHistoricos();
+
+  // Cargar registros del día
+  cargarRegistros();
+});
+
+// ── Fecha ──
+function setFecha(f) {
+  document.getElementById('fechaInput').value = f;
+  document.getElementById('fechaLabel').textContent = fmtFecha(f);
+  cargarRegistros();
+}
+
+function onFechaChange(f) {
+  document.getElementById('fechaLabel').textContent = fmtFecha(f);
+  cargarRegistros();
+}
+
+function cambiarFecha(d) {
+  const f = document.getElementById('fechaInput').value || hoy();
+  const dt = new Date(f+'T12:00:00');
+  dt.setDate(dt.getDate() + d);
+  setFecha(dt.toISOString().slice(0,10));
+}
+
+// ── Cargar configuración ──
+async function cargarConfig() {
+  try {
+    const r = await jsonp({action:'getNominaConfig', empresa:SESSION.empresa});
+    if (r.success) {
+      CONFIGS = (r.data || []).map(c => ({
+        ...c,
+        tablaComisiones: typeof c.tablaComisiones === 'string'
+          ? (() => { try { return JSON.parse(c.tablaComisiones); } catch(e) { return []; } })()
+          : (c.tablaComisiones || [])
+      }));
+      // Poblar selector de puestos para nuevo empleado
+      const sel = document.getElementById('nuevoPuesto');
+      sel.innerHTML = '<option value="">Selecciona puesto...</option>';
+      CONFIGS.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.puesto;
+        opt.textContent = c.puesto;
+        sel.appendChild(opt);
+      });
+    }
+  } catch(e) { console.warn('Config nómina:', e); }
+}
+
+// ── Empleados ──
+function filtrarEmpleados(q) {
+  const dropdown = document.getElementById('empDropdown');
+  const todos = [...new Set([
+    ...CONFIGS.map(c => c.puesto ? null : null),
+    ...REGISTROS.map(r => r.empleado),
+    ...EMPLEADOS_VISTOS
+  ].filter(Boolean))];
+
+  // Mostrar todos los que coincidan con la búsqueda
+  const opts = EMPLEADOS_VISTOS.filter(e => !q || e.toLowerCase().includes(q.toLowerCase()));
+
+  dropdown.innerHTML = '';
+  if (opts.length === 0 && q) {
+    dropdown.innerHTML = `<div class="emp-nuevo" onclick="agregarNuevoEmpleado('${q}')">➕ Agregar "${q}" como nuevo empleado</div>`;
+  } else {
+    opts.forEach(emp => {
+      const div = document.createElement('div');
+      div.className = 'emp-option';
+      div.textContent = emp;
+      div.onclick = () => seleccionarEmpleado(emp);
+      dropdown.appendChild(div);
+    });
+    if (q) {
+      const div = document.createElement('div');
+      div.className = 'emp-nuevo';
+      div.textContent = '➕ Agregar "'+q+'" como nuevo empleado';
+      div.onclick = () => agregarNuevoEmpleado(q);
+      dropdown.appendChild(div);
+    }
+  }
+  dropdown.classList.add('open');
+}
+
+function mostrarDropdown() {
+  filtrarEmpleados(document.getElementById('empSearch').value);
+}
+
+function agregarNuevoEmpleado(nombre) {
+  document.getElementById('empSearch').value = nombre;
+  document.getElementById('empDropdown').classList.remove('open');
+  document.getElementById('nuevoEmpWrap').style.display = 'block';
+  document.getElementById('nuevoNombre').value = nombre;
+  empActivo = { nombre, puesto: '', esNuevo: true };
+  renderEmpCard(empActivo);
+}
+
+async function seleccionarEmpleado(nombre) {
+  document.getElementById('empSearch').value = nombre;
+  document.getElementById('empDropdown').classList.remove('open');
+  document.getElementById('nuevoEmpWrap').style.display = 'none';
+
+  // Buscar en registros del día para conocer su puesto
+  const regHoy = REGISTROS.find(r => r.empleado === nombre);
+  let puesto = regHoy ? regHoy.puesto : '';
+  empActivo = { nombre, puesto, esNuevo: false };
+
+  // Cargar config del puesto si ya lo conocemos
+  if (puesto) {
+    configActivo = CONFIGS.find(c => c.puesto.toLowerCase() === puesto.toLowerCase()) || null;
+  }
+
+  // Buscar último registro histórico para pre-llenar puesto y datos
+  try {
+    const ultReg = await jsonp({action:'getUltimoRegistroNomina', empresa:SESSION.empresa, empleado:nombre});
+    if (ultReg && ultReg.success && ultReg.data) {
+      const d = ultReg.data;
+      // Si no teníamos puesto del día, tomarlo del historial
+      if (!puesto && d.puesto) {
+        puesto = d.puesto;
+        empActivo.puesto = puesto;
+        configActivo = CONFIGS.find(c => c.puesto.toLowerCase() === puesto.toLowerCase()) || null;
+      }
+      renderEmpCard(empActivo);
+      if (configActivo) renderTabulador();
+      // Pre-llenar descuentos si los tiene
+      if (d.descuentos) document.getElementById('f_descuentos').value = d.descuentos;
+      calcHoras();
+      toast('info', '📋 Datos cargados', 'Perfil de ' + nombre.split(' ')[0] + ' pre-llenado');
+    } else {
+      renderEmpCard(empActivo);
+      if (configActivo) renderTabulador();
+      calcPago();
+    }
+  } catch(e) {
+    renderEmpCard(empActivo);
+    if (configActivo) renderTabulador();
+    calcPago();
+  }
+  document.getElementById('kpi_emp').textContent = nombre.split(' ')[0];
+}
+
+function renderEmpCard(emp) {
+  const tipos = { DIA:'Por día', HORA:'Por hora', COMISION:'Solo comisión', BASE_COMISION:'Base+comisión' };
+  const conf = configActivo || (CONFIGS.find(c => c.puesto === emp.puesto) || null);
+
+  document.getElementById('empCard').style.display = 'flex';
+  document.getElementById('empCard').innerHTML = `
+    <div class="emp-card">
+      <div class="emp-avatar">👤</div>
+      <div class="emp-info">
+        <div class="name">${emp.nombre}</div>
+        <div class="puesto">${emp.puesto || 'Sin puesto asignado'}</div>
+        ${conf ? `<span class="tipo-badge" style="background:rgba(245,130,31,.2);color:var(--orange);border:1px solid rgba(245,130,31,.4)">${tipos[conf.tipoPago]||conf.tipoPago}</span>` : ''}
+      </div>
+    </div>
+  `;
+  document.getElementById('datos_placeholder').style.display = 'none';
+  document.getElementById('datos_form').style.display = 'block';
+  calcHoras();
+}
+
+// ── Asignar puesto a nuevo empleado ──
+document.addEventListener('change', function(e) {
+  if (e.target.id === 'nuevoPuesto') {
+    const puesto = e.target.value;
+    if (empActivo) {
+      empActivo.puesto = puesto;
+      configActivo = CONFIGS.find(c => c.puesto.toLowerCase() === puesto.toLowerCase()) || null;
+      renderEmpCard(empActivo);
+      if (configActivo) renderTabulador();
+      calcPago();
+    }
+  }
+});
+
+// ── Horas ──
+function calcHoras() {
+  const inn  = document.getElementById('f_horaIn').value  || '09:00';
+  const out  = document.getElementById('f_horaOut').value || '18:00';
+  const [h1,m1] = inn.split(':').map(Number);
+  const [h2,m2] = out.split(':').map(Number);
+  let mins = (h2*60+m2) - (h1*60+m1);
+  if (mins < 0) mins += 24*60;
+  const horas = Math.round(mins/60 * 100) / 100;
+  document.getElementById('f_horas').value = horas;
+  calcPago();
+}
+
+// ── Tabulador ──
+function renderTabulador() {
+  const el = document.getElementById('tab_content');
+  if (!configActivo) { el.innerHTML = '<div class="tab-empty">Sin tabulador configurado para este puesto</div>'; return; }
+
+  const tipos = { DIA:'Por día', HORA:'Por hora', COMISION:'Solo comisión', BASE_COMISION:'Base+comisión' };
+  const ventas = parseFloat(document.getElementById('f_ventas')?.value) || 0;
+
+  let html = `<div class="tab-title">Tipo: ${tipos[configActivo.tipoPago]||configActivo.tipoPago} · Base: ${fmt(configActivo.montoBase)}</div>`;
+
+  if (configActivo.comisionActiva && configActivo.tablaComisiones.length > 0) {
+    html += '<div class="tab-rows">';
+    configActivo.tablaComisiones.forEach(t => {
+      const activo = ventas >= t.desde && ventas <= t.hasta;
+      const com = ventas * (t.pct/100);
+      html += `
+        <div class="tab-row ${activo ? 'active' : ''}" onclick="document.getElementById('f_ventas').value='${t.desde}';calcPago();">
+          <span class="range">$${t.desde.toLocaleString()} – ${t.hasta >= 999999 ? '∞' : '$'+t.hasta.toLocaleString()}</span>
+          <span class="pct">${t.pct}%</span>
+          ${activo ? `<span class="monto">${fmt(com)}</span>` : ''}
+        </div>`;
+    });
+    html += '</div>';
+  } else if (configActivo.tipoPago !== 'COMISION') {
+    html += '<div class="tab-empty" style="padding:16px;">Este puesto no tiene comisiones — pago fijo</div>';
+  }
+
+  el.innerHTML = html;
+}
+
+// ── Cálculo de pago ──
+function calcPago() {
+  if (!configActivo) { renderResultado(null); return; }
+
+  const horas      = parseFloat(document.getElementById('f_horas').value) || 0;
+  const ventas     = parseFloat(document.getElementById('f_ventas').value) || 0;
+  const descuentos = parseFloat(document.getElementById('f_descuentos').value) || 0;
+  const conf       = configActivo;
+
+  let montoBase = 0, montoComision = 0, pctComision = 0;
+
+  // Base
+  if (conf.tipoPago === 'DIA') {
+    montoBase = conf.montoBase;
+  } else if (conf.tipoPago === 'HORA') {
+    montoBase = conf.montoBase * horas;
+  } else if (conf.tipoPago === 'COMISION') {
+    montoBase = 0;
+  } else if (conf.tipoPago === 'BASE_COMISION') {
+    montoBase = conf.tipoPago === 'HORA' ? conf.montoBase * horas : conf.montoBase;
+  }
+
+  // Comisión por rango
+  if (conf.comisionActiva && conf.tablaComisiones.length > 0 && ventas > 0) {
+    const rango = conf.tablaComisiones.find(t => ventas >= t.desde && ventas <= t.hasta);
+    if (rango) {
+      pctComision   = rango.pct;
+      montoComision = ventas * (rango.pct / 100);
+    }
+  }
+
+  const pagoTotal = Math.max(0, montoBase + montoComision - descuentos);
+  renderResultado({ montoBase, montoComision, pctComision, descuentos, pagoTotal, horas, ventas });
+  renderTabulador();
+  return { montoBase, montoComision, pctComision, pagoTotal };
+}
+
+function renderResultado(r) {
+  const el = document.getElementById('resultado_box');
+  if (!r) { el.innerHTML = '<div class="tab-empty">Selecciona un empleado</div>'; return; }
+
+  const tipos = { DIA:'Por día', HORA:'Por hora', COMISION:'Solo comisión', BASE_COMISION:'Base+comisión' };
+
+  el.innerHTML = `
+    <div class="res-row">
+      <span class="res-label">Tipo de pago</span>
+      <span class="res-val">${tipos[configActivo.tipoPago]||configActivo.tipoPago}</span>
+    </div>
+    ${configActivo.tipoPago === 'HORA' ? `
+    <div class="res-row">
+      <span class="res-label">Horas trabajadas</span>
+      <span class="res-val">${r.horas} hrs</span>
+    </div>` : ''}
+    ${configActivo.tipoPago !== 'COMISION' ? `
+    <div class="res-row">
+      <span class="res-label">Pago base</span>
+      <span class="res-val" style="color:var(--blue)">${fmt(r.montoBase)}</span>
+    </div>` : ''}
+    ${r.montoComision > 0 ? `
+    <div class="res-row">
+      <span class="res-label">Comisión (${r.ventas.toLocaleString()} × ${r.pctComision}%)</span>
+      <span class="res-val" style="color:var(--green)">${fmt(r.montoComision)}</span>
+    </div>` : ''}
+    ${r.descuentos > 0 ? `
+    <div class="res-row">
+      <span class="res-label">Descuentos</span>
+      <span class="res-val" style="color:var(--red)">− ${fmt(r.descuentos)}</span>
+    </div>` : ''}
+    <div class="res-total">
+      <span class="label">PAGO TOTAL</span>
+      <span class="val">${fmt(r.pagoTotal)}</span>
+    </div>
+  `;
+}
+
+// ── Guardar registro ──
+async function guardarRegistro() {
+  if (!empActivo) { toast('err','Selecciona un empleado'); return; }
+  if (!empActivo.puesto && !document.getElementById('nuevoPuesto').value) {
+    toast('err','Selecciona el puesto del empleado'); return;
+  }
+
+  const puesto = empActivo.puesto || document.getElementById('nuevoPuesto').value;
+  if (!puesto) { toast('err','El puesto es obligatorio'); return; }
+
+  const r = calcPago();
+  if (!r) { toast('err','No se pudo calcular el pago'); return; }
+
+  const fecha = document.getElementById('fechaInput').value;
+  const nombre = empActivo.esNuevo ? document.getElementById('nuevoNombre').value.trim() : empActivo.nombre;
+  if (!nombre) { toast('err','Ingresa el nombre del empleado'); return; }
+
+  // Agregar a lista de empleados vistos
+  if (!EMPLEADOS_VISTOS.includes(nombre)) EMPLEADOS_VISTOS.push(nombre);
+
+  const btn = document.getElementById('btnGuardar');
+  btn.textContent = 'Guardando...'; btn.disabled = true;
+
+  try {
+    const res = await jsonp({
+      action:        'guardarNominaRegistro',
+      empresa:        SESSION.empresa,
+      empleado:       nombre,
+      fecha,
+      puesto,
+      tipoPago:       configActivo?.tipoPago || 'DIA',
+      horasBase:      configActivo?.horasBase || 8,
+      horasTrabajadas: parseFloat(document.getElementById('f_horas').value) || 0,
+      montoBase:      r.montoBase,
+      ventas:         parseFloat(document.getElementById('f_ventas').value) || 0,
+      pctComision:    r.pctComision,
+      montoComision:  r.montoComision,
+      descuentos:     parseFloat(document.getElementById('f_descuentos').value) || 0,
+      pagoTotal:      r.pagoTotal,
+      notas:          document.getElementById('f_notas').value,
+    });
+
+    if (res.success) {
+      toast('ok', '✓ Registro guardado — Pago: ' + fmt(res.pagoTotal));
+      limpiarForm();
+      cargarRegistros();
+    } else {
+      toast('err', res.error || 'Error al guardar');
+    }
+  } catch(e) {
+    toast('err', 'Error de conexión');
+  } finally {
+    btn.textContent = '💾 Guardar Registro'; btn.disabled = false;
+  }
+}
+
+// ── Cargar empleados históricos ──
+async function cargarEmpleadosHistoricos() {
+  try {
+    const r = await jsonp({action:'getNominaRegistros', empresa:SESSION.empresa});
+    if (r.success && r.data) {
+      r.data.forEach(reg => {
+        if (reg.empleado && !EMPLEADOS_VISTOS.includes(reg.empleado)) {
+          EMPLEADOS_VISTOS.push(reg.empleado);
+        }
+      });
+    }
+  } catch(e) { console.warn('Empleados históricos:', e); }
+}
+
+// ── Cargar registros ──
+async function cargarRegistros() {
+  const fecha = document.getElementById('fechaInput').value;
+  try {
+    const r = await jsonp({action:'getNominaRegistros', empresa:SESSION.empresa, fecha});
+    if (r.success) {
+      REGISTROS = r.data || [];
+      // Actualizar lista de empleados vistos
+      REGISTROS.forEach(reg => {
+        if (!EMPLEADOS_VISTOS.includes(reg.empleado)) EMPLEADOS_VISTOS.push(reg.empleado);
+      });
+      renderRegistros();
+      updateKPIs();
+    }
+  } catch(e) { console.warn('Registros:', e); }
+}
+
+function renderRegistros() {
+  const el = document.getElementById('registros_content');
+  if (REGISTROS.length === 0) {
+    el.innerHTML = '<div class="reg-empty">Sin registros para este día</div>';
+    return;
+  }
+  el.innerHTML = `
+    <table class="reg-table">
+      <thead><tr>
+        <th>Empleado</th><th>Puesto</th><th>Horas</th><th>Ventas</th><th>Comisión</th><th>Pago</th>
+      </tr></thead>
+      <tbody>
+        ${REGISTROS.map(r => `
+          <tr>
+            <td style="font-weight:700">${r.empleado}</td>
+            <td style="color:var(--gray)">${r.puesto}</td>
+            <td>${r.horasTrabajadas || '—'}</td>
+            <td>${r.ventas > 0 ? fmt(r.ventas) : '—'}</td>
+            <td style="color:var(--green)">${r.montoComision > 0 ? fmt(r.montoComision) : '—'}</td>
+            <td style="font-weight:800;color:var(--orange)">${fmt(r.pagoTotal)}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function updateKPIs() {
+  const total   = REGISTROS.reduce((s,r) => s+r.pagoTotal, 0);
+  const max     = Math.max(...REGISTROS.map(r => r.pagoTotal), 0);
+  const desctos = REGISTROS.reduce((s,r) => s+r.descuentos, 0);
+  document.getElementById('kpi_total').textContent = fmt(total);
+  document.getElementById('kpi_regs').textContent  = REGISTROS.length;
+  document.getElementById('kpi_max').textContent   = fmt(max);
+  document.getElementById('kpi_desc').textContent  = fmt(desctos);
+}
+
+function limpiarForm() {
+  empActivo = null; configActivo = null;
+  document.getElementById('empSearch').value = '';
+  document.getElementById('empCard').style.display = 'none';
+  document.getElementById('datos_placeholder').style.display = 'block';
+  document.getElementById('datos_form').style.display = 'none';
+  document.getElementById('nuevoEmpWrap').style.display = 'none';
+  document.getElementById('tab_content').innerHTML = '<div class="tab-empty">Selecciona un empleado para ver su tabulador</div>';
+  document.getElementById('resultado_box').innerHTML = '<div class="tab-empty">Selecciona un empleado</div>';
+  document.getElementById('kpi_emp').textContent = '—';
+  document.getElementById('f_ventas').value = 0;
+  document.getElementById('f_descuentos').value = 0;
+  document.getElementById('f_notas').value = '';
+  document.getElementById('f_horaIn').value = '09:00';
+  document.getElementById('f_horaOut').value = '18:00';
+  document.getElementById('empDropdown').classList.remove('open');
+}
+
+// Cerrar dropdown al hacer click fuera
+document.addEventListener('click', e => {
+  if (!e.target.closest('.emp-search')) {
+    document.getElementById('empDropdown').classList.remove('open');
+  }
+});
+
+// ── Branding ──
+async function applyBranding(empresaId) {
+  if (!empresaId) return;
+  try {
+    const r = await jsonp({action:'getEmpresas'});
+    if (!r?.success) return;
+    const emp = r.data.find(e => (e.id||'').toLowerCase() === empresaId.toLowerCase());
+    if (!emp) return;
+    const c1 = emp.color1 || '#F5821F';
+    document.documentElement.style.setProperty('--orange', c1);
+    document.documentElement.style.setProperty('--orange2', c1+'cc');
+    const tn = document.getElementById('topbar-name');
+    if (tn) tn.textContent = (emp.nombre||empresaId).toUpperCase();
+    const logo = document.getElementById('topbar-logo');
+    if (logo && emp.logo) logo.src = emp.logo;
+    document.querySelector('.topbar').style.borderBottomColor = c1;
+  } catch(e) { console.warn('Branding:', e); }
+}
+</script>
+<script>
+// ── Tooltips táctiles v3 ──
+(function() {
+  function closeAll() {
+    document.querySelectorAll('.help-icon.tt-show').forEach(function(el) {
+      el.classList.remove('tt-show');
+    });
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.help-icon').forEach(function(icon) {
+      icon.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var wasOpen = icon.classList.contains('tt-show');
+        closeAll();
+        if (!wasOpen) icon.classList.add('tt-show');
+      });
+    });
+    document.addEventListener('touchend', function(e) {
+      if (!e.target.closest('.help-icon')) closeAll();
+    });
+  });
+})();
+</script>
+</body>
+</html>
