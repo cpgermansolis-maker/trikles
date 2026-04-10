@@ -1767,7 +1767,7 @@ async function cargarCxCDashboard(empresa) {
       const fin = (fn, v) => { if(done) return; done=true; delete window[cb]; s.remove(); fn(v); };
       window[cb] = d => fin(resolve, d);
       s.onerror = () => fin(reject, new Error('error'));
-      s.src = APPS_SCRIPT_URL + '?action=getCxCClientes&empresa=' + encodeURIComponent(empresa) + '&callback=' + cb;
+      s.src = API_URL + '?action=getCxCClientes&empresa=' + encodeURIComponent(empresa) + '&callback=' + cb;
       document.head.appendChild(s);
       setTimeout(() => fin(reject, new Error('timeout')), 10000);
     });
@@ -1778,7 +1778,7 @@ async function cargarCxCDashboard(empresa) {
       const fin = (fn, v) => { if(done) return; done=true; delete window[cb]; s.remove(); fn(v); };
       window[cb] = d => fin(resolve, d);
       s.onerror = () => fin(reject, new Error('error'));
-      s.src = APPS_SCRIPT_URL + '?action=getCxC&empresa=' + encodeURIComponent(empresa) + '&callback=' + cb;
+      s.src = API_URL + '?action=getCxC&empresa=' + encodeURIComponent(empresa) + '&callback=' + cb;
       document.head.appendChild(s);
       setTimeout(() => fin(reject, new Error('timeout')), 10000);
     });
