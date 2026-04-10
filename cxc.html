@@ -221,6 +221,7 @@ select.fi option { background:#1a1a2e; }
           <label class="fi-lbl">Tipo de movimiento *</label>
           <select class="fi" id="otro_tipo" onchange="onTipoChange()">
             <option value="">— Selecciona —</option>
+            <option value="SALDO_INICIAL">🔢 Saldo Inicial (saldo previo al sistema)</option>
             <option value="OTRO_CARGO">📤 Cargo / Salida (préstamo, anticipo...)</option>
             <option value="COBRO_OTRO">📥 Abono / Cobro recibido</option>
           </select>
@@ -348,6 +349,11 @@ function switchTab(tab) {
 function onTipoChange() {
   const tipo = document.getElementById('otro_tipo').value;
   document.getElementById('wrap_forma').style.display = tipo === 'COBRO_OTRO' ? 'block' : 'none';
+  // Actualizar placeholder de nota según tipo
+  const nota = document.getElementById('otro_notas');
+  if (tipo === 'SALDO_INICIAL') nota.placeholder = 'Ej: Saldo CxC clientes previo al sistema, Préstamo pendiente de Juan...';
+  else if (tipo === 'OTRO_CARGO') nota.placeholder = 'Ej: Préstamo a empleado Juan García, Anticipo a proveedor...';
+  else nota.placeholder = 'Ej: Cobro parcial de préstamo, Abono de cliente...';
 }
 
 // ── Cargar CxC Clientes ──
@@ -427,30 +433,39 @@ function renderOtros() {
   let saldoAcum = 0;
 
   tbody.innerHTML = OTROS_DATA.map(m => {
-    const esCargo = m.tipo === 'OTRO_CARGO' || m.tipo === 'SALIDA';
-    if (esCargo) { totalCargos += m.monto; saldoAcum += m.monto; }
+    const esInicial = m.tipo === 'SALDO_INICIAL';
+    const esCargo   = m.tipo === 'OTRO_CARGO' || m.tipo === 'SALIDA';
+    const esAbono   = m.tipo === 'COBRO_OTRO';
+
+    if (esInicial) { totalCargos += m.monto; saldoAcum += m.monto; }
+    else if (esCargo) { totalCargos += m.monto; saldoAcum += m.monto; }
     else { totalAbonos += m.monto; saldoAcum -= m.monto; }
 
-    // Afecta flujo de caja
+    // Solo afecta flujo de caja si es cargo real o abono en efectivo — Saldo Inicial NO afecta caja
     if (esCargo) totalCaja -= m.monto;
-    else if (m.formaPago === 'EFECTIVO') totalCaja += m.monto;
+    else if (esAbono && m.formaPago === 'EFECTIVO') totalCaja += m.monto;
 
-    const tipoBadge = esCargo
-      ? `<span class="tipo-cargo">Cargo</span>`
-      : `<span class="tipo-cobro">Abono</span>`;
-    const formaBadge = m.formaPago === 'EFECTIVO'
-      ? '<span style="color:var(--green);font-size:12px">💵 Efectivo</span>'
-      : m.formaPago === 'TARJETA'
-        ? '<span style="color:var(--blue);font-size:12px">💳 Tarjeta</span>'
-        : '—';
+    const tipoBadge = esInicial
+      ? `<span class="tipo-cargo" style="background:rgba(244,211,94,.15);color:var(--yellow);border-color:rgba(244,211,94,.3)">Saldo Inicial</span>`
+      : esCargo
+        ? `<span class="tipo-cargo">Cargo</span>`
+        : `<span class="tipo-cobro">Abono</span>`;
+
+    const formaBadge = esInicial
+      ? '<span style="color:var(--gray);font-size:12px">No afecta caja</span>'
+      : esCargo
+        ? '<span style="color:var(--red);font-size:12px">💸 Salida de caja</span>'
+        : m.formaPago === 'EFECTIVO'
+          ? '<span style="color:var(--green);font-size:12px">💵 Efectivo</span>'
+          : '<span style="color:var(--blue);font-size:12px">💳 Tarjeta</span>';
 
     return `<tr>
       <td style="color:var(--gray)">${fmtFecha(m.fecha)}</td>
       <td style="max-width:200px;font-weight:600">${m.notas || m.concepto}</td>
       <td>${tipoBadge}</td>
-      <td>${esCargo ? '<span style="color:var(--gray);font-size:12px">Salida de caja</span>' : formaBadge}</td>
-      <td style="text-align:right;color:var(--orange)">${esCargo ? fmt(m.monto) : '—'}</td>
-      <td style="text-align:right;color:var(--green)">${!esCargo ? fmt(m.monto) : '—'}</td>
+      <td>${formaBadge}</td>
+      <td style="text-align:right;color:var(--orange)">${(esInicial||esCargo) ? fmt(m.monto) : '—'}</td>
+      <td style="text-align:right;color:var(--green)">${esAbono ? fmt(m.monto) : '—'}</td>
       <td style="text-align:right;font-weight:700;color:${saldoAcum > 0 ? 'var(--red)' : 'var(--green)'}">${fmt(saldoAcum)}</td>
     </tr>`;
   }).join('');
