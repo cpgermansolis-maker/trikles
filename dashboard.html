@@ -1491,11 +1491,12 @@ function updatePEStats(data){
 /* ──── KPI Expandibles ──── */
 function toggleKpiExp(id, e) {
   e.stopPropagation();
-  // Cerrar todos los demás
-  document.querySelectorAll('.kpi-exp-panel').forEach(p => {
-    if (p.id !== id) p.classList.remove('open');
-  });
-  document.getElementById(id).classList.toggle('open');
+  const target = document.getElementById(id);
+  const isOpen = target.style.display === 'block';
+  // Cerrar todos
+  document.querySelectorAll('.kpi-exp-panel').forEach(p => p.style.display = 'none');
+  // Abrir o cerrar el clickeado
+  target.style.display = isOpen ? 'none' : 'block';
 }
 // Cerrar al hacer clic fuera
 document.addEventListener('click', () => {
