@@ -1758,7 +1758,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 // ── Cargar datos desde Sheets ──
-async async function cargarCxCDashboard(empresa) {
+async function cargarCxCDashboard(empresa) {
   try {
     const r = await new Promise((resolve, reject) => {
       const cb = '_cxc' + Date.now();
