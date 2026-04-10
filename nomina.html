@@ -328,10 +328,51 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
       <div class="card-title">
         <div class="ct-icon">📋</div>
         <div class="ct-text">Registros del Día</div>
-        <span class="help-icon">?<span class="tt">Historial de pagos registrados hoy. Puedes editar o eliminar antes de cerrar el día.</span></span>
+        <span class="help-icon">?<span class="tt">Historial de pagos registrados hoy.</span></span>
       </div>
       <div id="registros_content">
         <div class="reg-empty">Sin registros para este día</div>
+      </div>
+    </div>
+
+    <!-- Consulta histórica -->
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">
+        <div class="ct-icon">🔎</div>
+        <div class="ct-text">Consulta Histórica</div>
+        <span class="help-icon">?<span class="tt">Consulta todos los registros de nómina por período y empleado.</span></span>
+      </div>
+      <!-- Filtros -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;align-items:flex-end">
+        <div style="flex:1;min-width:140px">
+          <label style="font-size:12px;color:var(--gray);display:block;margin-bottom:4px">DESDE</label>
+          <input type="date" id="hist_desde" style="width:100%;padding:8px;background:#1a1a2e;border:1px solid rgba(245,130,31,.3);border-radius:8px;color:#f0f0f0;font-size:13px">
+        </div>
+        <div style="flex:1;min-width:140px">
+          <label style="font-size:12px;color:var(--gray);display:block;margin-bottom:4px">HASTA</label>
+          <input type="date" id="hist_hasta" style="width:100%;padding:8px;background:#1a1a2e;border:1px solid rgba(245,130,31,.3);border-radius:8px;color:#f0f0f0;font-size:13px">
+        </div>
+        <div style="flex:2;min-width:180px;position:relative">
+          <label style="font-size:12px;color:var(--gray);display:block;margin-bottom:4px">EMPLEADO</label>
+          <input type="text" id="hist_emp_search" placeholder="Todos los empleados..."
+            style="width:100%;padding:8px;background:#1a1a2e;border:1px solid rgba(245,130,31,.3);border-radius:8px;color:#f0f0f0;font-size:13px"
+            oninput="filtrarHistEmp(this.value)" autocomplete="off">
+          <div id="hist_emp_dd" style="display:none;position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border:1px solid rgba(245,130,31,.3);border-radius:8px;z-index:100;max-height:160px;overflow-y:auto"></div>
+        </div>
+        <button onclick="buscarHistorico()" style="padding:8px 20px;background:var(--orange);border:none;border-radius:8px;color:#fff;font-weight:700;cursor:pointer;white-space:nowrap">🔍 Buscar</button>
+        <button onclick="exportarHistorico()" style="padding:8px 16px;background:#1a1a2e;border:1px solid rgba(245,130,31,.3);border-radius:8px;color:var(--orange);font-weight:700;cursor:pointer;white-space:nowrap">📥 CSV</button>
+      </div>
+      <!-- Tabla histórica -->
+      <div id="hist_content">
+        <div class="reg-empty">Selecciona un período y haz clic en Buscar</div>
+      </div>
+      <!-- Totales -->
+      <div id="hist_totales" style="display:none;margin-top:12px;padding:12px;background:rgba(245,130,31,.08);border-radius:8px;display:flex;gap:24px;flex-wrap:wrap">
+        <span style="color:var(--gray);font-size:13px">TOTALES:</span>
+        <span>Registros: <b id="ht_regs" style="color:var(--orange)">0</b></span>
+        <span>Comisiones: <b id="ht_com" style="color:var(--green)">$0</b></span>
+        <span>Descuentos: <b id="ht_desc" style="color:var(--red)">$0</b></span>
+        <span>Nómina Total: <b id="ht_total" style="color:var(--orange)">$0</b></span>
       </div>
     </div>
   </div>
@@ -422,6 +463,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Cargar registros del día
   cargarRegistros();
+
+  // Inicializar fechas del histórico con el mes actual
+  const hoyDate = new Date();
+  const primerDia = hoyDate.getFullYear() + '-' + String(hoyDate.getMonth()+1).padStart(2,'0') + '-01';
+  const hoyStr = hoyDate.getFullYear() + '-' + String(hoyDate.getMonth()+1).padStart(2,'0') + '-' + String(hoyDate.getDate()).padStart(2,'0');
+  document.getElementById('hist_desde').value = primerDia;
+  document.getElementById('hist_hasta').value = hoyStr;
 });
 
 // ── Fecha ──
@@ -901,6 +949,130 @@ async function applyBranding(empresaId) {
     });
   });
 })();
+
+// ── Consulta Histórica ──
+let HIST_EMP_FILTRO = null;
+let HIST_DATA = [];
+
+function filtrarHistEmp(q) {
+  const dd = document.getElementById('hist_emp_dd');
+  if (!q) { dd.style.display='none'; HIST_EMP_FILTRO=null; return; }
+  // Obtener empleados únicos de todos los registros históricos
+  const todos = [...new Set([...REGISTROS, ...HIST_DATA].map(r => r.empleado))]
+    .filter(e => e && e.toLowerCase().includes(q.toLowerCase()));
+  if (!todos.length) { dd.style.display='none'; return; }
+  dd.innerHTML = todos.map(e =>
+    `<div style="padding:8px 12px;cursor:pointer;color:#f0f0f0;border-bottom:1px solid rgba(255,255,255,.05)"
+      onmouseover="this.style.background='rgba(245,130,31,.2)'"
+      onmouseout="this.style.background=''"
+      onclick="selHistEmp('${e}')">${e}</div>`
+  ).join('');
+  dd.style.display = 'block';
+}
+
+function selHistEmp(emp) {
+  HIST_EMP_FILTRO = emp;
+  document.getElementById('hist_emp_search').value = emp;
+  document.getElementById('hist_emp_dd').style.display = 'none';
+}
+
+async function buscarHistorico() {
+  const desde = document.getElementById('hist_desde').value;
+  const hasta = document.getElementById('hist_hasta').value;
+  const el    = document.getElementById('hist_content');
+
+  if (!desde || !hasta) {
+    el.innerHTML = '<div class="reg-empty">Selecciona un período completo</div>';
+    return;
+  }
+
+  el.innerHTML = '<div class="reg-empty">⏳ Cargando...</div>';
+
+  try {
+    const r = await jsonp({
+      action: 'getNominaRegistros',
+      empresa: SESSION.empresa,
+      fecha_ini: desde,
+      fecha_fin: hasta
+    });
+
+    if (!r.success) { el.innerHTML = '<div class="reg-empty">Error al cargar</div>'; return; }
+
+    HIST_DATA = (r.data || []).filter(reg =>
+      !HIST_EMP_FILTRO || reg.empleado === HIST_EMP_FILTRO
+    );
+
+    renderHistorico();
+  } catch(e) {
+    el.innerHTML = '<div class="reg-empty">Error de conexión</div>';
+  }
+}
+
+function renderHistorico() {
+  const el = document.getElementById('hist_content');
+  const tot = document.getElementById('hist_totales');
+
+  if (!HIST_DATA.length) {
+    el.innerHTML = '<div class="reg-empty">Sin registros en el período seleccionado</div>';
+    tot.style.display = 'none';
+    return;
+  }
+
+  const totalNom  = HIST_DATA.reduce((s,r) => s + r.pagoTotal, 0);
+  const totalCom  = HIST_DATA.reduce((s,r) => s + r.montoComision, 0);
+  const totalDesc = HIST_DATA.reduce((s,r) => s + r.descuentos, 0);
+
+  el.innerHTML = `
+    <div style="overflow-x:auto">
+    <table class="reg-table" style="width:100%;min-width:700px">
+      <thead><tr>
+        <th>Fecha</th>
+        <th>Empleado</th>
+        <th>Puesto</th>
+        <th>Horas</th>
+        <th>Ventas</th>
+        <th style="color:var(--green)">Comisión</th>
+        <th style="color:var(--red)">Descuento</th>
+        <th style="color:var(--orange)">Pago Total</th>
+      </tr></thead>
+      <tbody>
+        ${HIST_DATA.map(r => `
+          <tr>
+            <td style="color:var(--gray)">${r.fecha}</td>
+            <td style="font-weight:700">${r.empleado}</td>
+            <td style="color:var(--gray);font-size:12px">${r.puesto}</td>
+            <td>${r.horasTrabajadas || '—'}</td>
+            <td>${r.ventas > 0 ? fmt(r.ventas) : '—'}</td>
+            <td style="color:var(--green)">${r.montoComision > 0 ? fmt(r.montoComision) : '—'}</td>
+            <td style="color:var(--red)">${r.descuentos > 0 ? fmt(r.descuentos) : '—'}</td>
+            <td style="font-weight:800;color:var(--orange)">${fmt(r.pagoTotal)}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>`;
+
+  // Totales
+  tot.style.display = 'flex';
+  document.getElementById('ht_regs').textContent  = HIST_DATA.length;
+  document.getElementById('ht_com').textContent   = fmt(totalCom);
+  document.getElementById('ht_desc').textContent  = fmt(totalDesc);
+  document.getElementById('ht_total').textContent = fmt(totalNom);
+}
+
+function exportarHistorico() {
+  if (!HIST_DATA.length) { alert('No hay datos para exportar'); return; }
+  const cols = ['Fecha','Empleado','Puesto','Horas','Ventas','Comision','Descuento','PagoTotal'];
+  const rows = HIST_DATA.map(r => [
+    r.fecha, r.empleado, r.puesto, r.horasTrabajadas,
+    r.ventas, r.montoComision, r.descuentos, r.pagoTotal
+  ].join(','));
+  const csv = [cols.join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'nomina_' + SESSION.empresa + '_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
 </script>
 </body>
 </html>
