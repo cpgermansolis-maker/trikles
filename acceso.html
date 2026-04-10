@@ -516,10 +516,10 @@ const CONFIG = {
 // ROLES Y PERMISOS
 // ══════════════════════════════════════════════════════════
 const ROLES = {
-  SUPER_ADMIN:    { label:'Super Administrador', redirect:'dashboard_ejecutivo.html', accesos:['dashboard','captura_fin','captura_nom','panel'] },
-  ADMIN:          { label:'Administrador',       redirect:'dashboard_ejecutivo.html',  accesos:['dashboard','captura_fin','captura_nom','panel'] },
-  DIR_GENERAL:    { label:'Director General',    redirect:'dashboard_ejecutivo.html', accesos:['dashboard'] },
-  DIR_FINANZAS:   { label:'Director de Finanzas',redirect:'dashboard_ejecutivo.html', accesos:['dashboard'] },
+  SUPER_ADMIN:    { label:'Super Administrador', redirect:'dashboard.html', accesos:['dashboard','captura_fin','captura_nom','panel'] },
+  ADMIN:          { label:'Administrador',       redirect:'dashboard.html',  accesos:['dashboard','captura_fin','captura_nom','panel'] },
+  DIR_GENERAL:    { label:'Director General',    redirect:'dashboard.html', accesos:['dashboard'] },
+  DIR_FINANZAS:   { label:'Director de Finanzas',redirect:'dashboard.html', accesos:['dashboard'] },
   ANALISTA_FIN:   { label:'Analista Financiero', redirect:'captura_financiera.html',  accesos:['captura_fin'] },
   ANALISTA_NOM:   { label:'Analista de Nómina',  redirect:'nomina.html',      accesos:['captura_nom'] },
   ANALISTA_FULL:  { label:'Analista Completo',   redirect:'captura_financiera.html',  accesos:['captura_fin','captura_nom'] },
@@ -723,7 +723,7 @@ function redirectByRole(rol) {
   if (role && role.redirect) {
     window.location.href = base + role.redirect;
   } else {
-    window.location.href = base + 'dashboard_ejecutivo.html';
+    window.location.href = base + 'dashboard.html';
   }
 }
 
