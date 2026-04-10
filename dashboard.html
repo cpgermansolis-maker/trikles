@@ -806,6 +806,11 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 
 </div><!-- /main -->
 
+<!-- Panel flotante KPI (único, se reutiliza para todos) -->
+<div id="kpiFloatPanel" style="display:none;position:fixed;background:#1a1a2e;border:1px solid rgba(245,130,31,.4);border-radius:12px;padding:16px;width:280px;font-size:13px;line-height:1.7;color:#ccc;z-index:999999;box-shadow:0 12px 40px rgba(0,0,0,.9)">
+  <div id="kpiFloatContent"></div>
+</div>
+
 <div class="toast" id="toast">
   <div class="t-ico"></div>
   <div><div class="t-title"></div><div class="t-msg"></div></div>
@@ -1581,50 +1586,54 @@ function updatePEStats(data){
 
 
 /* ──── KPI Expandibles ──── */
+let _kpiOpenId = null;
+
 function toggleKpiExp(id, e) {
   e.stopPropagation();
   e.preventDefault();
-  const target = document.getElementById(id);
-  const isOpen = target.getAttribute('data-open') === '1';
-  // Cerrar todos
-  document.querySelectorAll('.kpi-exp-panel').forEach(p => {
-    p.setAttribute('data-open', '0');
-    p.style.setProperty('display', 'none', 'important');
-  });
-  // Abrir si estaba cerrado
-  if (!isOpen) {
-    target.setAttribute('data-open', '1');
-    target.style.setProperty('display', 'block', 'important');
-    target.style.position = 'absolute';
-    target.style.zIndex = '99999';
-    target.style.background = '#1a1a2e';
-    target.style.border = '1px solid rgba(245,130,31,.35)';
-    target.style.borderRadius = '10px';
-    target.style.padding = '14px';
-    target.style.width = '260px';
-    target.style.boxShadow = '0 8px 32px rgba(0,0,0,.9)';
-    target.style.top = 'calc(100% + 8px)';
-    target.style.fontSize = '12px';
-    target.style.lineHeight = '1.7';
-    target.style.color = '#ccc';
-    // Detectar si se sale por la derecha y ajustar alineación
-    const rect = target.parentElement.getBoundingClientRect();
-    const panelWidth = 260;
-    if (rect.right + panelWidth > window.innerWidth) {
-      target.style.left = 'auto';
-      target.style.right = '0';
-    } else {
-      target.style.left = '0';
-      target.style.right = 'auto';
-    }
+
+  const panel  = document.getElementById('kpiFloatPanel');
+  const source = document.getElementById(id);
+
+  // Si ya está abierto el mismo, cerrar
+  if (_kpiOpenId === id) {
+    panel.style.display = 'none';
+    _kpiOpenId = null;
+    return;
   }
+
+  // Copiar contenido del panel oculto al flotante
+  document.getElementById('kpiFloatContent').innerHTML = source.innerHTML;
+  _kpiOpenId = id;
+
+  // Posicionar respecto al botón
+  const btn  = e.target;
+  const rect = btn.getBoundingClientRect();
+  const pw   = 280;
+  const ph   = 200; // estimado
+
+  let top  = rect.bottom + window.scrollY + 8;
+  let left = rect.left + window.scrollX;
+
+  // No salirse por la derecha
+  if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+  if (left < 8) left = 8;
+
+  // Si no hay espacio abajo, abrir arriba
+  if (rect.bottom + ph > window.innerHeight) {
+    top = rect.top + window.scrollY - ph - 8;
+  }
+
+  panel.style.top    = top + 'px';
+  panel.style.left   = left + 'px';
+  panel.style.display = 'block';
 }
+
 // Cerrar al hacer clic fuera
 document.addEventListener('click', function() {
-  document.querySelectorAll('.kpi-exp-panel').forEach(p => {
-    p.setAttribute('data-open', '0');
-    p.style.setProperty('display', 'none', 'important');
-  });
+  const panel = document.getElementById('kpiFloatPanel');
+  if (panel) panel.style.display = 'none';
+  _kpiOpenId = null;
 });
 
 /* ──── KPIs NÓMINA ──── */
