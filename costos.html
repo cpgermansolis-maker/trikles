@@ -421,8 +421,14 @@ function renderTabla(){
   // Filtrar por mes/año activo — usar historial
   const delMes = HISTORIAL.filter(c => c.mes === MES_ACTIVO && c.anio === ANIO_ACTIVO);
 
-  // Si hay del mes, mostrar esos; sino mostrar vigentes
-  const mostrar = delMes.length > 0 ? delMes : COSTOS_DATA;
+  // Deduplicar — quedarse solo con el más reciente por rubro
+  const vigentes = {};
+  (delMes.length > 0 ? delMes : COSTOS_DATA).forEach(c => {
+    if (!vigentes[c.rubro] || c.fechaCaptura >= vigentes[c.rubro].fechaCaptura) {
+      vigentes[c.rubro] = c;
+    }
+  });
+  const mostrar = Object.values(vigentes);
 
   if(mostrar.length === 0){
     tbody.innerHTML = '<tr><td colspan="6" class="empty">Sin costos registrados para este período</td></tr>';
