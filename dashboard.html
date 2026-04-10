@@ -221,6 +221,75 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 .kpi-exp-val { color:#fff; font-weight:700; font-size:13px; }
 .kpi { position:relative; }
 
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE MOBILE
+══════════════════════════════════════════════ */
+
+/* Hamburger */
+.hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:6px; z-index:400; }
+.hamburger span { display:block; width:22px; height:2px; background:var(--orange); border-radius:2px; transition:.3s; }
+.hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity:0; }
+.hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
+/* Mobile nav drawer */
+.mobile-nav { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.95); z-index:350; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
+.mobile-nav.open { display:flex; }
+.mobile-nav .btn-nav { font-size:18px; padding:14px 32px; width:240px; justify-content:center; }
+.mobile-nav .btn-pdf { font-size:18px; padding:14px 32px; width:240px; }
+.mobile-nav .btn-out { font-size:18px; padding:14px 32px; width:240px; text-align:center; }
+.mobile-nav-close { position:absolute; top:20px; right:20px; background:none; border:none; color:var(--orange); font-size:28px; cursor:pointer; }
+
+@media(max-width:768px) {
+  /* Topbar */
+  .topbar { padding:10px 16px; }
+  .tb-name { font-size:18px; letter-spacing:2px; }
+  .tb-sub { display:none; }
+  .tb-logo { height:36px; }
+  .hamburger { display:flex; }
+  /* Ocultar nav normal en mobile */
+  .tb-right > .btn-nav,
+  .tb-right > .btn-pdf,
+  .tb-right > .btn-out,
+  .tb-right > .user-pill { display:none !important; }
+
+  /* Módulo tabs */
+  .mod-tabs { padding:10px 12px; }
+  .mtab { padding:7px 14px; font-size:12px; }
+
+  /* Filter bar */
+  .filter-bar { padding:8px 12px; gap:6px; }
+  .filter-btns { gap:4px; }
+  .fb { padding:5px 10px; font-size:11px; }
+  #drD, #drH { width:110px; font-size:11px; }
+  .btn-apply { padding:6px 12px; font-size:11px; }
+  .filter-info { display:none; }
+
+  /* KPI grid — 2 columnas */
+  .kpi-grid { grid-template-columns:repeat(2,1fr); gap:8px; padding:10px 12px; }
+  .kpi { padding:10px 12px; }
+  .kpi-ico { font-size:18px; }
+  .kpi-lbl { font-size:10px; }
+  .kpi-val { font-size:20px; }
+  .kpi-sub { font-size:10px; }
+
+  /* Main */
+  .main { padding:12px; }
+  .g2, .g3, .g12 { grid-template-columns:1fr; }
+
+  /* Gráficas más pequeñas */
+  .cc canvas { max-height:200px; }
+
+  /* Panel expandible KPI — ancho completo */
+  .kpi-exp-panel { width:calc(100vw - 32px) !important; left:0 !important; right:auto !important; }
+}
+
+@media(max-width:420px) {
+  .kpi-grid { grid-template-columns:1fr 1fr; gap:6px; }
+  .tb-name { font-size:15px; }
+}
+
 </style>
 </head>
 <body>
@@ -231,6 +300,9 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='%23666'%3E🏢%3C/text%3E%3C/svg%3E" class="tb-logo" alt="TRIKLES">
     <div><div class="tb-name"></div><div class="tb-sub"></div></div>
   </div>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
   <div class="tb-right">
     <a class="btn-nav" href="captura_financiera.html" id="btnCaptura" style="display:none">📋 Captura</a>
     <a class="btn-nav" href="nomina.html" id="btnNomina" style="display:none">👥 Nómina</a>
@@ -243,6 +315,18 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     <button class="btn-out" onclick="logout()">Salir ✕</button>
   </div>
 </header>
+
+<!-- MOBILE NAV DRAWER -->
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-close" onclick="toggleMenu()">✕</button>
+  <a class="btn-nav" href="captura_financiera.html" id="mNavCaptura" style="display:none">📝 Captura</a>
+  <a class="btn-nav" href="nomina.html" id="mNavNomina" style="display:none">👥 Nómina</a>
+  <a class="btn-nav" href="cxc.html" id="mNavCxC" style="display:none">💳 CxC</a>
+  <a class="btn-nav" href="costos.html" id="mNavCostos" style="display:none">💰 Costos</a>
+  <a class="btn-nav" href="panel_control.html" id="mNavPanel" style="display:none">⚙️ Panel</a>
+  <button class="btn-pdf" onclick="exportPDF();toggleMenu()">📄 PDF</button>
+  <button class="btn-out" onclick="logout()">Salir ✕</button>
+</div>
 
 <!-- ══════ MODULE TABS ══════ -->
 <div class="mod-tabs">
@@ -986,6 +1070,14 @@ function updateAll(){
     updateKPIsNom();
     buildNomina(data);
   }
+}
+
+/* ──── MOBILE MENU ──── */
+function toggleMenu() {
+  const nav = document.getElementById('mobileNav');
+  const btn = document.getElementById('hamburger');
+  nav.classList.toggle('open');
+  btn.classList.toggle('open');
 }
 
 /* ──── KPIs ──── */
@@ -1874,6 +1966,10 @@ document.addEventListener('DOMContentLoaded',()=>{
     const b=document.getElementById('btnPanel');if(b)b.style.display='inline-flex';
     const bc2=document.getElementById('btnCostos');if(bc2)bc2.style.display='inline-flex';
     const bcxc=document.getElementById('btnCxC');if(bcxc)bcxc.style.display='inline-flex';
+    // Mobile nav
+    const mn1=document.getElementById('mNavPanel');if(mn1)mn1.style.display='inline-flex';
+    const mn2=document.getElementById('mNavCostos');if(mn2)mn2.style.display='inline-flex';
+    const mn3=document.getElementById('mNavCxC');if(mn3)mn3.style.display='inline-flex';
   }
   // Aplicar branding y cargar datos desde Sheets
   applyBranding(s.empresa);
@@ -1883,10 +1979,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   // Captura y Corte — ADMIN, SUPER_ADMIN, ANALISTA_FIN, ANALISTA_FULL
   if(['ADMIN','SUPER_ADMIN','ANALISTA_FIN','ANALISTA_FULL'].includes(rol)){
     const bc=document.getElementById('btnCaptura');if(bc)bc.style.display='inline-flex';
+    const mnc=document.getElementById('mNavCaptura');if(mnc)mnc.style.display='inline-flex';
   }
   // Nómina — ADMIN, SUPER_ADMIN, ANALISTA_NOM, ANALISTA_FULL
   if(['ADMIN','SUPER_ADMIN','ANALISTA_NOM','ANALISTA_FULL'].includes(rol)){
     const bn=document.getElementById('btnNomina');if(bn)bn.style.display='inline-flex';
+    const mnn=document.getElementById('mNavNomina');if(mnn)mnn.style.display='inline-flex';
   }
   // Mostrar tab Nómina solo para roles con acceso
   if(['SUPER_ADMIN','ADMIN','ANALISTA_NOM','ANALISTA_FULL','DIR_GENERAL','DIR_FINANZAS'].includes(s.rol)){
