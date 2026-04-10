@@ -210,13 +210,16 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 .bit-empty{padding:32px;text-align:center;color:var(--gray);font-size:13px;}
 
 
-/* ── KPI Tooltip ── */
-.kpi-tt { position:relative; display:inline-block; cursor:help; }
-.kpi-tt-icon { display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border-radius:50%; background:rgba(255,255,255,.1); color:#aaa; font-size:9px; font-weight:700; margin-left:4px; vertical-align:middle; }
-.kpi-tt-box { display:none; position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); background:#1e1e3a; border:1px solid rgba(245,130,31,.3); border-radius:10px; padding:12px 14px; width:240px; font-size:12px; line-height:1.6; color:#ccc; z-index:200; pointer-events:none; }
-.kpi-tt-box::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:6px solid transparent; border-top-color:#1e1e3a; }
-.kpi-tt:hover .kpi-tt-box { display:block; }
-.kpi-tt-title { font-weight:700; color:var(--orange); margin-bottom:6px; font-size:13px; }
+/* ── KPI Expandible ── */
+.kpi-exp-btn { display:inline-flex; align-items:center; justify-content:center; width:15px; height:15px; border-radius:50%; background:rgba(255,255,255,.1); color:#aaa; font-size:9px; font-weight:700; margin-left:4px; vertical-align:middle; cursor:pointer; border:none; padding:0; transition:.2s; }
+.kpi-exp-btn:hover { background:rgba(245,130,31,.3); color:var(--orange); }
+.kpi-exp-panel { display:none; position:absolute; top:calc(100% + 8px); left:0; right:0; background:#1a1a2e; border:1px solid rgba(245,130,31,.35); border-radius:10px; padding:14px; font-size:12px; line-height:1.7; color:#ccc; z-index:300; min-width:240px; }
+.kpi-exp-panel.open { display:block; }
+.kpi-exp-title { font-weight:700; color:var(--orange); margin-bottom:8px; font-size:13px; }
+.kpi-exp-paso { margin-bottom:8px; }
+.kpi-exp-paso b { color:var(--orange); }
+.kpi-exp-val { color:#fff; font-weight:700; font-size:13px; }
+.kpi { position:relative; }
 
 </style>
 </head>
@@ -276,56 +279,109 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 
 <!-- ══════ KPI STRIP ══════ -->
 <div class="kpi-grid" id="kpiGrid">
-  <div class="kpi o" onclick="scrollTo('ch1')">
+  <div class="kpi o">
     <div class="kpi-ico">💰</div>
-    <div class="kpi-lbl">Ventas <span class="kpi-tt"><span class="kpi-tt-icon">?</span><span class="kpi-tt-box"><div class="kpi-tt-title">💰 Ventas Totales</div>Suma de todas las ventas del período: efectivo + tarjeta + crédito.<br><br>Incluye todos los días con captura en el rango seleccionado.</span></span></div>
+    <div class="kpi-lbl">Ventas <button class="kpi-exp-btn" onclick="toggleKpiExp('exp_v',event)">?</button></div>
     <div class="kpi-val o" id="kv1">—</div>
     <div class="kpi-sub" id="ks1">del período</div>
     <div class="kpi-delta" id="kd1"></div>
+    <div class="kpi-exp-panel" id="exp_v">
+      <div class="kpi-exp-title">💰 Ventas Totales</div>
+      <div class="kpi-exp-paso">Efectivo + Tarjeta + Crédito</div>
+      <div class="kpi-exp-val" id="exp_v_val">—</div>
+    </div>
   </div>
-  <div class="kpi g" onclick="scrollTo('ch2')">
+  <div class="kpi g">
     <div class="kpi-ico">📈</div>
-    <div class="kpi-lbl">Ganancia Bruta <span class="kpi-tt"><span class="kpi-tt-icon">?</span><span class="kpi-tt-box"><div class="kpi-tt-title">📈 Ganancia Bruta</div>Ventas − Costo de mercancía.<br><br>El margen indica qué porcentaje de cada $100 vendidos queda como ganancia antes de gastos.</span></span></div>
+    <div class="kpi-lbl">Ganancia Bruta <button class="kpi-exp-btn" onclick="toggleKpiExp('exp_g',event)">?</button></div>
     <div class="kpi-val g" id="kv2">—</div>
     <div class="kpi-sub" id="ks2">margen bruto</div>
     <div class="kpi-delta" id="kd2"></div>
+    <div class="kpi-exp-panel" id="exp_g">
+      <div class="kpi-exp-title">📈 Ganancia Bruta</div>
+      <div class="kpi-exp-paso"><b>Ventas</b> − <b>Costo de mercancía</b> = Ganancia</div>
+      <div class="kpi-exp-val" id="exp_g_val">—</div>
+      <div class="kpi-exp-paso" style="margin-top:6px">Margen = Ganancia ÷ Ventas</div>
+      <div class="kpi-exp-val" id="exp_g_margen">—</div>
+    </div>
   </div>
-  <div class="kpi b" onclick="scrollTo('ch6')">
+  <div class="kpi b">
     <div class="kpi-ico">✨</div>
-    <div class="kpi-lbl">Utilidad Neta <span class="kpi-tt"><span class="kpi-tt-icon">?</span><span class="kpi-tt-box"><div class="kpi-tt-title">✨ Utilidad Neta</div>Ganancia Bruta − Total Gastos − Costos Fijos del período.<br><br>Es lo que realmente ganó el negocio después de cubrir todos sus gastos.</span></span></div>
+    <div class="kpi-lbl">Utilidad Neta <button class="kpi-exp-btn" onclick="toggleKpiExp('exp_u',event)">?</button></div>
     <div class="kpi-val b" id="kv3">—</div>
     <div class="kpi-sub" id="ks3">% margen neto</div>
     <div class="kpi-delta" id="kd3"></div>
+    <div class="kpi-exp-panel" id="exp_u">
+      <div class="kpi-exp-title">✨ Utilidad Neta</div>
+      <div class="kpi-exp-paso"><b>Ganancia Bruta</b> − <b>Gastos Operativos</b> − <b>Costos Fijos</b></div>
+      <div class="kpi-exp-val" id="exp_u_val">—</div>
+      <div class="kpi-exp-paso" style="margin-top:6px">Margen neto = Utilidad ÷ Ventas</div>
+      <div class="kpi-exp-val" id="exp_u_margen">—</div>
+    </div>
   </div>
-  <div class="kpi r" onclick="scrollTo('ch10')">
+  <div class="kpi r">
     <div class="kpi-ico">📤</div>
-    <div class="kpi-lbl">Total Gastos <span class="kpi-tt"><span class="kpi-tt-icon">?</span><span class="kpi-tt-box"><div class="kpi-tt-title">📤 Total Gastos</div>Suma de gastos operativos del período:<br>Sueldos + Gasolina + Luz + Internet + Reserva.<br><br>No incluye costos fijos ni costo de mercancía.</span></span></div>
+    <div class="kpi-lbl">Total Gastos <button class="kpi-exp-btn" onclick="toggleKpiExp('exp_gt',event)">?</button></div>
     <div class="kpi-val r" id="kv4">—</div>
     <div class="kpi-sub" id="ks4">gastos operativos</div>
+    <div class="kpi-exp-panel" id="exp_gt">
+      <div class="kpi-exp-title">📤 Total Gastos Operativos</div>
+      <div class="kpi-exp-paso">Sueldos + Gasolina + Luz + Internet + Reserva</div>
+      <div class="kpi-exp-val" id="exp_gt_val">—</div>
+      <div class="kpi-exp-paso" style="margin-top:4px;color:#888;font-size:11px">No incluye costos fijos ni costo de mercancía</div>
+    </div>
   </div>
-  <div class="kpi" style="border-color:rgba(46,196,182,.3)" onclick="scrollTo('ch1')">
+  <div class="kpi" style="border-color:rgba(46,196,182,.3)">
     <div class="kpi-ico">🏢</div>
-    <div class="kpi-lbl">Costos Fijos <span class="kpi-tt"><span class="kpi-tt-icon">?</span><span class="kpi-tt-box"><div class="kpi-tt-title">🏢 Costos Fijos</div>Total mensual de costos fijos (renta, luz, gas, etc.) dividido entre los días del mes y multiplicado por los días del período.<br><br>Ver detalle en el módulo Costos.</span></span></div>
+    <div class="kpi-lbl">Costos Fijos <button class="kpi-exp-btn" onclick="toggleKpiExp('exp_cf',event)">?</button></div>
     <div class="kpi-val" style="color:var(--green)" id="kv4b">—</div>
     <div class="kpi-sub" id="ks4b">costo fijo del día</div>
+    <div class="kpi-exp-panel" id="exp_cf">
+      <div class="kpi-exp-title">🏢 Costos Fijos</div>
+      <div class="kpi-exp-paso">Costo fijo diario × días del período</div>
+      <div class="kpi-exp-val" id="exp_cf_val">—</div>
+      <div class="kpi-exp-paso" style="margin-top:6px">Ver detalle completo en <a href="costos.html" style="color:var(--orange)">Costos →</a></div>
+    </div>
   </div>
-  <div class="kpi y" onclick="window.location.href='costos.html'">
+  <div class="kpi y">
     <div class="kpi-ico">⚖️</div>
-    <div class="kpi-lbl">P.E. del día <span class="kpi-tt"><span class="kpi-tt-icon">?</span><span class="kpi-tt-box"><div class="kpi-tt-title">⚖️ Punto de Equilibrio</div>Mínimo de ventas necesarias hoy para cubrir todos los gastos.<br><br>Fórmula: (Costos fijos diarios + Nómina) ÷ Margen de ganancia.<br><br>Clic para ver el detalle completo en Costos.</span></span></div>
+    <div class="kpi-lbl">P.E. del día <button class="kpi-exp-btn" onclick="toggleKpiExp('exp_pe',event)">?</button></div>
     <div class="kpi-val y" id="kv5">—</div>
     <div class="kpi-sub" id="ks5">% de logro: —</div>
+    <div class="kpi-exp-panel" id="exp_pe">
+      <div class="kpi-exp-title">⚖️ Punto de Equilibrio</div>
+      <div class="kpi-exp-paso"><b>Paso 1</b> — Margen = Ganancia ÷ Ventas</div>
+      <div class="kpi-exp-val" id="exp_pe_p1">—</div>
+      <div class="kpi-exp-paso"><b>Paso 2</b> — Gastos día = CF diario + Nómina</div>
+      <div class="kpi-exp-val" id="exp_pe_p2">—</div>
+      <div class="kpi-exp-paso"><b>Paso 3</b> — P.E. = Gastos día ÷ Margen</div>
+      <div class="kpi-exp-val" id="exp_pe_p3">—</div>
+      <div class="kpi-exp-paso" style="margin-top:4px"><a href="costos.html" style="color:var(--orange)">Ver detalle en Costos →</a></div>
+    </div>
   </div>
-  <div class="kpi" style="border-color:rgba(67,97,238,.3);cursor:pointer" onclick="window.location.href='cxc.html'">
+  <div class="kpi" style="border-color:rgba(67,97,238,.3)">
     <div class="kpi-ico">💳</div>
-    <div class="kpi-lbl">CxC <span class="kpi-tt"><span class="kpi-tt-icon">?</span><span class="kpi-tt-box"><div class="kpi-tt-title">💳 Cuentas por Cobrar</div>Saldo total pendiente de cobro:<br>Ventas a crédito − Cobros recibidos + Otros conceptos pendientes.<br><br>Clic para ver el detalle completo en el módulo CxC.</span></span></div>
+    <div class="kpi-lbl">CxC <button class="kpi-exp-btn" onclick="toggleKpiExp('exp_cxc',event)">?</button></div>
     <div class="kpi-val" style="color:#748ffc" id="kv_cxc">—</div>
     <div class="kpi-sub" id="ks_cxc">por cobrar</div>
+    <div class="kpi-exp-panel" id="exp_cxc">
+      <div class="kpi-exp-title">💳 Cuentas por Cobrar</div>
+      <div class="kpi-exp-paso">Ventas a crédito − Cobros + Otros conceptos</div>
+      <div class="kpi-exp-val" id="exp_cxc_val">—</div>
+      <div class="kpi-exp-paso" style="margin-top:4px"><a href="cxc.html" style="color:var(--orange)">Ver detalle en CxC →</a></div>
+    </div>
   </div>
   <div class="kpi" style="border-color:rgba(230,57,70,.3)">
     <div class="kpi-ico">📦</div>
-    <div class="kpi-lbl">CxP <span class="kpi-tt"><span class="kpi-tt-icon">?</span><span class="kpi-tt-box"><div class="kpi-tt-title">📦 Cuentas por Pagar</div>Saldo pendiente de pago a proveedores en el período:<br>Compras externas − Pagos realizados.<br><br>Refleja lo que el negocio debe por compras a crédito.</span></span></div>
+    <div class="kpi-lbl">CxP <button class="kpi-exp-btn" onclick="toggleKpiExp('exp_cxp',event)">?</button></div>
     <div class="kpi-val r" id="kv_cxp">—</div>
     <div class="kpi-sub" id="ks_cxp">por pagar</div>
+    <div class="kpi-exp-panel" id="exp_cxp">
+      <div class="kpi-exp-title">📦 Cuentas por Pagar</div>
+      <div class="kpi-exp-paso">Compras externas − Pagos realizados en el período</div>
+      <div class="kpi-exp-val" id="exp_cxp_val">—</div>
+      <div class="kpi-exp-paso" style="margin-top:4px;color:#888;font-size:11px">Solo refleja compras a crédito del rango seleccionado</div>
+    </div>
   </div>
 </div>
 
@@ -964,6 +1020,46 @@ function updateKPIs(data){
   const ks5=document.getElementById('ks5');
   if(ks5){ks5.textContent='% de logro: '+logroKpi+'%';ks5.style.color=logroKpi>=100?'var(--green)':'var(--red)';}
   const ks6=document.getElementById('ks6'); if(ks6) ks6.textContent=data.length+' días analizados';
+
+  // Poblar paneles expandibles
+  const tcosto = tv - tg; // costo de mercancía
+  const fmtE = n => '$' + (n||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const pctE  = (a,b) => b>0 ? (a/b*100).toFixed(1)+'%' : '—';
+
+  const ev = document.getElementById('exp_v_val');
+  if(ev) ev.textContent = fmtE(tv) + ' en ' + data.length + ' día(s)';
+
+  const eg = document.getElementById('exp_g_val');
+  if(eg) eg.textContent = fmtE(tv) + ' − ' + fmtE(tcosto) + ' = ' + fmtE(tg);
+  const egm = document.getElementById('exp_g_margen');
+  if(egm) egm.textContent = fmtE(tg) + ' ÷ ' + fmtE(tv) + ' = ' + pctE(tg,tv);
+
+  const eu = document.getElementById('exp_u_val');
+  if(eu) eu.textContent = fmtE(tg) + ' − ' + fmtE(tgt) + ' − ' + fmtE(cfTotalKpi) + ' = ' + fmtE(tu);
+  const eum = document.getElementById('exp_u_margen');
+  if(eum) eum.textContent = fmtE(tu) + ' ÷ ' + fmtE(tv) + ' = ' + pctE(tu,tv);
+
+  const egt = document.getElementById('exp_gt_val');
+  if(egt) egt.textContent = fmtE(tgt);
+
+  const ecf = document.getElementById('exp_cf_val');
+  if(ecf) ecf.textContent = fmtE(cfDiaKpi) + '/día × ' + data.length + ' días = ' + fmtE(cfTotalKpi);
+
+  // P.E. expandible — usar PE_DATA si está disponible
+  if(PE_DATA) {
+    const nomDia = PE_DATA.nominaDia || 0;
+    const gastosDia = cfDiaKpi + nomDia;
+    const peVal = margenKpi > 0 ? gastosDia / margenKpi : 0;
+    const ep1 = document.getElementById('exp_pe_p1');
+    const ep2 = document.getElementById('exp_pe_p2');
+    const ep3 = document.getElementById('exp_pe_p3');
+    if(ep1) ep1.textContent = fmtE(tg) + ' ÷ ' + fmtE(tv) + ' = ' + pctE(tg,tv);
+    if(ep2) ep2.textContent = fmtE(cfDiaKpi) + ' + ' + fmtE(nomDia) + ' = ' + fmtE(gastosDia);
+    if(ep3) ep3.textContent = fmtE(gastosDia) + ' ÷ ' + pctE(tg,tv) + ' = ' + fmtE(peVal);
+  }
+
+  const ecxp = document.getElementById('exp_cxp_val');
+  if(ecxp) ecxp.textContent = fmtE(Math.max(0,tcxp));
   // Delta vs período anterior
   try{
     if(GF.from&&!isNaN(new Date(GF.from+'T12:00:00').getTime())){
@@ -1391,6 +1487,21 @@ function updatePEStats(data){
 
 /* ─────────────── NÓMINA ─────────────── */
 
+
+/* ──── KPI Expandibles ──── */
+function toggleKpiExp(id, e) {
+  e.stopPropagation();
+  // Cerrar todos los demás
+  document.querySelectorAll('.kpi-exp-panel').forEach(p => {
+    if (p.id !== id) p.classList.remove('open');
+  });
+  document.getElementById(id).classList.toggle('open');
+}
+// Cerrar al hacer clic fuera
+document.addEventListener('click', () => {
+  document.querySelectorAll('.kpi-exp-panel').forEach(p => p.classList.remove('open'));
+});
+
 /* ──── KPIs NÓMINA ──── */
 let NOM_EMP_FILTRO = null; // null = todos
 
@@ -1809,6 +1920,11 @@ async function cargarCxCDashboard(empresa) {
     document.getElementById('ks_cxc').textContent = saldoClientes > 0
       ? 'clientes: ' + fmtK(saldoClientes)
       : 'sin saldo pendiente';
+    // Poblar panel expandible CxC
+    const ecxc = document.getElementById('exp_cxc_val');
+    if(ecxc) ecxc.textContent = 'Clientes: $' + saldoClientes.toLocaleString('es-MX',{minimumFractionDigits:2}) +
+      (saldoOtros > 0 ? ' + Otros: $' + saldoOtros.toLocaleString('es-MX',{minimumFractionDigits:2}) : '') +
+      ' = $' + totalCxC.toLocaleString('es-MX',{minimumFractionDigits:2});
   } catch(e) {
     document.getElementById('kv_cxc').textContent = '—';
   }
