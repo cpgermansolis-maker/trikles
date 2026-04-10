@@ -221,7 +221,17 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="card">
     <div class="card-title">
       <div class="ct-icon blue">⚖️</div>
-      <div class="ct-text">Punto de Equilibrio</div>
+      <div class="ct-text">Punto de Equilibrio
+        <span class="help-icon">?<span class="tt" style="width:280px;white-space:normal;line-height:1.5">
+          El Punto de Equilibrio es el mínimo de ventas que necesitas hacer hoy para cubrir todos tus gastos del día.<br><br>
+          <b>Fórmula:</b><br>
+          1. Margen = Ganancia Bruta ÷ Ventas del mes<br>
+          2. Gastos del día = Costos fijos diarios + Nómina<br>
+          3. P.E. = Gastos del día ÷ Margen<br><br>
+          Si vendes más del P.E. → generas utilidad.<br>
+          Si vendes menos → el negocio pierde ese día.
+        </span></span>
+      </div>
       <div class="ct-right" style="font-size:11px;color:var(--gray);" id="pe_fecha_label">Hoy</div>
     </div>
 
@@ -231,13 +241,32 @@ tbody tr:last-child td{border-bottom:none;}
         <div class="pe-main-val" id="pe_val">—</div>
         <div class="pe-formula" id="pe_formula">Sin datos suficientes para calcular.</div>
         <div class="pe-tags" id="pe_tags"></div>
+        <!-- Explicación expandible -->
+        <div style="margin-top:12px">
+          <button onclick="toggleExplicacion()" style="background:none;border:1px solid rgba(245,130,31,.4);color:var(--orange);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">
+            💡 ¿Cómo se calcula?
+          </button>
+          <div id="pe_explicacion" style="display:none;margin-top:12px;padding:14px;background:rgba(245,130,31,.06);border-radius:8px;font-size:13px;line-height:1.8;color:#ccc">
+            <b style="color:var(--orange)">Paso 1 — Margen de ganancia:</b><br>
+            Ganancia Bruta ÷ Ventas del mes = Margen<br>
+            <span id="exp_paso1" style="color:#fff">— ÷ — = —</span><br><br>
+            <b style="color:var(--orange)">Paso 2 — Gastos del día:</b><br>
+            Costos fijos diarios + Nómina = Total gastos<br>
+            <span id="exp_paso2" style="color:#fff">— + — = —</span><br><br>
+            <b style="color:var(--orange)">Paso 3 — Punto de Equilibrio:</b><br>
+            Total gastos ÷ Margen = P.E.<br>
+            <span id="exp_paso3" style="color:#fff">— ÷ — = —</span><br><br>
+            <span style="color:#aaa;font-size:12px">Si tus ventas del día superan el P.E., el negocio genera utilidad ese día.</span>
+          </div>
+        </div>
       </div>
       <div class="pe-detail">
-        <div class="pe-row"><span class="pe-row-l">Margen mensual</span><span class="pe-row-v green" id="pe_margen">—</span></div>
-        <div class="pe-row"><span class="pe-row-l">Costo fijo diario</span><span class="pe-row-v orange" id="pe_cf_diario">—</span></div>
-        <div class="pe-row"><span class="pe-row-l">Nómina del día</span><span class="pe-row-v blue" id="pe_nomina">—</span></div>
         <div class="pe-row"><span class="pe-row-l">Ventas del mes</span><span class="pe-row-v" id="pe_ventas">—</span></div>
-        <div class="pe-row"><span class="pe-row-l">Días operados</span><span class="pe-row-v" id="pe_dias">—</span></div>
+        <div class="pe-row"><span class="pe-row-l">Ganancia bruta</span><span class="pe-row-v green" id="pe_ganancia">—</span></div>
+        <div class="pe-row"><span class="pe-row-l">Margen mensual</span><span class="pe-row-v green" id="pe_margen">—</span></div>
+        <div class="pe-row" style="border-top:1px solid rgba(255,255,255,.06);margin-top:6px;padding-top:6px"><span class="pe-row-l">Costo fijo diario</span><span class="pe-row-v orange" id="pe_cf_diario">—</span></div>
+        <div class="pe-row"><span class="pe-row-l">Nómina del día</span><span class="pe-row-v blue" id="pe_nomina">—</span></div>
+        <div class="pe-row" style="border-top:1px solid rgba(255,255,255,.06);margin-top:6px;padding-top:6px"><span class="pe-row-l">Días operados</span><span class="pe-row-v" id="pe_dias">—</span></div>
       </div>
     </div>
   </div>
@@ -421,14 +450,8 @@ function renderTabla(){
   // Filtrar por mes/año activo — usar historial
   const delMes = HISTORIAL.filter(c => c.mes === MES_ACTIVO && c.anio === ANIO_ACTIVO);
 
-  // Deduplicar — quedarse solo con el más reciente por rubro
-  const vigentes = {};
-  (delMes.length > 0 ? delMes : COSTOS_DATA).forEach(c => {
-    if (!vigentes[c.rubro] || c.fechaCaptura >= vigentes[c.rubro].fechaCaptura) {
-      vigentes[c.rubro] = c;
-    }
-  });
-  const mostrar = Object.values(vigentes);
+  // Si hay del mes, mostrar esos; sino mostrar vigentes
+  const mostrar = delMes.length > 0 ? delMes : COSTOS_DATA;
 
   if(mostrar.length === 0){
     tbody.innerHTML = '<tr><td colspan="6" class="empty">Sin costos registrados para este período</td></tr>';
@@ -490,7 +513,17 @@ function renderPE(){
   document.getElementById('pe_cf_diario').textContent = fmt(p.costoFijoDiario);
   document.getElementById('pe_nomina').textContent    = fmt(p.nominaDia);
   document.getElementById('pe_ventas').textContent    = fmt(p.sumaVentas);
+  document.getElementById('pe_ganancia').textContent  = fmt(p.sumaGanancia || 0);
   document.getElementById('pe_dias').textContent      = p.diasOperados + ' / ' + p.diasDelMes;
+
+  // Poblar explicación paso a paso
+  const totalGastos = (p.costoFijoDiario || 0) + (p.nominaDia || 0);
+  document.getElementById('exp_paso1').textContent =
+    fmt(p.sumaGanancia||0) + ' ÷ ' + fmt(p.sumaVentas||0) + ' = ' + (p.margenPct||0) + '%';
+  document.getElementById('exp_paso2').textContent =
+    fmt(p.costoFijoDiario||0) + ' + ' + fmt(p.nominaDia||0) + ' = ' + fmt(totalGastos);
+  document.getElementById('exp_paso3').textContent =
+    fmt(totalGastos) + ' ÷ ' + (p.margenPct||0) + '% = ' + fmt(p.puntoEquilibrio||0);
 }
 
 function cambiarMes(){
@@ -561,6 +594,11 @@ async function guardarCostoDirecto(rubro, monto, tipo, mes, anio){
   finally{ btn.disabled = false; }
 }
 
+function toggleExplicacion() {
+  const el = document.getElementById('pe_explicacion');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
 function fmtFecha(f) {
   // f viene como "2026-04-05"
   var p = f.split('-');
@@ -588,20 +626,11 @@ function renderHistorial() {
   if (!anio) return;
 
   // Agrupar por mes — sumar todos los rubros del mes
-  // Deduplicar por rubro/mes — quedarse con el más reciente
-  const vigPorMes = {};
-  HISTORIAL.filter(c => c.anio === anio).forEach(c => {
-    const key = c.mes + '_' + c.rubro;
-    if (!vigPorMes[key] || c.fechaCaptura >= vigPorMes[key].fechaCaptura) {
-      vigPorMes[key] = c;
-    }
-  });
-
   const porMes = {};
-  Object.values(vigPorMes).filter(c => c.monto > 0).forEach(c => {
+  HISTORIAL.filter(c => c.anio === anio && c.monto > 0).forEach(c => {
     if (!porMes[c.mes]) porMes[c.mes] = { total: 0, rubros: {} };
     porMes[c.mes].total += c.monto;
-    porMes[c.mes].rubros[c.rubro] = c.monto;
+    porMes[c.mes].rubros[c.rubro] = (porMes[c.mes].rubros[c.rubro] || 0) + c.monto;
   });
 
   const MESES_C = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
