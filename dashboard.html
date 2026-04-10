@@ -939,7 +939,7 @@ function updateKPIs(data){
   // Utilidad neta correcta = ganancia bruta - gastos operativos - costos fijos
   const tu=tg-tgt-cfTotalKpi;
   animN('kv1',tv,true); animN('kv2',tg,true); animN('kv3',tu,true);
-  animN('kv4',tgt,true); animN('kv6',prom,true);
+  animN('kv4',tgt,true); if(document.getElementById('kv6')) animN('kv6',prom,true);
   // kv5 (P.E.) se actualiza desde cargarPEReal para garantizar valor correcto
   document.getElementById('ks1').textContent=data.length+' días';
   document.getElementById('ks2').textContent='Margen: '+pct(tg,tv);
@@ -954,7 +954,7 @@ function updateKPIs(data){
   const logroKpi=pePeriKpi>0&&tv>0?Math.round(tv/pePeriKpi*100):0;
   const ks5=document.getElementById('ks5');
   if(ks5){ks5.textContent='% de logro: '+logroKpi+'%';ks5.style.color=logroKpi>=100?'var(--green)':'var(--red)';}
-  document.getElementById('ks6').textContent=data.length+' días analizados';
+  const ks6=document.getElementById('ks6'); if(ks6) ks6.textContent=data.length+' días analizados';
   // Delta vs período anterior
   try{
     if(GF.from&&!isNaN(new Date(GF.from+'T12:00:00').getTime())){
