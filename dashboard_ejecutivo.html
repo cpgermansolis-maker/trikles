@@ -313,6 +313,46 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   </div>
 </div>
 
+<!-- ══════ KPI STRIP NÓMINA ══════ -->
+<div class="kpi-grid" id="kpiGridNom" style="display:none">
+  <div class="kpi o">
+    <div class="kpi-ico">💰</div>
+    <div class="kpi-lbl">Total Nómina</div>
+    <div class="kpi-val o" id="nkv1">—</div>
+    <div class="kpi-sub" id="nks1">del período</div>
+  </div>
+  <div class="kpi" style="border-color:rgba(46,196,182,.3)">
+    <div class="kpi-ico">👥</div>
+    <div class="kpi-lbl">Empleados</div>
+    <div class="kpi-val" style="color:var(--green)" id="nkv2">—</div>
+    <div class="kpi-sub" id="nks2">pagados en el período</div>
+  </div>
+  <div class="kpi g">
+    <div class="kpi-ico">🏆</div>
+    <div class="kpi-lbl">Pago más alto</div>
+    <div class="kpi-val g" id="nkv3">—</div>
+    <div class="kpi-sub" id="nks3">empleado destacado</div>
+  </div>
+  <div class="kpi r">
+    <div class="kpi-ico">✂️</div>
+    <div class="kpi-lbl">Total Descuentos</div>
+    <div class="kpi-val r" id="nkv4">—</div>
+    <div class="kpi-sub" id="nks4">del período</div>
+  </div>
+  <div class="kpi y">
+    <div class="kpi-ico">🎯</div>
+    <div class="kpi-lbl">Comisiones</div>
+    <div class="kpi-val y" id="nkv5">—</div>
+    <div class="kpi-sub" id="nks5">del período</div>
+  </div>
+  <div class="kpi p">
+    <div class="kpi-ico">📊</div>
+    <div class="kpi-lbl">Promedio</div>
+    <div class="kpi-val p" id="nkv6">—</div>
+    <div class="kpi-sub" id="nks6">por empleado</div>
+  </div>
+</div>
+
 <!-- ══════ MAIN ══════ -->
 <div class="main">
 
@@ -553,6 +593,17 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 <!-- ────── MÓDULO NÓMINA ────── -->
 <div class="panel" id="panel_nom">
   <div class="shdr">👥 ANÁLISIS DE NÓMINA</div>
+  <!-- Filtro de empleado -->
+  <div style="position:relative;max-width:320px;margin-bottom:16px">
+    <input id="nomEmpSearch" type="text" placeholder="🔍 Filtrar por empleado..."
+      style="width:100%;padding:10px 14px;background:#1a1a2e;border:1px solid rgba(245,130,31,.3);border-radius:8px;color:#f0f0f0;font-size:14px;outline:none"
+      oninput="filtrarNomEmpleado(this.value)" autocomplete="off">
+    <div id="nomEmpDropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border:1px solid rgba(245,130,31,.3);border-radius:8px;z-index:100;max-height:200px;overflow-y:auto"></div>
+  </div>
+  <div id="nomEmpActivo" style="display:none;margin-bottom:12px;padding:8px 14px;background:rgba(245,130,31,.1);border:1px solid rgba(245,130,31,.4);border-radius:8px;color:var(--orange);font-weight:700;display:flex;align-items:center;justify-content:space-between">
+    <span id="nomEmpNombre"></span>
+    <button onclick="limpiarFiltroEmp()" style="background:none;border:none;color:var(--orange);cursor:pointer;font-size:18px">✕</button>
+  </div>
   <div class="g2">
     <div class="cc" id="chn1">
       <div class="cc-hdr">
@@ -777,6 +828,9 @@ function switchModule(mod){
   document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
   document.getElementById('panel_'+mod).classList.add('active');
   document.getElementById('tab_'+mod).classList.add('active');
+  // Mostrar KPI grid correcto según módulo
+  document.getElementById('kpiGrid').style.display    = mod==='fin' ? '' : 'none';
+  document.getElementById('kpiGridNom').style.display = mod==='nom' ? '' : 'none';
   updateAll();
 }
 
@@ -857,6 +911,7 @@ function updateAll(){
     buildCh10(data); buildCh11(data); buildCh12(data);
     updatePEStats(data);
   } else {
+    updateKPIsNom();
     buildNomina(data);
   }
 }
@@ -1314,9 +1369,77 @@ function updatePEStats(data){
 }
 
 /* ─────────────── NÓMINA ─────────────── */
+
+/* ──── KPIs NÓMINA ──── */
+let NOM_EMP_FILTRO = null; // null = todos
+
+function updateKPIsNom() {
+  const nomFiltrada = filterNomData(GF.from, GF.to)
+    .filter(r => !NOM_EMP_FILTRO || r.empleado === NOM_EMP_FILTRO);
+
+  const total    = nomFiltrada.reduce((s,r) => s + r.pagoTotal, 0);
+  const descs    = nomFiltrada.reduce((s,r) => s + r.descuentos, 0);
+  const comis    = nomFiltrada.reduce((s,r) => s + r.montoComision, 0);
+  const empleados = [...new Set(nomFiltrada.map(r => r.empleado))];
+  const numEmp   = empleados.length;
+  const promedio = numEmp > 0 ? total / numEmp : 0;
+
+  // Pago más alto por empleado
+  const porEmp = {};
+  nomFiltrada.forEach(r => { porEmp[r.empleado] = (porEmp[r.empleado]||0) + r.pagoTotal; });
+  const topEmp = Object.entries(porEmp).sort((a,b) => b[1]-a[1])[0];
+
+  animN('nkv1', total, true);
+  document.getElementById('nks1').textContent = numEmp + ' empleado(s)';
+  document.getElementById('nkv2').textContent = numEmp;
+  document.getElementById('nks2').textContent = 'pagados en el período';
+  animN('nkv3', topEmp ? topEmp[1] : 0, true);
+  document.getElementById('nks3').textContent = topEmp ? topEmp[0].split(' ')[0] : '—';
+  animN('nkv4', descs, true);
+  document.getElementById('nks4').textContent = 'del período';
+  animN('nkv5', comis, true);
+  document.getElementById('nks5').textContent = 'del período';
+  animN('nkv6', promedio, true);
+  document.getElementById('nks6').textContent = 'por empleado';
+}
+
+/* ──── FILTRO EMPLEADO NÓMINA ──── */
+function filtrarNomEmpleado(q) {
+  const dd = document.getElementById('nomEmpDropdown');
+  if (!q) { dd.style.display='none'; return; }
+  const empleados = [...new Set(NOM_DATA.map(r => r.empleado))]
+    .filter(e => e.toLowerCase().includes(q.toLowerCase()));
+  if (!empleados.length) { dd.style.display='none'; return; }
+  dd.innerHTML = empleados.map(e =>
+    `<div style="padding:10px 14px;cursor:pointer;color:#f0f0f0;border-bottom:1px solid rgba(255,255,255,.05)"
+      onmouseover="this.style.background='rgba(245,130,31,.2)'"
+      onmouseout="this.style.background=''"
+      onclick="seleccionarNomEmp('${e}')">${e}</div>`
+  ).join('');
+  dd.style.display = 'block';
+}
+
+function seleccionarNomEmp(emp) {
+  NOM_EMP_FILTRO = emp;
+  document.getElementById('nomEmpSearch').value = emp;
+  document.getElementById('nomEmpDropdown').style.display = 'none';
+  const wrap = document.getElementById('nomEmpActivo');
+  wrap.style.display = 'flex';
+  document.getElementById('nomEmpNombre').textContent = '👤 ' + emp;
+  updateAll();
+}
+
+function limpiarFiltroEmp() {
+  NOM_EMP_FILTRO = null;
+  document.getElementById('nomEmpSearch').value = '';
+  document.getElementById('nomEmpActivo').style.display = 'none';
+  updateAll();
+}
+
 function buildNomina(data){
   // Usar datos de Nomina_Captura si están disponibles, sino usar campo su de financiero
-  const nomFiltrada = filterNomData(GF.from, GF.to);
+  const nomFiltrada = filterNomData(GF.from, GF.to)
+    .filter(r => !NOM_EMP_FILTRO || r.empleado === NOM_EMP_FILTRO);
   const usarNomData = nomFiltrada.length > 0;
 
   const opt=JSON.parse(JSON.stringify(BASE_OPT));
@@ -1395,13 +1518,18 @@ function buildNomina(data){
   document.getElementById('bn3').textContent=byM.length+' mes(es)';
 
   // Stats
-  const ts=data.reduce((s,r)=>s+r.su,0);
-  const tgas=data.reduce((s,r)=>s+r.gas,0);
-  const tluz=data.reduce((s,r)=>s+r.luz,0);
-  const tnet=data.reduce((s,r)=>s+r.net,0);
-  const tres=data.reduce((s,r)=>s+r.res,0);
-  const tv=data.reduce((s,r)=>s+r.v,0);
-  const tot=ts+tgas+tluz+tnet+tres;
+  // Usar NOM_DATA para sueldos reales
+  const nomRes = filterNomData(GF.from, GF.to)
+    .filter(r => !NOM_EMP_FILTRO || r.empleado === NOM_EMP_FILTRO);
+  const ts  = nomRes.reduce((s,r) => s + r.pagoTotal, 0);
+  const tcom= nomRes.reduce((s,r) => s + r.montoComision, 0);
+  const tdesc=nomRes.reduce((s,r) => s + r.descuentos, 0);
+  const tgas= data.reduce((s,r)=>s+r.gas,0);
+  const tluz= data.reduce((s,r)=>s+r.luz,0);
+  const tnet= data.reduce((s,r)=>s+r.net,0);
+  const tres= data.reduce((s,r)=>s+r.res,0);
+  const tv  = data.reduce((s,r)=>s+r.v,0);
+  const tot = ts+tgas+tluz+tnet+tres;
   document.getElementById('ns1').textContent=fmtK(ts);
   document.getElementById('ns2').textContent=fmtK(tgas);
   document.getElementById('ns3').textContent=fmtK(tluz);
