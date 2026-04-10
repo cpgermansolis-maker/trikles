@@ -697,7 +697,11 @@ function setRange(preset){
   if(!last||isNaN(new Date(last+'T12:00:00').getTime()))return;
   const lDate=new Date(last+'T12:00:00');
   let f,t=last;
-  if(preset==='hoy'){f=t=last;}
+  if(preset==='hoy'){
+    // "Hoy" debe ser la fecha real de hoy, no el último registro
+    const hoyReal = fmt8(new Date());
+    f=t=hoyReal;
+  }
   else if(preset==='7d'){const d=new Date(lDate);d.setDate(d.getDate()-6);f=fmt8(d);}
   else if(preset==='mes'){f=startOfMonth(last);}
   else if(preset==='3m'){const d=new Date(lDate);d.setMonth(d.getMonth()-3);f=fmt8(d);}
