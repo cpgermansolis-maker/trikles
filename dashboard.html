@@ -213,8 +213,8 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 /* ── KPI Expandible ── */
 .kpi-exp-btn { display:inline-flex; align-items:center; justify-content:center; width:15px; height:15px; border-radius:50%; background:rgba(255,255,255,.1); color:#aaa; font-size:9px; font-weight:700; margin-left:4px; vertical-align:middle; cursor:pointer; border:none; padding:0; transition:.2s; }
 .kpi-exp-btn:hover { background:rgba(245,130,31,.3); color:var(--orange); }
-.kpi-exp-panel { display:none; position:absolute; top:calc(100% + 8px); left:0; right:0; background:#1a1a2e; border:1px solid rgba(245,130,31,.35); border-radius:10px; padding:14px; font-size:12px; line-height:1.7; color:#ccc; z-index:300; min-width:240px; }
-.kpi-exp-panel.open { display:block; }
+.kpi-exp-panel { display:none; position:absolute; top:calc(100% + 8px); left:0; background:#1a1a2e; border:1px solid rgba(245,130,31,.35); border-radius:10px; padding:14px; font-size:12px; line-height:1.7; color:#ccc; z-index:300; width:260px; box-shadow:0 8px 32px rgba(0,0,0,.5); }
+.kpi-exp-panel.open { display:block !important; }
 .kpi-exp-title { font-weight:700; color:var(--orange); margin-bottom:8px; font-size:13px; }
 .kpi-exp-paso { margin-bottom:8px; }
 .kpi-exp-paso b { color:var(--orange); }
