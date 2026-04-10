@@ -698,9 +698,9 @@ function setRange(preset){
   const lDate=new Date(last+'T12:00:00');
   let f,t=last;
   if(preset==='hoy'){
-    // "Hoy" debe ser la fecha real de hoy, no el último registro
-    const hoyReal = fmt8(new Date());
-    f=t=hoyReal;
+    // Usar último registro financiero como referencia (comportamiento original)
+    // pero si hay datos de nómina de hoy, mostrar hoy
+    f=t=last;
   }
   else if(preset==='7d'){const d=new Date(lDate);d.setDate(d.getDate()-6);f=fmt8(d);}
   else if(preset==='mes'){f=startOfMonth(last);}
