@@ -1504,18 +1504,27 @@ function toggleKpiExp(id, e) {
     target.setAttribute('data-open', '1');
     target.style.setProperty('display', 'block', 'important');
     target.style.position = 'absolute';
-    target.style.zIndex = '9999';
+    target.style.zIndex = '99999';
     target.style.background = '#1a1a2e';
     target.style.border = '1px solid rgba(245,130,31,.35)';
     target.style.borderRadius = '10px';
     target.style.padding = '14px';
     target.style.width = '260px';
-    target.style.boxShadow = '0 8px 32px rgba(0,0,0,.7)';
+    target.style.boxShadow = '0 8px 32px rgba(0,0,0,.9)';
     target.style.top = 'calc(100% + 8px)';
-    target.style.left = '0';
     target.style.fontSize = '12px';
     target.style.lineHeight = '1.7';
     target.style.color = '#ccc';
+    // Detectar si se sale por la derecha y ajustar alineación
+    const rect = target.parentElement.getBoundingClientRect();
+    const panelWidth = 260;
+    if (rect.right + panelWidth > window.innerWidth) {
+      target.style.left = 'auto';
+      target.style.right = '0';
+    } else {
+      target.style.left = '0';
+      target.style.right = 'auto';
+    }
   }
 }
 // Cerrar al hacer clic fuera
