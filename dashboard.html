@@ -306,11 +306,17 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     <div class="kpi-val y" id="kv5">—</div>
     <div class="kpi-sub" id="ks5">% de logro: —</div>
   </div>
-  <div class="kpi p" onclick="scrollTo('ch5')">
-    <div class="kpi-ico">📅</div>
-    <div class="kpi-lbl">Prom. Diario</div>
-    <div class="kpi-val p" id="kv6">—</div>
-    <div class="kpi-sub" id="ks6">días analizados</div>
+  <div class="kpi" style="border-color:rgba(67,97,238,.3);cursor:pointer" onclick="window.location.href='cxc.html'">
+    <div class="kpi-ico">💳</div>
+    <div class="kpi-lbl">CxC</div>
+    <div class="kpi-val" style="color:#748ffc" id="kv_cxc">—</div>
+    <div class="kpi-sub" id="ks_cxc">por cobrar</div>
+  </div>
+  <div class="kpi" style="border-color:rgba(230,57,70,.3)">
+    <div class="kpi-ico">📦</div>
+    <div class="kpi-lbl">CxP</div>
+    <div class="kpi-val r" id="kv_cxp">—</div>
+    <div class="kpi-sub" id="ks_cxp">por pagar</div>
   </div>
 </div>
 
@@ -923,6 +929,11 @@ function updateKPIs(data){
   const tg=data.reduce((s,r)=>s+r.g,0);
   const tgt=data.reduce((s,r)=>s+r.gt,0);
   const prom=tv/data.length;
+  // CxP = compras externas - pagos a compras
+  const tcxp = data.reduce((s,r) => s + (r.com||0), 0) - data.reduce((s,r) => s + (r.gca||0), 0);
+  // Actualizar CxP (CxC se carga por separado)
+  animN('kv_cxp', Math.max(0, tcxp), true);
+  document.getElementById('ks_cxp').textContent = 'acumulado en rango';
   const cfDiaKpi=PE_DATA?PE_DATA.costoFijoDiario:0;
   const cfTotalKpi=cfDiaKpi*data.length;
   // Utilidad neta correcta = ganancia bruta - gastos operativos - costos fijos
@@ -1715,6 +1726,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   applyBranding(s.empresa);
   cargarDatosDesdeSheets(s.empresa);
   cargarDatosNomina(s.empresa);
+  cargarCxCDashboard(s.empresa);
   // Captura y Corte — ADMIN, SUPER_ADMIN, ANALISTA_FIN, ANALISTA_FULL
   if(['ADMIN','SUPER_ADMIN','ANALISTA_FIN','ANALISTA_FULL'].includes(rol)){
     const bc=document.getElementById('btnCaptura');if(bc)bc.style.display='inline-flex';
@@ -1746,7 +1758,54 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 // ── Cargar datos desde Sheets ──
-async function cargarDatosDesdeSheets(empresa) {
+async async function cargarCxCDashboard(empresa) {
+  try {
+    const r = await new Promise((resolve, reject) => {
+      const cb = '_cxc' + Date.now();
+      const s = document.createElement('script');
+      let done = false;
+      const fin = (fn, v) => { if(done) return; done=true; delete window[cb]; s.remove(); fn(v); };
+      window[cb] = d => fin(resolve, d);
+      s.onerror = () => fin(reject, new Error('error'));
+      s.src = APPS_SCRIPT_URL + '?action=getCxCClientes&empresa=' + encodeURIComponent(empresa) + '&callback=' + cb;
+      document.head.appendChild(s);
+      setTimeout(() => fin(reject, new Error('timeout')), 10000);
+    });
+    const r2 = await new Promise((resolve, reject) => {
+      const cb = '_cxc2' + Date.now();
+      const s = document.createElement('script');
+      let done = false;
+      const fin = (fn, v) => { if(done) return; done=true; delete window[cb]; s.remove(); fn(v); };
+      window[cb] = d => fin(resolve, d);
+      s.onerror = () => fin(reject, new Error('error'));
+      s.src = APPS_SCRIPT_URL + '?action=getCxC&empresa=' + encodeURIComponent(empresa) + '&callback=' + cb;
+      document.head.appendChild(s);
+      setTimeout(() => fin(reject, new Error('timeout')), 10000);
+    });
+
+    // Saldo CxC clientes
+    const saldoClientes = r && r.success ? (r.saldo || 0) : 0;
+
+    // Saldo otros conceptos
+    let saldoOtros = 0;
+    if (r2 && r2.success && r2.data) {
+      r2.data.forEach(m => {
+        if (m.tipo === 'OTRO_CARGO' || m.tipo === 'SALDO_INICIAL') saldoOtros += m.monto;
+        else if (m.tipo === 'COBRO_OTRO') saldoOtros -= m.monto;
+      });
+    }
+
+    const totalCxC = saldoClientes + Math.max(0, saldoOtros);
+    animN('kv_cxc', totalCxC, true);
+    document.getElementById('ks_cxc').textContent = saldoClientes > 0
+      ? 'clientes: ' + fmtK(saldoClientes)
+      : 'sin saldo pendiente';
+  } catch(e) {
+    document.getElementById('kv_cxc').textContent = '—';
+  }
+}
+
+function cargarDatosDesdeSheets(empresa) {
   ALL.length = 0;
   PE_VAL = 0;
   
