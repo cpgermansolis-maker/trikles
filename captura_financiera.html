@@ -387,6 +387,7 @@ async function precargarNomina(empresa,fecha){
   const hint=document.getElementById('h_sueldo');
   const badge=document.getElementById('badge_nomina');
   try{
+    // Primero buscar nómina del día actual
     const r=await jsonp({action:'getNominaTotal',empresa,fecha});
     if(r&&r.success&&r.total>0){
       field.value=r.total.toFixed(2);
@@ -395,8 +396,18 @@ async function precargarNomina(empresa,fecha){
       if(badge)badge.style.display='inline';
       calcular();
     }else{
-      hint.textContent='Sin nómina registrada — ingresa manualmente';
-      hint.style.color='var(--gray)';
+      // Si no hay nómina hoy, buscar el último total registrado
+      const r2=await jsonp({action:'getNominaTotalUltimo',empresa});
+      if(r2&&r2.success&&r2.total>0){
+        field.value=r2.total.toFixed(2);
+        hint.textContent='↩ Último registro: '+fmt(r2.total)+' ('+r2.fecha+')';
+        hint.style.color='var(--orange)';
+        if(badge)badge.style.display='inline';
+        calcular();
+      }else{
+        hint.textContent='Sin nómina registrada — ingresa manualmente';
+        hint.style.color='var(--gray)';
+      }
     }
   }catch{}
 }
