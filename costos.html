@@ -588,11 +588,20 @@ function renderHistorial() {
   if (!anio) return;
 
   // Agrupar por mes — sumar todos los rubros del mes
+  // Deduplicar por rubro/mes — quedarse con el más reciente
+  const vigPorMes = {};
+  HISTORIAL.filter(c => c.anio === anio).forEach(c => {
+    const key = c.mes + '_' + c.rubro;
+    if (!vigPorMes[key] || c.fechaCaptura >= vigPorMes[key].fechaCaptura) {
+      vigPorMes[key] = c;
+    }
+  });
+
   const porMes = {};
-  HISTORIAL.filter(c => c.anio === anio && c.monto > 0).forEach(c => {
+  Object.values(vigPorMes).filter(c => c.monto > 0).forEach(c => {
     if (!porMes[c.mes]) porMes[c.mes] = { total: 0, rubros: {} };
     porMes[c.mes].total += c.monto;
-    porMes[c.mes].rubros[c.rubro] = (porMes[c.mes].rubros[c.rubro] || 0) + c.monto;
+    porMes[c.mes].rubros[c.rubro] = c.monto;
   });
 
   const MESES_C = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
