@@ -1491,16 +1491,39 @@ function updatePEStats(data){
 /* ──── KPI Expandibles ──── */
 function toggleKpiExp(id, e) {
   e.stopPropagation();
+  e.preventDefault();
   const target = document.getElementById(id);
-  const isOpen = target.style.display === 'block';
+  const isOpen = target.getAttribute('data-open') === '1';
   // Cerrar todos
-  document.querySelectorAll('.kpi-exp-panel').forEach(p => p.style.display = 'none');
-  // Abrir o cerrar el clickeado
-  target.style.display = isOpen ? 'none' : 'block';
+  document.querySelectorAll('.kpi-exp-panel').forEach(p => {
+    p.setAttribute('data-open', '0');
+    p.style.setProperty('display', 'none', 'important');
+  });
+  // Abrir si estaba cerrado
+  if (!isOpen) {
+    target.setAttribute('data-open', '1');
+    target.style.setProperty('display', 'block', 'important');
+    target.style.position = 'absolute';
+    target.style.zIndex = '9999';
+    target.style.background = '#1a1a2e';
+    target.style.border = '1px solid rgba(245,130,31,.35)';
+    target.style.borderRadius = '10px';
+    target.style.padding = '14px';
+    target.style.width = '260px';
+    target.style.boxShadow = '0 8px 32px rgba(0,0,0,.7)';
+    target.style.top = 'calc(100% + 8px)';
+    target.style.left = '0';
+    target.style.fontSize = '12px';
+    target.style.lineHeight = '1.7';
+    target.style.color = '#ccc';
+  }
 }
 // Cerrar al hacer clic fuera
-document.addEventListener('click', () => {
-  document.querySelectorAll('.kpi-exp-panel').forEach(p => p.classList.remove('open'));
+document.addEventListener('click', function() {
+  document.querySelectorAll('.kpi-exp-panel').forEach(p => {
+    p.setAttribute('data-open', '0');
+    p.style.setProperty('display', 'none', 'important');
+  });
 });
 
 /* ──── KPIs NÓMINA ──── */
