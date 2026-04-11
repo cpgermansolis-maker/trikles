@@ -228,7 +228,20 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
     <div class="rbox"><div class="rbox-label">Total gastos operativos</div><div class="rbox-val orange" id="r_totalGastos">$0.00</div></div>
     <div class="rbox"><div class="rbox-label">Utilidad neta</div><div class="rbox-val green" id="r_utilidad">$0.00</div></div>
   </div>
-  <button class="btn-guardar" id="btnGuardar" onclick="guardar()">💾 Guardar Registro del Día</button>
+  <!-- Aviso de registro existente -->
+  <div id="avisoExistente" style="display:none;background:rgba(244,211,94,.1);border:1px solid rgba(244,211,94,.4);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-weight:800;color:#f4d35e;font-size:14px">⚠️ Ya existe un registro para este día</div>
+        <div style="font-size:12px;color:#aaa;margin-top:2px">Los datos han sido cargados. Edítalos y guarda para sobreescribir.</div>
+      </div>
+      <button onclick="activarEdicion()" style="background:rgba(244,211,94,.2);border:1px solid rgba(244,211,94,.5);color:#f4d35e;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px">
+        ✏️ Editar registro
+      </button>
+    </div>
+  </div>
+
+  <button class="btn-guardar" id="btnGuardar" onclick="guardar()" disabled style="opacity:.4;cursor:not-allowed">💾 Guardar Registro del Día</button>
   <button class="btn-limpiar" onclick="limpiar()">🗑 Limpiar campos</button>
 </div>
 
@@ -341,6 +354,12 @@ function changeDate(f){
     // Sin borrador — cargar desde Sheets
     cargarSaldoInicial(s.empresa,f);
     precargarNomina(s.empresa,f);
+    // Resetear estado del botón al cambiar fecha
+    document.getElementById('avisoExistente').style.display = 'none';
+    document.getElementById('btnGuardar').disabled = false;
+    document.getElementById('btnGuardar').style.opacity = '1';
+    document.getElementById('btnGuardar').style.cursor = 'pointer';
+    document.getElementById('btnGuardar').textContent = '💾 Guardar Registro del Día';
     cargarRegistroExistente(s.empresa,f);
   }
 }
@@ -435,9 +454,26 @@ async function cargarRegistroExistente(empresa,fecha){
       calcContado();calcular();
       // Guardar como borrador para que persista al navegar
       draft();
-      toast('info','Registro cargado','Datos del '+fecha+' restaurados.');
+      // Mostrar aviso y bloquear botón guardar
+      document.getElementById('avisoExistente').style.display = 'block';
+      document.getElementById('btnGuardar').disabled = true;
+      document.getElementById('btnGuardar').style.opacity = '.4';
+      document.getElementById('btnGuardar').style.cursor = 'not-allowed';
     }
   }catch(e){console.warn('cargarRegistro:',e);}
+}
+
+// ── Edición de registro existente ──
+function activarEdicion() {
+  document.getElementById('btnGuardar').disabled = false;
+  document.getElementById('btnGuardar').style.opacity = '1';
+  document.getElementById('btnGuardar').style.cursor = 'pointer';
+  document.getElementById('btnGuardar').textContent = '💾 Guardar y Sobreescribir';
+  document.getElementById('avisoExistente').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="color:#f4d35e;font-size:18px">✏️</span>
+      <div style="font-size:13px;color:#f4d35e;font-weight:700">Modo edición activo — al guardar se sobreescribirá el registro existente</div>
+    </div>`;
 }
 
 // ── Validar y Guardar ──
