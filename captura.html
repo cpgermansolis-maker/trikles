@@ -441,7 +441,7 @@ async function cargarRegistroExistente(empresa,fecha){
       const set=(id,val)=>{const el=document.getElementById(id);if(el&&!el.readOnly&&val)el.value=typeof val==='number'?val.toFixed(2):val;};
       set('f_vtaEfvo',d.vtaEfectivo);set('f_vtaTarjeta',d.vtaTarjeta);set('f_vtaCred',d.vtaCredito);
       set('f_prod1',d.producto1);set('f_prod2',d.producto2);set('f_prod3',d.producto3);set('f_otros',d.otros);
-      set('f_ganancia',d.ganancia);set('f_cobros',d.cobros);set('f_anticipo',d.anticipo);
+      set('f_ganancia',d.ganancia);set('f_saldoInicial',d.saldoInicial);set('f_cobros',d.cobros);set('f_anticipo',d.anticipo);
       set('f_compras',d.compras);set('f_comprasExt',d.comprasExt);set('f_gTienda',d.gastoTienda);
       set('f_gCasa',d.gastoCasa);set('f_pagoComp',d.pagoCompras);set('f_retiroUtil',d.retiroUtil);
       set('f_retiroEfvo',d.retiroEfvo);set('f_sueldo',d.sueldo);set('f_sueldoEfvo',d.sueldoEfvo);
