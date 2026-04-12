@@ -1492,10 +1492,32 @@ async function ejecutarVaciar() {
   btn.disabled = true;
 
   try {
-    const r = await apiGet({ action: 'vaciarEmpresa', empresa, usuario: SESSION.usuario });
+    // Usar timeout extendido para vaciarEmpresa (puede tardar más)
+    const r = await new Promise((resolve, reject) => {
+      const cbName = 'trkCb_vaciar_' + Date.now();
+      const script = document.createElement('script');
+      let done = false;
+      window[cbName] = (data) => { if(done)return; done=true; delete window[cbName]; script.remove(); resolve(data); };
+      script.onerror = () => { if(done)return; done=true; delete window[cbName]; script.remove(); reject(new Error('Error')); };
+      script.src = API_BASE + '?' + new URLSearchParams({ action:'vaciarEmpresa', empresa, usuario:SESSION.usuario, callback:cbName });
+      document.head.appendChild(script);
+      setTimeout(() => { if(done)return; done=true; delete window[cbName]; script.remove(); reject(new Error('Timeout')); }, 60000);
+    });
     if (r && r.success) {
       cerrarModalVaciar();
-      alert('✅ Empresa ' + empresa + ' vaciada correctamente. Registros eliminados: Captura: ' + (r.captura||0) + ', Nómina: ' + (r.nomina||0) + ', Costos: ' + (r.costos||0) + ', CxC: ' + (r.cxc||0));
+      const total = (r.captura||0) + (r.nomina||0) + (r.costos||0) + (r.cxc||0);
+      const nombreEmp = document.getElementById('vaciarEmpresaSel').options[document.getElementById('vaciarEmpresaSel').selectedIndex]?.textContent || empresa;
+      if (total === 0) {
+        alert('ℹ️ ' + nombreEmp + ' no tenía datos operativos registrados.\n\nNo se eliminó ningún registro.');
+      } else {
+        alert('✅ ' + nombreEmp + ' vaciada correctamente.\n\n' +
+          '📋 Registros eliminados:\n' +
+          '• Captura Financiera: ' + (r.captura||0) + ' registro(s)\n' +
+          '• Nómina: ' + (r.nomina||0) + ' registro(s)\n' +
+          '• Costos Fijos: ' + (r.costos||0) + ' registro(s)\n' +
+          '• CxC: ' + (r.cxc||0) + ' registro(s)\n\n' +
+          'Total eliminado: ' + total + ' registro(s)');
+      }
     } else {
       alert('Error: ' + (r?.error || 'Error desconocido'));
     }
