@@ -1450,30 +1450,6 @@ function navegar(url) {
   window.location.href = url + sep + 'v=' + new Date().getTime();
 }
 
-</script>
-<script>
-// ── Tooltips táctiles v3 ──
-(function() {
-  function closeAll() {
-    document.querySelectorAll('.help-icon.tt-show').forEach(function(el) {
-      el.classList.remove('tt-show');
-    });
-  }
-  document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.help-icon').forEach(function(icon) {
-      icon.addEventListener('touchend', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var wasOpen = icon.classList.contains('tt-show');
-        closeAll();
-        if (!wasOpen) icon.classList.add('tt-show');
-      });
-    });
-    document.addEventListener('touchend', function(e) {
-      if (!e.target.closest('.help-icon')) closeAll();
-    });
-  });
-
 
 /* ── Zona de Peligro ── */
 function abrirModalVaciar() {
@@ -1526,9 +1502,31 @@ async function ejecutarVaciar() {
   btn.textContent = 'Vaciar empresa';
   btn.disabled = false;
 }
+</script>
+<script>
+// ── Tooltips táctiles v3 ──
+(function() {
+  function closeAll() {
+    document.querySelectorAll('.help-icon.tt-show').forEach(function(el) {
+      el.classList.remove('tt-show');
+    });
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.help-icon').forEach(function(icon) {
+      icon.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var wasOpen = icon.classList.contains('tt-show');
+        closeAll();
+        if (!wasOpen) icon.classList.add('tt-show');
+      });
+    });
+    document.addEventListener('touchend', function(e) {
+      if (!e.target.closest('.help-icon')) closeAll();
+    });
+  });
 
 
-})();
 </script>
 </body>
 </html>
