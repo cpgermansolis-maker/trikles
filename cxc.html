@@ -106,6 +106,26 @@ select.fi option { background:#1a1a2e; }
 .toast.err { border-color:rgba(230,57,70,.5); color:var(--red); }
 
 @media(max-width:600px) { .form-grid { grid-template-columns:1fr; } .kpi-strip { grid-template-columns:1fr 1fr; } }
+
+/* ── Mobile CxC ── */
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;z-index:400;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--orange);border-radius:2px;transition:.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.mobile-nav{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.96);z-index:350;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.mobile-nav.open{display:flex;}
+.mobile-nav .btn-nav{font-size:16px;padding:12px 32px;width:240px;justify-content:center;}
+.mobile-nav .btn-out-m{font-size:16px;padding:12px 32px;width:240px;text-align:center;background:none;border:1px solid rgba(230,57,70,.4);color:#e63946;border-radius:8px;cursor:pointer;font-weight:700;}
+.mobile-nav-close{position:absolute;top:20px;right:20px;background:none;border:none;color:var(--orange);font-size:28px;cursor:pointer;}
+@media(max-width:768px){
+  .hamburger{display:flex;}
+  .topbar-nav{display:none!important;}
+  .user-chip{display:none!important;}
+  .topbar-right > .btn-nav, .topbar-right > button.btn-salir{display:none!important;}
+  .main{padding:12px;}
+  .kpi-strip{grid-template-columns:1fr 1fr;}
+}
 </style>
 </head>
 <body>
@@ -125,10 +145,22 @@ select.fi option { background:#1a1a2e; }
       <a class="btn-nav" href="panel_control.html" id="btnPanel" style="display:none">⚙️ Panel</a>
     </nav>
   </div>
+  <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()"><span></span><span></span><span></span></button>
   <div class="topbar-right">
     <span class="user-chip" id="userChip">—</span>
     <button class="btn-salir" onclick="logout()">Salir ✕</button>
   </div>
+</div>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-close" onclick="toggleMenu()">✕</button>
+  <a class="btn-nav" href="dashboard.html">📊 Dashboard</a>
+  <a class="btn-nav" href="captura.html">📝 Captura</a>
+  <a class="btn-nav" href="nomina.html" id="mNavNomina" style="display:none">👥 Nómina</a>
+  <a class="btn-nav" href="costos.html" id="mNavCostos" style="display:none">💰 Costos</a>
+  <a class="btn-nav" href="panel_control.html" id="mNavPanel" style="display:none">⚙️ Panel</a>
+  <button class="btn-out-m" onclick="logout()">Salir ✕</button>
 </div>
 
 <!-- MAIN -->
@@ -534,9 +566,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (admin.includes(SESSION.rol)) {
     document.getElementById('btnCostos').style.display = 'inline-flex';
     document.getElementById('btnPanel').style.display  = 'inline-flex';
+    const mc=document.getElementById('mNavCostos');if(mc)mc.style.display='inline-flex';
+    const mp=document.getElementById('mNavPanel');if(mp)mp.style.display='inline-flex';
   }
   if (['SUPER_ADMIN','ADMIN','DIR_GENERAL','ANALISTA_NOM','ANALISTA_FULL'].includes(SESSION.rol)) {
     document.getElementById('btnNomina').style.display = 'inline-flex';
+    const mn=document.getElementById('mNavNomina');if(mn)mn.style.display='inline-flex';
   }
 
   await Promise.all([cargarClientes(), cargarOtros()]);
