@@ -20,6 +20,24 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--light);m
 .topbar-right{display:flex;align-items:center;gap:10px;}
 .btn-nav{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--light);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px;}
 .btn-nav:hover{background:rgba(255,255,255,.15);}
+
+/* ── Mobile hamburger ── */
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;z-index:400;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--orange);border-radius:2px;transition:.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.mobile-nav{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.96);z-index:350;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.mobile-nav.open{display:flex;}
+.mobile-nav .btn-nav{font-size:16px;padding:12px 32px;width:240px;justify-content:center;border-color:rgba(245,130,31,.4);}
+.mobile-nav .btn-out{font-size:16px;padding:12px 32px;width:240px;text-align:center;background:none;border:1px solid rgba(230,57,70,.4);color:#e63946;border-radius:8px;cursor:pointer;font-weight:700;}
+.mobile-nav-close{position:absolute;top:20px;right:20px;background:none;border:none;color:var(--orange);font-size:28px;cursor:pointer;}
+@media(max-width:768px){
+  .hamburger{display:flex;}
+  .topbar-nav,.btn-nav:not(.mobile-nav .btn-nav){display:none!important;}
+  .user-chip,.chip,.user-pill{display:none!important;}
+}
+
 .user-pill{display:flex;align-items:center;gap:8px;background:rgba(245,130,31,.08);border:1px solid var(--border);border-radius:30px;padding:6px 14px;font-size:12px;font-weight:700;}
 .u-dot{width:7px;height:7px;background:var(--green);border-radius:50%;}
 .btn-out{background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.3);color:var(--red);padding:7px 12px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;}
@@ -84,6 +102,7 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
     <div><div class="topbar-name" id="topbar-name"></div><div class="topbar-sub">📋 CAPTURA DIARIA</div></div>
   </div>
   <div class="topbar-right">
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()"><span></span><span></span><span></span></button>
     <a class="btn-nav" href="dashboard.html" id="btnDashboard" style="display:none">📊 Dashboard</a>
     <a class="btn-nav" href="nomina.html" id="btnNomina" style="display:none">👥 Nómina</a>
       <a class="btn-nav" href="cxc.html" id="btnCxC" style="display:none">💳 CxC</a>
@@ -93,6 +112,15 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
     <button class="btn-out" onclick="logout()">Salir ✕</button>
   </div>
 </header>
+
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-close" onclick="toggleMenu()">✕</button>
+  <a href="dashboard.html" class="btn-nav" id="mNavDash" style="display:none">📊 Dashboard</a>
+  <a href="nomina.html" class="btn-nav" id="mNavNomina" style="display:none">👥 Nómina</a>
+  <a href="cxc.html" class="btn-nav" id="mNavCxC" style="display:none">💳 CxC</a>
+  <a href="panel_control.html" class="btn-nav" id="mNavPanel" style="display:none">⚙️ Panel</a>
+  <button class="btn-out" onclick="logout()">Salir ✕</button>
+</div>
 
 <div class="date-strip">
   <button class="dnav-btn" onclick="moveDay(-1)">‹</button>
@@ -583,12 +611,20 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(!s){window.location.href='acceso.html';return;}
   document.querySelector('.topbar-name').textContent=(s.empresa||'').replace(/_/g,' ').toUpperCase();
   document.getElementById('userChip').textContent=s.nombre+' — '+(s.rol||'');
-  if(['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS','ANALISTA_FIN','ANALISTA_FULL'].includes(s.rol))
+  if(['SUPER_ADMIN','ADMIN','DIR_GENERAL','DIR_FINANZAS','ANALISTA_FIN','ANALISTA_FULL'].includes(s.rol)){
     document.getElementById('btnDashboard').style.display='inline-flex';
-  if(['SUPER_ADMIN','ADMIN','ANALISTA_NOM','ANALISTA_FULL'].includes(s.rol))
+    const md=document.getElementById('mNavDash');if(md)md.style.display='inline-flex';
+  }
+  if(['SUPER_ADMIN','ADMIN','ANALISTA_NOM','ANALISTA_FULL'].includes(s.rol)){
     document.getElementById('btnNomina').style.display='inline-flex';
-  if(['SUPER_ADMIN','ADMIN'].includes(s.rol))
+    const mn=document.getElementById('mNavNomina');if(mn)mn.style.display='inline-flex';
+  }
+  if(['SUPER_ADMIN','ADMIN'].includes(s.rol)){
     document.getElementById('btnPanel').style.display='inline-flex';
+    const mp=document.getElementById('mNavPanel');if(mp)mp.style.display='inline-flex';
+    const mc=document.getElementById('btnCxC');if(mc)mc.style.display='inline-flex';
+    const mcm=document.getElementById('mNavCxC');if(mcm)mcm.style.display='inline-flex';
+  }
   applyBranding(s.empresa);
   changeDate(today());
 });
