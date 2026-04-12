@@ -2,9 +2,6 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Panel de Nómina</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -43,6 +40,27 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--light);m
 .sal-val .v{font-size:20px;font-weight:800;color:var(--yellow);}
 .sal-val .l{font-size:11px;color:var(--gray);margin-top:2px;}
 .sal-year{background:rgba(244,211,94,.1);border:1px solid rgba(244,211,94,.3);color:var(--yellow);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+
+/* HISTORIAL DE REGISTROS */
+.hist-section{margin-top:36px;}
+.hist-filtros{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+.hist-filtros input,.hist-filtros select{
+  background:var(--dark3);border:1px solid rgba(245,130,31,.3);color:var(--light);
+  padding:9px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;outline:none;}
+.hist-filtros input:focus,.hist-filtros select:focus{border-color:var(--orange);}
+.hist-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid rgba(255,255,255,.06);}
+.hist-table{width:100%;border-collapse:collapse;font-size:13px;}
+.hist-table thead tr{background:var(--dark3);}
+.hist-table th{padding:12px 14px;text-align:left;font-size:11px;letter-spacing:1px;color:var(--gray);text-transform:uppercase;font-weight:700;white-space:nowrap;}
+.hist-table td{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.04);white-space:nowrap;}
+.hist-table tbody tr:hover{background:rgba(245,130,31,.05);}
+.hist-table tfoot tr{background:var(--dark3);font-weight:800;}
+.hist-table tfoot td{padding:12px 14px;color:var(--orange);}
+.hist-empty{text-align:center;padding:40px;color:var(--gray);}
+.emp-search-wrap{position:relative;}
+.emp-dd{display:none;position:absolute;top:100%;left:0;right:0;background:var(--dark3);border:1px solid rgba(245,130,31,.3);border-radius:8px;z-index:100;max-height:180px;overflow-y:auto;}
+.emp-dd-item{padding:10px 14px;cursor:pointer;color:var(--light);border-bottom:1px solid rgba(255,255,255,.05);}
+.emp-dd-item:hover{background:rgba(245,130,31,.15);}
 
 /* GRID DE PUESTOS */
 .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
@@ -171,7 +189,7 @@ input:checked + .slider::before{transform:translateX(18px);}
     </div>
   </div>
   <div class="topbar-right">
-    <a href="panel_control.html" class="btn-back">← Panel de Control</a>
+    <a href="panel.html" class="btn-back">← Panel de Control</a>
     <span class="chip" id="userChip">Cargando...</span>
     <a href="manual.html" class="btn-help" title="Manual de usuario">❓ Ayuda</a>
     <button class="btn-out" onclick="logout()">Salir ✕</button>
@@ -222,6 +240,58 @@ input:checked + .slider::before{transform:translateX(18px);}
     <div>No hay puestos configurados aún</div>
     <div style="font-size:12px;margin-top:8px;">Haz clic en "+ Agregar Puesto" para comenzar</div>
   </div>
+
+<!-- HISTORIAL DE REGISTROS -->
+<div class="hist-section">
+  <div class="section-head">
+    <div class="section-title">📋 Historial de Registros</div>
+    <div id="hist_badge" style="background:rgba(245,130,31,.15);border:1px solid rgba(245,130,31,.4);color:var(--orange);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;">—</div>
+  </div>
+
+  <div class="hist-filtros">
+    <!-- Búsqueda empleado -->
+    <div class="emp-search-wrap">
+      <input type="text" id="hist_emp" placeholder="🔍 Empleado..." oninput="filtrarHistEmp(this.value)" autocomplete="off" style="width:200px">
+      <div class="emp-dd" id="hist_emp_dd"></div>
+    </div>
+    <!-- Fecha inicio -->
+    <input type="date" id="hist_desde" onchange="cargarHistorial()">
+    <!-- Fecha fin -->
+    <input type="date" id="hist_hasta" onchange="cargarHistorial()">
+    <!-- Botón limpiar -->
+    <button onclick="limpiarHistFiltros()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--light);padding:9px 16px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;">✕ Limpiar</button>
+  </div>
+
+  <div class="hist-table-wrap">
+    <table class="hist-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Empleado</th>
+          <th>Puesto</th>
+          <th>Tipo Pago</th>
+          <th>Horas</th>
+          <th>Ventas</th>
+          <th>Comisión</th>
+          <th>Descuentos</th>
+          <th>Pago Total</th>
+        </tr>
+      </thead>
+      <tbody id="hist_body">
+        <tr><td colspan="9" class="hist-empty">Cargando registros...</td></tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="5" style="color:var(--gray)">TOTALES DEL PERÍODO</td>
+          <td id="hist_tv">—</td>
+          <td id="hist_tcom">—</td>
+          <td id="hist_tdesc">—</td>
+          <td id="hist_ttot">—</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
 </main>
 
 <!-- MODAL -->
@@ -314,7 +384,7 @@ function clearSession() {
   sessionStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(SESSION_KEY+'_remember');
 }
-function logout() { if(confirm('¿Cerrar sesión?')) { clearSession(); window.location.href='acceso.html'; } }
+function logout() { if(confirm('¿Cerrar sesión?')) { clearSession(); window.location.href='login.html'; } }
 
 function jsonp(params, timeout=12000) {
   return new Promise((resolve,reject) => {
@@ -342,7 +412,7 @@ let SESSION, CONFIGS = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
   SESSION = getSession();
-  if (!SESSION) { window.location.href = 'acceso.html'; return; }
+  if (!SESSION) { window.location.href = 'login.html'; return; }
 
   // Topbar
   const tn = document.querySelector('.topbar-name');
@@ -372,6 +442,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   } catch(e) { console.warn('Sal mín:', e); }
 
   cargarPuestos();
+  initHistorial();
 });
 
 // ── Cargar puestos ──
@@ -602,13 +673,6 @@ async function applyBranding(empresaId) {
     if (logo && emp.logo) { logo.src = emp.logo; }
   } catch(e) { console.warn('Branding:', e); }
 }
-
-// Navegación con cache-busting automático
-function navegar(url) {
-  var sep = url.indexOf('?') >= 0 ? '&' : '?';
-  window.location.href = url + sep + 'v=' + new Date().getTime();
-}
-
 </script>
 <script>
 // ── Tooltips táctiles v3 ──
@@ -633,6 +697,116 @@ function navegar(url) {
     });
   });
 })();
+
+// ══════════════════════════════════════════════════════════
+// HISTORIAL DE REGISTROS
+// ══════════════════════════════════════════════════════════
+let HIST_DATA = [];
+let HIST_EMP_FILTRO = null;
+
+async function cargarHistorial() {
+  const empresa = SESSION.empresa;
+  const desde   = document.getElementById('hist_desde').value;
+  const hasta   = document.getElementById('hist_hasta').value;
+
+  try {
+    const r = await jsonp({
+      action: 'getNominaRegistros',
+      empresa,
+      fecha_ini: desde,
+      fecha_fin: hasta,
+    });
+    if (r && r.success) {
+      HIST_DATA = r.data || [];
+      renderHistorial();
+    }
+  } catch(e) { console.warn('Historial:', e); }
+}
+
+function filtrarHistEmp(q) {
+  const dd = document.getElementById('hist_emp_dd');
+  if (!q) { dd.style.display='none'; HIST_EMP_FILTRO=null; renderHistorial(); return; }
+  const emps = [...new Set(HIST_DATA.map(r => r.empleado))]
+    .filter(e => e.toLowerCase().includes(q.toLowerCase()));
+  if (!emps.length) { dd.style.display='none'; return; }
+  dd.innerHTML = emps.map(e =>
+    `<div class="emp-dd-item" onclick="selecHistEmp('${e}')">${e}</div>`
+  ).join('');
+  dd.style.display = 'block';
+}
+
+function selecHistEmp(emp) {
+  HIST_EMP_FILTRO = emp;
+  document.getElementById('hist_emp').value = emp;
+  document.getElementById('hist_emp_dd').style.display = 'none';
+  renderHistorial();
+}
+
+function limpiarHistFiltros() {
+  HIST_EMP_FILTRO = null;
+  document.getElementById('hist_emp').value   = '';
+  document.getElementById('hist_desde').value = '';
+  document.getElementById('hist_hasta').value = '';
+  document.getElementById('hist_emp_dd').style.display = 'none';
+  cargarHistorial();
+}
+
+function renderHistorial() {
+  const datos = HIST_EMP_FILTRO
+    ? HIST_DATA.filter(r => r.empleado === HIST_EMP_FILTRO)
+    : HIST_DATA;
+
+  const tbody = document.getElementById('hist_body');
+  const tipos = { DIA:'Día', HORA:'Hora', COMISION:'Comisión', BASE_COMISION:'Base+Com' };
+
+  document.getElementById('hist_badge').textContent = datos.length + ' registros';
+
+  if (!datos.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="hist-empty">Sin registros para el período seleccionado</td></tr>';
+    document.getElementById('hist_tv').textContent    = '$0.00';
+    document.getElementById('hist_tcom').textContent  = '$0.00';
+    document.getElementById('hist_tdesc').textContent = '$0.00';
+    document.getElementById('hist_ttot').textContent  = '$0.00';
+    return;
+  }
+
+  const fmt = n => '$' + (parseFloat(n)||0).toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  tbody.innerHTML = datos.map(r => `
+    <tr>
+      <td>${r.fecha}</td>
+      <td style="font-weight:700">${r.empleado}</td>
+      <td style="color:var(--gray)">${r.puesto||'—'}</td>
+      <td><span style="background:rgba(245,130,31,.15);color:var(--orange);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">${tipos[r.tipoPago]||r.tipoPago||'—'}</span></td>
+      <td style="text-align:right">${r.horasTrabajadas||0}h</td>
+      <td style="text-align:right;color:var(--green)">${fmt(r.ventas)}</td>
+      <td style="text-align:right;color:var(--yellow)">${fmt(r.montoComision)}</td>
+      <td style="text-align:right;color:var(--red)">${fmt(r.descuentos)}</td>
+      <td style="text-align:right;font-weight:800;color:var(--orange)">${fmt(r.pagoTotal)}</td>
+    </tr>
+  `).join('');
+
+  // Totales
+  const tv   = datos.reduce((s,r) => s+(r.ventas||0), 0);
+  const tcom = datos.reduce((s,r) => s+(r.montoComision||0), 0);
+  const tdesc= datos.reduce((s,r) => s+(r.descuentos||0), 0);
+  const ttot = datos.reduce((s,r) => s+(r.pagoTotal||0), 0);
+  document.getElementById('hist_tv').textContent    = fmt(tv);
+  document.getElementById('hist_tcom').textContent  = fmt(tcom);
+  document.getElementById('hist_tdesc').textContent = fmt(tdesc);
+  document.getElementById('hist_ttot').textContent  = fmt(ttot);
+}
+
+// Inicializar historial con el mes actual
+function initHistorial() {
+  const hoy   = new Date();
+  const inicio = hoy.getFullYear() + '-' + String(hoy.getMonth()+1).padStart(2,'0') + '-01';
+  const fin    = hoy.getFullYear() + '-' + String(hoy.getMonth()+1).padStart(2,'0') + '-' + String(hoy.getDate()).padStart(2,'0');
+  document.getElementById('hist_desde').value = inicio;
+  document.getElementById('hist_hasta').value = fin;
+  cargarHistorial();
+}
+
 </script>
 </body>
 </html>
