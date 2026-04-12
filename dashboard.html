@@ -332,6 +332,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 <div class="mod-tabs">
   <button class="mtab active" id="tab_fin" onclick="switchModule('fin')">📊 Financiero</button>
   <button class="mtab" id="tab_nom" onclick="switchModule('nom')" style="display:none">👥 Nómina</button>
+  <button class="mtab" id="tab_flujo" onclick="switchModule('flujo')" style="display:none">💵 Flujo de Efectivo</button>
 </div>
 
 <!-- ══════ FILTER BAR ══════ -->
@@ -804,6 +805,75 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   </div>
 </div><!-- /panel_nom -->
 
+<!-- ────── MÓDULO FLUJO DE EFECTIVO ────── -->
+<div class="panel" id="panel_flujo">
+  <div class="shdr">💵 FLUJO DE EFECTIVO</div>
+
+  <!-- Gráfica 1: Barras -->
+  <div class="g2" style="margin-bottom:20px">
+    <div class="cc">
+      <div class="cc-hdr">
+        <div>
+          <div class="cc-ttl">📊 Resumen de Flujo
+            <span class="help-icon">?<span class="tt" style="width:260px;white-space:normal;line-height:1.5">
+              Comparativa de Ingresos vs Egresos de efectivo.<br><br>
+              <b>Efectivo Esperado</b> = Ingresos − Egresos<br>
+              <b>Efectivo en Caja</b> = Dinero contado físicamente<br>
+              <b>Diferencia</b> = Caja − Esperado (positivo=sobra, negativo=falta)
+            </span></span>
+          </div>
+          <div class="cc-sub">Ingresos · Egresos · Efectivo Esperado · Caja · Diferencia</div>
+        </div>
+        <div class="cc-badge" id="bf_badge">—</div>
+      </div>
+      <div style="height:280px"><canvas id="cv_flujo_barras"></canvas></div>
+    </div>
+    <!-- Totales rápidos -->
+    <div class="cc">
+      <div class="cc-hdr">
+        <div><div class="cc-ttl">📋 Detalle del Período</div></div>
+      </div>
+      <div class="slist">
+        <div class="srow"><span class="srow-l">💰 Saldo Inicial</span><span class="srow-v" style="color:var(--green)" id="bf_saldo">—</span></div>
+        <div class="srow"><span class="srow-l">💵 Ventas Efectivo</span><span class="srow-v" style="color:var(--green)" id="bf_vtaef">—</span></div>
+        <div class="srow"><span class="srow-l">📥 Cobros</span><span class="srow-v" style="color:var(--green)" id="bf_cobros">—</span></div>
+        <div class="srow"><span class="srow-l">🤝 Anticipos</span><span class="srow-v" style="color:var(--green)" id="bf_anticipos">—</span></div>
+        <div class="srow" style="border-top:1px solid rgba(255,255,255,.06);margin-top:6px;padding-top:6px"><span class="srow-l"><b>Total Ingresos</b></span><span class="srow-v" style="color:var(--green);font-weight:800" id="bf_ingresos">—</span></div>
+        <div class="srow" style="margin-top:8px"><span class="srow-l">🛒 Compras</span><span class="srow-v" style="color:var(--red)" id="bf_compras">—</span></div>
+        <div class="srow"><span class="srow-l">🏪 Gasto Tienda</span><span class="srow-v" style="color:var(--red)" id="bf_gtienda">—</span></div>
+        <div class="srow"><span class="srow-l">🏠 Gasto Casa</span><span class="srow-v" style="color:var(--red)" id="bf_gcasa">—</span></div>
+        <div class="srow"><span class="srow-l">💳 Pago Compras</span><span class="srow-v" style="color:var(--red)" id="bf_pagoc">—</span></div>
+        <div class="srow"><span class="srow-l">👥 Nómina Efectivo</span><span class="srow-v" style="color:var(--red)" id="bf_nomina">—</span></div>
+        <div class="srow"><span class="srow-l">💸 Retiro Efectivo</span><span class="srow-v" style="color:var(--red)" id="bf_retiro">—</span></div>
+        <div class="srow"><span class="srow-l">🏦 Reserva</span><span class="srow-v" style="color:var(--red)" id="bf_reserva">—</span></div>
+        <div class="srow" style="border-top:1px solid rgba(255,255,255,.06);margin-top:6px;padding-top:6px"><span class="srow-l"><b>Total Egresos</b></span><span class="srow-v" style="color:var(--red);font-weight:800" id="bf_egresos">—</span></div>
+        <div class="srow" style="border-top:2px solid rgba(245,130,31,.3);margin-top:8px;padding-top:8px"><span class="srow-l"><b>Efvo Esperado</b></span><span class="srow-v" style="color:var(--orange);font-weight:800" id="bf_esperado">—</span></div>
+        <div class="srow"><span class="srow-l"><b>Efvo en Caja</b></span><span class="srow-v" style="color:var(--blue);font-weight:800" id="bf_caja">—</span></div>
+        <div class="srow"><span class="srow-l"><b>Diferencia</b></span><span class="srow-v" style="font-weight:800" id="bf_diferencia">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráficas 2 y 3: Donas -->
+  <div class="g2">
+    <div class="cc">
+      <div class="cc-hdr">
+        <div><div class="cc-ttl">💚 Ingresos de Efectivo</div><div class="cc-sub">Composición del efectivo que entró</div></div>
+        <div class="cc-badge g" id="bf_badge_ing">—</div>
+      </div>
+      <div style="height:240px"><canvas id="cv_flujo_ing"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="cc-hdr">
+        <div><div class="cc-ttl">❤️ Egresos de Efectivo</div><div class="cc-sub">Composición del efectivo que salió</div></div>
+        <div class="cc-badge" style="background:rgba(230,57,70,.15);color:var(--red)" id="bf_badge_egr">—</div>
+      </div>
+      <div style="height:240px"><canvas id="cv_flujo_egr"></canvas></div>
+    </div>
+  </div>
+
+</div><!-- /panel_flujo -->
+
 </div><!-- /main -->
 
 <!-- Panel flotante KPI (único, se reutiliza para todos) -->
@@ -990,8 +1060,8 @@ function switchModule(mod){
   document.getElementById('panel_'+mod).classList.add('active');
   document.getElementById('tab_'+mod).classList.add('active');
   // Mostrar KPI grid correcto según módulo
-  document.getElementById('kpiGrid').style.display    = mod==='fin' ? '' : 'none';
-  document.getElementById('kpiGridNom').style.display = mod==='nom' ? '' : 'none';
+  document.getElementById('kpiGrid').style.display    = mod==='fin'   ? '' : 'none';
+  document.getElementById('kpiGridNom').style.display = mod==='nom'   ? '' : 'none';
   updateAll();
 }
 
@@ -1071,9 +1141,11 @@ function updateAll(){
     buildCh7(data); buildCh8(data); buildCh9(data);
     buildCh10(data); buildCh11(data); buildCh12(data);
     updatePEStats(data);
-  } else {
+  } else if (ACTIVE_MOD === 'nom') {
     updateKPIsNom();
     buildNomina(data);
+  } else if (ACTIVE_MOD === 'flujo') {
+    buildFlujo(data);
   }
 }
 
@@ -1702,6 +1774,144 @@ function limpiarFiltroEmp() {
   updateAll();
 }
 
+
+/* ═══════════════════════════════════════════════════════
+   MÓDULO FLUJO DE EFECTIVO
+═══════════════════════════════════════════════════════ */
+let chartFlujoBar = null, chartFlujoIng = null, chartFlujoEgr = null;
+
+function buildFlujo(data) {
+  if (!data || !data.length) return;
+
+  const fmtE = n => '$' + (n||0).toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  // Acumular totales del período
+  let tSaldo=0, tVtaEf=0, tCobros=0, tAnt=0;
+  let tCompras=0, tCompExt=0, tGTienda=0, tGCasa=0, tPagoC=0, tRetiroEf=0, tNomEf=0, tReserva=0;
+  let tCaja=0;
+
+  data.forEach(r => {
+    tSaldo    += r.si  || 0;
+    tVtaEf    += r.vef || 0;
+    tCobros   += r.cob || 0;
+    tAnt      += r.ant || 0;
+    tCompras  += (r.com || 0) + (r.comx || 0);
+    tGTienda  += r.gti || 0;
+    tGCasa    += r.gca || 0;
+    tPagoC    += r.pac || 0;
+    tRetiroEf += r.ref || 0;
+    tNomEf    += r.sef || 0;
+    tReserva  += r.res || 0;
+    tCaja     += r.efc || 0;
+  });
+
+  const tIngresos = tSaldo + tVtaEf + tCobros + tAnt;
+  const tEgresos  = tCompras + tGTienda + tGCasa + tPagoC + tRetiroEf + tNomEf + tReserva;
+  const tEsperado = tIngresos - tEgresos;
+  const tDif      = tCaja - tEsperado;
+
+  // Actualizar detalle
+  document.getElementById('bf_saldo').textContent    = fmtE(tSaldo);
+  document.getElementById('bf_vtaef').textContent    = fmtE(tVtaEf);
+  document.getElementById('bf_cobros').textContent   = fmtE(tCobros);
+  document.getElementById('bf_anticipos').textContent= fmtE(tAnt);
+  document.getElementById('bf_ingresos').textContent = fmtE(tIngresos);
+  document.getElementById('bf_compras').textContent  = fmtE(tCompras);
+  document.getElementById('bf_gtienda').textContent  = fmtE(tGTienda);
+  document.getElementById('bf_gcasa').textContent    = fmtE(tGCasa);
+  document.getElementById('bf_pagoc').textContent    = fmtE(tPagoC);
+  document.getElementById('bf_nomina').textContent   = fmtE(tNomEf);
+  document.getElementById('bf_retiro').textContent   = fmtE(tRetiroEf);
+  document.getElementById('bf_reserva').textContent  = fmtE(tReserva);
+  document.getElementById('bf_egresos').textContent  = fmtE(tEgresos);
+  document.getElementById('bf_esperado').textContent = fmtE(tEsperado);
+  document.getElementById('bf_caja').textContent     = fmtE(tCaja);
+  const difEl = document.getElementById('bf_diferencia');
+  difEl.textContent = fmtE(tDif);
+  difEl.style.color = tDif >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('bf_badge').textContent = tDif >= 0 ? '✅ Cuadre OK' : '⚠️ Diferencia';
+  document.getElementById('bf_badge').style.background = tDif >= 0 ? 'rgba(46,196,182,.2)' : 'rgba(230,57,70,.2)';
+  document.getElementById('bf_badge').style.color = tDif >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('bf_badge_ing').textContent = fmtE(tIngresos);
+  document.getElementById('bf_badge_egr').textContent = fmtE(tEgresos);
+
+  const opt = JSON.parse(JSON.stringify(BASE_OPT));
+
+  // Gráfica 1: Barras
+  const ctxBar = document.getElementById('cv_flujo_barras').getContext('2d');
+  if (chartFlujoBar) chartFlujoBar.destroy();
+  chartFlujoBar = new Chart(ctxBar, {
+    type: 'bar',
+    data: {
+      labels: ['Ingresos', 'Egresos', 'Efvo Esperado', 'Efvo en Caja', 'Diferencia'],
+      datasets: [{
+        data: [tIngresos, tEgresos, tEsperado, tCaja, tDif],
+        backgroundColor: [
+          'rgba(46,196,182,.7)',
+          'rgba(230,57,70,.7)',
+          'rgba(245,130,31,.7)',
+          'rgba(67,97,238,.7)',
+          tDif >= 0 ? 'rgba(46,196,182,.7)' : 'rgba(230,57,70,.7)'
+        ],
+        borderColor: ['#2ec4b4','#e63946','#F5821F','#4361ee', tDif >= 0 ? '#2ec4b4' : '#e63946'],
+        borderWidth: 1, borderRadius: 6, borderSkipped: false
+      }]
+    },
+    options: {
+      ...opt,
+      plugins: {
+        ...opt.plugins,
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + fmtE(ctx.parsed.y) } }
+      }
+    }
+  });
+
+  // Colores donas
+  const coloresIng = ['rgba(46,196,182,.8)','rgba(245,130,31,.8)','rgba(67,97,238,.8)','rgba(244,211,94,.8)'];
+  const coloresEgr = ['rgba(230,57,70,.8)','rgba(245,130,31,.8)','rgba(155,89,182,.8)','rgba(52,152,219,.8)','rgba(46,196,182,.8)','rgba(244,211,94,.8)','rgba(231,76,60,.8)'];
+
+  // Gráfica 2: Dona ingresos
+  const ingLabels = ['Saldo Inicial','Vta Efectivo','Cobros','Anticipos'];
+  const ingData   = [tSaldo, tVtaEf, tCobros, tAnt];
+  const ctxIng = document.getElementById('cv_flujo_ing').getContext('2d');
+  if (chartFlujoIng) chartFlujoIng.destroy();
+  chartFlujoIng = new Chart(ctxIng, {
+    type: 'doughnut',
+    data: {
+      labels: ingLabels,
+      datasets: [{ data: ingData, backgroundColor: coloresIng, borderWidth: 2, borderColor: '#0d0d1a' }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '60%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#aaa', font: { size: 11 }, boxWidth: 12, padding: 10 } },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + fmtE(ctx.parsed) } }
+      }
+    }
+  });
+
+  // Gráfica 3: Dona egresos
+  const egrLabels = ['Compras','Gasto Tienda','Gasto Casa','Pago Compras','Nómina Efvo','Retiro Efvo','Reserva'];
+  const egrData   = [tCompras, tGTienda, tGCasa, tPagoC, tNomEf, tRetiroEf, tReserva];
+  const ctxEgr = document.getElementById('cv_flujo_egr').getContext('2d');
+  if (chartFlujoEgr) chartFlujoEgr.destroy();
+  chartFlujoEgr = new Chart(ctxEgr, {
+    type: 'doughnut',
+    data: {
+      labels: egrLabels,
+      datasets: [{ data: egrData, backgroundColor: coloresEgr, borderWidth: 2, borderColor: '#0d0d1a' }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '60%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#aaa', font: { size: 11 }, boxWidth: 12, padding: 10 } },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + fmtE(ctx.parsed) } }
+      }
+    }
+  });
+}
+
 function buildNomina(data){
   // Usar datos de Nomina_Captura si están disponibles, sino usar campo su de financiero
   const nomFiltrada = filterNomData(GF.from, GF.to)
@@ -1998,6 +2208,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   // Mostrar tab Nómina solo para roles con acceso
   if(['SUPER_ADMIN','ADMIN','ANALISTA_NOM','ANALISTA_FULL','DIR_GENERAL','DIR_FINANZAS'].includes(s.rol)){
     const tn=document.getElementById('tab_nom');if(tn)tn.style.display='inline-block';
+    const tf=document.getElementById('tab_flujo');if(tf)tf.style.display='inline-block';
   }
   // SUPER_ADMIN: mostrar selector de empresas
   if(s.rol==='SUPER_ADMIN'){
@@ -2110,13 +2321,19 @@ async function cargarDatosDesdeSheets(empresa) {
           net: 0,
           res: parseFloat(r.res) || 0,
           ef:  parseFloat(r.ef)  || 0,
+          si:  parseFloat(r.si)  || 0,
           cob: parseFloat(r.cob) || 0,
+          ant: parseFloat(r.ant) || 0,
           vcr: parseFloat(r.vcr) || 0,
           vef: parseFloat(r.vef) || 0,
           vtar:parseFloat(r.vtar)|| 0,
           com: parseFloat(r.com) || 0,
+          comx:parseFloat(r.comx)|| 0,
           gti: parseFloat(r.gti) || 0,
           gca: parseFloat(r.gca) || 0,
+          pac: parseFloat(r.pac) || 0,
+          ref: parseFloat(r.ref) || 0,
+          efc: parseFloat(r.efc) || 0,
           ret: parseFloat(r.ret) || 0,
           p1:  parseFloat(r.p1)  || 0,
           p2:  parseFloat(r.p2)  || 0,
