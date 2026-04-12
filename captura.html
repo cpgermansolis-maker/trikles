@@ -434,9 +434,18 @@ async function precargarNomina(empresa,fecha){
 
 // ── Cargar registro existente ──
 async function cargarRegistroExistente(empresa,fecha){
+  // Mostrar indicador de carga
+  const aviso = document.getElementById('avisoExistente');
+  aviso.style.display = 'block';
+  aviso.innerHTML = `<div style="display:flex;align-items:center;gap:10px;color:#aaa;font-size:13px">
+    <span style="animation:spin 1s linear infinite;display:inline-block">⏳</span> Verificando si existe registro para esta fecha...
+  </div>`;
+  document.getElementById('btnGuardar').disabled = true;
+  document.getElementById('btnGuardar').style.opacity = '.4';
   try{
     const r=await jsonp({action:'getCaptura',empresa,fecha});
     if(r&&r.success&&r.data){
+      // Hay registro existente
       const d=r.data;
       const set=(id,val)=>{const el=document.getElementById(id);if(el&&!el.readOnly&&val)el.value=typeof val==='number'?val.toFixed(2):val;};
       set('f_vtaEfvo',d.vtaEfectivo);set('f_vtaTarjeta',d.vtaTarjeta);set('f_vtaCred',d.vtaCredito);
@@ -455,12 +464,33 @@ async function cargarRegistroExistente(empresa,fecha){
       // Guardar como borrador para que persista al navegar
       draft();
       // Mostrar aviso y bloquear botón guardar
-      document.getElementById('avisoExistente').style.display = 'block';
+      aviso.style.display = 'block';
+      aviso.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-weight:800;color:#f4d35e;font-size:14px">⚠️ Ya existe un registro para este día</div>
+          <div style="font-size:12px;color:#aaa;margin-top:2px">Los datos han sido cargados. Edítalos y guarda para sobreescribir.</div>
+        </div>
+        <button onclick="activarEdicion()" style="background:rgba(244,211,94,.2);border:1px solid rgba(244,211,94,.5);color:#f4d35e;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px">
+          ✏️ Editar registro
+        </button>
+      </div>`;
       document.getElementById('btnGuardar').disabled = true;
       document.getElementById('btnGuardar').style.opacity = '.4';
       document.getElementById('btnGuardar').style.cursor = 'not-allowed';
+    } else {
+      // No hay registro — ocultar aviso y habilitar botón
+      aviso.style.display = 'none';
+      document.getElementById('btnGuardar').disabled = false;
+      document.getElementById('btnGuardar').style.opacity = '1';
+      document.getElementById('btnGuardar').style.cursor = 'pointer';
     }
-  }catch(e){console.warn('cargarRegistro:',e);}
+  }catch(e){
+    console.warn('cargarRegistro:',e);
+    aviso.style.display = 'none';
+    document.getElementById('btnGuardar').disabled = false;
+    document.getElementById('btnGuardar').style.opacity = '1';
+    document.getElementById('btnGuardar').style.cursor = 'pointer';
+  }
 }
 
 // ── Edición de registro existente ──
