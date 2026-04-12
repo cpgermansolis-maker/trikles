@@ -95,6 +95,26 @@ select option{background:#1a1a1a;}
 .btn-secondary:hover{border-color:var(--orange);color:var(--orange);}
 .btn-danger{background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);color:var(--red);}
 .btn-danger:hover{background:rgba(231,76,60,.25);}
+/* Zona de peligro */
+.danger-zone{border:2px solid rgba(231,76,60,.4);border-radius:14px;padding:24px;background:rgba(231,76,60,.04);position:relative;margin-top:8px;}
+.danger-zone::before{content:'⚠️ ZONA DE PELIGRO';position:absolute;top:-12px;left:20px;background:#111;padding:0 10px;font-size:11px;font-weight:900;color:var(--red);letter-spacing:2px;}
+.danger-item{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid rgba(231,76,60,.15);flex-wrap:wrap;}
+.danger-item:last-child{border-bottom:none;padding-bottom:0;}
+.danger-desc{flex:1;}
+.danger-title{font-weight:800;font-size:14px;color:var(--light);margin-bottom:4px;}
+.danger-sub{font-size:12px;color:var(--gray);line-height:1.5;}
+.btn-destroy{background:rgba(231,76,60,.2);border:1px solid rgba(231,76,60,.5);color:var(--red);padding:10px 20px;border-radius:8px;font-weight:800;cursor:pointer;font-size:13px;white-space:nowrap;transition:.2s;}
+.btn-destroy:hover{background:rgba(231,76,60,.35);}
+/* Modal confirmación */
+.modal-danger{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;align-items:center;justify-content:center;}
+.modal-danger.open{display:flex;}
+.modal-danger-box{background:#181818;border:2px solid rgba(231,76,60,.5);border-radius:16px;padding:32px;max-width:440px;width:90%;}
+.modal-danger-icon{font-size:48px;text-align:center;margin-bottom:16px;}
+.modal-danger-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--red);letter-spacing:2px;text-align:center;margin-bottom:8px;}
+.modal-danger-desc{font-size:13px;color:#aaa;text-align:center;line-height:1.6;margin-bottom:20px;}
+.modal-danger-input{width:100%;background:#111;border:1px solid rgba(231,76,60,.4);border-radius:8px;padding:10px 14px;color:#fff;font-size:14px;margin-bottom:16px;outline:none;}
+.modal-danger-input:focus{border-color:var(--red);}
+.modal-danger-btns{display:flex;gap:10px;}
 .btn-success{background:rgba(46,204,113,.15);border:1px solid rgba(46,204,113,.3);color:var(--green);}
 .btn-success:hover{background:rgba(46,204,113,.25);}
 .btn-sm{padding:6px 12px;font-size:11px;}
@@ -293,6 +313,9 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
     <div class="sb-item" id="sb_accesos" onclick="showPanel('accesos')">
       <span class="sb-icon">📋</span> Log de Accesos
     </div>
+    <div class="sb-item" id="sb_peligro" onclick="showPanel('peligro')" style="color:var(--red)">
+      <span class="sb-icon">⚠️</span> Zona de Peligro
+    </div>
   </nav>
 
   <!-- CONTENT -->
@@ -476,8 +499,48 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
       </div>
     </div>
 
+    <!-- ZONA DE PELIGRO -->
+    <div class="panel" id="panel_peligro">
+      <div class="pg-hdr">
+        <div class="pg-ttl" style="color:var(--red)">⚠️ Zona de Peligro</div>
+        <div class="pg-sub">Acciones irreversibles — úsalas con extremo cuidado</div>
+      </div>
+      <div class="danger-zone">
+        <div class="danger-item">
+          <div class="danger-desc">
+            <div class="danger-title">🗑 Vaciar datos de una empresa</div>
+            <div class="danger-sub">Elimina permanentemente todos los registros financieros, nómina, costos fijos y CxC de la empresa seleccionada. Los usuarios y la configuración de la empresa se conservan.</div>
+          </div>
+          <button class="btn-destroy" onclick="abrirModalVaciar()">Vaciar empresa</button>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /content -->
 </div><!-- /layout -->
+
+<!-- Modal confirmación vaciar empresa -->
+<div class="modal-danger" id="modalVaciar">
+  <div class="modal-danger-box">
+    <div class="modal-danger-icon">🗑</div>
+    <div class="modal-danger-title">¿Vaciar empresa?</div>
+    <div class="modal-danger-desc">Esta acción eliminará <b style="color:var(--red)">todos los datos operativos</b> de la empresa seleccionada. Esta acción <b>no se puede deshacer</b>.</div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;color:#aaa;display:block;margin-bottom:6px">Selecciona la empresa a vaciar:</label>
+      <select id="vaciarEmpresaSel" class="modal-danger-input" style="cursor:pointer">
+        <option value="">— Selecciona empresa —</option>
+      </select>
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:12px;color:#aaa;display:block;margin-bottom:6px">Escribe el nombre de la empresa para confirmar:</label>
+      <input type="text" id="vaciarConfirm" class="modal-danger-input" placeholder="Nombre de la empresa...">
+    </div>
+    <div class="modal-danger-btns">
+      <button onclick="cerrarModalVaciar()" style="flex:1;padding:10px;background:#222;border:1px solid #444;color:#aaa;border-radius:8px;cursor:pointer;font-weight:700">Cancelar</button>
+      <button onclick="ejecutarVaciar()" id="btnVaciarConfirm" style="flex:1;padding:10px;background:rgba(231,76,60,.3);border:1px solid var(--red);color:var(--red);border-radius:8px;cursor:pointer;font-weight:800">Vaciar empresa</button>
+    </div>
+  </div>
+</div>
 
 <!-- ══ MODAL EMPRESA ══ -->
 <div class="modal-bg" id="modal_empresa">
@@ -783,6 +846,7 @@ async function loadEmpresas(){
       const _sess = JSON.parse(sessionStorage.getItem('trikles_session')||localStorage.getItem('trikles_session_remember')||'null');
       const _esFiltrado = _sess && _sess.rol !== 'SUPER_ADMIN';
       const _miEmpresa = _sess ? (_sess.empresa||'').toLowerCase() : '';
+      window.EMPRESAS_LIST = (r.data||[]);
       EMPRESAS=(r.data||[]).map(e=>{
         const get=(obj,...keys)=>{
           for(const k of keys){
@@ -1410,6 +1474,65 @@ function navegar(url) {
     });
   });
 })();
+
+/* ── Zona de Peligro ── */
+function abrirModalVaciar() {
+  // Poblar selector con empresas disponibles
+  const sel = document.getElementById('vaciarEmpresaSel');
+  sel.innerHTML = '<option value="">— Selecciona empresa —</option>';
+  if (window.EMPRESAS_LIST) {
+    window.EMPRESAS_LIST.forEach(e => {
+      const opt = document.createElement('option');
+      opt.value = e.empresa;
+      opt.textContent = e.nombre || e.empresa;
+      sel.appendChild(opt);
+    });
+  }
+  document.getElementById('vaciarConfirm').value = '';
+  document.getElementById('modalVaciar').classList.add('open');
+}
+
+function cerrarModalVaciar() {
+  document.getElementById('modalVaciar').classList.remove('open');
+  document.getElementById('vaciarConfirm').value = '';
+}
+
+async function ejecutarVaciar() {
+  const empresa = document.getElementById('vaciarEmpresaSel').value;
+  const confirmacion = document.getElementById('vaciarConfirm').value.trim();
+
+  if (!empresa) { alert('Selecciona una empresa.'); return; }
+  if (confirmacion.toLowerCase() !== empresa.toLowerCase()) {
+    alert('El nombre no coincide. Escribe exactamente: ' + empresa);
+    return;
+  }
+
+  const btn = document.getElementById('btnVaciarConfirm');
+  btn.textContent = '⏳ Vaciando...';
+  btn.disabled = true;
+
+  try {
+    const r = await api({ action: 'vaciarEmpresa', empresa, usuario: SESSION.usuario });
+    if (r && r.success) {
+      cerrarModalVaciar();
+      alert('✅ Empresa ' + empresa + ' vaciada correctamente.
+
+Registros eliminados:
+• Captura Financiera: ' + (r.captura||0) + '
+• Nómina: ' + (r.nomina||0) + '
+• Costos Fijos: ' + (r.costos||0) + '
+• CxC: ' + (r.cxc||0));
+    } else {
+      alert('Error: ' + (r?.error || 'Error desconocido'));
+    }
+  } catch(e) {
+    alert('Error de conexión');
+  }
+
+  btn.textContent = 'Vaciar empresa';
+  btn.disabled = false;
+}
+
 </script>
 </body>
 </html>
