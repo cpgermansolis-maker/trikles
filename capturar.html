@@ -541,7 +541,10 @@ async function cargarRegistroExistente(empresa,fecha){
       if(d.terminado&&d.terminado!=='NADA')document.getElementById('f_terminado').value=d.terminado;
       if(d.faltante&&d.faltante!=='NINGUNO')document.getElementById('f_faltante').value=d.faltante;
       if(d.notas)document.getElementById('f_notas').value=d.notas;
-      DENOMS.forEach(dn=>{if(d[dn.id])document.getElementById('d_'+dn.id).value=d[dn.id];});
+      DENOMS.forEach(dn=>{
+        const el=document.getElementById('d_'+dn.id);
+        if(el && d[dn.id] !== undefined) el.value = d[dn.id];
+      });
       calcContado();calcular();
       // Guardar como borrador para que persista al navegar
       draft();
