@@ -1474,6 +1474,7 @@ function navegar(url) {
     });
   });
 
+
 /* ── Zona de Peligro ── */
 function abrirModalVaciar() {
   // Poblar selector con empresas disponibles
@@ -1511,16 +1512,10 @@ async function ejecutarVaciar() {
   btn.disabled = true;
 
   try {
-    const r = await api({ action: 'vaciarEmpresa', empresa, usuario: SESSION.usuario });
+    const r = await apiGet({ action: 'vaciarEmpresa', empresa, usuario: SESSION.usuario });
     if (r && r.success) {
       cerrarModalVaciar();
-      alert('✅ Empresa ' + empresa + ' vaciada correctamente.
-
-Registros eliminados:
-• Captura Financiera: ' + (r.captura||0) + '
-• Nómina: ' + (r.nomina||0) + '
-• Costos Fijos: ' + (r.costos||0) + '
-• CxC: ' + (r.cxc||0));
+      alert('✅ Empresa ' + empresa + ' vaciada correctamente. Registros eliminados: Captura: ' + (r.captura||0) + ', Nómina: ' + (r.nomina||0) + ', Costos: ' + (r.costos||0) + ', CxC: ' + (r.cxc||0));
     } else {
       alert('Error: ' + (r?.error || 'Error desconocido'));
     }
