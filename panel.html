@@ -1459,8 +1459,8 @@ function abrirModalVaciar() {
   if (window.EMPRESAS_LIST) {
     window.EMPRESAS_LIST.forEach(e => {
       const opt = document.createElement('option');
-      opt.value = e.empresa;
-      opt.textContent = e.nombre || e.empresa;
+      opt.value = e.id || e.empresa;
+      opt.textContent = e.nombre || e.id || e.empresa;
       sel.appendChild(opt);
     });
   }
@@ -1478,8 +1478,12 @@ async function ejecutarVaciar() {
   const confirmacion = document.getElementById('vaciarConfirm').value.trim();
 
   if (!empresa) { alert('Selecciona una empresa.'); return; }
-  if (confirmacion.toLowerCase() !== empresa.toLowerCase()) {
-    alert('El nombre no coincide. Escribe exactamente: ' + empresa);
+  // Obtener el nombre visible de la empresa seleccionada
+  const sel = document.getElementById('vaciarEmpresaSel');
+  const nombreVisible = sel.options[sel.selectedIndex].textContent;
+  if (confirmacion.toLowerCase() !== nombreVisible.toLowerCase() &&
+      confirmacion.toLowerCase() !== empresa.toLowerCase()) {
+    alert('El nombre no coincide. Escribe exactamente: ' + nombreVisible);
     return;
   }
 
