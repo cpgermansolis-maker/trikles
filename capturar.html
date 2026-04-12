@@ -93,6 +93,7 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
 .help-icon:hover .tt{visibility:visible;opacity:1;}
 @media(max-width:768px){.kpi-strip{grid-template-columns:1fr 1fr;}.fr2,.fr3{grid-template-columns:1fr;}.fr4{grid-template-columns:1fr 1fr;}.rbox-row{grid-template-columns:1fr;}.form-wrap{padding:0 16px 32px;}.date-strip,.topbar,.kpi-strip{padding-left:16px;padding-right:16px;}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -257,6 +258,57 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
     <div class="rbox"><div class="rbox-label">Utilidad neta</div><div class="rbox-val green" id="r_utilidad">$0.00</div></div>
   </div>
   <!-- Aviso de registro existente -->
+  <!-- ═══ FLUJO DE EFECTIVO EN TIEMPO REAL ═══ -->
+  <div class="card" id="flujo_card" style="margin-bottom:16px;background:rgba(245,130,31,.04);border:1px solid rgba(245,130,31,.2)">
+    <div class="card-title">
+      <div class="ct-icon">💵</div>
+      <div class="ct-text">Flujo de Efectivo del Día</div>
+      <span class="help-icon">?<span class="tt" style="width:260px;white-space:normal;line-height:1.5">
+        Se actualiza en tiempo real conforme capturas los datos.<br><br>
+        <b>Esperado</b> = Ingresos − Egresos<br>
+        <b>Diferencia</b> = Caja física − Esperado
+      </span></span>
+    </div>
+    <!-- KPIs rápidos -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px">
+      <div style="background:rgba(46,196,182,.08);border:1px solid rgba(46,196,182,.2);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:10px;color:#aaa;letter-spacing:1px;margin-bottom:4px">INGRESOS</div>
+        <div style="font-size:18px;font-weight:800;color:var(--green)" id="fl_ing">$0.00</div>
+      </div>
+      <div style="background:rgba(230,57,70,.08);border:1px solid rgba(230,57,70,.2);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:10px;color:#aaa;letter-spacing:1px;margin-bottom:4px">EGRESOS</div>
+        <div style="font-size:18px;font-weight:800;color:var(--red)" id="fl_egr">$0.00</div>
+      </div>
+      <div style="background:rgba(245,130,31,.08);border:1px solid rgba(245,130,31,.2);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:10px;color:#aaa;letter-spacing:1px;margin-bottom:4px">ESPERADO</div>
+        <div style="font-size:18px;font-weight:800;color:var(--orange)" id="fl_esp">$0.00</div>
+      </div>
+      <div style="background:rgba(67,97,238,.08);border:1px solid rgba(67,97,238,.2);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:10px;color:#aaa;letter-spacing:1px;margin-bottom:4px">EN CAJA</div>
+        <div style="font-size:18px;font-weight:800;color:#748ffc" id="fl_caj">$0.00</div>
+      </div>
+      <div style="border-radius:8px;padding:12px;text-align:center" id="fl_dif_card">
+        <div style="font-size:10px;color:#aaa;letter-spacing:1px;margin-bottom:4px">DIFERENCIA</div>
+        <div style="font-size:18px;font-weight:800" id="fl_dif">$0.00</div>
+      </div>
+    </div>
+    <!-- Gráficas -->
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px">
+      <div>
+        <div style="font-size:11px;color:#aaa;margin-bottom:6px;letter-spacing:1px">RESUMEN</div>
+        <div style="height:180px"><canvas id="cv_cap_barras"></canvas></div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#aaa;margin-bottom:6px;letter-spacing:1px">INGRESOS</div>
+        <div style="height:180px"><canvas id="cv_cap_ing"></canvas></div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#aaa;margin-bottom:6px;letter-spacing:1px">EGRESOS</div>
+        <div style="height:180px"><canvas id="cv_cap_egr"></canvas></div>
+      </div>
+    </div>
+  </div>
+
   <div id="avisoExistente" style="display:none;background:rgba(244,211,94,.1);border:1px solid rgba(244,211,94,.4);border-radius:10px;padding:14px 16px;margin-bottom:12px">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
       <div>
@@ -329,6 +381,7 @@ function clearDraft(){sessionStorage.removeItem(DRAFT_KEY);}
 
 // ── Cálculos ──
 function calcular(){
+  if(typeof updateFlujo === 'function') setTimeout(updateFlujo, 50);
   const vEf=num('f_vtaEfvo'),vTar=num('f_vtaTarjeta'),vCr=num('f_vtaCred');
   const tv=vEf+vTar+vCr,gan=num('f_ganancia');
   document.getElementById('r_totalVentas').value=tv.toFixed(2);
@@ -353,6 +406,7 @@ function calcular(){
   if(PE>0&&tv>0){const st=document.getElementById('statusTag');const sob=tv-PE;st.textContent=sob>=0?'✅ Sobre P.E.':'⚠️ Bajo P.E.';st.style.color=sob>=0?'var(--green)':'var(--orange)';}
 }
 function calcContado(){
+  setTimeout(() => { if(typeof updateFlujo === 'function') updateFlujo(); }, 50);
   let t=0;DENOMS.forEach(d=>{t+=(parseFloat(document.getElementById('d_'+d.id)?.value)||0)*d.val;});
   document.getElementById('r_contado').textContent=fmt(t);
   document.getElementById('k_contado').textContent=fmt(t);
@@ -640,6 +694,99 @@ function navegar(url) {
 function toggleMenu(){
   document.getElementById('mobileNav').classList.toggle('open');
   document.getElementById('hamburgerBtn').classList.toggle('open');
+}
+
+
+/* ══ FLUJO DE EFECTIVO EN TIEMPO REAL ══ */
+let capChartBar = null, capChartIng = null, capChartEgr = null;
+
+function fmtFl(n) {
+  return '$' + (n||0).toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function updateFlujo() {
+  // Ingresos
+  const si   = num('f_saldoInicial');
+  const vef  = num('f_vtaEfvo');
+  const cob  = num('f_cobros');
+  const ant  = num('f_anticipo');
+  const ing  = si + vef + cob + ant;
+
+  // Egresos
+  const com  = num('f_compras') + num('f_comprasExt');
+  const gti  = num('f_gTienda');
+  const gca  = num('f_gCasa');
+  const pac  = num('f_pagoComp');
+  const ref  = num('f_retiroEfvo');
+  const sef  = num('f_sueldoEfvo');
+  const res  = num('f_reserva');
+  const egr  = com + gti + gca + pac + ref + sef + res;
+
+  const esp  = ing - egr;
+  const caj  = getContado ? getContado() : num('f_efvoCaja');
+  const dif  = caj - esp;
+
+  // Actualizar KPIs
+  document.getElementById('fl_ing').textContent = fmtFl(ing);
+  document.getElementById('fl_egr').textContent = fmtFl(egr);
+  document.getElementById('fl_esp').textContent = fmtFl(esp);
+  document.getElementById('fl_caj').textContent = fmtFl(caj);
+  document.getElementById('fl_dif').textContent = fmtFl(dif);
+  document.getElementById('fl_dif').style.color = dif >= 0 ? 'var(--green)' : 'var(--red)';
+  const difCard = document.getElementById('fl_dif_card');
+  difCard.style.background = dif >= 0 ? 'rgba(46,196,182,.08)' : 'rgba(230,57,70,.08)';
+  difCard.style.border = dif >= 0 ? '1px solid rgba(46,196,182,.2)' : '1px solid rgba(230,57,70,.2)';
+
+  const chartOpts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + fmtFl(ctx.parsed.y || ctx.parsed) } } },
+    scales: { x: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#666', font: { size: 10 } } },
+              y: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#666', font: { size: 10 }, callback: v => '$' + (v/1000).toFixed(0) + 'K' } } }
+  };
+
+  // Gráfica barras
+  const ctxB = document.getElementById('cv_cap_barras').getContext('2d');
+  if (capChartBar) capChartBar.destroy();
+  capChartBar = new Chart(ctxB, {
+    type: 'bar',
+    data: {
+      labels: ['Ingresos','Egresos','Esperado','En Caja','Diferencia'],
+      datasets: [{
+        data: [ing, egr, esp, caj, dif],
+        backgroundColor: ['rgba(46,196,182,.7)','rgba(230,57,70,.7)','rgba(245,130,31,.7)','rgba(67,97,238,.7)', dif>=0?'rgba(46,196,182,.7)':'rgba(230,57,70,.7)'],
+        borderColor: ['#2ec4b4','#e63946','#F5821F','#4361ee', dif>=0?'#2ec4b4':'#e63946'],
+        borderWidth:1, borderRadius:4, borderSkipped:false
+      }]
+    },
+    options: { ...chartOpts }
+  });
+
+  // Dona ingresos
+  const ctxI = document.getElementById('cv_cap_ing').getContext('2d');
+  if (capChartIng) capChartIng.destroy();
+  capChartIng = new Chart(ctxI, {
+    type: 'doughnut',
+    data: {
+      labels: ['Saldo Inicial','Vta Efectivo','Cobros','Anticipos'],
+      datasets: [{ data: [si, vef, cob, ant], backgroundColor: ['rgba(46,196,182,.8)','rgba(245,130,31,.8)','rgba(67,97,238,.8)','rgba(244,211,94,.8)'], borderWidth:2, borderColor:'#0d0d1a' }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, cutout:'60%',
+      plugins: { legend: { display:false }, tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + fmtFl(ctx.parsed) } } } }
+  });
+
+  // Dona egresos
+  const ctxE = document.getElementById('cv_cap_egr').getContext('2d');
+  if (capChartEgr) capChartEgr.destroy();
+  capChartEgr = new Chart(ctxE, {
+    type: 'doughnut',
+    data: {
+      labels: ['Compras','Gasto Tienda','Gasto Casa','Pago Compras','Nómina Efvo','Retiro Efvo','Reserva'],
+      datasets: [{ data: [com, gti, gca, pac, sef, ref, res], backgroundColor: ['rgba(230,57,70,.8)','rgba(245,130,31,.8)','rgba(155,89,182,.8)','rgba(52,152,219,.8)','rgba(46,196,182,.8)','rgba(244,211,94,.8)','rgba(231,76,60,.6)'], borderWidth:2, borderColor:'#0d0d1a' }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, cutout:'60%',
+      plugins: { legend: { display:false }, tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + fmtFl(ctx.parsed) } } } }
+  });
 }
 
 </script>
