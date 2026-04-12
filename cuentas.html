@@ -576,6 +576,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await Promise.all([cargarClientes(), cargarOtros()]);
 });
+
+function toggleMenu(){
+  document.getElementById('mobileNav').classList.toggle('open');
+  document.getElementById('hamburgerBtn').classList.toggle('open');
+}
 </script>
 </body>
 </html>
