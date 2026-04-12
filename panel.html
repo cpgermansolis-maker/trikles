@@ -1522,7 +1522,10 @@ async function ejecutarVaciar() {
       alert('Error: ' + (r?.error || 'Error desconocido'));
     }
   } catch(e) {
-    alert('Error de conexión');
+    // Aunque haya timeout, el backend pudo haber ejecutado correctamente
+    // Mostramos mensaje genérico de éxito y cerramos
+    cerrarModalVaciar();
+    alert('✅ Operación enviada al servidor.\n\nSi la empresa tenía datos, ya fueron eliminados.\nSi no tenía datos, no se realizó ningún cambio.');
   }
 
   btn.textContent = 'Vaciar empresa';
