@@ -1456,7 +1456,9 @@ function navegar(url) {
 /* ── Ver contraseña (solo SUPER_ADMIN) ── */
 async function verPassword(empresa, usuario) {
   try {
-    const r = await apiGet({ action: 'getPassword', solicitante: SESSION.usuario, empresa, usuario });
+    const _sess = JSON.parse(sessionStorage.getItem('trikles_session')||localStorage.getItem('trikles_session_remember')||'null');
+    const solicitante = _sess ? _sess.usuario : '';
+    const r = await apiGet({ action: 'getPassword', solicitante, empresa, usuario });
     if (r && r.success) {
       alert('🔑 Contraseña de ' + usuario + '\n\n' + r.password);
     } else {
