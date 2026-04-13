@@ -187,14 +187,24 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
   <div class="sub-sep">Egresos de efectivo</div>
   <div class="fr2">
     <div class="field"><label>Compras Totales del Día <span class="req">*</span></label><input type="number" class="fi" id="f_compras" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
-    <div class="field"><label>Compras con $ de Otros Días <span class="req">*</span></label><input type="number" class="fi" id="f_comprasExt" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
+    <div class="field"><label>Compras a Crédito <span class="help-icon">?<span class="tt" style="width:240px;white-space:normal;line-height:1.5"><b>🏷️ Compras a Crédito</b><br>Del total de compras de hoy, ¿cuánto quedó pendiente de pagar?<br><br><b>Ejemplo:</b> Compraste $500 pero solo pagaste $300 hoy — escribe $200 aquí.<br><br>❌ No afecta el flujo de efectivo de hoy.<br>✅ Queda registrado en Cuentas por Pagar.</span></span></label><input type="number" class="fi" id="f_comprasCredito" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
   </div>
   <div class="fr2">
     <div class="field"><label>Gastos Propios del Negocio <span class="req">*</span><span class="help-icon">?<span class="tt">Gastos operativos: gasolina, luz, mantenimiento.</span></span></label><input type="number" class="fi" id="f_gTienda" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
     <div class="field"><label>Gastos Ajenos al Negocio <span class="req">*</span><span class="help-icon">?<span class="tt">Gastos personales pagados con dinero del negocio.</span></span></label><input type="number" class="fi" id="f_gCasa" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
   </div>
   <div class="fr2">
-    <div class="field"><label>Pago de Compras a Crédito <span class="req">*</span></label><input type="number" class="fi" id="f_pagoComp" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
+    <div class="field" style="grid-column:1/-1">
+      <label>Pago de Compras a Crédito <span class="help-icon">?<span class="tt" style="width:240px;white-space:normal;line-height:1.5"><b>💳 Pago de Compras a Crédito</b><br>Pagos realizados hoy por compras a crédito de días anteriores.<br><br>Solo afecta el flujo si se paga en Efectivo.</span></span></label>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center">
+        <input type="number" class="fi" id="f_pagoComp" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()">
+        <select id="f_pagoCompForma" class="fi" style="width:160px" onchange="calcular();draft()">
+          <option value="EFECTIVO">💵 Efectivo</option>
+          <option value="TARJETA">💳 Tarjeta</option>
+          <option value="RESERVA">🏦 Reserva</option>
+        </select>
+      </div>
+    </div>
     <div class="field"><label>Retiro de Utilidades <span class="req">*</span></label><input type="number" class="fi" id="f_retiroUtil" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
   </div>
   <div class="sub-sep">Conteo físico de billetes y monedas</div>
@@ -246,6 +256,31 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
   </div>
   <div class="fr2">
     <div class="field"><label>Gastos de Días Anteriores <span class="req">*</span></label><input type="number" class="fi" id="f_gAnt" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
+    <!-- Uso de Reserva -->
+    <div class="field" style="grid-column:1/-1;margin-top:8px">
+      <label>¿Se usó dinero de la Reserva hoy? <span class="help-icon">?<span class="tt" style="width:240px;white-space:normal;line-height:1.5"><b>🏦 Uso de Reserva</b><br>Si pagaste algo con dinero de la reserva, regístralo aquí.<br><br>No afecta el flujo de efectivo del día porque ese dinero ya salió de caja en días anteriores cuando se apartó.</span></span></label>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="f_reservaUsoCheck" onchange="toggleReservaUso()" style="width:16px;height:16px;accent-color:var(--orange)"> Sí, se usó reserva hoy
+        </label>
+      </div>
+    </div>
+    <div id="reservaUsoSection" style="display:none;grid-column:1/-1">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;background:rgba(245,130,31,.06);border:1px solid rgba(245,130,31,.2);border-radius:10px;padding:14px;margin-top:4px">
+        <div class="field" style="margin:0">
+          <label>Monto usado de la Reserva</label>
+          <input type="number" class="fi" id="f_reservaUso" placeholder="0.00" min="0" step="0.01" oninput="draft()">
+        </div>
+        <div class="field" style="margin:0">
+          <label>¿Para qué se usó?</label>
+          <select id="f_reservaUsoConcepto" class="fi" onchange="draft()">
+            <option value="COMPRAS_CREDITO">🛒 Compras a Crédito</option>
+            <option value="NOMINA">👥 Nómina</option>
+            <option value="OTRO">📝 Otro</option>
+          </select>
+        </div>
+      </div>
+    </div>
     <div class="field"><label>Entrega de Mercancía<span class="help-icon">?<span class="tt">Pedidos entregados hoy con anticipo previo. No afecta el flujo — solo registro.</span></span></label><input type="text" class="fi" id="f_entrega" placeholder="NINGUNA" oninput="draft()"></div>
   </div>
   <div class="fr2">
@@ -349,7 +384,7 @@ const DENOMS=[
 ];
 const CAMPOS=[
   'f_vtaEfvo','f_vtaTarjeta','f_vtaCred','f_prod1','f_prod2','f_prod3','f_otros','f_ganancia',
-  'f_cobros','f_anticipo','f_compras','f_comprasExt','f_gTienda','f_gCasa',
+  'f_cobros','f_anticipo','f_compras','f_comprasCredito','f_gTienda','f_gCasa',
   'f_pagoComp','f_retiroUtil','f_retiroEfvo','f_sueldoEfvo','f_reserva','f_gAnt',
   'f_terminado','f_faltante','f_notas','f_entrega',
   'd_b1000','d_b500','d_b200','d_b100','d_b50','d_b20','d_b10','d_b5','d_b2','d_b1','d_b050',
@@ -401,10 +436,13 @@ function calcular(){
   document.getElementById('r_totalGastos').textContent=fmt(totalG);
   const uEl=document.getElementById('r_utilidad');uEl.textContent=fmt(util);uEl.className='rbox-val '+(util>=0?'green':'red');
   const saldo=num('f_saldoInicial'),cobros=num('f_cobros'),anticipo=num('f_anticipo');
-  const compras=num('f_compras'),compExt=num('f_comprasExt'),pagoComp=num('f_pagoComp');
+  const compras=num('f_compras'),compExt=0,pagoComp=num('f_pagoComp');
+  // Pago de compras solo afecta flujo si es en EFECTIVO
+  const pagoCompForma=document.getElementById('f_pagoCompForma')?.value||'EFECTIVO';
+  const pagoCompEfvo=pagoCompForma==='EFECTIVO'?pagoComp:0;
   const retiroUtil=num('f_retiroUtil'),retiroEfvo=num('f_retiroEfvo'),suEfvo=num('f_sueldoEfvo');
   const entradas=vEf+cobros+anticipo;
-  const salidas=compras+compExt+gT+gC+pagoComp+retiroUtil+retiroEfvo+suEfvo;
+  const salidas=compras+gT+gC+pagoCompEfvo+retiroUtil+retiroEfvo+suEfvo;
   const esperado=saldo+entradas-salidas;
   document.getElementById('r_esperado').textContent=fmt(esperado);
   const contado=getContado(),dif=contado-esperado;
@@ -545,7 +583,16 @@ async function cargarRegistroExistente(empresa,fecha){
       set('f_vtaEfvo',d.vtaEfectivo);set('f_vtaTarjeta',d.vtaTarjeta);set('f_vtaCred',d.vtaCredito);
       set('f_prod1',d.producto1);set('f_prod2',d.producto2);set('f_prod3',d.producto3);set('f_otros',d.otros);
       set('f_ganancia',d.ganancia);set('f_saldoInicial',d.saldoInicial);set('f_cobros',d.cobros);set('f_anticipo',d.anticipo);
-      set('f_compras',d.compras);set('f_comprasExt',d.comprasExt);set('f_gTienda',d.gastoTienda);
+      set('f_compras',d.compras);
+      set('f_comprasCredito',d.comprasCredito);
+      if(d.pagoComprasForma){const sel=document.getElementById('f_pagoCompForma');if(sel)sel.value=d.pagoComprasForma;}
+      if(d.reservaUso){
+        document.getElementById('f_reservaUsoCheck').checked=true;
+        toggleReservaUso();
+        set('f_reservaUso',d.reservaUso);
+        if(d.reservaUsoConcepto){const sel=document.getElementById('f_reservaUsoConcepto');if(sel)sel.value=d.reservaUsoConcepto;}
+      }
+      set('f_gTienda',d.gastoTienda);
       set('f_gCasa',d.gastoCasa);set('f_pagoComp',d.pagoCompras);set('f_retiroUtil',d.retiroUtil);
       set('f_retiroEfvo',d.retiroEfvo);set('f_sueldo',d.sueldo);set('f_sueldoEfvo',d.sueldoEfvo);
       set('f_reserva',d.reserva);set('f_gAnt',d.gastosAnt);
@@ -624,7 +671,12 @@ async function guardar(){
     ganancia:gan,costo:tv-gan,
     saldoInicial:num('f_saldoInicial'),cobros:num('f_cobros'),anticipo:num('f_anticipo'),
     entregaMcia:document.getElementById('f_entrega')?.value||'NINGUNA',
-    compras:num('f_compras'),comprasExt:num('f_comprasExt'),gastoTienda:gT,gastoCasa:gC,
+    compras:num('f_compras'),
+    comprasCredito:num('f_comprasCredito'),
+    pagoComprasForma:document.getElementById('f_pagoCompForma')?.value||'EFECTIVO',
+    reservaUso:num('f_reservaUso'),
+    reservaUsoConcepto:document.getElementById('f_reservaUsoConcepto')?.value||'',
+    gastoTienda:gT,gastoCasa:gC,
     pagoCompras:num('f_pagoComp'),retiroUtil:num('f_retiroUtil'),retiroEfvo:num('f_retiroEfvo'),
     efvoCaja:getContado(),...denomData,
     sueldo:sue,sueldoEfvo:num('f_sueldoEfvo'),reserva:res,gastosAnt:gA,
@@ -706,6 +758,15 @@ function navegar(url) {
 }
 
 
+function toggleReservaUso(){
+  const check = document.getElementById('f_reservaUsoCheck');
+  const section = document.getElementById('reservaUsoSection');
+  if(section) section.style.display = check.checked ? 'grid' : 'none';
+  if(!check.checked){
+    const el=document.getElementById('f_reservaUso');if(el)el.value='';
+  }
+}
+
 function toggleMenu(){
   document.getElementById('mobileNav').classList.toggle('open');
   document.getElementById('hamburgerBtn').classList.toggle('open');
@@ -728,10 +789,11 @@ function updateFlujo() {
   const ing  = si + vef + cob + ant;
 
   // Egresos
-  const com  = num('f_compras') + num('f_comprasExt');
+  const com  = num('f_compras'); // comprasCredito no afecta flujo
+  const pagoCompFormaFl = document.getElementById('f_pagoCompForma')?.value||'EFECTIVO';
   const gti  = num('f_gTienda');
   const gca  = num('f_gCasa');
-  const pac  = num('f_pagoComp');
+  const pac  = pagoCompFormaFl==='EFECTIVO' ? num('f_pagoComp') : 0;
   const ref  = num('f_retiroEfvo');
   const sef  = num('f_sueldoEfvo');
   const res  = num('f_reserva');
