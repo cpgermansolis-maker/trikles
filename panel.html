@@ -1099,6 +1099,7 @@ function renderUsuarios(list){
       <td><span class="badge ${u.activo==='SI'?'badge-green':'badge-red'}">${u.activo==='SI'?'✓ Activo':'✗ Inactivo'}</span></td>
       <td class="td-actions">
         <button class="btn btn-secondary btn-sm" onclick='editUsuario(${JSON.stringify(u)})'>✏️ Editar</button>
+        ${SESSION&&SESSION.rol==='SUPER_ADMIN'?`<button class="btn btn-secondary btn-sm" onclick="verPassword('${u.empresa}','${u.usuario}')" title="Ver contraseña">🔑</button>`:''}
         ${u.activo==='SI'?`<button class="btn btn-danger btn-sm" onclick="bajaUsuario('${u.empresa}','${u.usuario}','${u.nombre||u.usuario}')">⛔ Baja</button>`:'<span class="badge badge-gray">Inactivo</span>'}
       </td>
     </tr>`;
@@ -1450,6 +1451,21 @@ function navegar(url) {
   window.location.href = url + sep + 'v=' + new Date().getTime();
 }
 
+
+
+/* ── Ver contraseña (solo SUPER_ADMIN) ── */
+async function verPassword(empresa, usuario) {
+  try {
+    const r = await apiGet({ action: 'getPassword', solicitante: SESSION.usuario, empresa, usuario });
+    if (r && r.success) {
+      alert('🔑 Contraseña de ' + usuario + '\n\n' + r.password);
+    } else {
+      toast('error', 'No autorizado', r?.error || 'Error al consultar');
+    }
+  } catch(e) {
+    toast('error', 'Error', 'No se pudo consultar la contraseña');
+  }
+}
 
 /* ── Zona de Peligro ── */
 function abrirModalVaciar() {
