@@ -333,6 +333,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   <button class="mtab active" id="tab_fin" onclick="switchModule('fin')">📊 Financiero</button>
   <button class="mtab" id="tab_nom" onclick="switchModule('nom')" style="display:none">👥 Nómina</button>
   <button class="mtab" id="tab_flujo" onclick="switchModule('flujo')" style="display:none">💵 Flujo de Efectivo</button>
+  <button class="mtab" id="tab_reserva" onclick="switchModule('reserva')" style="display:none">🏦 Reserva & CxP</button>
 </div>
 
 <!-- ══════ FILTER BAR ══════ -->
@@ -874,6 +875,107 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 
 </div><!-- /panel_flujo -->
 
+<!-- ────── MÓDULO RESERVA & CxP ────── -->
+<div class="panel" id="panel_reserva">
+  <div class="shdr">🏦 RESERVA & CUENTAS POR PAGAR</div>
+
+  <div class="g2">
+    <!-- Estado de cuenta Reserva -->
+    <div class="cc">
+      <div class="cc-hdr">
+        <div>
+          <div class="cc-ttl">🏦 Estado de Cuenta — Reserva
+            <span class="help-icon">?<span class="tt" style="width:260px;white-space:normal;line-height:1.5">
+              <b>Reserva</b> = caja de ahorro interna del negocio.<br><br>
+              <b>Entradas:</b> lo que se aparta diariamente.<br>
+              <b>Salidas:</b> pagos de compras a crédito, nómina o gastos pagados con reserva.<br><br>
+              El saldo refleja cuánto hay disponible en la reserva.
+            </span></span>
+          </div>
+          <div class="cc-sub">Entradas · Salidas · Saldo disponible</div>
+        </div>
+      </div>
+      <!-- KPIs reserva -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+        <div style="background:rgba(46,196,182,.08);border:1px solid rgba(46,196,182,.2);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:#aaa;letter-spacing:1px;margin-bottom:4px">ENTRADAS</div>
+          <div style="font-size:16px;font-weight:800;color:var(--green)" id="res_entradas">—</div>
+        </div>
+        <div style="background:rgba(230,57,70,.08);border:1px solid rgba(230,57,70,.2);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:#aaa;letter-spacing:1px;margin-bottom:4px">SALIDAS</div>
+          <div style="font-size:16px;font-weight:800;color:var(--red)" id="res_salidas">—</div>
+        </div>
+        <div style="border-radius:8px;padding:12px;text-align:center" id="res_saldo_card">
+          <div style="font-size:10px;color:#aaa;letter-spacing:1px;margin-bottom:4px">SALDO</div>
+          <div style="font-size:16px;font-weight:800" id="res_saldo">—</div>
+        </div>
+      </div>
+      <!-- Tabla estado de cuenta reserva -->
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="border-bottom:1px solid rgba(255,255,255,.08)">
+              <th style="text-align:left;padding:8px;color:#666;font-size:11px;letter-spacing:1px">FECHA</th>
+              <th style="text-align:left;padding:8px;color:#666;font-size:11px;letter-spacing:1px">CONCEPTO</th>
+              <th style="text-align:right;padding:8px;color:var(--green);font-size:11px;letter-spacing:1px">ENTRADA</th>
+              <th style="text-align:right;padding:8px;color:var(--red);font-size:11px;letter-spacing:1px">SALIDA</th>
+              <th style="text-align:right;padding:8px;color:#aaa;font-size:11px;letter-spacing:1px">SALDO</th>
+            </tr>
+          </thead>
+          <tbody id="res_tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Estado de cuenta CxP -->
+    <div class="cc">
+      <div class="cc-hdr">
+        <div>
+          <div class="cc-ttl">📦 Estado de Cuenta — CxP
+            <span class="help-icon">?<span class="tt" style="width:260px;white-space:normal;line-height:1.5">
+              <b>Cuentas por Pagar</b> = compras realizadas a crédito.<br><br>
+              <b>Cargos:</b> compras a crédito del período.<br>
+              <b>Abonos:</b> pagos realizados a proveedores.<br><br>
+              El saldo es lo que queda pendiente de pagar.
+            </span></span>
+          </div>
+          <div class="cc-sub">Compras a crédito · Pagos · Saldo pendiente</div>
+        </div>
+      </div>
+      <!-- KPIs CxP -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+        <div style="background:rgba(230,57,70,.08);border:1px solid rgba(230,57,70,.2);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:#aaa;letter-spacing:1px;margin-bottom:4px">COMPRAS CRÉDITO</div>
+          <div style="font-size:16px;font-weight:800;color:var(--red)" id="cxp_cargos">—</div>
+        </div>
+        <div style="background:rgba(46,196,182,.08);border:1px solid rgba(46,196,182,.2);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:#aaa;letter-spacing:1px;margin-bottom:4px">PAGOS</div>
+          <div style="font-size:16px;font-weight:800;color:var(--green)" id="cxp_abonos">—</div>
+        </div>
+        <div style="border-radius:8px;padding:12px;text-align:center" id="cxp_saldo_card">
+          <div style="font-size:10px;color:#aaa;letter-spacing:1px;margin-bottom:4px">PENDIENTE</div>
+          <div style="font-size:16px;font-weight:800" id="cxp_saldo">—</div>
+        </div>
+      </div>
+      <!-- Tabla CxP -->
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="border-bottom:1px solid rgba(255,255,255,.08)">
+              <th style="text-align:left;padding:8px;color:#666;font-size:11px;letter-spacing:1px">FECHA</th>
+              <th style="text-align:left;padding:8px;color:#666;font-size:11px;letter-spacing:1px">CONCEPTO</th>
+              <th style="text-align:right;padding:8px;color:var(--red);font-size:11px;letter-spacing:1px">CARGO</th>
+              <th style="text-align:right;padding:8px;color:var(--green);font-size:11px;letter-spacing:1px">ABONO</th>
+              <th style="text-align:right;padding:8px;color:#aaa;font-size:11px;letter-spacing:1px">SALDO</th>
+            </tr>
+          </thead>
+          <tbody id="cxp_tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div><!-- /panel_reserva -->
+
 </div><!-- /main -->
 
 <!-- Panel flotante KPI (único, se reutiliza para todos) -->
@@ -1146,6 +1248,8 @@ function updateAll(){
     buildNomina(data);
   } else if (ACTIVE_MOD === 'flujo') {
     buildFlujo(data);
+  } else if (ACTIVE_MOD === 'reserva') {
+    buildReserva(data);
   }
 }
 
@@ -1912,6 +2016,111 @@ function buildFlujo(data) {
   });
 }
 
+
+/* ═══════════════════════════════════════════════════════
+   MÓDULO RESERVA & CxP
+═══════════════════════════════════════════════════════ */
+function buildReserva(data) {
+  if (!data || !data.length) return;
+
+  const fmtE = n => '$' + (n||0).toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
+  const fmtF = f => { const d=new Date(f+'T12:00:00'); return d.toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'}); };
+
+  // ── RESERVA ──
+  const movReserva = [];
+  let saldoRes = 0;
+
+  data.forEach(r => {
+    const fecha = r.f;
+    // Entrada: reserva del día
+    if (r.res > 0) {
+      movReserva.push({ fecha, concepto:'Apartado del día', entrada: r.res, salida: 0 });
+    }
+    // Salida: pago compras con reserva
+    if ((r.pacF || 'EFECTIVO') === 'RESERVA' && r.pac > 0) {
+      movReserva.push({ fecha, concepto:'Pago compras a crédito', entrada: 0, salida: r.pac });
+    }
+    // Salida: nómina con reserva
+    if ((r.sefF || 'EFECTIVO') === 'RESERVA' && r.sef > 0) {
+      movReserva.push({ fecha, concepto:'Nómina', entrada: 0, salida: r.sef });
+    }
+    // Salida: otro uso de reserva
+    if (r.resUso > 0) {
+      movReserva.push({ fecha, concepto: r.resConc || 'Otro gasto', entrada: 0, salida: r.resUso });
+    }
+  });
+
+  // Calcular saldo acumulado
+  let totalEntradas = 0, totalSalidas = 0;
+  movReserva.forEach(m => { totalEntradas += m.entrada; totalSalidas += m.salida; });
+  const saldoFinal = totalEntradas - totalSalidas;
+
+  // Actualizar KPIs
+  document.getElementById('res_entradas').textContent = fmtE(totalEntradas);
+  document.getElementById('res_salidas').textContent  = fmtE(totalSalidas);
+  document.getElementById('res_saldo').textContent    = fmtE(saldoFinal);
+  document.getElementById('res_saldo').style.color    = saldoFinal >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('res_saldo_card').style.background = saldoFinal >= 0 ? 'rgba(46,196,182,.08)' : 'rgba(230,57,70,.08)';
+  document.getElementById('res_saldo_card').style.border = saldoFinal >= 0 ? '1px solid rgba(46,196,182,.2)' : '1px solid rgba(230,57,70,.2)';
+
+  // Tabla estado de cuenta reserva
+  let saldoAcum = 0;
+  const resRows = movReserva.length ? movReserva.map(m => {
+    saldoAcum += m.entrada - m.salida;
+    return `<tr style="border-bottom:1px solid rgba(255,255,255,.04)">
+      <td style="padding:8px;color:#aaa;font-size:12px">${fmtF(m.fecha)}</td>
+      <td style="padding:8px;color:var(--light)">${m.concepto}</td>
+      <td style="padding:8px;text-align:right;color:var(--green)">${m.entrada>0?fmtE(m.entrada):'—'}</td>
+      <td style="padding:8px;text-align:right;color:var(--red)">${m.salida>0?fmtE(m.salida):'—'}</td>
+      <td style="padding:8px;text-align:right;font-weight:700;color:${saldoAcum>=0?'var(--green)':'var(--red)'}">${fmtE(saldoAcum)}</td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="5" style="padding:20px;text-align:center;color:#666">Sin movimientos en el período seleccionado</td></tr>`;
+  document.getElementById('res_tbody').innerHTML = resRows;
+
+  // ── CxP ──
+  const movCxP = [];
+
+  data.forEach(r => {
+    const fecha = r.f;
+    // Cargo: compras a crédito del día
+    if ((r.comcr || 0) > 0) {
+      movCxP.push({ fecha, concepto:'Compras a crédito', cargo: r.comcr, abono: 0 });
+    }
+    // Abono: pago de compras a crédito (cualquier forma de pago)
+    if (r.pac > 0) {
+      const forma = r.pacF || 'EFECTIVO';
+      const formaLabel = forma==='EFECTIVO'?'💵 Efectivo':forma==='TARJETA'?'💳 Tarjeta':'🏦 Reserva';
+      movCxP.push({ fecha, concepto:'Pago (' + formaLabel + ')', cargo: 0, abono: r.pac });
+    }
+  });
+
+  // Calcular totales CxP
+  let totalCargos = 0, totalAbonos = 0;
+  movCxP.forEach(m => { totalCargos += m.cargo; totalAbonos += m.abono; });
+  const saldoCxP = totalCargos - totalAbonos;
+
+  document.getElementById('cxp_cargos').textContent  = fmtE(totalCargos);
+  document.getElementById('cxp_abonos').textContent  = fmtE(totalAbonos);
+  document.getElementById('cxp_saldo').textContent   = fmtE(saldoCxP);
+  document.getElementById('cxp_saldo').style.color   = saldoCxP <= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('cxp_saldo_card').style.background = saldoCxP <= 0 ? 'rgba(46,196,182,.08)' : 'rgba(230,57,70,.08)';
+  document.getElementById('cxp_saldo_card').style.border = saldoCxP <= 0 ? '1px solid rgba(46,196,182,.2)' : '1px solid rgba(230,57,70,.2)';
+
+  // Tabla CxP
+  let saldoCxPAcum = 0;
+  const cxpRows = movCxP.length ? movCxP.map(m => {
+    saldoCxPAcum += m.cargo - m.abono;
+    return `<tr style="border-bottom:1px solid rgba(255,255,255,.04)">
+      <td style="padding:8px;color:#aaa;font-size:12px">${fmtF(m.fecha)}</td>
+      <td style="padding:8px;color:var(--light)">${m.concepto}</td>
+      <td style="padding:8px;text-align:right;color:var(--red)">${m.cargo>0?fmtE(m.cargo):'—'}</td>
+      <td style="padding:8px;text-align:right;color:var(--green)">${m.abono>0?fmtE(m.abono):'—'}</td>
+      <td style="padding:8px;text-align:right;font-weight:700;color:${saldoCxPAcum<=0?'var(--green)':'var(--red)'}">${fmtE(saldoCxPAcum)}</td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="5" style="padding:20px;text-align:center;color:#666">Sin compras a crédito en el período seleccionado</td></tr>`;
+  document.getElementById('cxp_tbody').innerHTML = cxpRows;
+}
+
 function buildNomina(data){
   // Usar datos de Nomina_Captura si están disponibles, sino usar campo su de financiero
   const nomFiltrada = filterNomData(GF.from, GF.to)
@@ -2209,6 +2418,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(['SUPER_ADMIN','ADMIN','ANALISTA_NOM','ANALISTA_FULL','DIR_GENERAL','DIR_FINANZAS'].includes(s.rol)){
     const tn=document.getElementById('tab_nom');if(tn)tn.style.display='inline-block';
     const tf=document.getElementById('tab_flujo');if(tf)tf.style.display='inline-block';
+    const tr=document.getElementById('tab_reserva');if(tr)tr.style.display='inline-block';
   }
   // SUPER_ADMIN: mostrar selector de empresas
   if(s.rol==='SUPER_ADMIN'){
@@ -2331,10 +2541,15 @@ async function cargarDatosDesdeSheets(empresa) {
           comx:parseFloat(r.comx)|| 0,
           gti: parseFloat(r.gti) || 0,
           gca: parseFloat(r.gca) || 0,
-          pac: parseFloat(r.pac) || 0,
-          ref: parseFloat(r.ref) || 0,
-          efc: parseFloat(r.efc) || 0,
-          ret: parseFloat(r.ret) || 0,
+          pac:  parseFloat(r.pac)  || 0,
+          pacF: String(r.pacF  || 'EFECTIVO'),
+          ref:  parseFloat(r.ref)  || 0,
+          efc:  parseFloat(r.efc)  || 0,
+          ret:  parseFloat(r.ret)  || 0,
+          comcr:parseFloat(r.comcr)|| 0,
+          sefF: String(r.sefF  || 'EFECTIVO'),
+          resUso: parseFloat(r.resUso) || 0,
+          resConc: String(r.resConc || ''),
           p1:  parseFloat(r.p1)  || 0,
           p2:  parseFloat(r.p2)  || 0,
           p3:  parseFloat(r.p3)  || 0,
