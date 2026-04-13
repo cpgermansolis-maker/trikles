@@ -432,6 +432,8 @@ function changeDate(f){
     toast('info','Borrador restaurado','Se recuperó lo que estabas capturando.');
     // Saldo inicial siempre se carga (es readonly)
     cargarSaldoInicial(s.empresa,f);
+    // También cargar denominaciones desde Sheets para garantizar exactitud
+    cargarRegistroExistente(s.empresa,f);
   }else{
     // Sin borrador — cargar desde Sheets
     cargarSaldoInicial(s.empresa,f);
