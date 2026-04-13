@@ -255,7 +255,17 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
   <div class="field"><label>Notas adicionales</label><textarea class="fi" id="f_notas" rows="3" placeholder="Cualquier observación importante del día..." oninput="draft()" style="resize:vertical;"></textarea></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 16px;">
     <div class="rbox"><div class="rbox-label">Total gastos operativos</div><div class="rbox-val orange" id="r_totalGastos">$0.00</div></div>
-    <div class="rbox"><div class="rbox-label">Utilidad neta</div><div class="rbox-val green" id="r_utilidad">$0.00</div></div>
+    <div class="rbox">
+      <div class="rbox-label">Utilidad neta <span class="help-icon">?<span class="tt" style="width:280px;white-space:normal;line-height:1.6">
+        <b>¿Cómo se calcula?</b><br>
+        Ganancia Bruta − Gastos Operativos del día<br><br>
+        <b>Gastos Operativos incluyen:</b><br>
+        Gasto Tienda + Gasto Casa + Nómina + Reserva + Gastos Anteriores<br><br>
+        ⚠️ <b>No incluye Costos Fijos</b> (renta, luz, gas, etc.) porque estos se registran mensualmente en el módulo de Costos y se prorratean por día en el Dashboard.<br><br>
+        Por eso la Utilidad Neta del Dashboard puede ser menor que la que ves aquí.
+      </span></span></div>
+      <div class="rbox-val green" id="r_utilidad">$0.00</div>
+    </div>
   </div>
   <!-- Aviso de registro existente -->
   <!-- ═══ FLUJO DE EFECTIVO EN TIEMPO REAL ═══ -->
