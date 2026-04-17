@@ -1,0 +1,22 @@
+# Carpetas con recursos privados (logos, Excel, Word, imágenes) — no van al sitio público
+TAD/
+TRK/
+
+# Export del editor de Apps Script (respaldo local, no es código activo)
+Trikles - Editor del proyecto - Apps Script.html
+Trikles - Editor del proyecto - Apps Script_files/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Carpetas de editores de código y herramientas
+.vscode/
+.idea/
+.claude/
+
+# Borradores temporales
+*.tmp
+*.bak
+*~
