@@ -1314,32 +1314,34 @@ document.addEventListener('DOMContentLoaded',()=>{
   const rolLabel=ROLES[s.rol]?ROLES[s.rol].label:s.rol;
   if(chip)chip.textContent=s.nombre+' — '+rolLabel+(s.rol==='SUPER_ADMIN'?' 👑':'');
 
+  // ══ SEGURIDAD: restricciones por rol INMEDIATAS (síncrono, antes de que se vea nada) ══
+  if(s.rol !== 'SUPER_ADMIN') {
+    const btnNE = document.getElementById('btnNuevaEmpresa');
+    if(btnNE) btnNE.style.display = 'none';
+    const sbEmp = document.getElementById('sb_empresas');
+    if(sbEmp) sbEmp.style.display = 'none';
+    const sbMiEmp = document.getElementById('sb_miempresa');
+    if(sbMiEmp) sbMiEmp.style.display = 'flex';
+    // Ocultar Zona de Peligro (solo SuperAdmin puede borrar datos)
+    const sbPel = document.getElementById('sb_peligro');
+    if(sbPel) sbPel.style.display = 'none';
+    // Ocultar cualquier card/elemento que apunte a empresas o peligro
+    document.querySelectorAll('[onclick*="empresas"],[onclick*="peligro"]').forEach(el => {
+      el.style.display = 'none';
+    });
+    // Eliminar rol Super Admin del selector de roles
+    document.querySelectorAll('.role-superadmin').forEach(el => el.remove());
+    // Ir directo a usuarios (reemplaza el panel 'inicio' antes del primer pintado)
+    showPanel('usuarios');
+  }
+
   setTimeout(async ()=>{
     await loadEmpresas();
     // Aplicar branding siempre
     applyBranding(s.empresa);
-    // Si no es SUPER_ADMIN, filtrar y ocultar módulo empresas
+    // filtrarEmpresasAdmin requiere que ya se hayan cargado las empresas
     if(s.rol !== 'SUPER_ADMIN') {
       filtrarEmpresasAdmin(s.empresa);
-      // Ocultar botón Nueva Empresa
-      const btnNE = document.getElementById('btnNuevaEmpresa');
-      if(btnNE) btnNE.style.display = 'none';
-      // Ocultar menú Empresas del sidebar
-      const sbEmp = document.getElementById('sb_empresas');
-      if(sbEmp) sbEmp.style.display = 'none';
-      // Mostrar Mi Empresa
-      const sbMiEmp = document.getElementById('sb_miempresa');
-      if(sbMiEmp) sbMiEmp.style.display = 'flex';
-      // Ocultar card Empresas en inicio
-      document.querySelectorAll('[onclick*="empresas"]').forEach(el => {
-        el.style.display = 'none';
-      });
-      // Eliminar rol Super Admin del selector de roles
-      document.querySelectorAll('.role-superadmin').forEach(el => {
-        el.remove();
-      });
-      // Ir directo a usuarios
-      showPanel('usuarios');
     }
   }, 500);
 });
