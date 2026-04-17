@@ -263,6 +263,18 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
 .btn-help{background:rgba(46,196,182,.1);border:1px solid rgba(46,196,182,.3);color:#2ec4b6;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
 .btn-help:hover{background:rgba(46,196,182,.2);}
 
+/* ══ Menú hamburguesa (solo visible en mobile) ══ */
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;z-index:400;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--orange);border-radius:2px;transition:.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.mobile-nav{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.96);z-index:350;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.mobile-nav.open{display:flex;}
+.mobile-nav .btn-nav{font-size:16px;padding:12px 32px;width:240px;justify-content:center;border-color:rgba(245,130,31,.4);text-align:center;}
+.mobile-nav .btn-out{font-size:16px;padding:12px 32px;width:240px;text-align:center;background:none;border:1px solid rgba(230,57,70,.4);color:#e63946;border-radius:8px;cursor:pointer;font-weight:700;}
+.mobile-nav-close{position:absolute;top:20px;right:20px;background:none;border:none;color:var(--orange);font-size:28px;cursor:pointer;}
+
 /* ══ Responsive mobile específico de panel.html ══ */
 @media (max-width: 768px) {
   .topbar{padding:0 12px;height:52px;flex-wrap:nowrap;}
@@ -274,8 +286,9 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
   .tb-right{gap:4px;flex-wrap:nowrap;}
   .tb-right .btn-nav,
   .tb-right .user-pill,
-  .tb-right .btn-help{display:none!important;}
-  .tb-right .btn-out{padding:6px 10px;font-size:11px;}
+  .tb-right .btn-help,
+  .tb-right>.btn-out{display:none!important;}
+  .hamburger{display:flex;}
   .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
   .tbl-wrap table{min-width:600px;}
 }
@@ -291,6 +304,7 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
     <div><div class="tb-name"></div><div class="tb-sub">⚙️ Panel de Control</div></div>
   </div>
   <div class="tb-right">
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()"><span></span><span></span><span></span></button>
     <a class="btn-nav dash" href="dashboard.html">📊 Dashboard</a>
     <a class="btn-nav" href="registro.html">📋 Captura</a>
     <div class="user-pill"><div class="u-dot"></div><span id="userChip">Cargando...</span></div>
@@ -298,6 +312,14 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
     <button class="btn-out" onclick="logout()">Salir ✕</button>
   </div>
 </header>
+
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-close" onclick="toggleMenu()">✕</button>
+  <a href="dashboard.html" class="btn-nav">📊 Dashboard</a>
+  <a href="registro.html" class="btn-nav">📋 Captura</a>
+  <a href="manual.html" class="btn-nav">❓ Ayuda</a>
+  <button class="btn-out" onclick="logout()">Salir ✕</button>
+</div>
 
 <!-- ══ LAYOUT ══ -->
 <div class="layout">
@@ -711,6 +733,10 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
 </div>
 
 <script>
+function toggleMenu(){
+  document.getElementById('mobileNav').classList.toggle('open');
+  document.getElementById('hamburgerBtn').classList.toggle('open');
+}
 const API = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
 const SK = 'trikles_session';
 const ROLES = {
