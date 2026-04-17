@@ -91,7 +91,29 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
 .help-icon:hover{background:var(--orange);}
 .help-icon .tt{visibility:hidden;opacity:0;width:240px;background:#1a1a2e;border:1px solid var(--orange);color:#e0e0e0;font-size:12px;line-height:1.6;border-radius:10px;padding:10px 14px;position:absolute;z-index:9999;left:50%;transform:translateX(-50%);top:26px;pointer-events:none;transition:opacity .2s;}
 .help-icon:hover .tt{visibility:visible;opacity:1;}
-@media(max-width:768px){.kpi-strip{grid-template-columns:1fr 1fr;}.fr2,.fr3{grid-template-columns:1fr;}.fr4{grid-template-columns:1fr 1fr;}.rbox-row{grid-template-columns:1fr;}.form-wrap{padding:0 16px 32px;}.date-strip,.topbar,.kpi-strip{padding-left:16px;padding-right:16px;}}
+.charts-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;}
+@media(max-width:768px){
+  .kpi-strip{grid-template-columns:1fr 1fr;}
+  .fr2,.fr3{grid-template-columns:1fr;}
+  .fr4{grid-template-columns:1fr 1fr;}
+  .rbox-row{grid-template-columns:1fr;}
+  .form-wrap{padding:0 12px 28px;gap:14px;}
+  .date-strip,.topbar,.kpi-strip{padding-left:12px;padding-right:12px;}
+  .topbar{height:52px;}
+  .topbar-logo{height:32px;}
+  .topbar-name{font-size:15px;letter-spacing:2px;}
+  .topbar-sub{display:none;}
+  .topbar-left{gap:8px;min-width:0;}
+  .topbar-left>div{min-width:0;overflow:hidden;}
+  .topbar-right{gap:4px;}
+  .btn-help,.btn-out{padding:6px 10px;font-size:11px;}
+  .card{padding:14px;}
+  .card-title{margin-bottom:12px;padding-bottom:8px;gap:8px;}
+  .kpi-strip{gap:8px;padding-top:12px;padding-bottom:8px;}
+  .kpi{padding:10px 12px;}
+  .kpi-val{font-size:16px;}
+  .charts-grid{grid-template-columns:1fr;gap:14px;}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -340,7 +362,7 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
       </div>
     </div>
     <!-- Gráficas -->
-    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px">
+    <div class="charts-grid">
       <div>
         <div style="font-size:11px;color:#aaa;margin-bottom:6px;letter-spacing:1px">RESUMEN</div>
         <div style="height:180px"><canvas id="cv_cap_barras"></canvas></div>
