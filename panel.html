@@ -291,8 +291,24 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
   .tb-right .btn-help,
   .tb-right>.btn-out{display:none!important;}
   .hamburger{display:flex;}
-  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-  .tbl-wrap table{min-width:600px;}
+  /* Tarjetas más compactas */
+  .card{padding:14px;}
+  /* Tablas: ancho fluido, permitimos scroll si no cabe */
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;}
+  .tbl-wrap table{min-width:0;width:100%;}
+  .tbl-wrap table th,.tbl-wrap table td{padding:8px 6px;font-size:12px;}
+  /* Usuarios: ocultar Rol, Empresa, Email, Estado (se ven al editar) */
+  #usuarios_tbody tr td:nth-child(4),
+  #usuarios_tbody tr td:nth-child(5),
+  #usuarios_tbody tr td:nth-child(6),
+  #usuarios_tbody tr td:nth-child(7),
+  #usuarios_list thead tr th:nth-child(4),
+  #usuarios_list thead tr th:nth-child(5),
+  #usuarios_list thead tr th:nth-child(6),
+  #usuarios_list thead tr th:nth-child(7){display:none;}
+  /* Acciones apiladas y compactas */
+  #usuarios_tbody .td-actions{display:flex;flex-direction:column;gap:4px;}
+  #usuarios_tbody .td-actions .btn-sm{font-size:10px;padding:4px 8px;white-space:nowrap;}
 }
 </style>
 <link rel="stylesheet" href="mobile.css">
