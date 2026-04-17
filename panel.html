@@ -263,6 +263,22 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
 .btn-help{background:rgba(46,196,182,.1);border:1px solid rgba(46,196,182,.3);color:#2ec4b6;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
 .btn-help:hover{background:rgba(46,196,182,.2);}
 
+/* ══ Responsive mobile específico de panel.html ══ */
+@media (max-width: 768px) {
+  .topbar{padding:0 12px;height:52px;flex-wrap:nowrap;}
+  .tb-left{gap:8px;min-width:0;flex:1;}
+  .tb-left>div{min-width:0;overflow:hidden;}
+  .tb-logo{height:32px;}
+  .tb-name{font-size:15px;letter-spacing:2px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tb-sub{font-size:8px;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tb-right{gap:4px;flex-wrap:nowrap;}
+  .tb-right .btn-nav,
+  .tb-right .user-pill,
+  .tb-right .btn-help{display:none!important;}
+  .tb-right .btn-out{padding:6px 10px;font-size:11px;}
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .tbl-wrap table{min-width:600px;}
+}
 </style>
 <link rel="stylesheet" href="mobile.css">
 </head>
