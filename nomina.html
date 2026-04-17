@@ -423,7 +423,7 @@ function clearSession() {
   sessionStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(SESSION_KEY+'_remember');
 }
-function logout() { if(confirm('¿Cerrar sesión?')) { clearSession(); window.location.href='login.html'; } }
+function logout() { if(confirm('¿Cerrar sesión?')) { clearSession(); window.location.href='acceso.html'; } }
 
 function jsonp(params, timeout=12000) {
   return new Promise((resolve,reject) => {
@@ -465,7 +465,7 @@ let empActivo = null, configActivo = null;
 // ── Init ──
 document.addEventListener('DOMContentLoaded', async () => {
   SESSION = getSession();
-  if (!SESSION) { window.location.href = 'login.html'; return; }
+  if (!SESSION) { window.location.href = 'acceso.html'; return; }
 
   // Topbar inmediato
   document.getElementById('topbar-name').textContent = (SESSION.empresa||'').replace(/_/g,' ').toUpperCase();

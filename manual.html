@@ -64,7 +64,7 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--light);m
     </div>
   </div>
   <div style="display:flex;gap:10px;align-items:center;">
-    <a id="btnBack" href="dashboard_ejecutivo.html" class="btn-back">← Regresar</a>
+    <a id="btnBack" href="dashboard.html" class="btn-back">← Regresar</a>
     <button class="btn-out" onclick="logout()">Salir ✕</button>
   </div>
 </header>
@@ -112,7 +112,7 @@ function logout() {
   if(confirm('¿Cerrar sesión?')) {
     sessionStorage.removeItem(SESSION_KEY);
     localStorage.removeItem(SESSION_KEY+'_remember');
-    window.location.href = 'login.html';
+    window.location.href = 'acceso.html';
   }
 }
 
@@ -134,7 +134,7 @@ let secciones_data = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
   const s = getSession();
-  if (!s) { window.location.href = 'login.html'; return; }
+  if (!s) { window.location.href = 'acceso.html'; return; }
 
   // Topbar
   document.getElementById('topbar-name').textContent = (s.empresa||'').replace(/_/g,' ').toUpperCase();
@@ -172,9 +172,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Botón regresar según rol
   const backBtn = document.getElementById('btnBack');
-  if (['ANALISTA_FIN','ANALISTA_FULL'].includes(s.rol)) backBtn.href = 'captura_financiera.html';
-  else if (['ANALISTA_NOM'].includes(s.rol)) backBtn.href = 'captura_nomina.html';
-  else backBtn.href = 'dashboard_ejecutivo.html';
+  if (['ANALISTA_FIN','ANALISTA_FULL'].includes(s.rol)) backBtn.href = 'registro.html';
+  else if (['ANALISTA_NOM'].includes(s.rol)) backBtn.href = 'nomina.html';
+  else backBtn.href = 'dashboard.html';
 });
 
 function renderSecciones(secs) {
