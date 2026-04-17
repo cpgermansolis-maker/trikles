@@ -33,31 +33,6 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--light);m
   .hamburger{display:flex;}
   .topbar-nav,.btn-nav:not(.mobile-nav .btn-nav){display:none!important;}
   .user-chip,.chip,.user-pill{display:none!important;}
-  .topbar{padding:0 12px;height:52px;}
-  .topbar-logo{height:32px;}
-  .topbar-name{font-size:15px;letter-spacing:2px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .topbar-sub{font-size:8px;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .topbar-left{gap:8px;min-width:0;flex:1;}
-  .topbar-left>div{min-width:0;overflow:hidden;}
-  .topbar-right{gap:4px;}
-  .topbar .btn-help,.topbar-right>.btn-out{display:none!important;}
-  .mobile-nav{gap:12px;}
-  .mobile-nav .btn-nav,.mobile-nav .btn-out{width:min(240px,82vw);}
-  .wrap{padding:16px 12px 32px;gap:14px;}
-  .page-title{font-size:22px;letter-spacing:2px;}
-  .page-sub{font-size:11px;}
-  .kpi-row{grid-template-columns:1fr 1fr;gap:8px;}
-  .kpi{padding:10px 12px;}
-  .kpi-val{font-size:17px;}
-  .fr2,.fr3{grid-template-columns:1fr;}
-  .fr4{grid-template-columns:1fr 1fr;}
-  .pe-box{grid-template-columns:1fr;gap:14px;padding:14px;}
-  .pe-main-val{font-size:26px;}
-  .card{padding:14px;}
-  .card-title{flex-wrap:wrap;gap:8px;margin-bottom:12px;}
-  .ct-right{margin-left:0;}
-  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-  .table-scroll table{min-width:520px;}
 }
 
 .user-pill{display:flex;align-items:center;gap:8px;background:rgba(245,130,31,.08);border:1px solid var(--border);border-radius:30px;padding:6px 14px;font-size:12px;font-weight:700;}
@@ -136,6 +111,33 @@ tbody tr:last-child td{border-bottom:none;}
 .toast.err{background:rgba(230,57,70,.15);border:1px solid rgba(230,57,70,.4);color:var(--red);}
 .no-access{text-align:center;padding:80px 20px;color:var(--gray);}
 .no-access h2{color:var(--red);margin-bottom:10px;}
+@media(max-width:768px){
+  .topbar{padding:0 12px;height:52px;}
+  .topbar-logo{height:32px;}
+  .topbar-name{font-size:15px;letter-spacing:2px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .topbar-sub{font-size:8px;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .topbar-left{gap:8px;min-width:0;flex:1;}
+  .topbar-left>div{min-width:0;overflow:hidden;}
+  .topbar-right{gap:4px;}
+  .topbar .btn-help,.topbar-right>.btn-out{display:none!important;}
+  .mobile-nav{gap:12px;}
+  .mobile-nav .btn-nav,.mobile-nav .btn-out{width:min(240px,82vw);}
+  .wrap{padding:16px 12px 32px;gap:14px;}
+  .page-title{font-size:22px;letter-spacing:2px;}
+  .page-sub{font-size:11px;}
+  .kpi-row{grid-template-columns:1fr 1fr;gap:8px;}
+  .kpi{padding:10px 12px;}
+  .kpi-val{font-size:17px;}
+  .fr2,.fr3{grid-template-columns:1fr;}
+  .fr4{grid-template-columns:1fr 1fr;}
+  .pe-box{grid-template-columns:1fr;gap:14px;padding:14px;}
+  .pe-main-val{font-size:26px;}
+  .card{padding:14px;}
+  .card-title{flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  .ct-right{margin-left:0;}
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .table-scroll table{min-width:520px;}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
