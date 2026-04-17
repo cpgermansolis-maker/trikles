@@ -334,7 +334,7 @@ function getSession(){
 }
 function cerrarSesion(){
   sessionStorage.removeItem('trikles_session');
-  window.location.href='login.html';
+  window.location.href='acceso.html';
 }
 function fmt(n){ return '$'+parseFloat(n||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function fmtPct(n){ return (parseFloat(n||0)*100).toFixed(1)+'%'; }
@@ -365,7 +365,7 @@ function toast(tipo, msg){
 // ── Inicializar ──
 document.addEventListener('DOMContentLoaded', ()=>{
   SESSION = getSession();
-  if(!SESSION){ window.location.href='login.html'; return; }
+  if(!SESSION){ window.location.href='acceso.html'; return; }
 
   // Verificar rol
   const rol = (SESSION.rol||'').toUpperCase();
