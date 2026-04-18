@@ -1268,11 +1268,11 @@ function updateKPIs(data){
   const tg=data.reduce((s,r)=>s+r.g,0);
   const tgt=data.reduce((s,r)=>s+r.gt,0);
   const prom=tv/data.length;
-  // CxP = compras externas - pagos a compras
-  const tcxp = data.reduce((s,r) => s + (r.com||0), 0) - data.reduce((s,r) => s + (r.gca||0), 0);
+  // CxP = compras a crédito - pagos a crédito (alineado con el módulo Reserva & CxP)
+  const tcxp = data.reduce((s,r) => s + (r.comcr||0), 0) - data.reduce((s,r) => s + (r.pac||0), 0);
   // Actualizar CxP (CxC se carga por separado)
   animN('kv_cxp', Math.max(0, tcxp), true);
-  document.getElementById('ks_cxp').textContent = 'acumulado en rango';
+  document.getElementById('ks_cxp').textContent = 'saldo acumulado';
   const cfDiaKpi=PE_DATA?PE_DATA.costoFijoDiario:0;
   const cfTotalKpi=cfDiaKpi*data.length;
   // Utilidad neta correcta = ganancia bruta - gastos operativos - costos fijos
