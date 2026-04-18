@@ -107,6 +107,32 @@ select.fi option { background:#1a1a2e; }
 
 @media(max-width:600px) { .form-grid { grid-template-columns:1fr; } .kpi-strip { grid-template-columns:1fr 1fr; } }
 
+/* ── PERIOD SELECTOR ── */
+.period-bar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:16px; padding:14px 16px; background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:12px; }
+.period-inputs { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; }
+.period-inputs .fi-wrap { gap:4px; }
+.period-inputs .fi { width:150px; padding:8px 12px; font-size:13px; }
+.period-quick { display:flex; gap:6px; flex-wrap:wrap; }
+.btn-quick { padding:8px 14px; border-radius:8px; border:1px solid rgba(255,255,255,.1); background:transparent; color:var(--gray); font-family:'Rajdhani',sans-serif; font-size:12px; font-weight:700; letter-spacing:.5px; cursor:pointer; transition:.2s; }
+.btn-quick:hover { color:var(--light); border-color:rgba(255,255,255,.2); }
+.btn-quick.active { background:rgba(245,130,31,.15); border-color:var(--orange); color:var(--orange); }
+
+/* ── TOTAL KPI ── */
+.kpi-total-card { background:linear-gradient(135deg, rgba(245,130,31,.10), rgba(67,97,238,.05)); border:1px solid var(--border); border-radius:14px; padding:22px 24px; margin-bottom:20px; text-align:center; }
+.kpi-total-lbl { font-size:12px; color:var(--gray); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.kpi-total-val { font-family:'Bebas Neue',sans-serif; font-size:46px; letter-spacing:1px; color:var(--red); }
+.kpi-total-val.ok { color:var(--green); }
+.kpi-total-sub { font-size:13px; color:var(--gray); margin-top:6px; }
+.kpi-total-sub b { font-size:14px; }
+
+/* ── CHARTS ── */
+.charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px; }
+.charts-grid .card { margin-bottom:0; padding:16px; }
+.charts-grid .card-title { margin-bottom:10px; font-size:14px; }
+.chart-wrap { position:relative; height:180px; }
+.charts-grid .wide { grid-column:1/-1; }
+@media(max-width:768px) { .charts-grid { grid-template-columns:1fr; } .charts-grid .wide { grid-column:auto; } .kpi-total-val { font-size:36px; } .period-inputs .fi { width:48%; } }
+
 /* ── Mobile CxC ── */
 .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;z-index:400;}
 .hamburger span{display:block;width:22px;height:2px;background:var(--orange);border-radius:2px;transition:.3s;}
@@ -128,6 +154,7 @@ select.fi option { background:#1a1a2e; }
 }
 </style>
 <link rel="stylesheet" href="mobile.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -168,6 +195,47 @@ select.fi option { background:#1a1a2e; }
 <div class="main">
   <div class="page-title">💳 Cuentas por Cobrar</div>
   <div class="page-sub">Seguimiento de créditos a clientes y otros conceptos</div>
+
+  <!-- ══ SELECTOR DE PERÍODO ══ -->
+  <div class="period-bar">
+    <div class="period-inputs">
+      <div class="fi-wrap"><label class="fi-lbl">Desde</label><input type="date" class="fi" id="periodFrom" onchange="applyPeriod()"></div>
+      <div class="fi-wrap"><label class="fi-lbl">Hasta</label><input type="date" class="fi" id="periodTo" onchange="applyPeriod()"></div>
+    </div>
+    <div class="period-quick">
+      <button class="btn-quick" data-pq="mes"      onclick="setPeriodQuick('mes', this)">Mes actual</button>
+      <button class="btn-quick" data-pq="3meses"   onclick="setPeriodQuick('3meses', this)">3 meses</button>
+      <button class="btn-quick" data-pq="anio"     onclick="setPeriodQuick('anio', this)">Año</button>
+      <button class="btn-quick active" data-pq="todo" onclick="setPeriodQuick('todo', this)">Todo</button>
+    </div>
+  </div>
+
+  <!-- ══ KPI SALDO TOTAL CxC ══ -->
+  <div class="kpi-total-card">
+    <div class="kpi-total-lbl">💼 Saldo total por cobrar</div>
+    <div class="kpi-total-val" id="kpi_total_saldo">—</div>
+    <div class="kpi-total-sub">
+      Clientes: <b class="o" id="kpi_total_cli">—</b>
+      &nbsp;+&nbsp;
+      Otros conceptos: <b class="b" id="kpi_total_otros">—</b>
+    </div>
+  </div>
+
+  <!-- ══ GRÁFICAS DINÁMICAS ══ -->
+  <div class="charts-grid">
+    <div class="card">
+      <div class="card-title">👥 Clientes — cargos y abonos</div>
+      <div class="chart-wrap"><canvas id="ch_cli"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 Otros Conceptos — cargos y abonos</div>
+      <div class="chart-wrap"><canvas id="ch_otros"></canvas></div>
+    </div>
+    <div class="card wide">
+      <div class="card-title">💼 Total CxC — movimientos combinados</div>
+      <div class="chart-wrap"><canvas id="ch_total"></canvas></div>
+    </div>
+  </div>
 
   <!-- TABS -->
   <div class="tabs">
@@ -322,6 +390,9 @@ const SESSION_KEY = 'trikles_session';
 let SESSION = null;
 let TAB_ACTIVO = 'cli';
 let OTROS_DATA = [];
+let CLI_DATA = [];
+let GF = { from: null, to: null };
+let CH_CLI = null, CH_OTROS = null, CH_TOTAL = null;
 
 function getSession() {
   try {
@@ -394,48 +465,62 @@ async function cargarClientes() {
   try {
     const r = await jsonp({ action: 'getCxCClientes', empresa: SESSION.empresa });
     if (!r.success) return;
-
-    document.getElementById('cli_ventas').textContent = fmt(r.totalVentas);
-    document.getElementById('cli_cobros').textContent = fmt(r.totalCobros);
-    document.getElementById('cli_saldo').textContent  = fmt(r.saldo);
-
-    const badge = document.getElementById('cli_badge');
-    if (r.saldo <= 0) {
-      badge.className = 'badge badge-ok';
-      badge.textContent = '✓ Al corriente';
-      badge.style.display = 'inline';
-      document.getElementById('cli_antiguedad').textContent = 'Sin saldo pendiente';
-    } else {
-      badge.className = 'badge badge-danger';
-      badge.textContent = '⚠ Saldo pendiente';
-      badge.style.display = 'inline';
-      document.getElementById('cli_antiguedad').textContent = r.fechaMasAntigua
-        ? 'Más antiguo: ' + fmtFecha(r.fechaMasAntigua)
-        : 'Con saldo pendiente';
-    }
-
-    // Renderizar estado de cuenta con saldo acumulado
-    const tbody = document.getElementById('cli_tbody');
-    if (!r.movimientos.length) {
-      tbody.innerHTML = '<tr><td colspan="5" class="empty">Sin movimientos registrados</td></tr>';
-      return;
-    }
-
-    let saldoAcum = 0;
-    tbody.innerHTML = r.movimientos.map(m => {
-      const esCargo = m.tipo === 'VENTA_CREDITO';
-      if (esCargo) saldoAcum += m.monto;
-      else saldoAcum -= m.monto;
-      return `<tr>
-        <td style="color:var(--gray)">${fmtFecha(m.fecha)}</td>
-        <td style="font-weight:600">${m.concepto}</td>
-        <td style="text-align:right;color:var(--orange)">${esCargo ? fmt(m.monto) : '—'}</td>
-        <td style="text-align:right;color:var(--green)">${!esCargo ? fmt(m.monto) : '—'}</td>
-        <td style="text-align:right;font-weight:700;color:${saldoAcum > 0 ? 'var(--red)' : 'var(--green)'}">${fmt(saldoAcum)}</td>
-      </tr>`;
-    }).join('');
-
+    CLI_DATA = r.movimientos || [];
+    renderAll();
   } catch(e) { console.warn('CxC clientes:', e); }
+}
+
+function renderClientes() {
+  const filtered = filterByPeriod(CLI_DATA);
+  let totalCargos = 0, totalAbonos = 0;
+  filtered.forEach(m => {
+    if (m.tipo === 'VENTA_CREDITO') totalCargos += m.monto;
+    else totalAbonos += m.monto;
+  });
+  const saldo = totalCargos - totalAbonos;
+
+  document.getElementById('cli_ventas').textContent = fmt(totalCargos);
+  document.getElementById('cli_cobros').textContent = fmt(totalAbonos);
+  document.getElementById('cli_saldo').textContent  = fmt(Math.max(0, saldo));
+
+  const badge = document.getElementById('cli_badge');
+  if (saldo <= 0) {
+    badge.className = 'badge badge-ok';
+    badge.textContent = '✓ Al corriente';
+    badge.style.display = 'inline';
+    document.getElementById('cli_antiguedad').textContent = 'Sin saldo pendiente';
+  } else {
+    badge.className = 'badge badge-danger';
+    badge.textContent = '⚠ Saldo pendiente';
+    badge.style.display = 'inline';
+    let masAnt = null;
+    for (const m of filtered) {
+      if (m.tipo === 'VENTA_CREDITO' && (!masAnt || m.fecha < masAnt)) masAnt = m.fecha;
+    }
+    document.getElementById('cli_antiguedad').textContent = masAnt
+      ? 'Más antiguo: ' + fmtFecha(masAnt)
+      : 'Con saldo pendiente';
+  }
+
+  const tbody = document.getElementById('cli_tbody');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">Sin movimientos en el período seleccionado</td></tr>';
+    return;
+  }
+
+  let saldoAcum = 0;
+  tbody.innerHTML = filtered.map(m => {
+    const esCargo = m.tipo === 'VENTA_CREDITO';
+    if (esCargo) saldoAcum += m.monto;
+    else saldoAcum -= m.monto;
+    return `<tr>
+      <td style="color:var(--gray)">${fmtFecha(m.fecha)}</td>
+      <td style="font-weight:600">${m.concepto}</td>
+      <td style="text-align:right;color:var(--orange)">${esCargo ? fmt(m.monto) : '—'}</td>
+      <td style="text-align:right;color:var(--green)">${!esCargo ? fmt(m.monto) : '—'}</td>
+      <td style="text-align:right;font-weight:700;color:${saldoAcum > 0 ? 'var(--red)' : 'var(--green)'}">${fmt(saldoAcum)}</td>
+    </tr>`;
+  }).join('');
 }
 
 // ── Cargar Otros Conceptos ──
@@ -443,18 +528,18 @@ async function cargarOtros() {
   try {
     const r = await jsonp({ action: 'getCxC', empresa: SESSION.empresa });
     if (!r.success) return;
-
     OTROS_DATA = r.data || [];
-    renderOtros();
+    renderAll();
   } catch(e) { console.warn('CxC otros:', e); }
 }
 
 function renderOtros() {
   const tbody = document.getElementById('otro_tbody');
   const tots  = document.getElementById('otro_totales');
+  const filtered = filterByPeriod(OTROS_DATA);
 
-  if (!OTROS_DATA.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty">Sin movimientos registrados</td></tr>';
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty">Sin movimientos en el período seleccionado</td></tr>';
     tots.style.display = 'none';
     document.getElementById('otro_cargos').textContent = fmt(0);
     document.getElementById('otro_abonos').textContent = fmt(0);
@@ -465,7 +550,7 @@ function renderOtros() {
   let totalCargos = 0, totalAbonos = 0, totalCaja = 0;
   let saldoAcum = 0;
 
-  tbody.innerHTML = OTROS_DATA.map(m => {
+  tbody.innerHTML = filtered.map(m => {
     const esInicial = m.tipo === 'SALDO_INICIAL';
     const esCargo   = m.tipo === 'OTRO_CARGO' || m.tipo === 'SALIDA';
     const esAbono   = m.tipo === 'COBRO_OTRO';
@@ -513,6 +598,158 @@ function renderOtros() {
   document.getElementById('otro_t_abonos').textContent = fmt(totalAbonos);
   document.getElementById('otro_t_saldo').textContent  = fmt(saldoFinal);
   document.getElementById('otro_t_caja').textContent   = fmt(totalCaja);
+}
+
+// ════════════════════════════════════════════════════════════
+// ══   FILTRO DE PERÍODO, KPI TOTAL, GRÁFICAS                ══
+// ════════════════════════════════════════════════════════════
+
+function filterByPeriod(arr) {
+  if (!GF.from && !GF.to) return arr.slice();
+  return arr.filter(m => {
+    if (GF.from && m.fecha < GF.from) return false;
+    if (GF.to   && m.fecha > GF.to)   return false;
+    return true;
+  });
+}
+
+function setPeriodQuick(key, btn) {
+  document.querySelectorAll('.btn-quick').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const today = new Date();
+  const fmtD = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  if (key === 'mes') {
+    const start = new Date(today.getFullYear(), today.getMonth(), 1);
+    GF.from = fmtD(start); GF.to = fmtD(today);
+  } else if (key === '3meses') {
+    const start = new Date(today); start.setMonth(start.getMonth() - 3);
+    GF.from = fmtD(start); GF.to = fmtD(today);
+  } else if (key === 'anio') {
+    const start = new Date(today.getFullYear(), 0, 1);
+    GF.from = fmtD(start); GF.to = fmtD(today);
+  } else {
+    GF.from = null; GF.to = null;
+  }
+  document.getElementById('periodFrom').value = GF.from || '';
+  document.getElementById('periodTo').value   = GF.to   || '';
+  renderAll();
+}
+
+function applyPeriod() {
+  GF.from = document.getElementById('periodFrom').value || null;
+  GF.to   = document.getElementById('periodTo').value   || null;
+  document.querySelectorAll('.btn-quick').forEach(b => b.classList.remove('active'));
+  renderAll();
+}
+
+function saldoClientes(movs) {
+  let s = 0;
+  movs.forEach(m => { s += (m.tipo === 'VENTA_CREDITO' ? m.monto : -m.monto); });
+  return s;
+}
+function saldoOtros(movs) {
+  let s = 0;
+  movs.forEach(m => {
+    if (m.tipo === 'COBRO_OTRO') s -= m.monto;
+    else s += m.monto; // SALDO_INICIAL, OTRO_CARGO, SALIDA
+  });
+  return s;
+}
+
+function renderKPITotal() {
+  const cliF  = filterByPeriod(CLI_DATA);
+  const otroF = filterByPeriod(OTROS_DATA);
+  const cliS   = Math.max(0, saldoClientes(cliF));
+  const otroS  = Math.max(0, saldoOtros(otroF));
+  const total  = cliS + otroS;
+  document.getElementById('kpi_total_cli').textContent   = fmt(cliS);
+  document.getElementById('kpi_total_otros').textContent = fmt(otroS);
+  const tEl = document.getElementById('kpi_total_saldo');
+  tEl.textContent = fmt(total);
+  tEl.className   = 'kpi-total-val' + (total === 0 ? ' ok' : '');
+}
+
+function isCargo(m) {
+  return m.tipo === 'VENTA_CREDITO'
+      || m.tipo === 'OTRO_CARGO'
+      || m.tipo === 'SALIDA'
+      || m.tipo === 'SALDO_INICIAL';
+}
+
+function bucketize(movs) {
+  const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  let daily = true;
+  if (GF.from && GF.to) {
+    const d1 = new Date(GF.from), d2 = new Date(GF.to);
+    const days = Math.round((d2 - d1) / 86400000);
+    daily = days <= 45;
+  } else {
+    daily = false; // Todo: agrupar por mes
+  }
+
+  const buckets = {};
+  movs.forEach(m => {
+    const d = new Date(m.fecha + 'T12:00:00');
+    const key = daily
+      ? m.fecha
+      : d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    const label = daily
+      ? String(d.getDate()).padStart(2,'0') + ' ' + MESES[d.getMonth()]
+      : MESES[d.getMonth()] + ' ' + String(d.getFullYear()).slice(2);
+    if (!buckets[key]) buckets[key] = { label, cargos: 0, abonos: 0 };
+    if (isCargo(m)) buckets[key].cargos += m.monto;
+    else            buckets[key].abonos += m.monto;
+  });
+
+  const keys = Object.keys(buckets).sort();
+  return {
+    labels: keys.map(k => buckets[k].label),
+    cargos: keys.map(k => buckets[k].cargos),
+    abonos: keys.map(k => buckets[k].abonos)
+  };
+}
+
+function mkChart(canvasId, prev, data) {
+  if (prev) prev.destroy();
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  const empty = !data.labels.length;
+  return new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: empty ? ['Sin datos'] : data.labels,
+      datasets: [
+        { label: 'Cargos',  data: empty ? [0] : data.cargos,  backgroundColor: 'rgba(245,130,31,.7)', borderColor: 'rgba(245,130,31,1)', borderWidth: 1 },
+        { label: 'Abonos',  data: empty ? [0] : data.abonos,  backgroundColor: 'rgba(46,196,182,.7)', borderColor: 'rgba(46,196,182,1)', borderWidth: 1 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        y: { beginAtZero: true, ticks: { color: '#888', callback: v => '$' + (v >= 1000 ? (v/1000).toFixed(1)+'K' : v) }, grid: { color: 'rgba(255,255,255,.05)' } },
+        x: { ticks: { color: '#888' }, grid: { display: false } }
+      },
+      plugins: {
+        legend: { labels: { color: '#e0e0e0', font: { family: 'Rajdhani', size: 12 } } },
+        tooltip: { callbacks: { label: c => c.dataset.label + ': $' + (c.parsed.y || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 }) } }
+      }
+    }
+  });
+}
+
+function buildCharts() {
+  const cliF   = filterByPeriod(CLI_DATA);
+  const otrosF = filterByPeriod(OTROS_DATA);
+  const allF   = cliF.concat(otrosF);
+  CH_CLI   = mkChart('ch_cli',   CH_CLI,   bucketize(cliF));
+  CH_OTROS = mkChart('ch_otros', CH_OTROS, bucketize(otrosF));
+  CH_TOTAL = mkChart('ch_total', CH_TOTAL, bucketize(allF));
+}
+
+function renderAll() {
+  renderClientes();
+  renderOtros();
+  renderKPITotal();
+  buildCharts();
 }
 
 // ── Guardar movimiento otros ──
