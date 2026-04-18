@@ -2351,7 +2351,7 @@ async function loadEmpresasSelector(){
   }
 }
 
-function onEmpresaChange(){
+async function onEmpresaChange(){
   const sel=document.getElementById('empSelector');
   const empresa=sel.value;
   const s=getS();
@@ -2359,10 +2359,25 @@ function onEmpresaChange(){
     s.empresaFiltro=empresa;
     sessionStorage.setItem(SK,JSON.stringify(s));
   }
-  // Reload dashboard with selected company filter
-  updateAll();
   const label=sel.options[sel.selectedIndex].text;
-  toast('info','Empresa seleccionada',label);
+  toast('info','Cargando...',label);
+
+  try {
+    // Recargar datos del backend con la empresa seleccionada.
+    // (updateAll solo re-filtra lo que ya está en memoria, no re-pide datos.)
+    await Promise.all([
+      cargarDatosDesdeSheets(empresa),
+      cargarDatosNomina(empresa),
+      cargarCxCDashboard(empresa)
+    ]);
+    // Cambiar branding (colores/logo) si es una empresa concreta
+    if (empresa !== 'ALL') applyBranding(empresa);
+    updateAll();
+    toast('success','Empresa cargada',label);
+  } catch(err) {
+    console.warn('Error cambiando empresa:', err);
+    toast('err','Error al cargar',label);
+  }
 }
 
 /* ──── DATOS DINÁMICOS POR EMPRESA ──── */

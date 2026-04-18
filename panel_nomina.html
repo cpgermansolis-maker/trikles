@@ -149,6 +149,24 @@ input:checked + .slider::before{transform:translateX(18px);}
   white-space: normal;
   word-wrap: break-word;
 }
+
+/* ══ Menú hamburguesa mobile ══ */
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;z-index:400;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--orange);border-radius:2px;transition:.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.mobile-nav{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.96);z-index:350;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+.mobile-nav.open{display:flex;}
+.mobile-nav .btn-nav{font-size:16px;padding:13px 28px;width:240px;background:rgba(255,255,255,.05);border:1px solid rgba(245,130,31,.45);color:#e0e0e0;text-align:center;border-radius:10px;text-decoration:none;font-weight:700;}
+.mobile-nav .btn-out{font-size:16px;padding:13px 28px;width:240px;text-align:center;background:none;border:1px solid rgba(230,57,70,.45);color:#e63946;border-radius:10px;cursor:pointer;font-weight:700;}
+.mobile-nav-close{position:absolute;top:18px;right:18px;background:none;border:none;color:var(--orange);font-size:28px;cursor:pointer;}
+@media (max-width:768px){
+  .hamburger{display:flex;}
+  .topbar-right > .btn-back,.topbar-right > .btn-help,.topbar-right > .btn-out{display:none!important;}
+  .chip,.user-chip{display:none!important;}
+}
+
 @media (max-width: 768px) {
   .help-icon .tt {
     width: 75vw;
@@ -194,8 +212,17 @@ input:checked + .slider::before{transform:translateX(18px);}
     <span class="chip" id="userChip">Cargando...</span>
     <a href="manual.html" class="btn-help" title="Manual de usuario">❓ Ayuda</a>
     <button class="btn-out" onclick="logout()">Salir ✕</button>
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()"><span></span><span></span><span></span></button>
   </div>
 </header>
+
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-close" onclick="toggleMenu()">✕</button>
+  <a href="panel.html" class="btn-nav">← Panel de Control</a>
+  <a href="dashboard.html" class="btn-nav">📊 Dashboard</a>
+  <a href="manual.html" class="btn-nav">❓ Ayuda</a>
+  <button class="btn-out" onclick="logout()">Salir ✕</button>
+</div>
 
 <main class="main">
   <div class="page-title">⚙️ Configuración de Nómina</div>
@@ -673,6 +700,11 @@ async function applyBranding(empresaId) {
     const logo = document.querySelector('.topbar-logo');
     if (logo && emp.logo) { logo.src = emp.logo; }
   } catch(e) { console.warn('Branding:', e); }
+}
+
+function toggleMenu(){
+  document.getElementById('mobileNav').classList.toggle('open');
+  document.getElementById('hamburgerBtn').classList.toggle('open');
 }
 </script>
 <script>
