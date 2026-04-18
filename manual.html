@@ -131,6 +131,184 @@ function jsonp(params, timeout=10000) {
   });
 }
 
+// ════════════════════════════════════════════════════════════
+// ══  MINI CURSO DE CONCEPTOS — compartido por todos los roles ══
+// ════════════════════════════════════════════════════════════
+const CAPACITACION = [
+  {
+    icono: '🎓',
+    titulo: 'Mini Curso 1 — El Punto de Equilibrio (P.E.)',
+    contenido: `El Punto de Equilibrio es el monto mínimo de ventas diarias que necesitas para cubrir todos tus gastos. Vender por arriba del P.E. = día rentable. Vender por debajo = día con pérdida.
+
+📐 CÓMO SE CALCULA
+P.E. diario = Costos fijos diarios ÷ Margen de contribución
+
+Donde:
+— Costos fijos diarios = (costos fijos mensuales ÷ 30) + nómina del día
+— Margen de contribución = Ganancia bruta ÷ Ventas (expresado como %)
+
+📝 EJEMPLO PRÁCTICO
+Costos fijos del mes: $30,000 → $1,000 diarios
+Nómina del día: $800
+Total costos fijos del día: $1,800
+Margen de contribución: 40%
+
+P.E. = $1,800 ÷ 0.40 = $4,500 de ventas diarias
+
+Esto significa que debes vender $4,500 ese día para "empatar". Arriba = ganas, abajo = pierdes.
+
+✅ POR QUÉ ES IMPORTANTE
+— Sabes exactamente cuánto necesitas vender cada día para no perder.
+— Identificas días en rojo (bajo P.E.) y puedes actuar rápido.
+— Evalúas si un aumento de gastos (ej. nuevo empleado, nueva sucursal) es sostenible.
+— Mides la salud real del negocio sin depender de un solo "buen mes".
+
+💡 Trikles calcula tu P.E. automáticamente usando los costos fijos que capturaste y el margen promedio de tus ventas. Lo ves en el Dashboard como línea de referencia sobre tus ventas diarias.`
+  },
+  {
+    icono: '🎓',
+    titulo: 'Mini Curso 2 — Costos vs Gastos',
+    contenido: `Muchos usan "costos" y "gastos" como sinónimos, pero son cosas distintas — y entender la diferencia te ayuda a tomar mejores decisiones de precios y rentabilidad.
+
+💰 COSTOS (directos)
+Son los recursos que se consumen directamente para producir o vender.
+— Restaurante: ingredientes, empaques, materia prima.
+— Taller: refacciones, insumos, pintura, mano de obra directa.
+— Clínica: medicamentos, material desechable, insumos médicos.
+
+Característica clave: suben o bajan proporcional a tus ventas. Vendes más → gastas más en materia prima.
+
+📄 GASTOS (operativos)
+Son los egresos necesarios para que el negocio exista y opere, pero no dependen directo de cada venta.
+— Renta del local
+— Luz, agua, internet
+— Sueldos administrativos
+— Publicidad, software, trámites
+— Mantenimiento
+
+Característica clave: son relativamente fijos. Vendes el doble pero la renta sigue igual.
+
+🧮 ¿POR QUÉ IMPORTA LA DIFERENCIA?
+— Para FIJAR PRECIOS: el precio debe cubrir el costo del producto + parte de los gastos fijos + tu margen.
+— Para CALCULAR EL P.E.: solo los gastos fijos se dividen entre el margen. Los costos variables ya están dentro del margen.
+— Para ANALIZAR RENTABILIDAD: reducir costos unitarios aumenta tu margen de cada venta; reducir gastos fijos baja tu P.E. (vendes menos para igualar).
+
+💡 En Trikles, los costos del día aparecen en la captura financiera como "Compras del día". Los gastos fijos los configuras una sola vez en el módulo de Costos.`
+  },
+  {
+    icono: '🎓',
+    titulo: 'Mini Curso 3 — Cuentas por Pagar (CxP) y por Cobrar (CxC)',
+    contenido: `Cuando vendes o compras a crédito, el dinero no se mueve en efectivo — pero sigue siendo parte del negocio. Son saldos "en papel" que pueden hacerte sentir rico cuando no lo eres (o pobre cuando sí).
+
+📥 CUENTAS POR COBRAR (CxC)
+Es el dinero que tus CLIENTES te deben por ventas a crédito.
+Ejemplo: vendiste $5,000 de mercancía y el cliente pagará la próxima semana. Ese $5,000 es un CxC — es tuyo, pero aún no lo tienes.
+
+📤 CUENTAS POR PAGAR (CxP)
+Es el dinero que TÚ DEBES a proveedores por compras a crédito.
+Ejemplo: compraste $3,000 de inventario y lo pagarás a 30 días. Ese $3,000 es un CxP — ya es gasto, pero aún no sale de tu caja.
+
+⏳ LA ANTIGÜEDAD ES LO MÁS IMPORTANTE
+Un CxC de 3 días es saludable. Un CxC de 90 días es una alerta roja — es probable que no se cobre.
+
+Por eso los directores deben consultar regularmente:
+— ¿Cuál es mi CxC más antiguo? → riesgo de incobrable
+— ¿Qué CxP está por vencer? → riesgo de pelearte con un proveedor
+— ¿Mi CxC total supera a mi CxP? → estás financiando a tus clientes con tu propio flujo
+
+🎯 IMPACTO EN DECISIONES
+— No otorgues crédito a clientes sin historial comprobado.
+— No acumules CxC viejos — cobra, negocia o ajusta.
+— Programa los pagos a CxP en función de tu flujo real.
+— Recuerda: ventas a crédito NO son efectivo. Puedes vender mucho y no tener dinero.
+
+💡 En Trikles, el módulo de Cuentas (CxC) te muestra el saldo total, la antigüedad y las gráficas por período. El módulo de Reserva & CxP en el Dashboard hace lo mismo para tus deudas a proveedores.`
+  },
+  {
+    icono: '🎓',
+    titulo: 'Mini Curso 4 — Flujo de Efectivo',
+    contenido: `El flujo de efectivo es el DINERO REAL que entra y sale del negocio cada día — billetes, pesos en cuenta, transferencias.
+
+⚠️ NO confundir con utilidad. Puedes ser rentable en papel y NO tener efectivo:
+— Ventas del mes: $100,000 (50% a crédito, no cobrado aún)
+— Gastos del mes: $80,000 (pagados en efectivo)
+— Utilidad "en papel": $20,000
+— Efectivo real en caja: $100,000 − $50,000 (CxC) − $80,000 = −$30,000 🚨
+
+💵 QUÉ ENTRA Y SALE EN EFECTIVO
+
+Entradas (aumentan caja):
+— Ventas en efectivo o con tarjeta
+— Cobros de CxC
+— Anticipos recibidos
+
+Salidas (disminuyen caja):
+— Compras del día
+— Pago de gastos fijos
+— Pago a proveedores (CxP)
+— Nómina pagada en efectivo
+— Retiros de utilidades
+
+🔎 POR QUÉ LA TRANSPARENCIA ES CRÍTICA
+Cada peso debe estar contabilizado. Un flujo opaco es el primer síntoma de:
+— Robo hormiga (sustracciones pequeñas pero constantes).
+— Decisiones mal informadas ("creía que teníamos dinero").
+— Problemas legales (auditorías, SAT).
+
+En Trikles, la captura financiera diaria te obliga a:
+1. Contar físicamente el efectivo al cierre.
+2. Comparar con el efectivo esperado (saldo inicial + entradas − salidas).
+3. Si hay diferencia → investigar inmediatamente, no dejarla pasar.
+
+🧠 REGLA DE ORO
+Si el sistema dice que deberías tener $10,000 en caja y cuentas $9,400, NO es "se perdieron $600": es un aviso de que algo no cuadra.
+
+Puede ser:
+— Un error de captura (olvidaste registrar una venta o un egreso).
+— Un vuelto mal dado.
+— Un problema real que debes investigar.
+
+Cualquiera que sea, revisa, corrige y deja el hallazgo documentado en las notas del día.`
+  },
+  {
+    icono: '🎓',
+    titulo: 'Mini Curso 5 — Reserva de Efectivo',
+    contenido: `La reserva es dinero que apartas deliberadamente del flujo operativo para cubrir emergencias, oportunidades y periodos bajos.
+
+💡 POR QUÉ NECESITAS UNA
+Todos los negocios — grandes y pequeños — enfrentan:
+— Meses malos (temporada baja, crisis económica, pandemias).
+— Gastos imprevistos (reparaciones, multas, demanda legal).
+— Oportunidades irrepetibles (inventario con descuento fuerte, liquidación de un competidor).
+
+Sin reserva, cualquier crisis pequeña se convierte en cierre del negocio. CON reserva, las crisis se absorben y las oportunidades se aprovechan.
+
+📏 ¿CUÁNTO DEBE TENER?
+Regla práctica: entre 3 y 6 meses de tus costos fijos totales.
+
+Ejemplo:
+Costos fijos mensuales del negocio: $30,000
+— Reserva mínima: $90,000 (3 meses — para sobrevivir un trimestre flojo)
+— Reserva ideal: $180,000 (6 meses — tranquilidad para decidir sin presión)
+
+🏦 CÓMO CONSTRUIRLA EN TRIKLES
+En la captura financiera diaria existe el campo "Reserva del Día" — es el monto que apartas ese día hacia tu reserva.
+
+Recomendaciones:
+— Si tuviste un día SOBRE tu P.E., aparta un % de la utilidad (ej. 20%).
+— Fija un objetivo mensual realista (ej. $3,000 al mes) y repártelo en los días buenos.
+— NO toques la reserva para gastos operativos normales — solo emergencias reales y oportunidades extraordinarias.
+— Considera guardarla en una cuenta separada del circulante, para que no "se te olvide" que es reserva.
+
+⚠️ SIN RESERVA, TU NEGOCIO ES FRÁGIL
+Un negocio sin reserva vive al día. Cualquier tropiezo lo tumba.
+
+La reserva es lo que transforma un negocio "que sobrevive" en uno "que crece con tranquilidad".
+
+Es también lo primero que notan los bancos y los inversionistas cuando evalúan si dar un crédito: no solo ven cuánto vendes, sino cuánto has logrado acumular.`
+  }
+];
+
 let secciones_data = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -167,8 +345,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Badge de rol
   document.getElementById('rol-badge').textContent = manual.titulo;
 
-  // Guardar secciones para búsqueda
-  secciones_data = manual.secciones;
+  // Guardar secciones para búsqueda + añadir el mini curso al final
+  secciones_data = manual.secciones.concat(CAPACITACION);
   renderSecciones(secciones_data);
 
   // Botón regresar según rol
