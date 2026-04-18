@@ -118,6 +118,7 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="mobile.css">
+<link rel="stylesheet" href="abc.css">
 </head>
 <body>
 
@@ -146,6 +147,11 @@ input[type=date]{background:var(--dark3);border:1px solid rgba(255,255,255,.1);c
   <a href="panel.html" class="btn-nav" id="mNavPanel" style="display:none">⚙️ Panel</a>
   <a href="manual.html" class="btn-nav">❓ Ayuda</a>
   <button class="btn-out" onclick="logout()">Salir ✕</button>
+</div>
+
+<!-- ══ ABC DE LA GESTIÓN ══ -->
+<div style="padding:16px 28px 0;display:flex;justify-content:flex-end;">
+  <button class="btn-abc" onclick="openABC()"><span class="abc-ico">📚</span> EL ABC DE LA GESTIÓN</button>
 </div>
 
 <div class="date-strip">
@@ -899,5 +905,6 @@ function updateFlujo() {
 }
 
 </script>
+<script src="abc.js"></script>
 </body>
 </html>
