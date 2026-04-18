@@ -292,6 +292,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 
 </style>
 <link rel="stylesheet" href="mobile.css">
+<link rel="stylesheet" href="abc.css">
 </head>
 <body>
 
@@ -327,6 +328,11 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   <a class="btn-nav" href="panel.html" id="mNavPanel" style="display:none">⚙️ Panel</a>
   <button class="btn-pdf" onclick="exportPDF();toggleMenu()">📄 PDF</button>
   <button class="btn-out" onclick="logout()">Salir ✕</button>
+</div>
+
+<!-- ══════ ABC DE LA GESTIÓN ══════ -->
+<div style="max-width:1400px;margin:16px auto 0;padding:0 16px;display:flex;justify-content:flex-end;">
+  <button class="btn-abc" onclick="openABC()"><span class="abc-ico">📚</span> EL ABC DE LA GESTIÓN</button>
 </div>
 
 <!-- ══════ MODULE TABS ══════ -->
@@ -2846,5 +2852,6 @@ async function applyBranding(empresaId) {
   });
 })();
 </script>
+<script src="abc.js"></script>
 </body>
 </html>

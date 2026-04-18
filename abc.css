@@ -1,0 +1,155 @@
+/* abc.css — El ABC de la Gestión Trikles
+   Modal educativo con 5 pasos. Compartido por dashboard.html y registro.html */
+
+/* ── Botón disparador ── */
+.btn-abc {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #F5821F 0%, #ff9a44 100%);
+  color: #fff;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-family: 'Bebas Neue', 'Rajdhani', sans-serif;
+  font-size: 16px;
+  letter-spacing: 2px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(245,130,31,.35);
+  transition: transform .15s, box-shadow .15s;
+  text-decoration: none;
+}
+.btn-abc:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245,130,31,.5);
+}
+.btn-abc .abc-ico { font-size: 18px; }
+
+/* ── Overlay ── */
+.abc-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.85);
+  z-index: 9000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+.abc-overlay.open { display: flex; }
+
+/* ── Caja del modal ── */
+.abc-box {
+  background: #1a1a2e;
+  border: 1px solid rgba(245,130,31,.4);
+  border-radius: 16px;
+  max-width: 960px;
+  width: 100%;
+  padding: 30px 28px 24px;
+  max-height: 92vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6);
+}
+
+.abc-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  color: #e0e0e0;
+  font-size: 18px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: .15s;
+}
+.abc-close:hover { background: rgba(255,255,255,.12); color: #fff; }
+
+.abc-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 30px;
+  letter-spacing: 4px;
+  color: #F5821F;
+  text-align: center;
+  margin-bottom: 6px;
+  line-height: 1.1;
+}
+.abc-sub {
+  font-size: 13px;
+  color: #888;
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+/* ── Grid de 5 tarjetas ── */
+.abc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.abc-card {
+  background: #12121f;
+  border: 1px solid rgba(255,255,255,.06);
+  border-left: 4px solid var(--abc-col, #F5821F);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform .15s, border-color .15s;
+}
+.abc-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.12); border-left-color: var(--abc-col); }
+
+.abc-letter {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 56px;
+  line-height: 1;
+  color: var(--abc-col, #F5821F);
+  text-shadow: 0 0 20px color-mix(in srgb, var(--abc-col) 40%, transparent);
+}
+.abc-step-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 17px;
+  letter-spacing: 1px;
+  color: #e0e0e0;
+  line-height: 1.15;
+}
+.abc-step-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #aaa;
+  flex: 1;
+}
+.abc-step-btn {
+  margin-top: 4px;
+  background: rgba(245,130,31,.12);
+  border: 1px solid rgba(245,130,31,.4);
+  color: #F5821F;
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: .5px;
+  text-decoration: none;
+  text-align: center;
+  transition: .15s;
+}
+.abc-step-btn:hover { background: rgba(245,130,31,.25); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .abc-box { padding: 22px 18px; max-height: 95vh; }
+  .abc-title { font-size: 22px; letter-spacing: 2px; }
+  .abc-grid { grid-template-columns: 1fr; }
+  .btn-abc { padding: 10px 16px; font-size: 14px; letter-spacing: 1px; }
+  .btn-abc .abc-ico { font-size: 16px; }
+}
