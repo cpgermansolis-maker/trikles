@@ -327,6 +327,77 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--light);m
 .btn-curso-next { background: var(--orange); color: #fff; }
 .btn-curso-next:hover { opacity: .9; }
 
+/* ── Botón "Leer en voz alta" ── */
+.curso-detalle-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: -14px 0 22px;
+  position: relative;
+  z-index: 2;
+}
+.btn-tts {
+  background: rgba(255,255,255,.06);
+  color: #e0e0e0;
+  border: 1px solid rgba(255,255,255,.2);
+  padding: 11px 22px;
+  border-radius: 10px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: .15s;
+  backdrop-filter: blur(6px);
+}
+.btn-tts:hover { background: rgba(255,255,255,.14); border-color: var(--orange); color: var(--orange); }
+.btn-tts.playing {
+  background: rgba(230,57,70,.2);
+  border-color: var(--red, #e63946);
+  color: #fff;
+  animation: ttsPulse 1.6s ease-in-out infinite;
+}
+@keyframes ttsPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(230,57,70,.55); }
+  50%      { box-shadow: 0 0 0 10px rgba(230,57,70,0); }
+}
+
+/* ── Video complementario ── */
+.curso-video-box {
+  margin-top: 26px;
+  background: #12121f;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 20px;
+}
+.curso-video-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--orange);
+  margin-bottom: 14px;
+}
+.curso-video-wrap {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* aspecto 16:9 */
+  height: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+}
+.curso-video-wrap iframe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.curso-video-pending { opacity: .7; border-style: dashed; }
+
 /* ── Responsive ── */
 @media(max-width:768px){
   .landing-grid { grid-template-columns: 1fr; gap: 14px; }
@@ -484,6 +555,7 @@ const CURSOS = [
     subtitulo: 'Aprende cuánto necesitas vender cada día para no perder dinero.',
     duracion: '5 min',
     nivel: 'Básico',
+    video: '', // Pega aquí la URL de YouTube (ej: https://www.youtube.com/watch?v=ID)
     contenido: `El Punto de Equilibrio es el monto mínimo de ventas diarias que necesitas para cubrir todos tus gastos. Vender por arriba del P.E. = día rentable. Vender por debajo = día con pérdida.
 
 📐 CÓMO SE CALCULA
@@ -520,6 +592,7 @@ Esto significa que debes vender $4,500 ese día para "empatar". Arriba = ganas, 
     subtitulo: 'Entiende la diferencia que te permite poner precios rentables.',
     duracion: '4 min',
     nivel: 'Básico',
+    video: '',
     contenido: `Muchos usan "costos" y "gastos" como sinónimos, pero son cosas distintas — y entender la diferencia te ayuda a tomar mejores decisiones de precios y rentabilidad.
 
 💰 COSTOS (directos)
@@ -556,6 +629,7 @@ Característica clave: son relativamente fijos. Vendes el doble pero la renta si
     subtitulo: 'Conoce tus deudas y las de tus clientes — clave para el flujo real.',
     duracion: '6 min',
     nivel: 'Intermedio',
+    video: '',
     contenido: `Cuando vendes o compras a crédito, el dinero no se mueve en efectivo — pero sigue siendo parte del negocio. Son saldos "en papel" que pueden hacerte sentir rico cuando no lo eres (o pobre cuando sí).
 
 📥 CUENTAS POR COBRAR (CxC)
@@ -591,6 +665,7 @@ Por eso los directores deben consultar regularmente:
     subtitulo: 'La transparencia del dinero real — por qué la utilidad en papel no paga cuentas.',
     duracion: '5 min',
     nivel: 'Intermedio',
+    video: '',
     contenido: `El flujo de efectivo es el DINERO REAL que entra y sale del negocio cada día — billetes, pesos en cuenta, transferencias.
 
 ⚠️ NO confundir con utilidad. Puedes ser rentable en papel y NO tener efectivo:
@@ -643,6 +718,7 @@ Cualquiera que sea, revisa, corrige y deja el hallazgo documentado en las notas 
     subtitulo: 'Cómo construir el colchón que salva tu empresa en las crisis.',
     duracion: '4 min',
     nivel: 'Básico',
+    video: '',
     contenido: `La reserva es dinero que apartas deliberadamente del flujo operativo para cubrir emergencias, oportunidades y periodos bajos.
 
 💡 POR QUÉ NECESITAS UNA
@@ -734,11 +810,70 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ════════════════════════════════════════════════════════════
 
 function showView(name) {
+  // Detener lectura en voz alta al cambiar de vista
+  stopTTS();
   ['landing','guia','cursos','curso'].forEach(v => {
     const el = document.getElementById('view-' + v);
     if (el) el.style.display = (v === name) ? 'block' : 'none';
   });
   window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ── TTS (leer en voz alta) ──
+let ttsActive = false;
+
+function cleanTextForTTS(text) {
+  // Quita emojis, guiones decorativos y compacta espacios para que la voz suene natural
+  return text
+    .replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
+    .replace(/[\u{2600}-\u{27BF}]/gu, '')
+    .replace(/[─━–—]/g, ',')
+    .replace(/\n{2,}/g, '. ')
+    .replace(/\n/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function toggleTTS(idx) {
+  const synth = window.speechSynthesis;
+  if (!synth) {
+    alert('Tu navegador no soporta la lectura en voz alta.');
+    return;
+  }
+  if (ttsActive) { stopTTS(); return; }
+
+  const c = CURSOS[idx];
+  if (!c) return;
+  const texto = c.titulo + '. ' + c.subtitulo + '. ' + cleanTextForTTS(c.contenido);
+  const u = new SpeechSynthesisUtterance(texto);
+  u.lang = 'es-MX';
+  u.rate = 1;
+  u.pitch = 1;
+  u.onend   = () => { ttsActive = false; updateTTSButton(); };
+  u.onerror = () => { ttsActive = false; updateTTSButton(); };
+  synth.speak(u);
+  ttsActive = true;
+  updateTTSButton();
+}
+
+function stopTTS() {
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  ttsActive = false;
+  updateTTSButton();
+}
+
+function updateTTSButton() {
+  const btn = document.getElementById('btnTTS');
+  if (!btn) return;
+  btn.innerHTML = ttsActive ? '⏹ Detener lectura' : '🔊 Leer en voz alta';
+  btn.classList.toggle('playing', ttsActive);
+}
+
+// ── YouTube: convertir cualquier URL a ID embebible ──
+function getYouTubeId(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
 }
 
 function renderCursosGrid() {
@@ -766,8 +901,22 @@ function renderCursosGrid() {
 function openCurso(idx) {
   const c = CURSOS[idx];
   if (!c) return;
+  stopTTS(); // detener cualquier lectura previa al cambiar de curso
   const prev = idx > 0 ? idx - 1 : null;
   const next = idx < CURSOS.length - 1 ? idx + 1 : null;
+
+  const ytId = getYouTubeId(c.video);
+  const videoHTML = ytId
+    ? `<div class="curso-video-box">
+         <div class="curso-video-title">🎥 Video complementario</div>
+         <div class="curso-video-wrap">
+           <iframe src="https://www.youtube.com/embed/${ytId}" title="Video del curso ${c.titulo}" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+         </div>
+       </div>`
+    : `<div class="curso-video-box curso-video-pending">
+         <div class="curso-video-title">🎥 Video complementario</div>
+         <div style="font-size:13px;color:#888;text-align:center;padding:24px 12px">Video próximamente.</div>
+       </div>`;
 
   const el = document.getElementById('cursoDetalle');
   el.innerHTML = `
@@ -781,7 +930,15 @@ function openCurso(idx) {
         <span class="curso-badge">Curso ${c.id} de ${CURSOS.length}</span>
       </div>
     </div>
+
+    <div class="curso-detalle-actions">
+      <button id="btnTTS" class="btn-tts" onclick="toggleTTS(${idx})">🔊 Leer en voz alta</button>
+    </div>
+
     <div class="curso-detalle-body">${c.contenido}</div>
+
+    ${videoHTML}
+
     <div class="curso-nav">
       ${prev !== null
         ? `<button class="btn-curso btn-curso-prev" onclick="openCurso(${prev})">← ${CURSOS[prev].titulo}</button>`
