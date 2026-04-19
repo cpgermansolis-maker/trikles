@@ -369,10 +369,13 @@ function clearLines(){
   }
   if (cleared > 0){
     lines += cleared;
+    // ── Dificultad progresiva por cada línea ──
+    // Velocidad: 20ms más rápido por línea, piso de 120ms (muy rápido).
+    // Nivel: sube 1 cada 5 líneas (para el multiplicador de puntaje).
+    dropInterval = Math.max(120, 800 - lines * 20);
+    level = 1 + Math.floor(lines / 5);
     const pts = [0, 40, 100, 300, 1200][cleared] * level;
     score += pts;
-    const nuevoNivel = 1 + Math.floor(lines / 10);
-    if (nuevoNivel > level){ level = nuevoNivel; dropInterval = Math.max(150, 800 - (level-1)*50); }
     updateHUD();
     setTimeout(() => openPrize(cleared), 200);
   }
