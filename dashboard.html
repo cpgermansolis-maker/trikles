@@ -899,6 +899,55 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 <div class="panel" id="panel_reserva">
   <div class="shdr">🏦 RESERVA & CUENTAS POR PAGAR</div>
 
+  <!-- ══ Gráficas de Evolución ══ -->
+  <div class="g2">
+    <div class="cc">
+      <div class="cc-hdr">
+        <div><div class="cc-ttl">🏦 Evolución del Saldo de Reserva<span class="help-icon">?<span class="tt">Muestra cómo ha crecido (o disminuido) tu reserva día a día. Una pendiente positiva indica que estás construyendo colchón; una pendiente negativa, que la estás consumiendo.</span></span></div>
+          <div class="cc-sub">Saldo acumulado a lo largo del período</div></div>
+        <div class="cc-badge" id="b_res_saldo">—</div>
+      </div>
+      <div style="height:240px"><canvas id="cv_res_saldo"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="cc-hdr">
+        <div><div class="cc-ttl">📦 Evolución del Saldo de CxP<span class="help-icon">?<span class="tt">Muestra cómo ha evolucionado tu deuda con proveedores. Un saldo creciente = te estás endeudando más; decreciente = estás pagando más de lo que compras a crédito.</span></span></div>
+          <div class="cc-sub">Saldo acumulado pendiente de pagar</div></div>
+        <div class="cc-badge r" id="b_cxp_saldo">—</div>
+      </div>
+      <div style="height:240px"><canvas id="cv_cxp_saldo"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="cc">
+      <div class="cc-hdr">
+        <div><div class="cc-ttl">🔄 Movimientos de Reserva<span class="help-icon">?<span class="tt">Comparativa de cuánto se apartó (verde) vs cuánto se gastó (rojo) de la reserva en cada período. Idealmente las barras verdes deben ser mayores o iguales a las rojas.</span></span></div>
+          <div class="cc-sub">Entradas vs Salidas por período</div></div>
+        <div class="cc-badge" id="b_res_mov">—</div>
+      </div>
+      <div style="height:220px"><canvas id="cv_res_mov"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="cc-hdr">
+        <div><div class="cc-ttl">💸 Salidas de Reserva por Concepto<span class="help-icon">?<span class="tt">En qué se está usando el dinero de la reserva: pago de compras a crédito, nómina u otros gastos. Si una rebanada es muy grande, revisa si ese uso justifica tocar la reserva.</span></span></div>
+          <div class="cc-sub">Pago Compras · Nómina · Otros Gastos</div></div>
+        <div class="cc-badge r" id="b_res_salidas">—</div>
+      </div>
+      <div style="height:220px"><canvas id="cv_res_salidas"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="cc-hdr">
+        <div><div class="cc-ttl">📊 Movimientos de CxP<span class="help-icon">?<span class="tt">Compras a crédito (rojo) vs pagos a proveedores (verde). Si las compras a crédito superan constantemente a los pagos, tu deuda está creciendo.</span></span></div>
+          <div class="cc-sub">Compras a crédito vs Pagos por período</div></div>
+        <div class="cc-badge" id="b_cxp_mov">—</div>
+      </div>
+      <div style="height:220px"><canvas id="cv_cxp_mov"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ══ Estados de cuenta (existentes) ══ -->
+  <div class="shdr" style="margin-top:20px">📄 ESTADOS DE CUENTA DETALLADOS</div>
   <div class="g2">
     <!-- Estado de cuenta Reserva -->
     <div class="cc">
@@ -1989,6 +2038,8 @@ function limpiarFiltroEmp() {
    MÓDULO FLUJO DE EFECTIVO
 ═══════════════════════════════════════════════════════ */
 let chartFlujoBar = null, chartFlujoIng = null, chartFlujoEgr = null;
+let chartResSaldo = null, chartResMov = null, chartResSalidas = null;
+let chartCxpSaldo = null, chartCxpMov = null;
 
 function buildFlujo(data) {
   if (!data || !data.length) return;
@@ -2225,6 +2276,190 @@ function buildReserva(data) {
     </tr>`;
   }).join('') : `<tr><td colspan="5" style="padding:20px;text-align:center;color:#666">Sin compras a crédito en el período seleccionado</td></tr>`;
   document.getElementById('cxp_tbody').innerHTML = cxpRows;
+
+  // ══════════════════════════════════════════════════════════
+  // ══   GRÁFICAS DINÁMICAS DE RESERVA Y CxP                ══
+  // ══════════════════════════════════════════════════════════
+
+  const MESES_C = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const useMonthly = data.length > 45;
+
+  // Helper: agrupa movs por día o mes según el rango del período
+  function agruparMov(movs, campoEntrada, campoSalida) {
+    const buckets = {};
+    movs.forEach(m => {
+      const d = new Date(m.fecha + 'T12:00:00');
+      const key = useMonthly
+        ? d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0')
+        : m.fecha;
+      const label = useMonthly
+        ? MESES_C[d.getMonth()] + ' ' + String(d.getFullYear()).slice(2)
+        : String(d.getDate()).padStart(2,'0') + ' ' + MESES_C[d.getMonth()];
+      if (!buckets[key]) buckets[key] = { label, entrada:0, salida:0 };
+      buckets[key].entrada += (m[campoEntrada] || 0);
+      buckets[key].salida  += (m[campoSalida]  || 0);
+    });
+    const keys = Object.keys(buckets).sort();
+    return {
+      labels: keys.map(k => buckets[k].label),
+      entradas: keys.map(k => buckets[k].entrada),
+      salidas:  keys.map(k => buckets[k].salida)
+    };
+  }
+
+  // Helper: saldo acumulado por fecha (line chart)
+  function saldoAcum(movs, campoEntrada, campoSalida) {
+    const ordenado = [...movs].sort((a,b) => a.fecha < b.fecha ? -1 : 1);
+    const buckets = {};
+    ordenado.forEach(m => {
+      const d = new Date(m.fecha + 'T12:00:00');
+      const key = useMonthly
+        ? d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0')
+        : m.fecha;
+      const label = useMonthly
+        ? MESES_C[d.getMonth()] + ' ' + String(d.getFullYear()).slice(2)
+        : String(d.getDate()).padStart(2,'0') + ' ' + MESES_C[d.getMonth()];
+      if (!buckets[key]) buckets[key] = { label, delta:0 };
+      buckets[key].delta += (m[campoEntrada] || 0) - (m[campoSalida] || 0);
+    });
+    const keys = Object.keys(buckets).sort();
+    let acum = 0;
+    const saldos = keys.map(k => { acum += buckets[k].delta; return acum; });
+    return {
+      labels: keys.map(k => buckets[k].label),
+      saldos
+    };
+  }
+
+  // Helper para destruir antes de redibujar
+  function destroyIf(chart) { if (chart) try { chart.destroy(); } catch(e){} }
+
+  // ── 1) SALDO DE RESERVA (línea) ──
+  const resSaldoDatos = saldoAcum(movReserva, 'entrada', 'salida');
+  destroyIf(chartResSaldo);
+  const ctxRS = document.getElementById('cv_res_saldo');
+  if (ctxRS) {
+    const empty = resSaldoDatos.labels.length === 0;
+    chartResSaldo = new Chart(ctxRS, {
+      type: 'line',
+      data: {
+        labels: empty ? ['Sin datos'] : resSaldoDatos.labels,
+        datasets: [{
+          label: 'Saldo Reserva',
+          data: empty ? [0] : resSaldoDatos.saldos,
+          borderColor: '#2ec4b6',
+          backgroundColor: 'rgba(46,196,182,.15)',
+          borderWidth: 2.5, tension: .35, fill: true, pointRadius: 3
+        }]
+      },
+      options: {
+        ...JSON.parse(JSON.stringify(BASE_OPT)),
+        plugins: { ...BASE_OPT.plugins,
+          datalabels: { display: false },
+          tooltip: { callbacks: { label: c => ' Saldo: ' + fmtE(c.parsed.y) } }
+        }
+      }
+    });
+    document.getElementById('b_res_saldo').textContent = fmtE(saldoFinal);
+  }
+
+  // ── 2) SALDO DE CxP (línea) ──
+  const cxpSaldoDatos = saldoAcum(movCxP, 'cargo', 'abono');
+  destroyIf(chartCxpSaldo);
+  const ctxCS = document.getElementById('cv_cxp_saldo');
+  if (ctxCS) {
+    const empty = cxpSaldoDatos.labels.length === 0;
+    chartCxpSaldo = new Chart(ctxCS, {
+      type: 'line',
+      data: {
+        labels: empty ? ['Sin datos'] : cxpSaldoDatos.labels,
+        datasets: [{
+          label: 'Saldo CxP',
+          data: empty ? [0] : cxpSaldoDatos.saldos,
+          borderColor: '#e74c3c',
+          backgroundColor: 'rgba(231,76,60,.12)',
+          borderWidth: 2.5, tension: .35, fill: true, pointRadius: 3
+        }]
+      },
+      options: {
+        ...JSON.parse(JSON.stringify(BASE_OPT)),
+        plugins: { ...BASE_OPT.plugins,
+          datalabels: { display: false },
+          tooltip: { callbacks: { label: c => ' Saldo: ' + fmtE(c.parsed.y) } }
+        }
+      }
+    });
+    document.getElementById('b_cxp_saldo').textContent = fmtE(saldoCxP);
+  }
+
+  // ── 3) MOVIMIENTOS DE RESERVA (barras agrupadas) ──
+  const resMovDatos = agruparMov(movReserva, 'entrada', 'salida');
+  destroyIf(chartResMov);
+  const ctxRM = document.getElementById('cv_res_mov');
+  if (ctxRM) {
+    const empty = resMovDatos.labels.length === 0;
+    chartResMov = new Chart(ctxRM, {
+      type: 'bar',
+      data: {
+        labels: empty ? ['Sin datos'] : resMovDatos.labels,
+        datasets: [
+          { label: 'Entradas', data: empty ? [0] : resMovDatos.entradas, backgroundColor: 'rgba(46,196,182,.7)', borderColor: '#2ec4b6', borderWidth: 1 },
+          { label: 'Salidas',  data: empty ? [0] : resMovDatos.salidas,  backgroundColor: 'rgba(231,76,60,.7)', borderColor: '#e74c3c', borderWidth: 1 }
+        ]
+      },
+      options: { ...JSON.parse(JSON.stringify(BASE_OPT)) }
+    });
+    document.getElementById('b_res_mov').textContent = 'E:' + fmtK(totalEntradas) + ' S:' + fmtK(totalSalidas);
+  }
+
+  // ── 4) SALIDAS DE RESERVA POR CONCEPTO (dona) ──
+  // Agrupar salidas por concepto: Pago Compras / Nómina / Otros
+  let salPagoC = 0, salNom = 0, salOtros = 0;
+  data.forEach(r => {
+    if ((r.pacF || 'EFECTIVO') === 'RESERVA' && r.pac > 0) salPagoC += r.pac;
+    if ((r.sefF || 'EFECTIVO') === 'RESERVA' && r.sef > 0) salNom   += r.sef;
+    if (r.resUso > 0) salOtros += r.resUso;
+  });
+  destroyIf(chartResSalidas);
+  const ctxRSa = document.getElementById('cv_res_salidas');
+  if (ctxRSa) {
+    const totalSal = salPagoC + salNom + salOtros;
+    const empty = totalSal === 0;
+    chartResSalidas = new Chart(ctxRSa, {
+      type: 'doughnut',
+      data: {
+        labels: empty ? ['Sin salidas'] : ['Pago Compras','Nómina','Otros Gastos'],
+        datasets: [{
+          data: empty ? [1] : [salPagoC, salNom, salOtros],
+          backgroundColor: empty ? ['rgba(100,100,100,.3)'] : ['#e74c3cbb','#9b59b6bb','#f1c40fbb'],
+          borderColor:    empty ? ['#666'] : ['#e74c3c','#9b59b6','#f1c40f'],
+          borderWidth: 2
+        }]
+      },
+      options: { ...JSON.parse(JSON.stringify(DON_OPT)) }
+    });
+    document.getElementById('b_res_salidas').textContent = fmtE(totalSal);
+  }
+
+  // ── 5) MOVIMIENTOS DE CxP (barras agrupadas: Compras vs Pagos) ──
+  const cxpMovDatos = agruparMov(movCxP, 'cargo', 'abono');
+  destroyIf(chartCxpMov);
+  const ctxCM = document.getElementById('cv_cxp_mov');
+  if (ctxCM) {
+    const empty = cxpMovDatos.labels.length === 0;
+    chartCxpMov = new Chart(ctxCM, {
+      type: 'bar',
+      data: {
+        labels: empty ? ['Sin datos'] : cxpMovDatos.labels,
+        datasets: [
+          { label: 'Compras Crédito', data: empty ? [0] : cxpMovDatos.entradas, backgroundColor: 'rgba(231,76,60,.7)',  borderColor: '#e74c3c', borderWidth: 1 },
+          { label: 'Pagos',           data: empty ? [0] : cxpMovDatos.salidas,  backgroundColor: 'rgba(46,196,182,.7)', borderColor: '#2ec4b6', borderWidth: 1 }
+        ]
+      },
+      options: { ...JSON.parse(JSON.stringify(BASE_OPT)) }
+    });
+    document.getElementById('b_cxp_mov').textContent = 'C:' + fmtK(totalCargos) + ' P:' + fmtK(totalAbonos);
+  }
 }
 
 function buildNomina(data){
@@ -2348,8 +2583,9 @@ function exportPDF(){
       el.setAttribute('style', 'display:block !important; position:absolute; left:-99999px; top:0; width:1200px; visibility:hidden;');
     }
   });
-  try { if (typeof buildFlujo  === 'function') buildFlujo(data); }  catch(e){ console.warn('buildFlujo PDF:', e); }
-  try { if (typeof buildNomina === 'function') buildNomina(data); } catch(e){ console.warn('buildNomina PDF:', e); }
+  try { if (typeof buildFlujo   === 'function') buildFlujo(data); }   catch(e){ console.warn('buildFlujo PDF:', e); }
+  try { if (typeof buildNomina  === 'function') buildNomina(data); }  catch(e){ console.warn('buildNomina PDF:', e); }
+  try { if (typeof buildReserva === 'function') buildReserva(data); } catch(e){ console.warn('buildReserva PDF:', e); }
 
   // Helper: extrae el título real de cada gráfica del DOM (ignora el "?")
   function getChartTitle(canvasId) {
@@ -2445,7 +2681,9 @@ function exportPDF(){
     const chartIds = [
       'cv1','cv2','cv3','cv4','cv5','cv6','cv7','cv8','cv9','cv10','cv11','cv12','cv13', // financiero
       'cvn1','cvn2','cvn3',                                                                 // nómina
-      'cv_flujo_barras','cv_flujo_ing','cv_flujo_egr'                                        // flujo
+      'cv_flujo_barras','cv_flujo_ing','cv_flujo_egr',                                       // flujo
+      'cv_res_saldo','cv_res_mov','cv_res_salidas',                                          // reserva
+      'cv_cxp_saldo','cv_cxp_mov'                                                             // cxp
     ];
     // Títulos de respaldo (por si el DOM no los expone)
     const titleFallback = {
@@ -2467,7 +2705,12 @@ function exportPDF(){
       cvn3:'📈 Nómina vs Ventas',
       cv_flujo_barras:'📊 Resumen de Flujo — Ingresos vs Egresos',
       cv_flujo_ing:'💚 Ingresos de Efectivo — Composición',
-      cv_flujo_egr:'❤️ Egresos de Efectivo — Composición'
+      cv_flujo_egr:'❤️ Egresos de Efectivo — Composición',
+      cv_res_saldo:'🏦 Evolución del Saldo de Reserva',
+      cv_res_mov:'🔄 Movimientos de Reserva — Entradas vs Salidas',
+      cv_res_salidas:'💸 Salidas de Reserva por Concepto',
+      cv_cxp_saldo:'📦 Evolución del Saldo de CxP',
+      cv_cxp_mov:'📊 Movimientos de CxP — Compras vs Pagos'
     };
     const imgs = {}, titles = {};
     chartIds.forEach(id => {
@@ -2629,6 +2872,20 @@ function exportPDF(){
       <div class="g2">
         ${imgs.cv_flujo_ing ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv_flujo_ing}</div><img class="ci" src="${imgs.cv_flujo_ing}"></div>` : ''}
         ${imgs.cv_flujo_egr ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv_flujo_egr}</div><img class="ci" src="${imgs.cv_flujo_egr}"></div>` : ''}
+      </div>
+    </div>` : ''}
+
+    ${(imgs.cv_res_saldo || imgs.cv_res_mov || imgs.cv_res_salidas || imgs.cv_cxp_saldo || imgs.cv_cxp_mov) ? `
+    <div class="sec page-break">
+      <div class="sec-t">RESERVA Y CUENTAS POR PAGAR</div>
+      <div class="g2">
+        ${imgs.cv_res_saldo ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv_res_saldo}</div><img class="ci" src="${imgs.cv_res_saldo}"></div>` : ''}
+        ${imgs.cv_cxp_saldo ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv_cxp_saldo}</div><img class="ci" src="${imgs.cv_cxp_saldo}"></div>` : ''}
+      </div>
+      <div class="g3">
+        ${imgs.cv_res_mov     ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv_res_mov}</div><img class="ci" src="${imgs.cv_res_mov}"></div>` : ''}
+        ${imgs.cv_res_salidas ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv_res_salidas}</div><img class="ci" src="${imgs.cv_res_salidas}"></div>` : ''}
+        ${imgs.cv_cxp_mov     ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv_cxp_mov}</div><img class="ci" src="${imgs.cv_cxp_mov}"></div>` : ''}
       </div>
     </div>` : ''}
 
