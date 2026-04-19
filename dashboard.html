@@ -2282,10 +2282,46 @@ function buildNomina(data){
 
 /* ─────────────── PDF ─────────────── */
 function exportPDF(){
-  toast('info','Generando PDF','Analizando y capturando gráficas...');
+  toast('info','Generando PDF','Preparando gráficas de todos los módulos...');
+  const data = filterData(GF.from, GF.to);
+  if(!data.length){ toast('error','Sin datos','Selecciona un rango con datos.'); return; }
+
+  // ── Force-build de módulos "lazy" (Flujo, Nómina) ──
+  // Los paneles están en display:none, así que los posicionamos fuera de pantalla
+  // con tamaño fijo para que Chart.js pueda renderizar correctamente.
+  const lazyPanels = ['panel_flujo','panel_nom','panel_reserva'];
+  const panelPrev = {};
+  lazyPanels.forEach(pid => {
+    const el = document.getElementById(pid);
+    if (el) {
+      panelPrev[pid] = el.getAttribute('style') || '';
+      el.setAttribute('style', 'display:block !important; position:absolute; left:-99999px; top:0; width:1200px; visibility:hidden;');
+    }
+  });
+  try { if (typeof buildFlujo  === 'function') buildFlujo(data); }  catch(e){ console.warn('buildFlujo PDF:', e); }
+  try { if (typeof buildNomina === 'function') buildNomina(data); } catch(e){ console.warn('buildNomina PDF:', e); }
+
+  // Helper: extrae el título real de cada gráfica del DOM (ignora el "?")
+  function getChartTitle(canvasId) {
+    const c = document.getElementById(canvasId);
+    if (!c) return '';
+    let p = c.parentElement;
+    while (p && !p.classList.contains('cc')) p = p.parentElement;
+    if (!p) return '';
+    const t = p.querySelector('.cc-ttl');
+    if (!t) return '';
+    const clone = t.cloneNode(true);
+    clone.querySelectorAll('.help-icon').forEach(h => h.remove());
+    return clone.textContent.trim();
+  }
+
+  // Damos un respiro para que Chart.js termine de renderizar
   setTimeout(()=>{
-    const data=filterData(GF.from,GF.to);
-    if(!data.length){toast('error','Sin datos','Selecciona un rango con datos.');return;}
+    // Restaurar paneles al final (después de capturar)
+    const restorePanels = () => lazyPanels.forEach(pid => {
+      const el = document.getElementById(pid);
+      if (el) el.setAttribute('style', panelPrev[pid]);
+    });
 
     // ── Cálculos financieros completos ──
     const tv  = data.reduce((s,r)=>s+r.v,0);
@@ -2355,17 +2391,43 @@ function exportPDF(){
     const d1 = new Date(GF.from+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
     const d2 = new Date(GF.to+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
 
-    // ── Capturar gráficas ──
+    // ── Capturar gráficas + títulos dinámicos ──
     const chartIds = [
       'cv1','cv2','cv3','cv4','cv5','cv6','cv7','cv8','cv9','cv10','cv11','cv12', // financiero
       'cvn1','cvn2','cvn3',                                                          // nómina
       'cv_flujo_barras','cv_flujo_ing','cv_flujo_egr'                                 // flujo
     ];
-    const imgs = {};
+    // Títulos de respaldo (por si el DOM no los expone)
+    const titleFallback = {
+      cv1:'📈 Tendencia Diaria — Ventas vs P.E.',
+      cv2:'📊 Ganancias Acumuladas por Mes y Año',
+      cv3:'🛒 Ganancias por Producto',
+      cv4:'📊 Ganancia Bruta Mensual — Año Actual vs Anterior',
+      cv5:'📆 Ganancia por Semana del Año',
+      cv6:'📈 Ganancia vs Ventas',
+      cv7:'📊 Ventas Mensuales — Año Actual vs Anterior',
+      cv8:'📊 Ventas por Producto',
+      cv9:'📊 Ganancia Acumulada — Mes Actual vs Anterior',
+      cv10:'📈 Ingresos vs Egresos por Día',
+      cv11:'💵 Ingresos por Tipo',
+      cv12:'💸 Egresos por Tipo',
+      cvn1:'👥 Pagos por Empleado y Semana',
+      cvn2:'📊 Nómina Mensual',
+      cvn3:'📈 Nómina vs Ventas',
+      cv_flujo_barras:'📊 Resumen de Flujo — Ingresos vs Egresos',
+      cv_flujo_ing:'💚 Ingresos de Efectivo — Composición',
+      cv_flujo_egr:'❤️ Egresos de Efectivo — Composición'
+    };
+    const imgs = {}, titles = {};
     chartIds.forEach(id => {
       const c = document.getElementById(id);
       if (c) { try { imgs[id] = c.toDataURL('image/png'); } catch(e){} }
+      titles[id] = getChartTitle(id) || titleFallback[id] || id.toUpperCase();
     });
+
+    // Descartar imágenes vacías/transparentes (canvas sin renderizar)
+    const isEmpty = (dataUrl) => !dataUrl || dataUrl.length < 2000; // threshold arbitrario
+    Object.keys(imgs).forEach(k => { if (isEmpty(imgs[k])) delete imgs[k]; });
 
     // Sacar datos de empresa para el encabezado
     const empresa = (document.querySelector('.tb-name')?.textContent || 'TRIKLES').trim();
@@ -2413,7 +2475,9 @@ function exportPDF(){
     /* ── Charts ── */
     .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;}
     .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:10px;}
-    img.ci{width:100%;max-height:200px;object-fit:contain;border:1px solid #e5e5e5;border-radius:6px;padding:4px;background:#f9f9f9;}
+    img.ci{width:100%;max-height:220px;object-fit:contain;border:1px solid #e5e5e5;border-radius:6px;padding:4px;background:#f9f9f9;}
+    .chart-cell{margin-bottom:14px;page-break-inside:avoid;}
+    .chart-ttl{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1.5px;color:#333;margin-bottom:6px;padding:6px 10px;background:#f5f5f5;border-left:3px solid #F5821F;border-radius:4px;}
     .page-break{page-break-before:always;}
     .ftr{background:#f3f3f3;padding:10px 28px;display:flex;justify-content:space-between;font-size:9px;color:#888;border-top:2px solid #F5821F22;margin-top:10px;}
     @media print { .sec{page-break-inside:avoid;} }
@@ -2479,60 +2543,50 @@ function exportPDF(){
       </div>
     </div>
 
-    <!-- ═══ GRÁFICAS FINANCIERAS ═══ -->
+    <!-- ═══ GRÁFICAS FINANCIERAS (cada una con su título) ═══ -->
     <div class="sec page-break">
-      <div class="sec-t">TENDENCIA DIARIA VS PUNTO DE EQUILIBRIO</div>
-      ${imgs.cv1 ? '<img class="ci" src="'+imgs.cv1+'">' : ''}
-    </div>
-    <div class="sec"><div class="sec-t">GANANCIAS Y PRODUCTOS</div>
+      <div class="sec-t">ANÁLISIS FINANCIERO</div>
+      ${imgs.cv1 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv1}</div><img class="ci" src="${imgs.cv1}"></div>` : ''}
       <div class="g2">
-        ${imgs.cv2?'<img class="ci" src="'+imgs.cv2+'">':''}
-        ${imgs.cv3?'<img class="ci" src="'+imgs.cv3+'">':''}
+        ${imgs.cv2 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv2}</div><img class="ci" src="${imgs.cv2}"></div>` : ''}
+        ${imgs.cv3 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv3}</div><img class="ci" src="${imgs.cv3}"></div>` : ''}
       </div>
-    </div>
-    <div class="sec"><div class="sec-t">COMPARATIVAS MENSUALES</div>
       <div class="g2">
-        ${imgs.cv4?'<img class="ci" src="'+imgs.cv4+'">':''}
-        ${imgs.cv9?'<img class="ci" src="'+imgs.cv9+'">':''}
+        ${imgs.cv4 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv4}</div><img class="ci" src="${imgs.cv4}"></div>` : ''}
+        ${imgs.cv9 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv9}</div><img class="ci" src="${imgs.cv9}"></div>` : ''}
       </div>
-    </div>
-    <div class="sec"><div class="sec-t">ANÁLISIS ANUAL Y SEMANAL</div>
       <div class="g2">
-        ${imgs.cv7?'<img class="ci" src="'+imgs.cv7+'">':''}
-        ${imgs.cv5?'<img class="ci" src="'+imgs.cv5+'">':''}
+        ${imgs.cv7 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv7}</div><img class="ci" src="${imgs.cv7}"></div>` : ''}
+        ${imgs.cv5 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv5}</div><img class="ci" src="${imgs.cv5}"></div>` : ''}
       </div>
-    </div>
-    <div class="sec"><div class="sec-t">TENDENCIAS Y FLUJO</div>
       <div class="g3">
-        ${imgs.cv6?'<img class="ci" src="'+imgs.cv6+'">':''}
-        ${imgs.cv8?'<img class="ci" src="'+imgs.cv8+'">':''}
-        ${imgs.cv10?'<img class="ci" src="'+imgs.cv10+'">':''}
+        ${imgs.cv6 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv6}</div><img class="ci" src="${imgs.cv6}"></div>` : ''}
+        ${imgs.cv8 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv8}</div><img class="ci" src="${imgs.cv8}"></div>` : ''}
+        ${imgs.cv10 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv10}</div><img class="ci" src="${imgs.cv10}"></div>` : ''}
       </div>
-    </div>
-    <div class="sec"><div class="sec-t">INGRESOS Y EGRESOS</div>
       <div class="g2">
-        ${imgs.cv11?'<img class="ci" src="'+imgs.cv11+'">':''}
-        ${imgs.cv12?'<img class="ci" src="'+imgs.cv12+'">':''}
+        ${imgs.cv11 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv11}</div><img class="ci" src="${imgs.cv11}"></div>` : ''}
+        ${imgs.cv12 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv12}</div><img class="ci" src="${imgs.cv12}"></div>` : ''}
       </div>
     </div>
 
-    ${imgs.cv_flujo_barras ? `
+    ${(imgs.cv_flujo_barras || imgs.cv_flujo_ing || imgs.cv_flujo_egr) ? `
     <div class="sec page-break">
-      <div class="sec-t">FLUJO DE EFECTIVO — DESGLOSE</div>
-      <img class="ci" src="${imgs.cv_flujo_barras}">
-      <div class="g2" style="margin-top:12px">
-        ${imgs.cv_flujo_ing?'<img class="ci" src="'+imgs.cv_flujo_ing+'">':''}
-        ${imgs.cv_flujo_egr?'<img class="ci" src="'+imgs.cv_flujo_egr+'">':''}
+      <div class="sec-t">FLUJO DE EFECTIVO</div>
+      ${imgs.cv_flujo_barras ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv_flujo_barras}</div><img class="ci" src="${imgs.cv_flujo_barras}"></div>` : ''}
+      <div class="g2">
+        ${imgs.cv_flujo_ing ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv_flujo_ing}</div><img class="ci" src="${imgs.cv_flujo_ing}"></div>` : ''}
+        ${imgs.cv_flujo_egr ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv_flujo_egr}</div><img class="ci" src="${imgs.cv_flujo_egr}"></div>` : ''}
       </div>
     </div>` : ''}
 
-    ${imgs.cvn1 ? `
+    ${(imgs.cvn1 || imgs.cvn2 || imgs.cvn3) ? `
     <div class="sec page-break">
       <div class="sec-t">ANÁLISIS DE NÓMINA</div>
       <div class="g3">
-        ${imgs.cvn1?'<img class="ci" src="'+imgs.cvn1+'">':''}
-        ${imgs.cvn2?'<img class="ci" src="'+imgs.cvn2+'">':''}
-        ${imgs.cvn3?'<img class="ci" src="'+imgs.cvn3+'">':''}
+        ${imgs.cvn1 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cvn1}</div><img class="ci" src="${imgs.cvn1}"></div>` : ''}
+        ${imgs.cvn2 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cvn2}</div><img class="ci" src="${imgs.cvn2}"></div>` : ''}
+        ${imgs.cvn3 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cvn3}</div><img class="ci" src="${imgs.cvn3}"></div>` : ''}
       </div>
     </div>` : ''}
 
@@ -2543,8 +2597,9 @@ function exportPDF(){
     <script>window.onload=()=>setTimeout(()=>window.print(),700);<\/script>
     </body></html>`);
     w.document.close();
+    restorePanels();
     toast('success','PDF listo','Se abrió la ventana de impresión.');
-  },500);
+  }, 900); // 900ms para que buildFlujo/buildNomina terminen de renderizar
 }
 
 /* ──── SUPER ADMIN — Selector de empresas ──── */
