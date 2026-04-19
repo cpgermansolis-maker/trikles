@@ -710,17 +710,19 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     </div>
   </div>
 
-  <!-- SECCIÓN 6: FLUJO EFECTIVO + INGRESOS + EGRESOS -->
+  <!-- SECCIÓN 6: FLUJO EFECTIVO + INGRESOS + EGRESOS + COMPOSICIÓN VENTAS -->
   <div class="shdr">💵 FLUJO DE EFECTIVO · INGRESOS Y EGRESOS</div>
-  <div class="g3">
-    <div class="cc" id="ch10">
-      <div class="cc-hdr">
-        <div><div class="cc-ttl">💵 Flujo de Efectivo<span class="help-icon">?<span class="tt">Muestra el movimiento de dinero real: entradas (cobros, ventas en efectivo) vs salidas (gastos, compras, retiros). Si los ingresos superan los egresos, el flujo es positivo.</span></span></div>
-          <div class="cc-sub">Efectivo en caja vs sistema · Ingresos y egresos</div></div>
-        <div class="cc-badge" id="b10">—</div>
-      </div>
-      <div style="height:230px"><canvas id="cv10"></canvas></div>
+  <!-- Gráfica ancha: timeline de Flujo -->
+  <div class="cc" id="ch10" style="margin-bottom:16px;">
+    <div class="cc-hdr">
+      <div><div class="cc-ttl">💵 Flujo de Efectivo<span class="help-icon">?<span class="tt">Muestra el movimiento de dinero real: entradas (cobros, ventas en efectivo) vs salidas (gastos, compras, retiros). Si los ingresos superan los egresos, el flujo es positivo.</span></span></div>
+        <div class="cc-sub">Efectivo en caja vs sistema · Ingresos y egresos</div></div>
+      <div class="cc-badge" id="b10">—</div>
     </div>
+    <div style="height:230px"><canvas id="cv10"></canvas></div>
+  </div>
+  <!-- Tres donas comparativas: Ingresos, Egresos, Composición de Ventas -->
+  <div class="g3">
     <div class="cc" id="ch11">
       <div class="cc-hdr">
         <div><div class="cc-ttl">⬇️ Ingresos por Tipo<span class="help-icon">?<span class="tt">Desglose de dónde viene el efectivo que entró a caja en el período: ventas en efectivo, cobros de créditos pasados y anticipos recibidos. Las tres rebanadas suman el total de ingresos en efectivo.</span></span></div>
@@ -736,6 +738,14 @@ select.sel:focus{outline:none;border-color:var(--orange);}
         <div class="cc-badge r" id="b12">—</div>
       </div>
       <div style="height:230px"><canvas id="cv12"></canvas></div>
+    </div>
+    <div class="cc" id="ch13">
+      <div class="cc-hdr">
+        <div><div class="cc-ttl">💳 Composición de Ventas<span class="help-icon">?<span class="tt">De todas tus ventas totales: cuánto se cobró en efectivo, cuánto con tarjeta y cuánto se quedó a crédito. Te muestra qué porcentaje de tus ventas alimenta directamente el flujo vs cuánto queda pendiente por cobrar.</span></span></div>
+          <div class="cc-sub">Efectivo · Tarjeta · Crédito</div></div>
+        <div class="cc-badge b" id="b13">—</div>
+      </div>
+      <div style="height:230px"><canvas id="cv13"></canvas></div>
     </div>
   </div>
 
@@ -1297,7 +1307,7 @@ function updateAll(){
     buildCh1(data); buildCh2(data); buildCh3(data);
     buildCh4(data); buildCh5(); buildCh6(data);
     buildCh7(data); buildCh8(data); buildCh9(data);
-    buildCh10(data); buildCh11(data); buildCh12(data);
+    buildCh10(data); buildCh11(data); buildCh12(data); buildCh13(data);
     updatePEStats(data);
   } else if (ACTIVE_MOD === 'nom') {
     updateKPIsNom();
@@ -1741,6 +1751,23 @@ function buildCh11(data){
       backgroundColor:cols.map(c=>c+'bb'),borderColor:cols,borderWidth:2}]
   },DON_OPT);
   document.getElementById('b11').textContent=fmtK(Object.values(cats).reduce((s,v)=>s+v,0));
+}
+
+/* ─────────────── CHART 13: Composición de Ventas (efectivo/tarjeta/crédito) ─────────────── */
+function buildCh13(data){
+  const cats={
+    'Efectivo':data.reduce((s,r)=>s+(r.vef||0),0),
+    'Tarjeta' :data.reduce((s,r)=>s+(r.vtar||0),0),
+    'Crédito' :data.reduce((s,r)=>s+(r.vcr||0),0),
+  };
+  const cols=['#F5821F','#3498db','#9b59b6'];
+  mk('c13','cv13','doughnut',{
+    labels:Object.keys(cats),
+    datasets:[{data:Object.values(cats),
+      backgroundColor:cols.map(c=>c+'bb'),borderColor:cols,borderWidth:2}]
+  },DON_OPT);
+  const total=Object.values(cats).reduce((s,v)=>s+v,0);
+  document.getElementById('b13').textContent=fmtK(total);
 }
 
 /* ─────────────── CHART 12: Egresos por tipo ─────────────── */
@@ -2412,9 +2439,9 @@ function exportPDF(){
 
     // ── Capturar gráficas + títulos dinámicos ──
     const chartIds = [
-      'cv1','cv2','cv3','cv4','cv5','cv6','cv7','cv8','cv9','cv10','cv11','cv12', // financiero
-      'cvn1','cvn2','cvn3',                                                          // nómina
-      'cv_flujo_barras','cv_flujo_ing','cv_flujo_egr'                                 // flujo
+      'cv1','cv2','cv3','cv4','cv5','cv6','cv7','cv8','cv9','cv10','cv11','cv12','cv13', // financiero
+      'cvn1','cvn2','cvn3',                                                                 // nómina
+      'cv_flujo_barras','cv_flujo_ing','cv_flujo_egr'                                        // flujo
     ];
     // Títulos de respaldo (por si el DOM no los expone)
     const titleFallback = {
@@ -2430,6 +2457,7 @@ function exportPDF(){
       cv10:'📈 Ingresos vs Egresos por Día',
       cv11:'💵 Ingresos por Tipo',
       cv12:'💸 Egresos por Tipo',
+      cv13:'💳 Composición de Ventas (Efectivo · Tarjeta · Crédito)',
       cvn1:'👥 Pagos por Empleado y Semana',
       cvn2:'📊 Nómina Mensual',
       cvn3:'📈 Nómina vs Ventas',
@@ -2583,9 +2611,10 @@ function exportPDF(){
         ${imgs.cv8 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv8}</div><img class="ci" src="${imgs.cv8}"></div>` : ''}
         ${imgs.cv10 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv10}</div><img class="ci" src="${imgs.cv10}"></div>` : ''}
       </div>
-      <div class="g2">
+      <div class="g3">
         ${imgs.cv11 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv11}</div><img class="ci" src="${imgs.cv11}"></div>` : ''}
         ${imgs.cv12 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv12}</div><img class="ci" src="${imgs.cv12}"></div>` : ''}
+        ${imgs.cv13 ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv13}</div><img class="ci" src="${imgs.cv13}"></div>` : ''}
       </div>
     </div>
 
