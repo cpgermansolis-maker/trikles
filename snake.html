@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Trikles — Snake</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="mobile.css">
+<style>
+:root{
+  --orange:#F5821F;--dark:#0d0d1a;--dark2:#12121f;--dark3:#1a1a2e;--dark4:#22223a;
+  --light:#e0e0e0;--gray:#888;--green:#2ec4b6;--red:#e63946;--blue:#4361ee;
+  --yellow:#f4d35e;--purple:#9b59b6;--border:rgba(155,89,182,.3);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--light);min-height:100vh;}
+
+/* Topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:64px;background:var(--dark2);border-bottom:2px solid var(--purple);position:sticky;top:0;z-index:100;}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.topbar-logo{height:46px;}
+.topbar-name{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:5px;color:var(--purple);}
+.topbar-sub{font-size:10px;color:var(--gray);letter-spacing:2px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.btn-nav{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--light);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px;}
+.btn-nav:hover{background:rgba(255,255,255,.15);}
+.btn-out{background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.3);color:var(--red);padding:7px 12px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;z-index:400;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--purple);border-radius:2px;transition:.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.mobile-nav{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.96);z-index:350;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.mobile-nav.open{display:flex;}
+.mobile-nav .btn-nav{font-size:16px;padding:12px 32px;width:240px;justify-content:center;background:rgba(255,255,255,.05);border:1px solid rgba(155,89,182,.45);color:#e0e0e0;text-align:center;border-radius:10px;text-decoration:none;font-weight:700;}
+.mobile-nav .btn-out{font-size:16px;padding:12px 32px;width:240px;text-align:center;background:none;border:1px solid rgba(230,57,70,.45);color:#e63946;border-radius:10px;cursor:pointer;font-weight:700;}
+.mobile-nav-close{position:absolute;top:20px;right:20px;background:none;border:none;color:var(--purple);font-size:28px;cursor:pointer;}
+
+/* Game layout */
+.game-main{max-width:900px;margin:0 auto;padding:24px 16px 40px;}
+/* Boton volver */
+.btn-back-inline{display:inline-flex;align-items:center;gap:6px;background:rgba(155,89,182,.12);border:1px solid rgba(155,89,182,.4);color:var(--purple);padding:9px 16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;margin-bottom:16px;transition:.15s;}
+.btn-back-inline:hover{background:rgba(155,89,182,.22);transform:translateX(-2px);}
+
+.game-title-box{text-align:center;margin-bottom:20px;}
+.game-title{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:5px;color:var(--purple);line-height:1;}
+.game-sub{font-size:13px;color:var(--gray);margin-top:6px;}
+
+.game-wrap{display:flex;gap:22px;justify-content:center;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;}
+#gameCanvas{background:#0a0a14;border:2px solid var(--purple);border-radius:10px;display:block;box-shadow:0 8px 30px rgba(155,89,182,.2);max-width:100%;height:auto;touch-action:none;}
+.game-hud{display:flex;flex-direction:column;gap:10px;min-width:140px;}
+.hud-block{background:var(--dark3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px 14px;}
+.hud-block label{display:block;font-size:9px;color:var(--gray);letter-spacing:1.5px;margin-bottom:4px;text-transform:uppercase;font-weight:800;}
+.hud-block .hud-val{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--purple);letter-spacing:1px;}
+.btn-pause{background:var(--purple);color:#fff;border:none;padding:11px;border-radius:9px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;letter-spacing:1px;font-size:13px;}
+.btn-pause:hover{opacity:.9;}
+
+.game-help{background:var(--dark3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:12px;color:var(--gray);text-align:center;}
+.game-help b{color:var(--light);}
+.game-help kbd{background:#22223a;border:1px solid #444;border-radius:4px;padding:1px 6px;font-family:monospace;font-size:11px;color:var(--purple);}
+
+/* Mobile controls: D-pad */
+.game-controls-mobile{display:none;grid-template-columns:repeat(3,72px);grid-template-rows:repeat(3,72px);gap:8px;justify-content:center;margin:0 auto;}
+.game-controls-mobile button{background:var(--dark3);border:1px solid var(--border);color:var(--light);border-radius:10px;font-size:24px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;user-select:none;-webkit-tap-highlight-color:transparent;}
+.game-controls-mobile button:active{background:var(--purple);color:#fff;transform:scale(.94);}
+.game-controls-mobile .dpad-up   { grid-column:2; grid-row:1; }
+.game-controls-mobile .dpad-left { grid-column:1; grid-row:2; }
+.game-controls-mobile .dpad-right{ grid-column:3; grid-row:2; }
+.game-controls-mobile .dpad-down { grid-column:2; grid-row:3; }
+
+@media (max-width:700px){
+  .game-controls-mobile{display:grid;}
+  .game-hud{flex-direction:row;flex-wrap:wrap;min-width:0;justify-content:center;width:100%;}
+  .hud-block{min-width:92px;flex:1;text-align:center;}
+  .game-help{display:none;}
+  .game-title{font-size:24px;letter-spacing:3px;}
+}
+
+/* Prize modal */
+.prize-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9000;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+.prize-overlay.open{display:flex;}
+.prize-box{background:var(--dark3);border:1px solid var(--purple);border-radius:16px;max-width:620px;width:100%;padding:30px 28px 24px;position:relative;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.7);}
+.prize-close{position:absolute;top:12px;right:12px;width:36px;height:36px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#e0e0e0;font-size:18px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.prize-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--purple);margin-bottom:8px;animation:prizeBounce .5s ease;}
+@keyframes prizeBounce{0%{transform:scale(.6);opacity:0;}60%{transform:scale(1.08);}100%{transform:scale(1);opacity:1;}}
+.prize-stats{font-size:13px;color:var(--gray);margin-bottom:18px;}
+.prize-stats b{color:var(--light);}
+.prize-chart-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--light);margin-bottom:10px;padding:9px 14px;background:rgba(155,89,182,.12);border-left:3px solid var(--purple);border-radius:6px;text-align:left;}
+.prize-chart-wrap{height:280px;margin-bottom:20px;position:relative;}
+.prize-cta{background:var(--purple);color:#fff;border:none;padding:13px 30px;border-radius:10px;font-weight:800;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;}
+.prize-cta:hover{opacity:.9;}
+
+@media (max-width:600px){
+  .prize-box{padding:22px 16px;}
+  .prize-title{font-size:22px;letter-spacing:2px;}
+  .prize-chart-wrap{height:220px;}
+  .topbar-right > .btn-nav,
+  .topbar-right > .btn-out{display:none!important;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <img class="topbar-logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='%23666'%3E%F0%9F%90%8D%3C/text%3E%3C/svg%3E" alt="">
+    <div>
+      <div class="topbar-name" id="topbar-name">—</div>
+      <div class="topbar-sub">🐍 SNAKE</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+    <a class="btn-nav" href="juegos.html">← Juegos</a>
+    <a class="btn-nav" href="dashboard.html">📊 Dashboard</a>
+    <a class="btn-nav" href="manual.html">❓ Ayuda</a>
+    <button class="btn-out" onclick="logout()">Salir ✕</button>
+  </div>
+</header>
+
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-close" onclick="toggleMenu()">✕</button>
+  <a href="juegos.html" class="btn-nav">← Juegos</a>
+  <a href="dashboard.html" class="btn-nav">📊 Dashboard</a>
+  <a href="manual.html" class="btn-nav">❓ Ayuda</a>
+  <button class="btn-out" onclick="logout()">Salir ✕</button>
+</div>
+
+<main class="game-main">
+  <a href="juegos.html" class="btn-back-inline">← Volver a Juegos</a>
+
+  <div class="game-title-box">
+    <div class="game-title">🐍 SNAKE TRIKLES</div>
+    <div class="game-sub">Come manzanas, crece sin chocar y desbloquea gráficas de tu negocio</div>
+  </div>
+
+  <div class="game-help">
+    <b>Controles:</b> <kbd>◀</kbd><kbd>▶</kbd><kbd>▲</kbd><kbd>▼</kbd> moverse · <kbd>P</kbd> pausa · En mobile usa el D-pad
+  </div>
+
+  <div class="game-wrap">
+    <canvas id="gameCanvas" width="360" height="360"></canvas>
+    <aside class="game-hud">
+      <div class="hud-block"><label>Score</label><div class="hud-val" id="hud-score">0</div></div>
+      <div class="hud-block"><label>Longitud</label><div class="hud-val" id="hud-len">3</div></div>
+      <div class="hud-block"><label>Mejor</label><div class="hud-val" id="hud-best">0</div></div>
+      <div class="hud-block"><label>Velocidad</label><div class="hud-val" id="hud-speed">1</div></div>
+      <button class="btn-pause" id="btnPause" onclick="togglePause()">⏸ Pausar</button>
+    </aside>
+  </div>
+
+  <div class="game-controls-mobile">
+    <button class="dpad-up"    onmousedown="setDir(0,-1)" ontouchstart="event.preventDefault();setDir(0,-1)">▲</button>
+    <button class="dpad-left"  onmousedown="setDir(-1,0)" ontouchstart="event.preventDefault();setDir(-1,0)">◀</button>
+    <button class="dpad-right" onmousedown="setDir(1,0)"  ontouchstart="event.preventDefault();setDir(1,0)">▶</button>
+    <button class="dpad-down"  onmousedown="setDir(0,1)"  ontouchstart="event.preventDefault();setDir(0,1)">▼</button>
+  </div>
+</main>
+
+<!-- Prize modal -->
+<div class="prize-overlay" id="prizeOverlay">
+  <div class="prize-box">
+    <button class="prize-close" onclick="closePrize()">✕</button>
+    <div class="prize-title">🎉 ¡PREMIO DESBLOQUEADO!</div>
+    <div class="prize-stats"><b id="prize-apples">0</b> manzanas · <b id="prize-score">0</b> pts</div>
+    <div class="prize-chart-title" id="prize-chart-title">—</div>
+    <div class="prize-chart-wrap"><canvas id="prizeChart"></canvas></div>
+    <button class="prize-cta" onclick="closePrize()">▶ Seguir jugando</button>
+  </div>
+</div>
+
+<!-- Game over modal -->
+<div class="prize-overlay" id="gameOverOverlay">
+  <div class="prize-box">
+    <div class="prize-title">🏁 GAME OVER</div>
+    <div class="prize-stats">
+      Puntaje final: <b id="go-score" style="color:var(--purple);font-size:22px;font-family:'Bebas Neue',sans-serif">0</b><br>
+      Longitud máxima: <b id="go-len">3</b>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="prize-cta" onclick="restartGame()">▶ Jugar de nuevo</button>
+      <a href="juegos.html" class="prize-cta" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#e0e0e0;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">← Juegos</a>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   AUTH + API (mismo patron que otros juegos)
+══════════════════════════════════════════════════════════ */
+const SK = 'trikles_session';
+function getS(){ try{ return JSON.parse(sessionStorage.getItem(SK) || localStorage.getItem(SK+'_remember')); } catch{ return null; } }
+function logout(){ if(confirm('¿Cerrar sesión?')){ sessionStorage.removeItem(SK); localStorage.removeItem(SK+'_remember'); location.href='acceso.html'; } }
+function toggleMenu(){ document.getElementById('mobileNav').classList.toggle('open'); document.getElementById('hamburgerBtn').classList.toggle('open'); }
+
+const SESSION = getS();
+if (!SESSION) location.href = 'acceso.html';
+else document.getElementById('topbar-name').textContent = (SESSION.empresa || 'TRIKLES').replace(/_/g,' ').toUpperCase();
+
+const API = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
+function jsonp(params, timeout=10000){
+  return new Promise((resolve, reject) => {
+    const cb = '_scb' + Date.now() + Math.random().toString(36).slice(2);
+    const sc = document.createElement('script');
+    let done = false;
+    const fin = (fn, v) => { if(done) return; done=true; delete window[cb]; sc.remove(); fn(v); };
+    window[cb] = d => fin(resolve, d);
+    sc.onerror = () => fin(reject, new Error('error'));
+    sc.src = API + '?' + new URLSearchParams({...params, callback: cb});
+    document.head.appendChild(sc);
+    setTimeout(() => fin(reject, new Error('timeout')), timeout);
+  });
+}
+
+let GAME_DATA = [], GAME_PE = 0, GAME_CF_DIA = 0;
+async function loadGameData(){
+  if (!SESSION) return;
+  try {
+    const r = await jsonp({ action:'getDatos', empresa: SESSION.empresa });
+    if (r?.success && Array.isArray(r.data)) {
+      GAME_DATA = r.data.map(d => {
+        const fecha = String(d.f || d.fecha || '').slice(0,10);
+        const dt = new Date(fecha + 'T12:00:00');
+        return {
+          f: fecha,
+          y: d.y || dt.getFullYear(), m: d.m || dt.getMonth()+1, dy: d.d || dt.getDate(),
+          v: parseFloat(d.v)||0, g: parseFloat(d.g)||0,
+          vef: parseFloat(d.vef)||0, vtar: parseFloat(d.vtar)||0, vcr: parseFloat(d.vcr)||0,
+          cob: parseFloat(d.cob)||0, ant: parseFloat(d.ant)||0,
+          com: parseFloat(d.com)||0, comx: parseFloat(d.comx)||0,
+          gti: parseFloat(d.gti)||0, gca: parseFloat(d.gca)||0,
+          pac: parseFloat(d.pac)||0, ref: parseFloat(d.ref)||0, sef: parseFloat(d.sef)||0,
+          res: parseFloat(d.res)||0, resUso: parseFloat(d.resUso)||0,
+          p1: parseFloat(d.p1)||0, p2: parseFloat(d.p2)||0, p3: parseFloat(d.p3)||0, p4: parseFloat(d.p4)||0,
+        };
+      });
+    }
+    try {
+      const ult = GAME_DATA.length ? GAME_DATA[GAME_DATA.length-1].f : '';
+      const r2 = await jsonp({ action:'getPuntoEquilibrio', empresa: SESSION.empresa, fecha: ult });
+      if (r2?.success) { GAME_PE = r2.puntoEquilibrio || 0; GAME_CF_DIA = r2.costoFijoDiario || 0; }
+    } catch(e){}
+  } catch(e) { console.warn('Error cargando datos:', e); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   SNAKE — motor del juego
+══════════════════════════════════════════════════════════ */
+const COLS = 20, ROWS = 20, CELL = 18; // 360x360 canvas
+const boardCanvas = document.getElementById('gameCanvas');
+const boardCtx = boardCanvas.getContext('2d');
+
+let snake = [];           // array de {x,y}, la cabeza es snake[0]
+let dir = { x: 1, y: 0 }; // dirección actual
+let nextDir = { x: 1, y: 0 }; // buffer para evitar auto-choque
+let food = null;          // {x, y}
+let score = 0;
+let apples = 0;           // manzanas comidas
+let speedLevel = 1;       // aumenta con cada manzana
+let moveInterval = 150;   // ms entre movimientos (arranque)
+let lastMove = 0;
+let best = Number(localStorage.getItem('snake_best') || 0);
+let paused = false, gameOver = false, prizeOpen = false;
+let rafId = null;
+
+function newSnake(){
+  return [ {x:10,y:10}, {x:9,y:10}, {x:8,y:10} ]; // 3 segmentos al centro
+}
+
+function placeFood(){
+  const occupied = new Set(snake.map(s => s.x + ',' + s.y));
+  const libres = [];
+  for (let y=0; y<ROWS; y++) for (let x=0; x<COLS; x++) {
+    if (!occupied.has(x + ',' + y)) libres.push({x, y});
+  }
+  if (!libres.length) return null;
+  return libres[Math.floor(Math.random() * libres.length)];
+}
+
+function setDir(dx, dy){
+  if (gameOver || prizeOpen) return;
+  // No permitir reversa inmediata sobre sí misma
+  if (snake.length > 1 && dir.x === -dx && dir.y === -dy) return;
+  nextDir = { x: dx, y: dy };
+}
+
+function updateHUD(){
+  document.getElementById('hud-score').textContent = score;
+  document.getElementById('hud-len').textContent = snake.length;
+  document.getElementById('hud-best').textContent = best;
+  document.getElementById('hud-speed').textContent = speedLevel;
+}
+
+function step(){
+  if (paused || gameOver || prizeOpen) return;
+  dir = nextDir;
+  const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+  // Colisión con pared
+  if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS) {
+    endGame(); return;
+  }
+  // Colisión consigo misma
+  for (let i=0; i<snake.length; i++){
+    if (snake[i].x === head.x && snake[i].y === head.y) { endGame(); return; }
+  }
+
+  snake.unshift(head);
+
+  // ¿Comió manzana?
+  if (food && head.x === food.x && head.y === food.y){
+    apples++;
+    score += 10 + speedLevel; // más puntos a mayor velocidad
+    speedLevel = 1 + Math.floor(apples / 2); // nivel sube cada 2 manzanas
+    moveInterval = Math.max(70, 150 - (speedLevel-1) * 8); // acelera
+    food = placeFood();
+    updateHUD();
+    // Premio cada 3 manzanas
+    if (apples % 3 === 0) setTimeout(() => openPrize(), 150);
+  } else {
+    snake.pop(); // si no comió, pierde cola
+  }
+}
+
+function draw(){
+  // Fondo
+  boardCtx.fillStyle = '#0a0a14';
+  boardCtx.fillRect(0, 0, boardCanvas.width, boardCanvas.height);
+
+  // Grid sutil
+  boardCtx.strokeStyle = 'rgba(255,255,255,.03)';
+  boardCtx.lineWidth = 1;
+  for (let i=1; i<COLS; i++){ boardCtx.beginPath(); boardCtx.moveTo(i*CELL,0); boardCtx.lineTo(i*CELL,ROWS*CELL); boardCtx.stroke(); }
+  for (let i=1; i<ROWS; i++){ boardCtx.beginPath(); boardCtx.moveTo(0,i*CELL); boardCtx.lineTo(COLS*CELL,i*CELL); boardCtx.stroke(); }
+
+  // Manzana (pulsante con latido)
+  if (food){
+    const pulse = Math.sin(performance.now()/200) * 1.2;
+    boardCtx.fillStyle = '#e63946';
+    boardCtx.beginPath();
+    boardCtx.arc(food.x*CELL + CELL/2, food.y*CELL + CELL/2, CELL/2 - 2 + pulse, 0, Math.PI*2);
+    boardCtx.fill();
+    boardCtx.fillStyle = '#f4d35e';
+    boardCtx.beginPath();
+    boardCtx.arc(food.x*CELL + CELL/2 - 2, food.y*CELL + CELL/2 - 2, 2, 0, Math.PI*2);
+    boardCtx.fill();
+  }
+
+  // Serpiente
+  for (let i=0; i<snake.length; i++){
+    const s = snake[i];
+    const fade = 1 - i/snake.length * 0.4; // la cola se oscurece
+    if (i === 0){
+      // Cabeza: color más brillante
+      boardCtx.fillStyle = '#2ec4b6';
+      boardCtx.fillRect(s.x*CELL + 2, s.y*CELL + 2, CELL-4, CELL-4);
+      // Ojos
+      boardCtx.fillStyle = '#fff';
+      const eyeOff = 4;
+      const ey1 = {x: s.x*CELL + CELL/2 - eyeOff, y: s.y*CELL + CELL/2 - 2};
+      const ey2 = {x: s.x*CELL + CELL/2 + eyeOff - 2, y: s.y*CELL + CELL/2 - 2};
+      boardCtx.fillRect(ey1.x, ey1.y, 2, 3);
+      boardCtx.fillRect(ey2.x, ey2.y, 2, 3);
+    } else {
+      // Cuerpo con degradado
+      const r = Math.round(46 * fade);
+      const g = Math.round(196 * fade);
+      const b = Math.round(182 * fade);
+      boardCtx.fillStyle = `rgb(${r},${g},${b})`;
+      boardCtx.fillRect(s.x*CELL + 3, s.y*CELL + 3, CELL-6, CELL-6);
+    }
+  }
+}
+
+/* Controles teclado */
+document.addEventListener('keydown', e => {
+  if (gameOver) return;
+  if (e.key === 'Escape' && prizeOpen){ closePrize(); return; }
+  if (prizeOpen) return;
+  switch(e.key){
+    case 'ArrowLeft':  setDir(-1, 0); e.preventDefault(); break;
+    case 'ArrowRight': setDir(1, 0);  e.preventDefault(); break;
+    case 'ArrowUp':    setDir(0, -1); e.preventDefault(); break;
+    case 'ArrowDown':  setDir(0, 1);  e.preventDefault(); break;
+    case 'p': case 'P': togglePause(); break;
+  }
+});
+
+/* Swipe touch controls sobre el canvas */
+let touchStart = null;
+boardCanvas.addEventListener('touchstart', e => {
+  if (e.touches.length === 1) {
+    touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }
+}, { passive: true });
+boardCanvas.addEventListener('touchend', e => {
+  if (!touchStart) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchStart.x;
+  const dy = t.clientY - touchStart.y;
+  if (Math.abs(dx) < 20 && Math.abs(dy) < 20) { touchStart = null; return; }
+  if (Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0);
+  else setDir(0, dy > 0 ? 1 : -1);
+  touchStart = null;
+}, { passive: true });
+
+function togglePause(){
+  if (gameOver || prizeOpen) return;
+  paused = !paused;
+  document.getElementById('btnPause').textContent = paused ? '▶ Reanudar' : '⏸ Pausar';
+}
+
+function gameLoop(ts){
+  if (!paused && !gameOver && !prizeOpen){
+    if (ts - lastMove >= moveInterval){ step(); lastMove = ts; }
+  }
+  draw();
+  rafId = requestAnimationFrame(gameLoop);
+}
+
+function startGame(){
+  snake = newSnake();
+  dir = { x: 1, y: 0 }; nextDir = { x: 1, y: 0 };
+  food = placeFood();
+  score = 0; apples = 0; speedLevel = 1; moveInterval = 150;
+  paused = false; gameOver = false; prizeOpen = false;
+  updateHUD();
+  lastMove = performance.now();
+  document.getElementById('gameOverOverlay').classList.remove('open');
+  document.getElementById('btnPause').textContent = '⏸ Pausar';
+  if (!rafId) rafId = requestAnimationFrame(gameLoop);
+}
+
+function endGame(){
+  gameOver = true;
+  if (score > best){ best = score; localStorage.setItem('snake_best', String(best)); }
+  updateHUD();
+  document.getElementById('go-score').textContent = score;
+  document.getElementById('go-len').textContent = snake.length;
+  document.getElementById('gameOverOverlay').classList.add('open');
+}
+
+function restartGame(){
+  document.getElementById('gameOverOverlay').classList.remove('open');
+  startGame();
+}
+
+/* ══════════════════════════════════════════════════════════
+   SISTEMA DE PREMIOS (igual que Tetris/Trivia)
+══════════════════════════════════════════════════════════ */
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length-1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let prizePool = [];
+let prizeIdx = 0;
+let prizeChart = null;
+
+function nextPrizeId(){
+  if (prizeIdx >= prizePool.length){
+    prizePool = shuffle(prizePool.length ? prizePool : [0,1,2,3,4,5,6,7,8,9]);
+    prizeIdx = 0;
+  }
+  return prizePool[prizeIdx++];
+}
+
+function openPrize(){
+  if (gameOver) return;
+  prizeOpen = true;
+  const idx = nextPrizeId();
+  const renderer = PRIZE_RENDERERS[idx];
+  document.getElementById('prize-apples').textContent = apples;
+  document.getElementById('prize-score').textContent = score;
+  document.getElementById('prize-chart-title').textContent = renderer.title;
+  if (prizeChart) { try { prizeChart.destroy(); } catch(e){} }
+  try {
+    const cfg = renderer.build(GAME_DATA);
+    const ctx = document.getElementById('prizeChart').getContext('2d');
+    prizeChart = new Chart(ctx, cfg);
+  } catch(e){ console.warn('Error premio:', e); }
+  document.getElementById('prizeOverlay').classList.add('open');
+}
+
+function closePrize(){
+  document.getElementById('prizeOverlay').classList.remove('open');
+  prizeOpen = false;
+  lastMove = performance.now();
+}
+
+/* ══════════════════════════════════════════════════════════
+   RENDERERS DE GRÁFICAS-PREMIO (10)
+══════════════════════════════════════════════════════════ */
+const MES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const fmtK = n => { const v = Number(n)||0; return Math.abs(v) >= 1000 ? '$'+(v/1000).toFixed(1)+'K' : '$'+Math.round(v); };
+
+const BASE_OPT = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: {
+    legend: { labels: { color:'#aaa', font:{size:11, weight:'700'} } },
+    tooltip: { backgroundColor:'#1a1a1a', borderColor:'rgba(155,89,182,.4)', borderWidth:1 }
+  },
+  scales: {
+    x: { grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#888', font:{size:10}, maxTicksLimit:12} },
+    y: { grid:{color:'rgba(255,255,255,.06)'}, ticks:{color:'#888', font:{size:10}, callback: v=>fmtK(v)} }
+  }
+};
+const DON_OPT = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: {
+    legend: { position:'right', labels: { color:'#aaa', font:{size:11, weight:'700'}, padding:8 } },
+    tooltip: { callbacks: { label: c => ' '+c.label+': '+fmtK(c.parsed) } }
+  }
+};
+const EMPTY_CFG = { type:'bar', data:{ labels:['Sin datos'], datasets:[{ label:'—', data:[0], backgroundColor:'rgba(100,100,100,.3)'}] }, options: BASE_OPT };
+
+const PRIZE_RENDERERS = [
+  { title: '📈 Tendencia Diaria — Ventas vs P.E.',
+    build: (data) => {
+      if (!data.length) return EMPTY_CFG;
+      const last30 = data.slice(-30);
+      return { type:'line', data:{ labels: last30.map(d=>d.f.slice(5)),
+        datasets:[
+          { label:'Ventas', data: last30.map(d=>d.v), borderColor:'#9b59b6', backgroundColor:'rgba(155,89,182,.18)', tension:.3, fill:true, pointRadius:3 },
+          { label:'P.E.', data: last30.map(()=>GAME_PE), borderColor:'#e63946', borderDash:[6,4], pointRadius:0, fill:false }
+        ]}, options: BASE_OPT };
+    }
+  },
+  { title: '📊 Ganancias Acumuladas por Mes',
+    build: (data) => {
+      if (!data.length) return EMPTY_CFG;
+      const byM = {};
+      data.forEach(d => { const k = d.y+'-'+String(d.m).padStart(2,'0'); byM[k] = (byM[k]||0) + d.g; });
+      const keys = Object.keys(byM).sort().slice(-12);
+      return { type:'bar', data:{ labels: keys.map(k => MES[parseInt(k.slice(5))-1]+' '+k.slice(2,4)),
+        datasets:[{ label:'Ganancia', data: keys.map(k => byM[k]), backgroundColor:'rgba(46,196,182,.7)', borderColor:'#2ec4b6', borderWidth:1 }]
+      }, options: BASE_OPT };
+    }
+  },
+  { title: '🛒 Ganancias por Producto',
+    build: (data) => {
+      if (!data.length) return EMPTY_CFG;
+      const t=[0,0,0,0]; data.forEach(d => { t[0]+=d.p1; t[1]+=d.p2; t[2]+=d.p3; t[3]+=d.p4; });
+      if (t.every(x => x === 0)) return EMPTY_CFG;
+      return { type:'doughnut', data:{ labels:['Producto 1','Producto 2','Producto 3','Otros'],
+        datasets:[{ data:t, backgroundColor:['#F5821Fbb','#2ec4b6bb','#4361eebb','#9b59b6bb'], borderColor:['#F5821F','#2ec4b6','#4361ee','#9b59b6'], borderWidth:2 }]
+      }, options: DON_OPT };
+    }
+  },
+  { title: '📉 Ganancias/Pérdidas por Día — Mes Actual',
+    build: (data) => {
+      if (!data.length) return EMPTY_CFG;
+      const last = data[data.length-1];
+      const month = data.filter(d => d.y === last.y && d.m === last.m);
+      if (!month.length) return EMPTY_CFG;
+      const peDia = GAME_PE > 0 ? GAME_PE : GAME_CF_DIA * 2;
+      return { type:'bar', data:{ labels: month.map(d=>d.dy),
+        datasets:[{ label:'Ventas', data: month.map(d=>d.v),
+          backgroundColor: month.map(d => d.v >= peDia ? 'rgba(46,196,182,.7)' : 'rgba(230,57,70,.7)'), borderWidth:1 }]
+      }, options: BASE_OPT };
+    }
+  },
+  { title: '📊 Ventas Mensuales — Año Actual vs Anterior',
+    build: (data) => {
+      if (!data.length) return EMPTY_CFG;
+      const yrs = [...new Set(data.map(d => d.y))].sort();
+      const act = yrs[yrs.length-1], ant = yrs.length > 1 ? yrs[yrs.length-2] : act-1;
+      const mAct = Array(12).fill(0), mAnt = Array(12).fill(0);
+      data.forEach(d => { if (d.y===act) mAct[d.m-1]+=d.v; else if (d.y===ant) mAnt[d.m-1]+=d.v; });
+      return { type:'bar', data:{ labels: MES,
+        datasets:[
+          { label: String(act), data: mAct, backgroundColor:'rgba(245,130,31,.75)', borderColor:'#F5821F', borderWidth:1 },
+          { label: String(ant), data: mAnt, backgroundColor:'rgba(52,152,219,.5)', borderColor:'#3498db', borderWidth:1 }
+        ]}, options: BASE_OPT };
+    }
+  },
+  { title: '💵 Flujo de Efectivo Mensual',
+    build: (data) => {
+      if (!data.length) return EMPTY_CFG;
+      const byM = {};
+      data.forEach(d => {
+        const k = d.y+'-'+String(d.m).padStart(2,'0');
+        if (!byM[k]) byM[k] = { ing:0, egr:0 };
+        byM[k].ing += d.vef + d.cob + d.ant;
+        byM[k].egr += d.com + d.comx + d.gti + d.gca + d.pac + d.ref + d.sef + d.res;
+      });
+      const keys = Object.keys(byM).sort().slice(-12);
+      return { type:'bar', data:{ labels: keys.map(k => MES[parseInt(k.slice(5))-1]+' '+k.slice(2,4)),
+        datasets:[
+          { label:'Ingresos', data: keys.map(k=>byM[k].ing), backgroundColor:'rgba(46,196,182,.7)', borderColor:'#2ec4b6', borderWidth:1 },
+          { label:'Egresos',  data: keys.map(k=>byM[k].egr), backgroundColor:'rgba(230,57,70,.7)', borderColor:'#e63946', borderWidth:1 }
+        ]}, options: BASE_OPT };
+    }
+  },
+  { title: '⬇️ Ingresos por Tipo',
+    build: (data) => {
+      if (!data.length) return EMPTY_CFG;
+      let vef=0, cob=0, ant=0;
+      data.forEach(d => { vef+=d.vef; cob+=d.cob; ant+=d.ant; });
+      if (vef+cob+ant===0) return EMPTY_CFG;
+      return { type:'doughnut', data:{ labels:['Vta Efectivo','Cobranza','Anticipos'],
+        datasets:[{ data:[vef,cob,ant], backgroundColor:['#F5821Fbb','#2ec4b6bb','#9b59b6bb'], borderColor:['#F5821F','#2ec4b6','#9b59b6'], borderWidth:2 }]
+      }, options: DON_OPT };
+    }
+  },
+  { title: '⬆️ Egresos por Tipo',
+    build: (data) => {
+      if (!data.length) return EMPTY_CFG;
+      let com=0,gti=0,gca=0,pac=0,sef=0,ref=0,res=0;
+      data.forEach(d => { com+=d.com+d.comx; gti+=d.gti; gca+=d.gca; pac+=d.pac; sef+=d.sef; ref+=d.ref; res+=d.res; });
+      if (com+gti+gca+pac+sef+ref+res===0) return EMPTY_CFG;
+      return { type:'doughnut', data:{ labels:['Compras','Gasto Tienda','Gasto Casa','Pago Compras','Nómina','Retiro','Reserva'],
+        datasets:[{ data:[com,gti,gca,pac,sef,ref,res],
+          backgroundColor:['#e74c3cbb','#F5821Fbb','#f1c40fbb','#3498dbbb','#1abc9cbb','#9b59b6bb','#2ecc71bb'],
+          borderColor:['#e74c3c','#F5821F','#f1c40f','#3498db','#1abc9c','#9b59b6','#2ecc71'], borderWidth:2 }]
+      }, options: DON_OPT };
+    }
+  },
+  { title: '💳 Composición de Ventas',
+    build: (data) => {
+      if (!data.length) return EMPTY_CFG;
+      let vef=0, vtar=0, vcr=0;
+      data.forEach(d => { vef+=d.vef; vtar+=d.vtar; vcr+=d.vcr; });
+      if (vef+vtar+vcr===0) return EMPTY_CFG;
+      return { type:'doughnut', data:{ labels:['Efectivo','Tarjeta','Crédito'],
+        datasets:[{ data:[vef,vtar,vcr], backgroundColor:['#F5821Fbb','#3498dbbb','#9b59b6bb'], borderColor:['#F5821F','#3498db','#9b59b6'], borderWidth:2 }]
+      }, options: DON_OPT };
+    }
+  },
+  { title: '🏦 Evolución del Saldo de Reserva',
+    build: (data) => {
+      if (!data.length) return EMPTY_CFG;
+      let acum = 0;
+      const pts = data.map(d => { acum += (d.res||0) - (d.resUso||0); return { f:d.f, s:acum }; }).slice(-30);
+      return { type:'line', data:{ labels: pts.map(p=>p.f.slice(5)),
+        datasets:[{ label:'Saldo Reserva', data: pts.map(p=>p.s), borderColor:'#2ec4b6', backgroundColor:'rgba(46,196,182,.18)', fill:true, tension:.3, pointRadius:3 }]
+      }, options: BASE_OPT };
+    }
+  }
+];
+
+/* ══════════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════════ */
+(async function init(){
+  prizePool = shuffle([0,1,2,3,4,5,6,7,8,9]);
+  await loadGameData();
+  startGame();
+})();
+</script>
+</body>
+</html>
