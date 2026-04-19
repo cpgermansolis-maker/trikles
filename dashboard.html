@@ -2308,7 +2308,7 @@ function buildReserva(data) {
   }
 
   // Helper: saldo acumulado por fecha (line chart)
-  function saldoAcum(movs, campoEntrada, campoSalida) {
+  function saldoAcumBuckets(movs, campoEntrada, campoSalida) {
     const ordenado = [...movs].sort((a,b) => a.fecha < b.fecha ? -1 : 1);
     const buckets = {};
     ordenado.forEach(m => {
@@ -2335,7 +2335,7 @@ function buildReserva(data) {
   function destroyIf(chart) { if (chart) try { chart.destroy(); } catch(e){} }
 
   // ── 1) SALDO DE RESERVA (línea) ──
-  const resSaldoDatos = saldoAcum(movReserva, 'entrada', 'salida');
+  const resSaldoDatos = saldoAcumBuckets(movReserva, 'entrada', 'salida');
   destroyIf(chartResSaldo);
   const ctxRS = document.getElementById('cv_res_saldo');
   if (ctxRS) {
@@ -2364,7 +2364,7 @@ function buildReserva(data) {
   }
 
   // ── 2) SALDO DE CxP (línea) ──
-  const cxpSaldoDatos = saldoAcum(movCxP, 'cargo', 'abono');
+  const cxpSaldoDatos = saldoAcumBuckets(movCxP, 'cargo', 'abono');
   destroyIf(chartCxpSaldo);
   const ctxCS = document.getElementById('cv_cxp_saldo');
   if (ctxCS) {
