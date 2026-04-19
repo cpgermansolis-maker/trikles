@@ -8,7 +8,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Trikles — Juegos</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="stylesheet" href="mobile.css">
 <style>
 :root{
@@ -19,7 +18,7 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--light);min-height:100vh;}
 
-/* ── Topbar ── */
+/* Topbar */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:64px;background:var(--dark2);border-bottom:2px solid var(--orange);position:sticky;top:0;z-index:100;}
 .topbar-left{display:flex;align-items:center;gap:14px;}
 .topbar-logo{height:46px;}
@@ -29,8 +28,6 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--light);m
 .btn-nav{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--light);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px;}
 .btn-nav:hover{background:rgba(255,255,255,.15);}
 .btn-out{background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.3);color:var(--red);padding:7px 12px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;}
-
-/* Hamburger */
 .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;z-index:400;}
 .hamburger span{display:block;width:22px;height:2px;background:var(--orange);border-radius:2px;transition:.3s;}
 .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
@@ -42,66 +39,52 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--light);m
 .mobile-nav .btn-out{font-size:16px;padding:12px 32px;width:240px;text-align:center;background:none;border:1px solid rgba(230,57,70,.45);color:#e63946;border-radius:10px;cursor:pointer;font-weight:700;}
 .mobile-nav-close{position:absolute;top:20px;right:20px;background:none;border:none;color:var(--orange);font-size:28px;cursor:pointer;}
 
-/* ── Game layout ── */
-.game-main{max-width:900px;margin:0 auto;padding:24px 16px 40px;}
-.game-title-box{text-align:center;margin-bottom:20px;}
-.game-title{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:5px;color:var(--orange);line-height:1;}
-.game-sub{font-size:13px;color:var(--gray);margin-top:6px;}
+/* Hub layout */
+.hub-main{max-width:1000px;margin:0 auto;padding:40px 20px 48px;}
+.hub-header{text-align:center;margin-bottom:40px;}
+.hub-title{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:6px;color:var(--orange);line-height:1;}
+.hub-sub{font-size:14px;color:var(--gray);margin-top:8px;max-width:520px;margin-left:auto;margin-right:auto;}
 
-.game-wrap{display:flex;gap:22px;justify-content:center;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;}
-#gameCanvas{background:#0a0a14;border:2px solid var(--orange);border-radius:10px;display:block;box-shadow:0 8px 30px rgba(245,130,31,.2);}
-.game-hud{display:flex;flex-direction:column;gap:10px;min-width:140px;}
-.hud-block{background:var(--dark3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px 14px;}
-.hud-block label{display:block;font-size:9px;color:var(--gray);letter-spacing:1.5px;margin-bottom:4px;text-transform:uppercase;font-weight:800;}
-.hud-block .hud-val{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--orange);letter-spacing:1px;}
-#nextCanvas{background:#0a0a14;border:1px solid rgba(255,255,255,.1);border-radius:6px;display:block;margin-top:4px;}
-.btn-pause{background:var(--orange);color:#fff;border:none;padding:11px;border-radius:9px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;letter-spacing:1px;font-size:13px;}
-.btn-pause:hover{opacity:.9;}
+.games-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;}
 
-/* Instrucciones */
-.game-help{background:var(--dark3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:12px;color:var(--gray);text-align:center;}
-.game-help b{color:var(--light);}
-.game-help kbd{background:#22223a;border:1px solid #444;border-radius:4px;padding:1px 6px;font-family:monospace;font-size:11px;color:var(--orange);}
-
-/* Mobile controls */
-.game-controls-mobile{display:none;grid-template-columns:repeat(4,1fr);gap:10px;max-width:420px;margin:0 auto;}
-.game-controls-mobile button{background:var(--dark3);border:1px solid var(--border);color:var(--light);padding:20px 10px;border-radius:10px;font-size:22px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;user-select:none;-webkit-tap-highlight-color:transparent;}
-.game-controls-mobile button:active{background:var(--orange);color:#fff;transform:scale(.95);}
-
-@media (max-width:700px){
-  .game-controls-mobile{display:grid;}
-  .game-hud{flex-direction:row;flex-wrap:wrap;min-width:0;justify-content:center;width:100%;}
-  .hud-block{min-width:92px;flex:1;text-align:center;}
-  .game-help{display:none;}
-  .game-title{font-size:24px;letter-spacing:3px;}
+.game-card{
+  background:#12121f;border:1px solid rgba(255,255,255,.06);border-radius:18px;
+  overflow:hidden;cursor:pointer;transition:.25s;display:flex;flex-direction:column;
+  color:var(--light);text-decoration:none;position:relative;
 }
+.game-card:hover{transform:translateY(-6px);border-color:var(--c);box-shadow:0 14px 36px color-mix(in srgb, var(--c) 28%, transparent);}
+.game-card.disabled{opacity:.55;cursor:not-allowed;filter:grayscale(.4);}
+.game-card.disabled:hover{transform:none;box-shadow:none;}
 
-/* ── Prize modal ── */
-.prize-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9000;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
-.prize-overlay.open{display:flex;}
-.prize-box{background:var(--dark3);border:1px solid var(--orange);border-radius:16px;max-width:620px;width:100%;padding:30px 28px 24px;position:relative;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.7);}
-.prize-close{position:absolute;top:12px;right:12px;width:36px;height:36px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#e0e0e0;font-size:18px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.prize-close:hover{background:rgba(255,255,255,.12);}
-.prize-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--orange);margin-bottom:8px;animation:prizeBounce .5s ease;}
-@keyframes prizeBounce{0%{transform:scale(.6);opacity:0;}60%{transform:scale(1.08);}100%{transform:scale(1);opacity:1;}}
-.prize-stats{font-size:13px;color:var(--gray);margin-bottom:18px;}
-.prize-stats b{color:var(--light);}
-.prize-chart-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--light);margin-bottom:10px;padding:9px 14px;background:rgba(245,130,31,.1);border-left:3px solid var(--orange);border-radius:6px;text-align:left;}
-.prize-chart-wrap{height:280px;margin-bottom:20px;position:relative;}
-.prize-cta{background:var(--orange);color:#fff;border:none;padding:13px 30px;border-radius:10px;font-weight:800;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;}
-.prize-cta:hover{opacity:.9;transform:translateY(-1px);}
-
-@media (max-width:600px){
-  .prize-box{padding:22px 16px;}
-  .prize-title{font-size:22px;letter-spacing:2px;}
-  .prize-chart-wrap{height:220px;}
-  .prize-chart-title{font-size:13px;}
+.game-hero{
+  background:linear-gradient(135deg, var(--c) 0%, var(--c2) 100%);
+  padding:44px 24px 32px;text-align:center;position:relative;overflow:hidden;
 }
+.game-hero::before{
+  content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;
+  background:radial-gradient(circle, rgba(255,255,255,.18), transparent 70%);
+  pointer-events:none;
+}
+.game-emoji{font-size:82px;line-height:1;filter:drop-shadow(0 6px 16px rgba(0,0,0,.4));position:relative;}
 
-/* Mobile topbar extras */
+.game-body{padding:20px 22px 0;flex:1;display:flex;flex-direction:column;gap:10px;}
+.game-tag{display:inline-block;background:rgba(255,255,255,.06);color:#9ba3b4;padding:3px 11px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;align-self:flex-start;}
+.game-tag.soon{background:rgba(244,211,94,.12);color:var(--yellow);border:1px solid rgba(244,211,94,.3);}
+.game-ttl{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;color:var(--light);line-height:1.1;}
+.game-desc{font-size:13px;color:#8f96a6;line-height:1.6;flex:1;}
+.game-cta{
+  background:rgba(255,255,255,.03);border-top:1px solid rgba(255,255,255,.05);
+  padding:15px;text-align:center;color:var(--c);font-size:12px;font-weight:800;letter-spacing:2px;
+  margin-top:16px;text-transform:uppercase;
+}
+.game-card.disabled .game-cta{color:var(--gray);}
+
 @media (max-width:768px){
   .topbar-right > .btn-nav,
   .topbar-right > .btn-out{display:none!important;}
+  .hub-title{font-size:30px;letter-spacing:3px;}
+  .hub-main{padding:28px 16px 36px;}
+  .games-grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
@@ -131,700 +114,54 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--light);m
   <button class="btn-out" onclick="logout()">Salir ✕</button>
 </div>
 
-<main class="game-main">
-  <div class="game-title-box">
-    <div class="game-title">🎮 TETRIS TRIKLES</div>
-    <div class="game-sub">Completa líneas y desbloquea gráficas de tu negocio</div>
+<main class="hub-main">
+  <div class="hub-header">
+    <div class="hub-title">🎮 JUEGOS TRIKLES</div>
+    <div class="hub-sub">Descansa, pero sigue aprendiendo. Cada juego te desbloquea gráficas reales de tu negocio como premio.</div>
   </div>
 
-  <div class="game-help">
-    <b>Controles:</b> <kbd>◀</kbd><kbd>▶</kbd> mover · <kbd>▲</kbd> o <kbd>Espacio</kbd> rotar · <kbd>▼</kbd> caer rápido · <kbd>Enter</kbd> hard drop · <kbd>P</kbd> pausa
-  </div>
-
-  <div class="game-wrap">
-    <canvas id="gameCanvas" width="220" height="440"></canvas>
-    <aside class="game-hud">
-      <div class="hud-block"><label>Score</label><div class="hud-val" id="hud-score">0</div></div>
-      <div class="hud-block"><label>Líneas</label><div class="hud-val" id="hud-lines">0</div></div>
-      <div class="hud-block"><label>Nivel</label><div class="hud-val" id="hud-level">1</div></div>
-      <div class="hud-block">
-        <label>Siguiente</label>
-        <canvas id="nextCanvas" width="80" height="80"></canvas>
+  <div class="games-grid">
+    <a class="game-card" href="tetris.html" style="--c:#4361ee;--c2:#6c7dff">
+      <div class="game-hero"><div class="game-emoji">🕹️</div></div>
+      <div class="game-body">
+        <span class="game-tag">Arcade clásico</span>
+        <div class="game-ttl">Tetris Trikles</div>
+        <div class="game-desc">Completa líneas, sube el nivel y desbloquea gráficas de tu dashboard cada vez que despejes filas. La velocidad acelera línea por línea.</div>
       </div>
-      <button class="btn-pause" id="btnPause" onclick="togglePause()">⏸ Pausar</button>
-    </aside>
-  </div>
+      <div class="game-cta">▶ Jugar</div>
+    </a>
 
-  <div class="game-controls-mobile">
-    <button onmousedown="move(-1)" ontouchstart="event.preventDefault();move(-1)">◀</button>
-    <button onmousedown="rotate()" ontouchstart="event.preventDefault();rotate()">🔄</button>
-    <button onmousedown="move(1)" ontouchstart="event.preventDefault();move(1)">▶</button>
-    <button onmousedown="hardDrop()" ontouchstart="event.preventDefault();hardDrop()">⬇️</button>
+    <a class="game-card" href="trivia.html" style="--c:#2ec4b6;--c2:#4ee3c8">
+      <div class="game-hero"><div class="game-emoji">🎓</div></div>
+      <div class="game-body">
+        <span class="game-tag">Educativo</span>
+        <div class="game-ttl">Trivia Financiera</div>
+        <div class="game-desc">30 preguntas sobre P.E., Costos, CxC/CxP, Flujo y Reserva. Responde bien y desbloquea gráficas cada 3 aciertos. Refuerza lo que aprendiste en el mini curso.</div>
+      </div>
+      <div class="game-cta">▶ Empezar</div>
+    </a>
+
+    <div class="game-card disabled" style="--c:#9b59b6;--c2:#c084fc" onclick="event.preventDefault()">
+      <div class="game-hero"><div class="game-emoji">🐍</div></div>
+      <div class="game-body">
+        <span class="game-tag soon">Próximamente</span>
+        <div class="game-ttl">Snake</div>
+        <div class="game-desc">La clásica culebrita en versión Trikles. Próximamente en el hub.</div>
+      </div>
+      <div class="game-cta">— MUY PRONTO —</div>
+    </div>
   </div>
 </main>
 
-<!-- Prize modal -->
-<div class="prize-overlay" id="prizeOverlay">
-  <div class="prize-box">
-    <button class="prize-close" onclick="closePrize()">✕</button>
-    <div class="prize-title">🎉 ¡PREMIO DESBLOQUEADO!</div>
-    <div class="prize-stats"><b id="prize-lines">0</b> líneas completadas · <b id="prize-score">0</b> pts</div>
-    <div class="prize-chart-title" id="prize-chart-title">—</div>
-    <div class="prize-chart-wrap"><canvas id="prizeChart"></canvas></div>
-    <button class="prize-cta" onclick="closePrize()">▶ Seguir jugando</button>
-  </div>
-</div>
-
-<!-- Game over modal -->
-<div class="prize-overlay" id="gameOverOverlay">
-  <div class="prize-box">
-    <div class="prize-title">🏁 GAME OVER</div>
-    <div class="prize-stats">
-      Puntaje final: <b id="go-score" style="color:var(--orange);font-size:22px;font-family:'Bebas Neue',sans-serif">0</b><br>
-      Líneas completadas: <b id="go-lines">0</b>
-    </div>
-    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-      <button class="prize-cta" onclick="restartGame()">▶ Jugar de nuevo</button>
-      <a href="dashboard.html" class="prize-cta" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#e0e0e0;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">← Dashboard</a>
-    </div>
-  </div>
-</div>
-
 <script>
-/* ══════════════════════════════════════════════════════════
-   AUTH + SESIÓN + API
-══════════════════════════════════════════════════════════ */
 const SK = 'trikles_session';
 function getS(){ try{ return JSON.parse(sessionStorage.getItem(SK) || localStorage.getItem(SK+'_remember')); } catch{ return null; } }
 function logout(){ if(confirm('¿Cerrar sesión?')){ sessionStorage.removeItem(SK); localStorage.removeItem(SK+'_remember'); location.href='acceso.html'; } }
 function toggleMenu(){ document.getElementById('mobileNav').classList.toggle('open'); document.getElementById('hamburgerBtn').classList.toggle('open'); }
 
-const SESSION = getS();
-if (!SESSION) { location.href = 'acceso.html'; }
-
-document.getElementById('topbar-name').textContent = (SESSION?.empresa || 'TRIKLES').replace(/_/g,' ').toUpperCase();
-
-const API = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
-function jsonp(params, timeout=10000){
-  return new Promise((resolve, reject) => {
-    const cb = '_gcb' + Date.now() + Math.random().toString(36).slice(2);
-    const sc = document.createElement('script');
-    let done = false;
-    const fin = (fn, v) => { if(done) return; done=true; delete window[cb]; sc.remove(); fn(v); };
-    window[cb] = d => fin(resolve, d);
-    sc.onerror = () => fin(reject, new Error('error'));
-    sc.src = API + '?' + new URLSearchParams({...params, callback: cb});
-    document.head.appendChild(sc);
-    setTimeout(() => fin(reject, new Error('timeout')), timeout);
-  });
-}
-
-let GAME_DATA = [];
-let GAME_PE = 0, GAME_CF_DIA = 0;
-
-async function loadGameData(){
-  if (!SESSION) return;
-  try {
-    const r = await jsonp({ action:'getDatos', empresa: SESSION.empresa });
-    if (r?.success && Array.isArray(r.data)) {
-      GAME_DATA = r.data.map(d => {
-        const fecha = String(d.f || d.fecha || '').slice(0,10);
-        const dt = new Date(fecha + 'T12:00:00');
-        return {
-          f: fecha,
-          y: d.y || dt.getFullYear(),
-          m: d.m || dt.getMonth()+1,
-          dy: d.d || dt.getDate(),
-          v: parseFloat(d.v)||0, g: parseFloat(d.g)||0,
-          vef: parseFloat(d.vef)||0, vtar: parseFloat(d.vtar)||0, vcr: parseFloat(d.vcr)||0,
-          cob: parseFloat(d.cob)||0, ant: parseFloat(d.ant)||0,
-          com: parseFloat(d.com)||0, comx: parseFloat(d.comx)||0,
-          gti: parseFloat(d.gti)||0, gca: parseFloat(d.gca)||0,
-          pac: parseFloat(d.pac)||0, ref: parseFloat(d.ref)||0, sef: parseFloat(d.sef)||0,
-          res: parseFloat(d.res)||0, resUso: parseFloat(d.resUso)||0, su: parseFloat(d.su)||0,
-          p1: parseFloat(d.p1)||0, p2: parseFloat(d.p2)||0,
-          p3: parseFloat(d.p3)||0, p4: parseFloat(d.p4)||0,
-        };
-      });
-    }
-    try {
-      const ult = GAME_DATA.length ? GAME_DATA[GAME_DATA.length-1].f : '';
-      const r2 = await jsonp({ action:'getPuntoEquilibrio', empresa: SESSION.empresa, fecha: ult });
-      if (r2?.success) { GAME_PE = r2.puntoEquilibrio || 0; GAME_CF_DIA = r2.costoFijoDiario || 0; }
-    } catch(e){}
-  } catch(e) {
-    console.warn('Error cargando datos de juego:', e);
-  }
-}
-
-/* ══════════════════════════════════════════════════════════
-   TETRIS — motor del juego
-══════════════════════════════════════════════════════════ */
-const COLS = 10, ROWS = 20, BLOCK = 22;
-const boardCanvas = document.getElementById('gameCanvas');
-const boardCtx = boardCanvas.getContext('2d');
-const nextCanvas = document.getElementById('nextCanvas');
-const nextCtx = nextCanvas.getContext('2d');
-
-const PIECES = {
-  I: { color:'#4361ee', shapes:[
-    [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
-    [[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]]
-  ]},
-  O: { color:'#f4d35e', shapes:[
-    [[1,1],[1,1]]
-  ]},
-  T: { color:'#9b59b6', shapes:[
-    [[0,1,0],[1,1,1],[0,0,0]],
-    [[0,1,0],[0,1,1],[0,1,0]],
-    [[0,0,0],[1,1,1],[0,1,0]],
-    [[0,1,0],[1,1,0],[0,1,0]]
-  ]},
-  S: { color:'#2ec4b6', shapes:[
-    [[0,1,1],[1,1,0],[0,0,0]],
-    [[0,1,0],[0,1,1],[0,0,1]]
-  ]},
-  Z: { color:'#e63946', shapes:[
-    [[1,1,0],[0,1,1],[0,0,0]],
-    [[0,0,1],[0,1,1],[0,1,0]]
-  ]},
-  J: { color:'#3498db', shapes:[
-    [[1,0,0],[1,1,1],[0,0,0]],
-    [[0,1,1],[0,1,0],[0,1,0]],
-    [[0,0,0],[1,1,1],[0,0,1]],
-    [[0,1,0],[0,1,0],[1,1,0]]
-  ]},
-  L: { color:'#F5821F', shapes:[
-    [[0,0,1],[1,1,1],[0,0,0]],
-    [[0,1,0],[0,1,0],[0,1,1]],
-    [[0,0,0],[1,1,1],[1,0,0]],
-    [[1,1,0],[0,1,0],[0,1,0]]
-  ]},
-};
-const PIECE_KEYS = Object.keys(PIECES);
-
-let grid = [];
-let curPiece = null, curX = 0, curY = 0, curRot = 0;
-let nextPiece = null;
-let score = 0, lines = 0, level = 1;
-let dropInterval = 800;
-let lastDrop = 0;
-let paused = false, gameOver = false, prizeOpen = false;
-let rafId = null;
-let keyDownHeld = false;
-
-function newGrid(){ return Array.from({length: ROWS}, () => Array(COLS).fill(0)); }
-
-function pickPiece(){
-  const k = PIECE_KEYS[Math.floor(Math.random()*PIECE_KEYS.length)];
-  return { key:k, color:PIECES[k].color, shapes:PIECES[k].shapes };
-}
-
-function spawnPiece(){
-  curPiece = nextPiece || pickPiece();
-  nextPiece = pickPiece();
-  curRot = 0;
-  const sz = curPiece.shapes[0].length;
-  curX = Math.floor((COLS - sz) / 2);
-  curY = 0;
-  drawNext();
-  if (collides(curX, curY, curPiece.shapes[0])) endGame();
-}
-
-function collides(x, y, shape){
-  for (let r=0; r<shape.length; r++){
-    for (let c=0; c<shape[r].length; c++){
-      if (!shape[r][c]) continue;
-      const nx = x+c, ny = y+r;
-      if (nx<0 || nx>=COLS || ny>=ROWS) return true;
-      if (ny>=0 && grid[ny][nx]) return true;
-    }
-  }
-  return false;
-}
-
-function lockPiece(){
-  const shape = curPiece.shapes[curRot];
-  for (let r=0; r<shape.length; r++){
-    for (let c=0; c<shape[r].length; c++){
-      if (shape[r][c]){
-        const ny = curY+r, nx = curX+c;
-        if (ny>=0 && ny<ROWS && nx>=0 && nx<COLS) grid[ny][nx] = curPiece.color;
-      }
-    }
-  }
-  clearLines();
-  spawnPiece();
-}
-
-function clearLines(){
-  let cleared = 0;
-  for (let r=ROWS-1; r>=0; r--){
-    if (grid[r].every(c => c)){
-      grid.splice(r, 1);
-      grid.unshift(Array(COLS).fill(0));
-      cleared++;
-      r++;
-    }
-  }
-  if (cleared > 0){
-    lines += cleared;
-    // ── Dificultad progresiva por cada línea ──
-    // Velocidad: 20ms más rápido por línea, piso de 120ms (muy rápido).
-    // Nivel: sube 1 cada 5 líneas (para el multiplicador de puntaje).
-    dropInterval = Math.max(120, 800 - lines * 20);
-    level = 1 + Math.floor(lines / 5);
-    const pts = [0, 40, 100, 300, 1200][cleared] * level;
-    score += pts;
-    updateHUD();
-    setTimeout(() => openPrize(cleared), 200);
-  }
-}
-
-function updateHUD(){
-  document.getElementById('hud-score').textContent = score.toLocaleString('es-MX');
-  document.getElementById('hud-lines').textContent = lines;
-  document.getElementById('hud-level').textContent = level;
-}
-
-function move(dx){
-  if (paused || gameOver || prizeOpen || !curPiece) return;
-  if (!collides(curX+dx, curY, curPiece.shapes[curRot])) curX += dx;
-}
-
-function rotate(){
-  if (paused || gameOver || prizeOpen || !curPiece) return;
-  const nextRot = (curRot + 1) % curPiece.shapes.length;
-  if (!collides(curX, curY, curPiece.shapes[nextRot])) curRot = nextRot;
-}
-
-function softDrop(){
-  if (paused || gameOver || prizeOpen || !curPiece) return;
-  if (!collides(curX, curY+1, curPiece.shapes[curRot])) curY++;
-  else lockPiece();
-}
-
-function hardDrop(){
-  if (paused || gameOver || prizeOpen || !curPiece) return;
-  const shape = curPiece.shapes[curRot];
-  while (!collides(curX, curY+1, shape)){ curY++; score += 2; }
-  lockPiece();
-  updateHUD();
-}
-
-function togglePause(){
-  if (gameOver || prizeOpen) return;
-  paused = !paused;
-  document.getElementById('btnPause').textContent = paused ? '▶ Reanudar' : '⏸ Pausar';
-}
-
-function drawBoard(){
-  boardCtx.fillStyle = '#0a0a14';
-  boardCtx.fillRect(0, 0, boardCanvas.width, boardCanvas.height);
-  boardCtx.strokeStyle = 'rgba(255,255,255,.04)';
-  boardCtx.lineWidth = 1;
-  for (let i=0; i<=COLS; i++){ boardCtx.beginPath(); boardCtx.moveTo(i*BLOCK, 0); boardCtx.lineTo(i*BLOCK, ROWS*BLOCK); boardCtx.stroke(); }
-  for (let i=0; i<=ROWS; i++){ boardCtx.beginPath(); boardCtx.moveTo(0, i*BLOCK); boardCtx.lineTo(COLS*BLOCK, i*BLOCK); boardCtx.stroke(); }
-  for (let r=0; r<ROWS; r++){
-    for (let c=0; c<COLS; c++){
-      if (grid[r][c]) drawBlock(boardCtx, c*BLOCK, r*BLOCK, grid[r][c], BLOCK);
-    }
-  }
-  if (curPiece){
-    const shape = curPiece.shapes[curRot];
-    for (let r=0; r<shape.length; r++){
-      for (let c=0; c<shape[r].length; c++){
-        if (shape[r][c]) drawBlock(boardCtx, (curX+c)*BLOCK, (curY+r)*BLOCK, curPiece.color, BLOCK);
-      }
-    }
-  }
-}
-
-function drawBlock(cx, x, y, color, sz){
-  cx.fillStyle = color;
-  cx.fillRect(x+1, y+1, sz-2, sz-2);
-  cx.strokeStyle = 'rgba(255,255,255,.25)';
-  cx.lineWidth = 2;
-  cx.strokeRect(x+2, y+2, sz-4, sz-4);
-}
-
-function drawNext(){
-  nextCtx.fillStyle = '#0a0a14';
-  nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
-  if (!nextPiece) return;
-  const shape = nextPiece.shapes[0];
-  const sz = shape.length;
-  const block = 16;
-  const offX = (nextCanvas.width - sz*block) / 2;
-  const offY = (nextCanvas.height - sz*block) / 2;
-  for (let r=0; r<sz; r++){
-    for (let c=0; c<sz; c++){
-      if (shape[r][c]) drawBlock(nextCtx, offX + c*block, offY + r*block, nextPiece.color, block);
-    }
-  }
-}
-
-document.addEventListener('keydown', e => {
-  if (gameOver) return;
-  if (e.key === 'Escape' && prizeOpen){ closePrize(); return; }
-  if (prizeOpen) return;
-  switch(e.key){
-    case 'ArrowLeft':  move(-1); e.preventDefault(); break;
-    case 'ArrowRight': move(1);  e.preventDefault(); break;
-    case 'ArrowUp': case ' ': rotate(); e.preventDefault(); break;
-    case 'ArrowDown': keyDownHeld = true; e.preventDefault(); break;
-    case 'Enter': hardDrop(); break;
-    case 'p': case 'P': togglePause(); break;
-  }
-});
-document.addEventListener('keyup', e => { if (e.key === 'ArrowDown') keyDownHeld = false; });
-
-function gameLoop(ts){
-  if (!paused && !gameOver && !prizeOpen){
-    const effective = keyDownHeld ? Math.min(50, dropInterval) : dropInterval;
-    if (ts - lastDrop > effective){ softDrop(); lastDrop = ts; }
-    drawBoard();
-  }
-  rafId = requestAnimationFrame(gameLoop);
-}
-
-function startGame(){
-  grid = newGrid();
-  score = 0; lines = 0; level = 1;
-  dropInterval = 800;
-  paused = false; gameOver = false; prizeOpen = false;
-  nextPiece = pickPiece();
-  spawnPiece();
-  updateHUD();
-  lastDrop = performance.now();
-  document.getElementById('gameOverOverlay').classList.remove('open');
-  document.getElementById('btnPause').textContent = '⏸ Pausar';
-  if (!rafId) rafId = requestAnimationFrame(gameLoop);
-}
-
-function endGame(){
-  gameOver = true;
-  document.getElementById('go-score').textContent = score.toLocaleString('es-MX');
-  document.getElementById('go-lines').textContent = lines;
-  document.getElementById('gameOverOverlay').classList.add('open');
-}
-
-function restartGame(){
-  document.getElementById('gameOverOverlay').classList.remove('open');
-  startGame();
-}
-
-/* ══════════════════════════════════════════════════════════
-   SISTEMA DE PREMIOS — gráficas rotativas
-══════════════════════════════════════════════════════════ */
-function shuffle(arr){
-  const a = arr.slice();
-  for (let i = a.length-1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i+1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-let prizePool = [];
-let prizeIdx = 0;
-let prizeChart = null;
-
-function nextPrizeId(){
-  if (prizeIdx >= prizePool.length){
-    prizePool = shuffle(prizePool.length ? prizePool : [0,1,2,3,4,5,6,7,8,9]);
-    prizeIdx = 0;
-  }
-  return prizePool[prizeIdx++];
-}
-
-function openPrize(cleared){
-  if (gameOver) return;
-  prizeOpen = true;
-  const idx = nextPrizeId();
-  const renderer = PRIZE_RENDERERS[idx];
-  document.getElementById('prize-lines').textContent = lines;
-  document.getElementById('prize-score').textContent = score.toLocaleString('es-MX');
-  document.getElementById('prize-chart-title').textContent = renderer.title;
-  if (prizeChart){ try { prizeChart.destroy(); } catch(e){} }
-  try {
-    const cfg = renderer.build(GAME_DATA);
-    const ctx = document.getElementById('prizeChart').getContext('2d');
-    prizeChart = new Chart(ctx, cfg);
-  } catch(e){
-    console.warn('Error renderizando premio:', e);
-  }
-  document.getElementById('prizeOverlay').classList.add('open');
-}
-
-function closePrize(){
-  document.getElementById('prizeOverlay').classList.remove('open');
-  prizeOpen = false;
-  lastDrop = performance.now();
-}
-
-/* ══════════════════════════════════════════════════════════
-   RENDERERS DE LAS 10 GRÁFICAS-PREMIO
-══════════════════════════════════════════════════════════ */
-const MES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-const fmtK = n => {
-  const v = Number(n) || 0;
-  if (Math.abs(v) >= 1000) return '$'+(v/1000).toFixed(1)+'K';
-  return '$'+Math.round(v);
-};
-
-const BASE_OPT = {
-  responsive: true, maintainAspectRatio: false,
-  plugins: {
-    legend: { labels: { color:'#aaa', font:{size:11, weight:'700'} } },
-    tooltip: { backgroundColor:'#1a1a1a', borderColor:'rgba(245,130,31,.4)', borderWidth:1 }
-  },
-  scales: {
-    x: { grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#888', font:{size:10}, maxTicksLimit: 12} },
-    y: { grid:{color:'rgba(255,255,255,.06)'}, ticks:{color:'#888', font:{size:10}, callback: v=>fmtK(v)} }
-  }
-};
-const DON_OPT = {
-  responsive: true, maintainAspectRatio: false,
-  plugins: {
-    legend: { position:'right', labels: { color:'#aaa', font:{size:11, weight:'700'}, padding:8 } },
-    tooltip: { callbacks: { label: c => ' '+c.label+': '+fmtK(c.parsed) } }
-  }
-};
-
-const EMPTY_CFG = {
-  type: 'bar',
-  data: { labels: ['Sin datos'], datasets: [{ label:'—', data:[0], backgroundColor:'rgba(100,100,100,.3)' }] },
-  options: BASE_OPT
-};
-
-const PRIZE_RENDERERS = [
-  // 1. Tendencia Diaria — Ventas vs P.E.
-  {
-    title: '📈 Tendencia Diaria — Ventas vs P.E.',
-    build: (data) => {
-      if (!data.length) return EMPTY_CFG;
-      const last30 = data.slice(-30);
-      return {
-        type: 'line',
-        data: {
-          labels: last30.map(d => d.f.slice(5)),
-          datasets: [
-            { label:'Ventas', data: last30.map(d=>d.v), borderColor:'#F5821F', backgroundColor:'rgba(245,130,31,.18)', tension:.3, fill:true, pointRadius:3 },
-            { label:'P.E.', data: last30.map(()=>GAME_PE), borderColor:'#e63946', borderDash:[6,4], pointRadius:0, fill:false }
-          ]
-        },
-        options: BASE_OPT
-      };
-    }
-  },
-  // 2. Ganancias Acumuladas por Mes
-  {
-    title: '📊 Ganancias Acumuladas por Mes',
-    build: (data) => {
-      if (!data.length) return EMPTY_CFG;
-      const byM = {};
-      data.forEach(d => { const k = d.y+'-'+String(d.m).padStart(2,'0'); byM[k] = (byM[k]||0) + d.g; });
-      const keys = Object.keys(byM).sort().slice(-12);
-      return {
-        type: 'bar',
-        data: {
-          labels: keys.map(k => MES[parseInt(k.slice(5))-1]+' '+k.slice(2,4)),
-          datasets: [{ label:'Ganancia', data: keys.map(k => byM[k]), backgroundColor:'rgba(46,196,182,.7)', borderColor:'#2ec4b6', borderWidth:1 }]
-        },
-        options: BASE_OPT
-      };
-    }
-  },
-  // 3. Ganancias por Producto
-  {
-    title: '🛒 Ganancias por Producto',
-    build: (data) => {
-      if (!data.length) return EMPTY_CFG;
-      const totals = [0,0,0,0];
-      data.forEach(d => { totals[0] += d.p1; totals[1] += d.p2; totals[2] += d.p3; totals[3] += d.p4; });
-      if (totals.every(t => t === 0)) return EMPTY_CFG;
-      return {
-        type: 'doughnut',
-        data: {
-          labels: ['Producto 1','Producto 2','Producto 3','Otros'],
-          datasets: [{ data: totals, backgroundColor:['#F5821Fbb','#2ec4b6bb','#4361eebb','#9b59b6bb'], borderColor:['#F5821F','#2ec4b6','#4361ee','#9b59b6'], borderWidth:2 }]
-        },
-        options: DON_OPT
-      };
-    }
-  },
-  // 4. Ganancias/Pérdidas por Día
-  {
-    title: '📉 Ganancias y Pérdidas por Día — Mes Actual',
-    build: (data) => {
-      if (!data.length) return EMPTY_CFG;
-      const last = data[data.length-1];
-      const month = data.filter(d => d.y === last.y && d.m === last.m);
-      if (!month.length) return EMPTY_CFG;
-      const peDia = GAME_PE > 0 ? GAME_PE : GAME_CF_DIA * 2;
-      return {
-        type: 'bar',
-        data: {
-          labels: month.map(d => d.dy),
-          datasets: [{
-            label: 'Ventas del día',
-            data: month.map(d => d.v),
-            backgroundColor: month.map(d => d.v >= peDia ? 'rgba(46,196,182,.7)' : 'rgba(230,57,70,.7)'),
-            borderWidth: 1
-          }]
-        },
-        options: BASE_OPT
-      };
-    }
-  },
-  // 5. Ventas Mensuales — Año Actual vs Anterior
-  {
-    title: '📊 Ventas Mensuales — Año Actual vs Anterior',
-    build: (data) => {
-      if (!data.length) return EMPTY_CFG;
-      const yrs = [...new Set(data.map(d => d.y))].sort();
-      const actual = yrs[yrs.length-1];
-      const anterior = yrs.length > 1 ? yrs[yrs.length-2] : actual - 1;
-      const mAct = Array(12).fill(0), mAnt = Array(12).fill(0);
-      data.forEach(d => {
-        if (d.y === actual) mAct[d.m-1] += d.v;
-        else if (d.y === anterior) mAnt[d.m-1] += d.v;
-      });
-      return {
-        type: 'bar',
-        data: {
-          labels: MES,
-          datasets: [
-            { label: String(actual), data: mAct, backgroundColor:'rgba(245,130,31,.75)', borderColor:'#F5821F', borderWidth:1 },
-            { label: String(anterior), data: mAnt, backgroundColor:'rgba(52,152,219,.5)', borderColor:'#3498db', borderWidth:1 }
-          ]
-        },
-        options: BASE_OPT
-      };
-    }
-  },
-  // 6. Flujo de Efectivo Mensual
-  {
-    title: '💵 Flujo de Efectivo Mensual',
-    build: (data) => {
-      if (!data.length) return EMPTY_CFG;
-      const byM = {};
-      data.forEach(d => {
-        const k = d.y+'-'+String(d.m).padStart(2,'0');
-        if (!byM[k]) byM[k] = { ing:0, egr:0 };
-        byM[k].ing += d.vef + d.cob + d.ant;
-        byM[k].egr += d.com + d.comx + d.gti + d.gca + d.pac + d.ref + d.sef + d.res;
-      });
-      const keys = Object.keys(byM).sort().slice(-12);
-      return {
-        type: 'bar',
-        data: {
-          labels: keys.map(k => MES[parseInt(k.slice(5))-1]+' '+k.slice(2,4)),
-          datasets: [
-            { label:'Ingresos', data: keys.map(k=>byM[k].ing), backgroundColor:'rgba(46,196,182,.7)', borderColor:'#2ec4b6', borderWidth:1 },
-            { label:'Egresos',  data: keys.map(k=>byM[k].egr), backgroundColor:'rgba(230,57,70,.7)', borderColor:'#e63946', borderWidth:1 }
-          ]
-        },
-        options: BASE_OPT
-      };
-    }
-  },
-  // 7. Ingresos por Tipo
-  {
-    title: '⬇️ Ingresos por Tipo',
-    build: (data) => {
-      if (!data.length) return EMPTY_CFG;
-      let vef=0, cob=0, ant=0;
-      data.forEach(d => { vef += d.vef; cob += d.cob; ant += d.ant; });
-      if (vef+cob+ant === 0) return EMPTY_CFG;
-      return {
-        type: 'doughnut',
-        data: {
-          labels: ['Vta Efectivo','Cobranza','Anticipos'],
-          datasets: [{ data:[vef,cob,ant], backgroundColor:['#F5821Fbb','#2ec4b6bb','#9b59b6bb'], borderColor:['#F5821F','#2ec4b6','#9b59b6'], borderWidth:2 }]
-        },
-        options: DON_OPT
-      };
-    }
-  },
-  // 8. Egresos por Tipo
-  {
-    title: '⬆️ Egresos por Tipo',
-    build: (data) => {
-      if (!data.length) return EMPTY_CFG;
-      let com=0, gti=0, gca=0, pac=0, sef=0, ref=0, res=0;
-      data.forEach(d => {
-        com += d.com + d.comx; gti += d.gti; gca += d.gca;
-        pac += d.pac; sef += d.sef; ref += d.ref; res += d.res;
-      });
-      if (com+gti+gca+pac+sef+ref+res === 0) return EMPTY_CFG;
-      return {
-        type: 'doughnut',
-        data: {
-          labels: ['Compras','Gasto Tienda','Gasto Casa','Pago Compras','Nómina','Retiro','Reserva'],
-          datasets: [{
-            data:[com,gti,gca,pac,sef,ref,res],
-            backgroundColor:['#e74c3cbb','#F5821Fbb','#f1c40fbb','#3498dbbb','#1abc9cbb','#9b59b6bb','#2ecc71bb'],
-            borderColor:['#e74c3c','#F5821F','#f1c40f','#3498db','#1abc9c','#9b59b6','#2ecc71'],
-            borderWidth:2
-          }]
-        },
-        options: DON_OPT
-      };
-    }
-  },
-  // 9. Composición de Ventas
-  {
-    title: '💳 Composición de Ventas',
-    build: (data) => {
-      if (!data.length) return EMPTY_CFG;
-      let vef=0, vtar=0, vcr=0;
-      data.forEach(d => { vef += d.vef; vtar += d.vtar; vcr += d.vcr; });
-      if (vef+vtar+vcr === 0) return EMPTY_CFG;
-      return {
-        type: 'doughnut',
-        data: {
-          labels: ['Efectivo','Tarjeta','Crédito'],
-          datasets: [{ data:[vef,vtar,vcr], backgroundColor:['#F5821Fbb','#3498dbbb','#9b59b6bb'], borderColor:['#F5821F','#3498db','#9b59b6'], borderWidth:2 }]
-        },
-        options: DON_OPT
-      };
-    }
-  },
-  // 10. Evolución del Saldo de Reserva
-  {
-    title: '🏦 Evolución del Saldo de Reserva',
-    build: (data) => {
-      if (!data.length) return EMPTY_CFG;
-      let acum = 0;
-      const pts = data.map(d => { acum += (d.res||0) - (d.resUso||0); return { f: d.f, saldo: acum }; }).slice(-30);
-      return {
-        type: 'line',
-        data: {
-          labels: pts.map(p => p.f.slice(5)),
-          datasets: [{
-            label: 'Saldo Reserva',
-            data: pts.map(p => p.saldo),
-            borderColor: '#2ec4b6',
-            backgroundColor: 'rgba(46,196,182,.18)',
-            fill: true, tension: .3, pointRadius: 3
-          }]
-        },
-        options: BASE_OPT
-      };
-    }
-  }
-];
-
-/* ══════════════════════════════════════════════════════════
-   INIT
-══════════════════════════════════════════════════════════ */
-(async function init(){
-  prizePool = shuffle([0,1,2,3,4,5,6,7,8,9]);
-  await loadGameData();
-  startGame();
-})();
+const S = getS();
+if (!S) location.href = 'acceso.html';
+else document.getElementById('topbar-name').textContent = (S.empresa || 'TRIKLES').replace(/_/g,' ').toUpperCase();
 </script>
 </body>
 </html>
