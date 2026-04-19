@@ -246,9 +246,9 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 @media(max-width:768px) {
   /* Topbar */
   .topbar { padding:10px 16px; }
-  .tb-name { font-size:18px; letter-spacing:2px; }
-  .tb-sub { display:none; }
-  .tb-logo { height:36px; }
+  .tb-name { font-size:15px; letter-spacing:2px; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tb-sub  { font-size:8px; letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tb-logo { height:32px; }
   .hamburger { display:flex; }
   /* Ocultar nav normal en mobile */
   .tb-right > .btn-nav,
@@ -733,8 +733,8 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     </div>
     <div class="cc" id="ch12">
       <div class="cc-hdr">
-        <div><div class="cc-ttl">⬆️ Egresos por Tipo<span class="help-icon">?<span class="tt">Desglosa en qué gastas tu dinero: compras, sueldos, gastos operativos, retiros. El gasto más grande es donde debes buscar eficiencias primero.</span></span></div>
-          <div class="cc-sub">Compras · Gastos tienda · Casa · Anteriores · Retiro</div></div>
+        <div><div class="cc-ttl">⬆️ Egresos por Tipo<span class="help-icon">?<span class="tt">Desglose de los egresos en efectivo del período: compras (contado y con dinero de otros días), gastos tienda y casa, pago de compras a crédito, nómina en efectivo, retiro de caja y reserva. El rubro más grande es donde buscar eficiencias primero.</span></span></div>
+          <div class="cc-sub">Compras · Tienda · Casa · Pago Compras · Nómina · Retiro · Reserva</div></div>
         <div class="cc-badge r" id="b12">—</div>
       </div>
       <div style="height:230px"><canvas id="cv12"></canvas></div>
@@ -1772,14 +1772,18 @@ function buildCh13(data){
 
 /* ─────────────── CHART 12: Egresos por tipo ─────────────── */
 function buildCh12(data){
+  // Componentes del egreso de efectivo — alineado con la fórmula de egr
+  // (misma lógica que el módulo Flujo: com+comx, gti, gca, pac, ref, sef, res)
   const cats={
-    'Compras':data.reduce((s,r)=>s+r.com,0),
-    'Gasto Tienda':data.reduce((s,r)=>s+r.gti,0),
-    'Gasto Casa':data.reduce((s,r)=>s+r.gca,0),
-    'Gastos Ant.':data.reduce((s,r)=>s+r.gant,0),
-    'Retiro':data.reduce((s,r)=>s+r.ret,0),
+    'Compras'     :data.reduce((s,r)=>s+(r.com||0)+(r.comx||0),0),
+    'Gasto Tienda':data.reduce((s,r)=>s+(r.gti||0),0),
+    'Gasto Casa'  :data.reduce((s,r)=>s+(r.gca||0),0),
+    'Pago Compras':data.reduce((s,r)=>s+(r.pac||0),0),
+    'Nómina Efvo' :data.reduce((s,r)=>s+(r.sef||0),0),
+    'Retiro Efvo' :data.reduce((s,r)=>s+(r.ref||0),0),
+    'Reserva'     :data.reduce((s,r)=>s+(r.res||0),0),
   };
-  const cols=['#e74c3c','#F5821F','#f1c40f','#9b59b6','#1abc9c'];
+  const cols=['#e74c3c','#F5821F','#f1c40f','#3498db','#1abc9c','#9b59b6','#2ecc71'];
   mk('c12','cv12','doughnut',{
     labels:Object.keys(cats),
     datasets:[{data:Object.values(cats),
