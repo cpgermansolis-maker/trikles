@@ -1420,26 +1420,43 @@ function buildCh1(data){
   const anioActual = data.length > 0 ? data[0].y : new Date().getFullYear();
   const diasMes = new Date(anioActual, mesActual, 0).getDate();
   const todosLosDias = Array.from({length: diasMes}, (_, i) => i+1);
-  
+
   // Mapear ventas por día
   const ventasPorDia = {};
   data.forEach(r => { ventasPorDia[r.d || parseInt(r.f.slice(8))] = r.v; });
-  
+
+  // ── P.E. diario consistente con el cuadro "% de logro" (updatePEStats) ──
+  // Usamos la misma fórmula dinámica: gastos del período / margen, dividido entre días.
+  // Así la gráfica y el cuadro siempre muestran el mismo número.
+  const tvP   = data.reduce((s,r)=>s+r.v,0);
+  const tgP   = data.reduce((s,r)=>s+r.g,0);
+  const tgtiP = data.reduce((s,r)=>s+r.gti,0);
+  const tgcaP = data.reduce((s,r)=>s+r.gca,0);
+  const tnomP = data.reduce((s,r)=>s+r.su,0);
+  const cfDiaP = PE_DATA ? PE_DATA.costoFijoDiario : 0;
+  const tcfP   = cfDiaP * data.length;
+  const margenP = tvP > 0 ? tgP/tvP : 0;
+  const tgastosP = tcfP + tgtiP + tgcaP + tnomP;
+  const pePeriodoLocal = margenP > 0 ? tgastosP / margenP : 0;
+  const peDiarioLocal  = data.length > 0 ? pePeriodoLocal / data.length : (PE_VAL || 0);
+  // Si no hay margen (datos incompletos), caer al PE_VAL del backend como último recurso
+  const peLinea = peDiarioLocal > 0 ? peDiarioLocal : PE_VAL;
+
   const labels = todosLosDias;
   const ventasData = todosLosDias.map(d => ventasPorDia[d] !== undefined ? ventasPorDia[d] : null);
-  const peArr = todosLosDias.map(_ => PE_VAL);
+  const peArr = todosLosDias.map(_ => peLinea);
   const colores = todosLosDias.map(d => {
     const v = ventasPorDia[d];
     if(v === undefined) return 'transparent';
-    return v >= PE_VAL ? '#2ec4b6' : '#e63946';
+    return v >= peLinea ? '#2ec4b6' : '#e63946';
   });
   const radios = todosLosDias.map(d => ventasPorDia[d] !== undefined ? 6 : 0);
 
   const opt=JSON.parse(JSON.stringify(BASE_OPT));
   opt.plugins.tooltip.callbacks={label:ctx=>{
-    if(ctx.datasetIndex===1) return ' P.E.: '+fmtK(PE_VAL);
+    if(ctx.datasetIndex===1) return ' P.E.: '+fmtK(peLinea);
     if(ctx.raw===null) return '';
-    const logro=PE_VAL>0?Math.round(ctx.parsed.y/PE_VAL*100):0;
+    const logro=peLinea>0?Math.round(ctx.parsed.y/peLinea*100):0;
     return [' Ventas: '+fmtK(ctx.parsed.y),' Logro: '+logro+'%'];
   }};
   mk('c1','cv1','line',{
