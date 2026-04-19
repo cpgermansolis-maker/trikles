@@ -2884,6 +2884,13 @@ async function cargarDatosDesdeSheets(empresa) {
           notas:     r.notas     || '',
           entrega:   r.entrega   || 'NINGUNA',
         });
+        // ── Calcular ingresos/egresos/efectivo-sistema/diferencia por día ──
+        // (alineado con la lógica de buildFlujo)
+        const _L = ALL[ALL.length - 1];
+        _L.ing = _L.vef + _L.cob + _L.ant;
+        _L.egr = _L.com + _L.comx + _L.gti + _L.gca + _L.pac + _L.ref + _L.sef + _L.res;
+        _L.efs = _L.si + _L.ing - _L.egr;
+        _L.dif = _L.ef - _L.efs;
       });
       // Primero cargar el PE real, luego renderizar
       await cargarPEReal(empresa);
