@@ -2234,85 +2234,265 @@ function buildNomina(data){
 
 /* ─────────────── PDF ─────────────── */
 function exportPDF(){
-  toast('info','Generando PDF','Capturando gráficas...');
+  toast('info','Generando PDF','Analizando y capturando gráficas...');
   setTimeout(()=>{
     const data=filterData(GF.from,GF.to);
     if(!data.length){toast('error','Sin datos','Selecciona un rango con datos.');return;}
-    const tv=data.reduce((s,r)=>s+r.v,0);
-    const tg=data.reduce((s,r)=>s+r.g,0);
-    const tu=data.reduce((s,r)=>s+r.u,0);
-    const tgt=data.reduce((s,r)=>s+r.gt,0);
-    const ahora=new Date().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-    const d1=new Date(GF.from+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
-    const d2=new Date(GF.to+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
-    const imgs={};
-    ['cv1','cv2','cv3','cv4','cv5','cv6','cv7','cv8','cv9','cv10','cv11','cv12'].forEach(id=>{
-      const c=document.getElementById(id);if(c)imgs[id]=c.toDataURL('image/png');
+
+    // ── Cálculos financieros completos ──
+    const tv  = data.reduce((s,r)=>s+r.v,0);
+    const tg  = data.reduce((s,r)=>s+r.g,0);
+    const tgt = data.reduce((s,r)=>s+r.gt,0);
+    const cfDia = PE_DATA ? PE_DATA.costoFijoDiario : 0;
+    const cf    = cfDia * data.length;
+    const tu    = tg - tgt - cf;
+    const tcxp  = Math.max(0, data.reduce((s,r)=>s+(r.comcr||0),0) - data.reduce((s,r)=>s+(r.pac||0),0));
+    const cxc   = typeof window.DASH_CXC_TOTAL === 'number' ? window.DASH_CXC_TOTAL : 0;
+    const margen      = tv > 0 ? (tg / tv * 100) : 0;
+    const margenDec   = margen / 100;
+    const gastosRatio = tv > 0 ? ((tgt + cf) / tv * 100) : 0;
+    const tgasKpi = data.reduce((s,r)=>s+r.gti+r.gca+r.su,0) + cf;
+    const pePeri  = margenDec > 0 ? tgasKpi / margenDec : 0;
+    const peDiario = data.length > 0 ? pePeri / data.length : 0;
+    const logro    = pePeri > 0 && tv > 0 ? Math.round(tv / pePeri * 100) : 0;
+    let diasSobre = 0;
+    if (peDiario > 0) data.forEach(r => { if (r.v >= peDiario) diasSobre++; });
+    const diasBajo  = data.length - diasSobre;
+    const pctSobre  = data.length > 0 ? (diasSobre / data.length * 100) : 0;
+
+    // ── Diagnóstico general ──
+    let estadoGeneral, estadoColor, estadoIco;
+    if (tu > 0 && pctSobre >= 60 && margen >= 25) {
+      estadoGeneral = 'SALUDABLE'; estadoColor = '#16a34a'; estadoIco = '✅';
+    } else if (tu > 0 && pctSobre >= 40) {
+      estadoGeneral = 'ESTABLE CON MEJORAS PENDIENTES'; estadoColor = '#ca8a04'; estadoIco = '⚖️';
+    } else if (tu > 0) {
+      estadoGeneral = 'FRÁGIL — RENTABLE PERO CON RIESGOS'; estadoColor = '#ea580c'; estadoIco = '⚠️';
+    } else {
+      estadoGeneral = 'REQUIERE ATENCIÓN URGENTE'; estadoColor = '#dc2626'; estadoIco = '🚨';
+    }
+
+    // ── Fortalezas ──
+    const fortalezas = [];
+    if (tu > 0) fortalezas.push(`El negocio generó <b>utilidad neta positiva</b> de ${fmtK(tu)} en el período.`);
+    if (margen >= 30) fortalezas.push(`<b>Margen bruto saludable</b> (${margen.toFixed(1)}%): buena conversión de venta a ganancia.`);
+    if (pctSobre >= 60 && peDiario > 0) fortalezas.push(`<b>${diasSobre} de ${data.length} días</b> estuvieron sobre el Punto de Equilibrio (${pctSobre.toFixed(0)}%).`);
+    if (tcxp > 0 && cxc < tcxp) fortalezas.push('Recibes más crédito de proveedores (CxP) del que otorgas a clientes (CxC) — financiamiento comercial favorable.');
+    if (cxc <= 0 && tv > 0) fortalezas.push('Tus ventas se cobraron en su totalidad: excelente disciplina de cobranza.');
+    if (logro >= 100) fortalezas.push(`Superaste el Punto de Equilibrio del período en <b>${logro - 100}%</b>.`);
+
+    // ── Alertas ──
+    const alertas = [];
+    if (tu <= 0) alertas.push(`<b>Utilidad neta negativa</b> de ${fmtK(tu)}: los gastos totales (${fmtK(tgt + cf)}) superaron a la ganancia bruta (${fmtK(tg)}).`);
+    if (margen < 20 && tv > 0) alertas.push(`<b>Margen bruto bajo</b> (${margen.toFixed(1)}%): revisa tus precios o el costo directo de ventas.`);
+    if (pctSobre < 40 && peDiario > 0) alertas.push(`<b>${diasBajo} de ${data.length} días</b> estuvieron bajo el P.E. (${(100-pctSobre).toFixed(0)}%) — señal de alerta.`);
+    if (cxc > 0 && tcxp > 0 && cxc > tcxp * 2) alertas.push(`Tu CxC (${fmtK(cxc)}) supera más del doble a tu CxP (${fmtK(tcxp)}) — estás financiando a tus clientes con tu propio flujo.`);
+    if (gastosRatio > 80) alertas.push(`Los gastos totales son <b>${gastosRatio.toFixed(1)}%</b> de las ventas — rango crítico.`);
+    else if (gastosRatio > 60) alertas.push(`Los gastos totales son <b>${gastosRatio.toFixed(1)}%</b> de las ventas — relativamente alto.`);
+    if (logro < 80 && logro > 0) alertas.push(`Solo alcanzaste el <b>${logro}%</b> del P.E. del período — faltaron ${fmtK(pePeri - tv)} para empatar costos.`);
+
+    // ── Recomendaciones ──
+    const recom = [];
+    if (margen < 20) recom.push('<b>Revisar pricing</b>: aumenta precios 5–10% o negocia con proveedores para bajar costo directo de ventas.');
+    if (pctSobre < 40 && data.length > 1) recom.push('<b>Analizar días bajos</b>: identifica qué días/productos rinden menos y diseña acciones focalizadas.');
+    if (cxc > 0 && tcxp > 0 && cxc > tcxp * 2) recom.push('<b>Acelerar cobranza</b> de CxC antiguas y negocia plazos más largos con proveedores para alinear flujo.');
+    if (gastosRatio > 50) recom.push('<b>Auditar gastos</b>: lista los 3 rubros más grandes y evalúa qué puedes reducir sin afectar la operación.');
+    if (tu > 0) recom.push('<b>Construir reserva</b>: aparta 15–20% de la utilidad de días positivos hacia tu reserva (meta: 3–6 meses de costos fijos).');
+    if (tu <= 0) recom.push('<b>Plan de choque inmediato</b>: corta gastos no esenciales esta semana e impulsa ventas con promociones focalizadas.');
+    if (pctSobre >= 70 && tu > 0) recom.push('<b>Capitalizar el momento</b>: considera inversión estratégica en inventario, personal o equipo que acelere operación.');
+    if (recom.length < 2) recom.push('Mantén el monitoreo diario — un mal día aislado puede esconder una tendencia si no se atiende a tiempo.');
+
+    // ── Metadata y fechas ──
+    const ahora = new Date().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    const d1 = new Date(GF.from+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+    const d2 = new Date(GF.to+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+
+    // ── Capturar gráficas ──
+    const chartIds = [
+      'cv1','cv2','cv3','cv4','cv5','cv6','cv7','cv8','cv9','cv10','cv11','cv12', // financiero
+      'cvn1','cvn2','cvn3',                                                          // nómina
+      'cv_flujo_barras','cv_flujo_ing','cv_flujo_egr'                                 // flujo
+    ];
+    const imgs = {};
+    chartIds.forEach(id => {
+      const c = document.getElementById(id);
+      if (c) { try { imgs[id] = c.toDataURL('image/png'); } catch(e){} }
     });
-    const w=window.open('','_blank');
+
+    // Sacar datos de empresa para el encabezado
+    const empresa = (document.querySelector('.tb-name')?.textContent || 'TRIKLES').trim();
+
+    const w = window.open('','_blank');
     w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
     <title>TRIKLES — Reporte Ejecutivo</title>
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;800;900&display=swap');
-    *{box-sizing:border-box;margin:0;padding:0;} body{font-family:'Nunito',sans-serif;background:#fff;color:#111;font-size:12px;}
-    .hdr{background:linear-gradient(135deg,#0f0f0f,#1c1c1c);color:#fff;padding:20px 28px;display:flex;align-items:flex-start;justify-content:space-between;}
-    .hdr h1{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:4px;color:#F5821F;}
-    .hdr p{font-size:10px;color:#888;letter-spacing:2px;margin-top:3px;}
-    .hdr-r{text-align:right;font-size:10px;color:#888;}.hdr-r strong{display:block;color:#bbb;font-size:12px;margin-bottom:2px;}
-    .kpi-g{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
-    .kpi{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:8px;padding:12px;border-left:4px solid #F5821F;}
-    .kpi.g{border-left-color:#16a34a;}.kpi.b{border-left-color:#2563eb;}.kpi.r{border-left-color:#dc2626;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Nunito',sans-serif;background:#fff;color:#111;font-size:12px;}
+    .hdr{background:linear-gradient(135deg,#0f0f0f,#1c1c1c);color:#fff;padding:22px 28px;display:flex;align-items:flex-start;justify-content:space-between;}
+    .hdr h1{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:4px;color:#F5821F;}
+    .hdr h2{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:#ddd;margin-top:2px;}
+    .hdr p{font-size:10px;color:#888;letter-spacing:2px;margin-top:4px;}
+    .hdr-r{text-align:right;font-size:10px;color:#888;}
+    .hdr-r strong{display:block;color:#bbb;font-size:12px;margin-bottom:2px;}
+    .sec{padding:14px 28px;page-break-inside:avoid;}
+    .sec-t{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:#F5821F;margin-bottom:12px;padding-bottom:4px;border-bottom:2px solid #F5821F22;}
+    /* ── Resumen / Conclusión ── */
+    .res-estado{display:inline-block;padding:8px 18px;border-radius:20px;font-weight:900;letter-spacing:2px;font-size:11px;margin-bottom:12px;}
+    .res-intro{background:#fafafa;border:1px solid #e5e5e5;border-radius:10px;padding:16px 18px;line-height:1.7;font-size:13px;margin-bottom:14px;}
+    .res-intro b{color:#111;}
+    .res-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    .res-block{background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #e5e5e5;}
+    .res-block.ok{border-left:4px solid #16a34a;background:#f0fdf4;}
+    .res-block.warn{border-left:4px solid #dc2626;background:#fef2f2;}
+    .res-block.tip{border-left:4px solid #2563eb;background:#eff6ff;}
+    .res-title{font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+    .res-block.ok .res-title{color:#16a34a;}
+    .res-block.warn .res-title{color:#dc2626;}
+    .res-block.tip .res-title{color:#2563eb;}
+    .res-block ul{list-style:none;margin:0;padding:0;}
+    .res-block li{font-size:11px;line-height:1.6;padding:5px 0;border-bottom:1px dashed #e5e5e5;}
+    .res-block li:last-child{border-bottom:none;}
+    /* ── KPIs ── */
+    .kpi-g{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+    .kpi{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:8px;padding:11px 12px;border-left:4px solid #F5821F;}
+    .kpi.g{border-left-color:#16a34a;}.kpi.b{border-left-color:#2563eb;}
+    .kpi.r{border-left-color:#dc2626;}.kpi.y{border-left-color:#ca8a04;}
+    .kpi.p{border-left-color:#7c3aed;}.kpi.t{border-left-color:#0891b2;}
     .kpi-l{font-size:8px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:3px;}
-    .kpi-v{font-family:'Bebas Neue',sans-serif;font-size:24px;}
-    .sec{padding:14px 28px;}.sec-t{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:#F5821F;margin-bottom:12px;padding-bottom:4px;border-bottom:2px solid #F5821F22;}
-    .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
-    .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+    .kpi-v{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1.1;}
+    .kpi-s{font-size:9px;color:#666;margin-top:2px;}
+    /* ── Charts ── */
+    .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;}
+    .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:10px;}
     img.ci{width:100%;max-height:200px;object-fit:contain;border:1px solid #e5e5e5;border-radius:6px;padding:4px;background:#f9f9f9;}
-    .ftr{background:#f3f3f3;padding:10px 28px;display:flex;justify-content:space-between;font-size:9px;color:#888;border-top:2px solid #F5821F22;}
+    .page-break{page-break-before:always;}
+    .ftr{background:#f3f3f3;padding:10px 28px;display:flex;justify-content:space-between;font-size:9px;color:#888;border-top:2px solid #F5821F22;margin-top:10px;}
+    @media print { .sec{page-break-inside:avoid;} }
     </style></head><body>
     <div class="hdr">
-      <div><h1>TRIKLES</h1><p>📊 REPORTE EJECUTIVO — ${d1} ${GF.from!==GF.to?' al '+d2:''}</p></div>
-      <div class="hdr-r"><strong>Generado: ${ahora}</strong>${data.length} días analizados</div>
+      <div>
+        <h1>TRIKLES</h1>
+        <h2>${empresa}</h2>
+        <p>📊 REPORTE EJECUTIVO — ${d1}${GF.from!==GF.to?' al '+d2:''}</p>
+      </div>
+      <div class="hdr-r">
+        <strong>Generado: ${ahora}</strong>
+        ${data.length} día(s) analizado(s)
+      </div>
     </div>
+
+    <!-- ═══ RESUMEN EJECUTIVO Y CONCLUSIÓN ═══ -->
+    <div class="sec">
+      <div class="sec-t">🎯 RESUMEN EJECUTIVO Y DIAGNÓSTICO</div>
+      <div class="res-estado" style="background:${estadoColor}18;color:${estadoColor};border:1px solid ${estadoColor}">
+        ${estadoIco} SITUACIÓN FINANCIERA: ${estadoGeneral}
+      </div>
+      <div class="res-intro">
+        En los <b>${data.length} día(s)</b> analizados, el negocio facturó <b>${fmtK(tv)}</b> con una ganancia bruta
+        de <b>${fmtK(tg)}</b> (margen de <b>${margen.toFixed(1)}%</b>) y una utilidad neta de
+        <b style="color:${tu>=0?'#16a34a':'#dc2626'}">${fmtK(tu)}</b>.
+        Los gastos totales (operativos + costos fijos) fueron <b>${fmtK(tgt + cf)}</b>,
+        equivalente a <b>${gastosRatio.toFixed(1)}%</b> de las ventas.
+        ${peDiario > 0 ? `De los ${data.length} días, <b style="color:#16a34a">${diasSobre} estuvieron sobre el Punto de Equilibrio</b>
+        y <b style="color:#dc2626">${diasBajo} por debajo</b>.` : ''}
+        ${pePeri > 0 ? ` Se alcanzó un logro de <b>${logro}%</b> del P.E. del período.` : ''}
+      </div>
+      <div class="res-grid">
+        <div class="res-block ok">
+          <div class="res-title">✅ Fortalezas</div>
+          <ul>${fortalezas.length ? fortalezas.map(f=>`<li>${f}</li>`).join('') : '<li>Sin fortalezas destacables en este período — enfócate en estabilizar.</li>'}</ul>
+        </div>
+        <div class="res-block warn">
+          <div class="res-title">⚠️ Áreas de Atención</div>
+          <ul>${alertas.length ? alertas.map(a=>`<li>${a}</li>`).join('') : '<li>Sin alertas críticas detectadas — mantén el monitoreo.</li>'}</ul>
+        </div>
+        <div class="res-block tip">
+          <div class="res-title">💡 Recomendaciones</div>
+          <ul>${recom.map(r=>`<li>${r}</li>`).join('')}</ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ INDICADORES CLAVE (8 KPIs) ═══ -->
     <div class="sec">
       <div class="sec-t">INDICADORES CLAVE</div>
       <div class="kpi-g">
-        <div class="kpi"><div class="kpi-l">Ventas</div><div class="kpi-v">${fmtK(tv)}</div></div>
-        <div class="kpi g"><div class="kpi-l">Ganancia</div><div class="kpi-v">${fmtK(tg)}</div></div>
-        <div class="kpi b"><div class="kpi-l">Utilidad Neta</div><div class="kpi-v">${fmtK(tu)}</div></div>
-        <div class="kpi r"><div class="kpi-l">Total Gastos</div><div class="kpi-v">${fmtK(tgt)}</div></div>
+        <div class="kpi"><div class="kpi-l">Ventas</div><div class="kpi-v">${fmtK(tv)}</div><div class="kpi-s">${data.length} día(s)</div></div>
+        <div class="kpi g"><div class="kpi-l">Ganancia Bruta</div><div class="kpi-v">${fmtK(tg)}</div><div class="kpi-s">margen ${margen.toFixed(1)}%</div></div>
+        <div class="kpi b"><div class="kpi-l">Utilidad Neta</div><div class="kpi-v" style="color:${tu>=0?'#16a34a':'#dc2626'}">${fmtK(tu)}</div><div class="kpi-s">${tv>0?((tu/tv)*100).toFixed(1)+'% margen neto':'—'}</div></div>
+        <div class="kpi r"><div class="kpi-l">Gastos Operativos</div><div class="kpi-v">${fmtK(tgt)}</div><div class="kpi-s">${tv>0?((tgt/tv)*100).toFixed(1)+'% de ventas':'—'}</div></div>
+      </div>
+      <div class="kpi-g">
+        <div class="kpi y"><div class="kpi-l">Costos Fijos</div><div class="kpi-v">${fmtK(cf)}</div><div class="kpi-s">$${cfDia.toFixed(2)}/día × ${data.length}</div></div>
+        <div class="kpi p"><div class="kpi-l">P.E. del Período</div><div class="kpi-v">${fmtK(pePeri)}</div><div class="kpi-s">Logro: ${logro}%</div></div>
+        <div class="kpi t"><div class="kpi-l">CxC — Por Cobrar</div><div class="kpi-v">${fmtK(cxc)}</div><div class="kpi-s">${cxc>0?'saldo pendiente':'al corriente'}</div></div>
+        <div class="kpi r"><div class="kpi-l">CxP — Por Pagar</div><div class="kpi-v">${fmtK(tcxp)}</div><div class="kpi-s">saldo acumulado</div></div>
       </div>
     </div>
-    <div class="sec"><div class="sec-t">TENDENCIA Y P.E.</div>
-      ${imgs.cv1?'<img class="ci" src="'+imgs.cv1+'">'  :''}</div>
+
+    <!-- ═══ GRÁFICAS FINANCIERAS ═══ -->
+    <div class="sec page-break">
+      <div class="sec-t">TENDENCIA DIARIA VS PUNTO DE EQUILIBRIO</div>
+      ${imgs.cv1 ? '<img class="ci" src="'+imgs.cv1+'">' : ''}
+    </div>
     <div class="sec"><div class="sec-t">GANANCIAS Y PRODUCTOS</div>
       <div class="g2">
-        ${imgs.cv2?'<img class="ci" src="'+imgs.cv2+'">'  :''}
-        ${imgs.cv3?'<img class="ci" src="'+imgs.cv3+'">'  :''}
-      </div></div>
+        ${imgs.cv2?'<img class="ci" src="'+imgs.cv2+'">':''}
+        ${imgs.cv3?'<img class="ci" src="'+imgs.cv3+'">':''}
+      </div>
+    </div>
     <div class="sec"><div class="sec-t">COMPARATIVAS MENSUALES</div>
       <div class="g2">
-        ${imgs.cv4?'<img class="ci" src="'+imgs.cv4+'">'  :''}
-        ${imgs.cv9?'<img class="ci" src="'+imgs.cv9+'">'  :''}
-      </div></div>
+        ${imgs.cv4?'<img class="ci" src="'+imgs.cv4+'">':''}
+        ${imgs.cv9?'<img class="ci" src="'+imgs.cv9+'">':''}
+      </div>
+    </div>
     <div class="sec"><div class="sec-t">ANÁLISIS ANUAL Y SEMANAL</div>
       <div class="g2">
-        ${imgs.cv7?'<img class="ci" src="'+imgs.cv7+'">'  :''}
-        ${imgs.cv5?'<img class="ci" src="'+imgs.cv5+'">'  :''}
-      </div></div>
+        ${imgs.cv7?'<img class="ci" src="'+imgs.cv7+'">':''}
+        ${imgs.cv5?'<img class="ci" src="'+imgs.cv5+'">':''}
+      </div>
+    </div>
     <div class="sec"><div class="sec-t">TENDENCIAS Y FLUJO</div>
       <div class="g3">
-        ${imgs.cv6?'<img class="ci" src="'+imgs.cv6+'">'  :''}
-        ${imgs.cv8?'<img class="ci" src="'+imgs.cv8+'">'  :''}
-        ${imgs.cv10?'<img class="ci" src="'+imgs.cv10+'">'  :''}
-      </div></div>
+        ${imgs.cv6?'<img class="ci" src="'+imgs.cv6+'">':''}
+        ${imgs.cv8?'<img class="ci" src="'+imgs.cv8+'">':''}
+        ${imgs.cv10?'<img class="ci" src="'+imgs.cv10+'">':''}
+      </div>
+    </div>
     <div class="sec"><div class="sec-t">INGRESOS Y EGRESOS</div>
       <div class="g2">
-        ${imgs.cv11?'<img class="ci" src="'+imgs.cv11+'">'  :''}
-        ${imgs.cv12?'<img class="ci" src="'+imgs.cv12+'">'  :''}
-      </div></div>
-    <div class="ftr"><span>TRIKLES — Sistema de Control Financiero</span><span>${ahora}</span></div>
-    <script>window.onload=()=>setTimeout(()=>window.print(),600);<\/script>
+        ${imgs.cv11?'<img class="ci" src="'+imgs.cv11+'">':''}
+        ${imgs.cv12?'<img class="ci" src="'+imgs.cv12+'">':''}
+      </div>
+    </div>
+
+    ${imgs.cv_flujo_barras ? `
+    <div class="sec page-break">
+      <div class="sec-t">FLUJO DE EFECTIVO — DESGLOSE</div>
+      <img class="ci" src="${imgs.cv_flujo_barras}">
+      <div class="g2" style="margin-top:12px">
+        ${imgs.cv_flujo_ing?'<img class="ci" src="'+imgs.cv_flujo_ing+'">':''}
+        ${imgs.cv_flujo_egr?'<img class="ci" src="'+imgs.cv_flujo_egr+'">':''}
+      </div>
+    </div>` : ''}
+
+    ${imgs.cvn1 ? `
+    <div class="sec page-break">
+      <div class="sec-t">ANÁLISIS DE NÓMINA</div>
+      <div class="g3">
+        ${imgs.cvn1?'<img class="ci" src="'+imgs.cvn1+'">':''}
+        ${imgs.cvn2?'<img class="ci" src="'+imgs.cvn2+'">':''}
+        ${imgs.cvn3?'<img class="ci" src="'+imgs.cvn3+'">':''}
+      </div>
+    </div>` : ''}
+
+    <div class="ftr">
+      <span>TRIKLES — Sistema de Control Financiero</span>
+      <span>${ahora}</span>
+    </div>
+    <script>window.onload=()=>setTimeout(()=>window.print(),700);<\/script>
     </body></html>`);
     w.document.close();
     toast('success','PDF listo','Se abrió la ventana de impresión.');
@@ -2500,6 +2680,7 @@ async function cargarCxCDashboard(empresa) {
     }
 
     const totalCxC = saldoClientes + Math.max(0, saldoOtros);
+    window.DASH_CXC_TOTAL = totalCxC;
     animN('kv_cxc', totalCxC, true);
     document.getElementById('ks_cxc').textContent = saldoClientes > 0
       ? 'clientes: ' + fmtK(saldoClientes)
