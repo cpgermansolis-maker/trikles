@@ -111,6 +111,21 @@ tbody tr:last-child td{border-bottom:none;}
 .toast.err{background:rgba(230,57,70,.15);border:1px solid rgba(230,57,70,.4);color:var(--red);}
 .no-access{text-align:center;padding:80px 20px;color:var(--gray);}
 .no-access h2{color:var(--red);margin-bottom:10px;}
+
+/* ── Nota informativa ── */
+.note-box{display:flex;gap:14px;background:linear-gradient(135deg,rgba(244,211,94,.08),rgba(245,130,31,.05));border:1px solid rgba(244,211,94,.35);border-left:4px solid var(--yellow);border-radius:12px;padding:16px 18px;margin-bottom:20px;}
+.note-ico{font-size:28px;line-height:1;flex-shrink:0;margin-top:2px;}
+.note-body{flex:1;min-width:0;}
+.note-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--yellow);margin-bottom:8px;}
+.note-body p{font-size:13px;line-height:1.65;color:var(--light);margin-bottom:8px;}
+.note-body p:last-child{margin-bottom:0;}
+.note-body b{color:var(--orange);font-weight:800;}
+@media(max-width:768px){
+  .note-box{padding:14px;gap:10px;}
+  .note-ico{font-size:22px;}
+  .note-title{font-size:13px;letter-spacing:1.5px;}
+  .note-body p{font-size:12.5px;line-height:1.6;}
+}
 @media(max-width:768px){
   .topbar{padding:0 12px;height:52px;}
   .topbar-logo{height:32px;}
@@ -175,6 +190,23 @@ tbody tr:last-child td{border-bottom:none;}
   <div>
     <div class="page-title">Costos Fijos Mensuales</div>
     <div class="page-sub" id="ui_empresa_sub">Empresa — configuración de gastos recurrentes para el cálculo del P.E.</div>
+  </div>
+
+  <!-- ══ Nota informativa sobre manejo de costos vs flujo ══ -->
+  <div class="note-box">
+    <div class="note-ico">💡</div>
+    <div class="note-body">
+      <div class="note-title">Importante — Costos vs Flujo de Efectivo</div>
+      <p>
+        Los <b>costos fijos capturados aquí NO salen de tu caja</b> hasta que llega el recibo real — solo impactan el cálculo del <b>Punto de Equilibrio</b>. Para que no te agarre desprevenido el día del pago, te recomendamos este hábito sano:
+      </p>
+      <p>
+        <b>1) Aparta diariamente un monto hacia la Reserva</b> (campo en la Captura Financiera) y guárdalo en un lugar seguro — una cuenta distinta o un sobre físico. Cuando llegue el momento de pagar luz, renta, internet, etc., <b>toma el dinero de esa reserva</b> — así el flujo del día no se ve golpeado.
+      </p>
+      <p>
+        <b>2) Cuidado con duplicar gastos.</b> Si aquí ya capturaste "Luz" como costo fijo (ejemplo: $800 al mes), cuando pagues el recibo en efectivo <b>NO lo registres también como gasto operativo</b> en la captura diaria. Si lo haces, el sistema contaría <b>dos veces</b> el mismo egreso — una vez en costos fijos y otra en gastos — inflando artificialmente tu P.E. y haciendo ver al negocio menos rentable de lo que realmente es.
+      </p>
+    </div>
   </div>
 
   <!-- KPIs -->
