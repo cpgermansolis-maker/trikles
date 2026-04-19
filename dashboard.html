@@ -7,7 +7,9 @@
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>TRIKLES — Dashboard Ejecutivo</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+<script>
 // Navegación con cache-busting automático
 function navegar(url) {
   var sep = url.indexOf('?') >= 0 ? '&' : '?';
@@ -997,6 +999,52 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 </div>
 
 <script>
+/* ──── Chart.js datalabels: registro global + defaults ──── */
+if (typeof ChartDataLabels !== 'undefined' && typeof Chart !== 'undefined') {
+  Chart.register(ChartDataLabels);
+  Chart.defaults.plugins.datalabels = {
+    // Mostrar solo en barras y pies/donas (evita saturar las líneas)
+    display: function(ctx) {
+      const t = ctx.chart.config.type;
+      return (t === 'bar' || t === 'doughnut' || t === 'pie');
+    },
+    color: function(ctx) {
+      return ctx.chart.config.type === 'bar' ? '#444' : '#222';
+    },
+    font: { size: 10, weight: '700' },
+    anchor: function(ctx) { return ctx.chart.config.type === 'bar' ? 'end' : 'center'; },
+    align:  function(ctx) { return ctx.chart.config.type === 'bar' ? 'top' : 'center'; },
+    offset: 2,
+    clamp: true,
+    backgroundColor: function(ctx) {
+      const t = ctx.chart.config.type;
+      return (t === 'doughnut' || t === 'pie') ? 'rgba(255,255,255,.9)' : null;
+    },
+    borderRadius: 4,
+    padding: function(ctx) {
+      const t = ctx.chart.config.type;
+      return (t === 'doughnut' || t === 'pie') ? {top:2,bottom:2,left:5,right:5} : 0;
+    },
+    formatter: function(value, ctx) {
+      if (value === null || value === undefined) return '';
+      if (Math.abs(value) < 0.01) return '';
+      const t = ctx.chart.config.type;
+      if (t === 'doughnut' || t === 'pie') {
+        // Para donas: mostrar porcentaje si el segmento es >= 6%
+        const data = ctx.chart.data.datasets[0].data;
+        const total = data.reduce(function(a,b){return a + (b||0);}, 0);
+        if (total === 0) return '';
+        const pct = value / total * 100;
+        return pct >= 6 ? pct.toFixed(0) + '%' : '';
+      }
+      // Para barras: $ con K/M para cifras grandes
+      if (Math.abs(value) >= 1000000) return '$' + (value/1000000).toFixed(1) + 'M';
+      if (Math.abs(value) >= 1000)    return '$' + (value/1000).toFixed(1) + 'K';
+      return '$' + Math.round(value);
+    }
+  };
+}
+
 /* ──── AUTH ──── */
 const SK='trikles_session';
 function getS(){try{const s=JSON.parse(sessionStorage.getItem(SK)||localStorage.getItem(SK+'_r'));if(s&&s.expires>Date.now())return s;clearS();return null;}catch{return null;}}
