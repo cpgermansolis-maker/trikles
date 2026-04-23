@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Trikles — Estado de Cuenta Bancario</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="mobile.css">
+<style>
+:root{
+  --orange:#F5821F;--dark:#0d0d1a;--dark2:#12121f;--dark3:#1a1a2e;--dark4:#22223a;
+  --light:#e0e0e0;--gray:#888;--green:#2ec4b6;--red:#e63946;--blue:#4361ee;
+  --yellow:#f4d35e;--purple:#9b59b6;--border:rgba(67,97,238,.3);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--light);min-height:100vh;}
+
+/* Topbar (tema azul para bancos) */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:64px;background:var(--dark2);border-bottom:2px solid var(--blue);position:sticky;top:0;z-index:100;}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.topbar-logo{height:46px;}
+.topbar-name{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:5px;color:var(--blue);}
+.topbar-sub{font-size:10px;color:var(--gray);letter-spacing:2px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.btn-nav{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--light);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px;}
+.btn-nav:hover{background:rgba(255,255,255,.15);}
+.btn-out{background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.3);color:var(--red);padding:7px 12px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;}
+
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;z-index:400;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--blue);border-radius:2px;transition:.3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.mobile-nav{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.96);z-index:350;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.mobile-nav.open{display:flex;}
+.mobile-nav .btn-nav{font-size:16px;padding:12px 32px;width:240px;justify-content:center;background:rgba(255,255,255,.05);border:1px solid rgba(67,97,238,.45);color:#e0e0e0;text-align:center;border-radius:10px;text-decoration:none;font-weight:700;}
+.mobile-nav .btn-out{font-size:16px;padding:12px 32px;width:240px;text-align:center;background:none;border:1px solid rgba(230,57,70,.45);color:#e63946;border-radius:10px;cursor:pointer;font-weight:700;}
+.mobile-nav-close{position:absolute;top:20px;right:20px;background:none;border:none;color:var(--blue);font-size:28px;cursor:pointer;}
+
+/* Main */
+.main{max-width:1100px;margin:0 auto;padding:24px 18px 40px;}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--light);line-height:1;}
+.page-sub{font-size:13px;color:var(--gray);margin-top:4px;margin-bottom:20px;}
+
+/* Period selector */
+.period-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:14px;padding:14px 16px;background:var(--dark3);border:1px solid rgba(255,255,255,.06);border-radius:12px;}
+.period-inputs{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;}
+.period-inputs .fi-wrap{display:flex;flex-direction:column;gap:4px;}
+.period-inputs .fi-lbl{font-size:10px;color:var(--gray);letter-spacing:1px;text-transform:uppercase;font-weight:800;}
+.period-inputs .fi{width:150px;padding:8px 12px;font-size:13px;background:#12122a;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--light);}
+.period-inputs .fi:focus{outline:none;border-color:var(--blue);}
+.period-quick{display:flex;gap:6px;flex-wrap:wrap;}
+.btn-quick{padding:8px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--gray);font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:.2s;}
+.btn-quick:hover{color:var(--light);border-color:rgba(255,255,255,.2);}
+.btn-quick.active{background:rgba(67,97,238,.15);border-color:var(--blue);color:var(--blue);}
+
+/* Bank selector */
+.bank-bar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px;padding:12px 16px;background:var(--dark3);border:1px solid rgba(255,255,255,.06);border-radius:12px;flex-wrap:wrap;}
+.bank-tabs{display:flex;gap:8px;flex-wrap:wrap;}
+.bank-tab{padding:8px 18px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--gray);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;}
+.bank-tab:hover{color:var(--light);}
+.bank-tab.active{background:rgba(67,97,238,.15);border-color:var(--blue);color:var(--blue);}
+.bank-tab.active.bank-all{background:rgba(245,130,31,.15);border-color:var(--orange);color:var(--orange);}
+.btn-edit-names{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--gray);padding:7px 12px;border-radius:8px;font-size:12px;cursor:pointer;}
+.btn-edit-names:hover{color:var(--light);border-color:rgba(255,255,255,.2);}
+
+/* KPIs */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.kpi-card{background:var(--dark3);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px 16px;}
+.kpi-lbl{font-size:10px;color:var(--gray);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;font-weight:800;}
+.kpi-val{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;}
+.kpi-sub{font-size:11px;color:var(--gray);margin-top:2px;}
+.o{color:var(--orange);} .g{color:var(--green);} .r{color:var(--red);} .b{color:var(--blue);}
+
+/* Ajustes alert */
+.alert-box{background:linear-gradient(135deg,rgba(244,211,94,.1),rgba(230,57,70,.08));border:1px solid rgba(244,211,94,.4);border-left:4px solid var(--yellow);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:none;align-items:center;gap:14px;}
+.alert-box.show{display:flex;}
+.alert-ico{font-size:28px;line-height:1;flex-shrink:0;}
+.alert-body{flex:1;min-width:0;}
+.alert-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--yellow);margin-bottom:4px;}
+.alert-text{font-size:13px;color:var(--light);line-height:1.5;}
+.alert-text b{color:var(--yellow);}
+
+/* Charts */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+.charts-grid .card{margin-bottom:0;padding:16px;}
+.charts-grid .wide{grid-column:1/-1;}
+.chart-wrap{position:relative;height:220px;}
+.card{background:var(--dark3);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:20px;margin-bottom:16px;}
+.card-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;margin-bottom:12px;display:flex;align-items:center;gap:8px;color:var(--light);}
+
+/* Action buttons */
+.actions-bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.btn-primary{background:var(--blue);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:.5px;}
+.btn-primary:hover{opacity:.9;}
+.btn-danger-soft{background:rgba(244,211,94,.1);border:1px solid rgba(244,211,94,.4);color:var(--yellow);padding:10px 18px;border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:.5px;}
+.btn-danger-soft:hover{background:rgba(244,211,94,.2);}
+
+/* Form */
+.form-box{background:var(--dark3);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px;margin-bottom:16px;display:none;}
+.form-box.show{display:block;}
+.form-box.ajuste-mode{border-color:rgba(244,211,94,.5);background:linear-gradient(135deg,rgba(244,211,94,.04),var(--dark3));}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-grid .full{grid-column:1/-1;}
+.fi-wrap{display:flex;flex-direction:column;gap:5px;}
+.fi-lbl{font-size:11px;color:var(--gray);letter-spacing:1px;text-transform:uppercase;font-weight:800;}
+.fi{background:#12122a;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--light);padding:10px 12px;font-family:'Nunito',sans-serif;font-size:14px;width:100%;}
+.fi:focus{outline:none;border-color:var(--blue);}
+select.fi option{background:#1a1a2e;}
+.form-btns{display:flex;gap:10px;margin-top:14px;}
+.btn-cancel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);color:var(--gray);padding:10px 18px;border-radius:10px;font-weight:700;cursor:pointer;}
+.btn-cancel:hover{color:var(--light);}
+
+/* Tabla */
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th{text-align:left;padding:10px 12px;color:var(--gray);font-size:11px;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,.06);font-weight:700;}
+.tbl th.right{text-align:right;}
+.tbl td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.04);}
+.tbl td.right{text-align:right;}
+.tbl tr:hover td{background:rgba(255,255,255,.02);}
+.tbl .empty-row td{text-align:center;color:var(--gray);padding:30px;}
+.badge-source{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:.5px;}
+.badge-auto{background:rgba(46,196,182,.12);color:var(--green);border:1px solid rgba(46,196,182,.3);}
+.badge-manual{background:rgba(67,97,238,.12);color:var(--blue);border:1px solid rgba(67,97,238,.3);}
+.badge-ajuste{background:rgba(244,211,94,.12);color:var(--yellow);border:1px solid rgba(244,211,94,.3);}
+.badge-saldo{background:rgba(155,89,182,.12);color:var(--purple);border:1px solid rgba(155,89,182,.3);}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:#1e1e2e;border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:.3s;pointer-events:none;}
+.toast.show{opacity:1;}
+.toast.ok{border-color:rgba(46,196,182,.5);color:var(--green);}
+.toast.err{border-color:rgba(230,57,70,.5);color:var(--red);}
+.toast.info{border-color:rgba(67,97,238,.5);color:var(--blue);}
+
+/* Modal (editar nombres) */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9000;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--dark3);border:1px solid var(--blue);border-radius:14px;max-width:480px;width:100%;padding:26px 24px;position:relative;}
+.modal-ttl{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--blue);margin-bottom:14px;}
+
+/* Responsive */
+@media (max-width:900px){.charts-grid{grid-template-columns:1fr;}.charts-grid .wide{grid-column:auto;}}
+@media (max-width:768px){
+  .topbar-right > .btn-nav,
+  .topbar-right > .btn-out{display:none!important;}
+  .kpi-row{grid-template-columns:1fr 1fr;}
+  .form-grid{grid-template-columns:1fr;}
+  .period-inputs .fi{width:48%;}
+  .tbl{font-size:12px;}
+  .tbl th,.tbl td{padding:8px 8px;}
+}
+
+/* Director mode: oculta formulario, botones, tabla */
+body.director-mode .director-hidden{display:none!important;}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <img class="topbar-logo" id="topbar-logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='%23666'%3E%F0%9F%8F%A6%3C/text%3E%3C/svg%3E" alt="">
+    <div>
+      <div class="topbar-name" id="topbar-name">—</div>
+      <div class="topbar-sub">🏦 ESTADO DE CUENTA BANCARIO</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+    <a class="btn-nav" href="dashboard.html">📊 Dashboard</a>
+    <a class="btn-nav" href="cuentas.html">💳 CxC</a>
+    <a class="btn-nav" href="manual.html">❓ Ayuda</a>
+    <button class="btn-out" onclick="logout()">Salir ✕</button>
+  </div>
+</header>
+
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-close" onclick="toggleMenu()">✕</button>
+  <a href="dashboard.html" class="btn-nav">📊 Dashboard</a>
+  <a href="cuentas.html" class="btn-nav">💳 CxC</a>
+  <a href="registro.html" class="btn-nav">📝 Captura</a>
+  <a href="manual.html" class="btn-nav">❓ Ayuda</a>
+  <button class="btn-out" onclick="logout()">Salir ✕</button>
+</div>
+
+<main class="main">
+  <div class="page-title">🏦 Estado de Cuenta Bancario</div>
+  <div class="page-sub">Movimientos capturados y automáticos · saldo corrido por cuenta</div>
+
+  <!-- Selector de período -->
+  <div class="period-bar">
+    <div class="period-inputs">
+      <div class="fi-wrap"><label class="fi-lbl">Desde</label><input type="date" class="fi" id="periodFrom" onchange="applyPeriod()"></div>
+      <div class="fi-wrap"><label class="fi-lbl">Hasta</label><input type="date" class="fi" id="periodTo" onchange="applyPeriod()"></div>
+    </div>
+    <div class="period-quick">
+      <button class="btn-quick" onclick="setPeriodQuick('mes', this)">Mes actual</button>
+      <button class="btn-quick" onclick="setPeriodQuick('3meses', this)">3 meses</button>
+      <button class="btn-quick" onclick="setPeriodQuick('anio', this)">Año</button>
+      <button class="btn-quick active" onclick="setPeriodQuick('todo', this)">Todo</button>
+    </div>
+  </div>
+
+  <!-- Selector de cuenta bancaria -->
+  <div class="bank-bar">
+    <div class="bank-tabs">
+      <button class="bank-tab bank-all active" data-bank="ALL" onclick="selectBank('ALL')">🌐 Ambos bancos</button>
+      <button class="bank-tab" data-bank="BANCO1" onclick="selectBank('BANCO1')" id="btn-bank1">🏦 Cuenta 1</button>
+      <button class="bank-tab" data-bank="BANCO2" onclick="selectBank('BANCO2')" id="btn-bank2">🏦 Cuenta 2</button>
+    </div>
+    <button class="btn-edit-names" onclick="openEditNames()">✏️ Editar nombres</button>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="kpi-lbl">Saldo Inicial</div><div class="kpi-val" id="kpi-saldo-ini">—</div><div class="kpi-sub" id="kpi-saldo-ini-sub">—</div></div>
+    <div class="kpi-card"><div class="kpi-lbl">Abonos del período</div><div class="kpi-val g" id="kpi-abonos">—</div><div class="kpi-sub">entradas al banco</div></div>
+    <div class="kpi-card"><div class="kpi-lbl">Cargos del período</div><div class="kpi-val r" id="kpi-cargos">—</div><div class="kpi-sub">salidas del banco</div></div>
+    <div class="kpi-card"><div class="kpi-lbl">Saldo Actual</div><div class="kpi-val b" id="kpi-saldo-fin">—</div><div class="kpi-sub" id="kpi-saldo-fin-sub">hoy</div></div>
+  </div>
+
+  <!-- Alerta de ajustes (visible a todos) -->
+  <div class="alert-box" id="alertAjustes">
+    <div class="alert-ico">⚠️</div>
+    <div class="alert-body">
+      <div class="alert-title">AJUSTES BANCARIOS REGISTRADOS</div>
+      <div class="alert-text" id="alertText">—</div>
+    </div>
+  </div>
+
+  <!-- Gráficas (visibles a todos) -->
+  <div class="charts-grid">
+    <div class="card wide">
+      <div class="card-title">📈 EVOLUCIÓN DEL SALDO</div>
+      <div class="chart-wrap"><canvas id="cv_saldo"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔄 CARGOS VS ABONOS</div>
+      <div class="chart-wrap"><canvas id="cv_movimientos"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🥧 COMPOSICIÓN DE CARGOS</div>
+      <div class="chart-wrap"><canvas id="cv_composicion"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Botones de captura (ocultos para directivos) -->
+  <div class="actions-bar director-hidden">
+    <button class="btn-primary" onclick="openForm(false)">➕ Nuevo movimiento</button>
+    <button class="btn-danger-soft" onclick="openForm(true)">🛠️ Ajuste bancario</button>
+  </div>
+
+  <!-- Formulario (oculto para directivos) -->
+  <div class="form-box director-hidden" id="formBox">
+    <div class="card-title" id="formTitle">➕ Nuevo movimiento bancario</div>
+    <div class="form-grid">
+      <div class="fi-wrap">
+        <label class="fi-lbl">Tipo de movimiento <span style="color:var(--red)">*</span></label>
+        <select class="fi" id="f_tipo" onchange="onTipoChange()">
+          <option value="">— Selecciona —</option>
+          <optgroup label="Abonos (entran al banco)">
+            <option value="SALDO_INI">💰 Saldo Inicial</option>
+            <option value="DEPOSITO">📥 Depósito de efectivo al banco</option>
+            <option value="TRANSFER_IN">⬇️ Transferencia recibida</option>
+            <option value="RENDIMIENTO">💚 Rendimiento / intereses</option>
+            <option value="OTRO_ABONO">➕ Otro abono</option>
+          </optgroup>
+          <optgroup label="Cargos (salen del banco)">
+            <option value="RETIRO">📤 Retiro del banco a caja</option>
+            <option value="TRANSFER_OUT">⬆️ Transferencia enviada</option>
+            <option value="PAGO_SERVICIO">🧾 Pago de servicio (luz, renta, etc.)</option>
+            <option value="COMISION">💸 Comisión bancaria</option>
+            <option value="OTRO_CARGO">➖ Otro cargo</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="fi-wrap">
+        <label class="fi-lbl">Cuenta bancaria <span style="color:var(--red)">*</span></label>
+        <select class="fi" id="f_banco">
+          <option value="BANCO1" id="opt-bank1">Cuenta 1</option>
+          <option value="BANCO2" id="opt-bank2">Cuenta 2</option>
+        </select>
+      </div>
+      <div class="fi-wrap" id="wrap-ajuste-dir" style="display:none;">
+        <label class="fi-lbl">Dirección del ajuste <span style="color:var(--red)">*</span></label>
+        <select class="fi" id="f_ajuste_dir">
+          <option value="POS">➕ Sumar al saldo (ajuste positivo)</option>
+          <option value="NEG">➖ Restar del saldo (ajuste negativo)</option>
+        </select>
+      </div>
+      <div class="fi-wrap">
+        <label class="fi-lbl">Monto <span style="color:var(--red)">*</span></label>
+        <input type="number" class="fi" id="f_monto" placeholder="0.00" min="0" step="0.01">
+      </div>
+      <div class="fi-wrap full">
+        <label class="fi-lbl">Concepto / Notas</label>
+        <input type="text" class="fi" id="f_notas" placeholder="Ej: Pago de luz de abril / Transferencia a proveedor XYZ">
+      </div>
+    </div>
+    <div class="form-btns">
+      <button class="btn-primary" onclick="guardarMov()" id="btn-guardar">💾 Guardar movimiento</button>
+      <button class="btn-cancel" onclick="closeForm()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Tabla de movimientos (oculta para directivos) -->
+  <div class="card director-hidden">
+    <div class="card-title">📄 ESTADO DE CUENTA DETALLADO</div>
+    <div style="overflow-x:auto;">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Concepto</th>
+            <th>Origen</th>
+            <th>Banco</th>
+            <th class="right">Cargo</th>
+            <th class="right">Abono</th>
+            <th class="right">Saldo</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-movs"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Modal editar nombres -->
+<div class="modal-overlay" id="modalNames">
+  <div class="modal-box">
+    <div class="modal-ttl">✏️ Editar nombres de cuentas</div>
+    <div class="fi-wrap" style="margin-bottom:12px;">
+      <label class="fi-lbl">Nombre de Cuenta 1</label>
+      <input type="text" class="fi" id="edit-bank1" placeholder="Ej: BBVA Empresa">
+    </div>
+    <div class="fi-wrap" style="margin-bottom:18px;">
+      <label class="fi-lbl">Nombre de Cuenta 2</label>
+      <input type="text" class="fi" id="edit-bank2" placeholder="Ej: Banorte Nómina">
+    </div>
+    <div class="form-btns">
+      <button class="btn-primary" onclick="saveBankNames()">Guardar</button>
+      <button class="btn-cancel" onclick="closeEditNames()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   AUTH + SESIÓN + ROLE
+══════════════════════════════════════════════════════════ */
+const SK = 'trikles_session';
+function getS(){ try{ return JSON.parse(sessionStorage.getItem(SK) || localStorage.getItem(SK+'_remember')); } catch{ return null; } }
+function logout(){ if(confirm('¿Cerrar sesión?')){ sessionStorage.removeItem(SK); localStorage.removeItem(SK+'_remember'); location.href='acceso.html'; } }
+function toggleMenu(){ document.getElementById('mobileNav').classList.toggle('open'); document.getElementById('hamburgerBtn').classList.toggle('open'); }
+
+const SESSION = getS();
+if (!SESSION) location.href = 'acceso.html';
+else document.getElementById('topbar-name').textContent = (SESSION.empresa || 'TRIKLES').replace(/_/g,' ').toUpperCase();
+
+// Role check: directivos ven solo KPIs + gráficas + alerta
+const IS_DIRECTOR = SESSION && (SESSION.rol === 'DIR_GENERAL' || SESSION.rol === 'DIR_FINANZAS');
+if (IS_DIRECTOR) document.body.classList.add('director-mode');
+
+/* ══════════════════════════════════════════════════════════
+   API
+══════════════════════════════════════════════════════════ */
+const API = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
+function jsonp(params, timeout=15000){
+  return new Promise((resolve, reject) => {
+    const cb = '_bcb' + Date.now() + Math.random().toString(36).slice(2);
+    const sc = document.createElement('script');
+    let done = false;
+    const fin = (fn, v) => { if(done) return; done=true; delete window[cb]; sc.remove(); fn(v); };
+    window[cb] = d => fin(resolve, d);
+    sc.onerror = () => fin(reject, new Error('error'));
+    sc.src = API + '?' + new URLSearchParams({...params, callback: cb});
+    document.head.appendChild(sc);
+    setTimeout(() => fin(reject, new Error('timeout')), timeout);
+  });
+}
+
+function toast(type, msg){
+  const t = document.getElementById('toast');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+/* ══════════════════════════════════════════════════════════
+   BANK NAMES (localStorage por empresa)
+══════════════════════════════════════════════════════════ */
+const BANK_NAMES_KEY = 'trikles_bank_names_' + (SESSION?.empresa || 'default');
+let BANK_NAMES = { BANCO1: 'Cuenta 1', BANCO2: 'Cuenta 2' };
+function loadBankNames(){
+  try {
+    const raw = localStorage.getItem(BANK_NAMES_KEY);
+    if (raw) BANK_NAMES = Object.assign(BANK_NAMES, JSON.parse(raw));
+  } catch(e){}
+  refreshBankLabels();
+}
+function saveBankNames(){
+  const n1 = document.getElementById('edit-bank1').value.trim() || 'Cuenta 1';
+  const n2 = document.getElementById('edit-bank2').value.trim() || 'Cuenta 2';
+  BANK_NAMES = { BANCO1: n1, BANCO2: n2 };
+  localStorage.setItem(BANK_NAMES_KEY, JSON.stringify(BANK_NAMES));
+  refreshBankLabels();
+  closeEditNames();
+  toast('ok','✓ Nombres actualizados');
+  renderAll();
+}
+function refreshBankLabels(){
+  document.getElementById('btn-bank1').innerHTML = '🏦 ' + BANK_NAMES.BANCO1;
+  document.getElementById('btn-bank2').innerHTML = '🏦 ' + BANK_NAMES.BANCO2;
+  document.getElementById('opt-bank1').textContent = BANK_NAMES.BANCO1;
+  document.getElementById('opt-bank2').textContent = BANK_NAMES.BANCO2;
+}
+function openEditNames(){
+  document.getElementById('edit-bank1').value = BANK_NAMES.BANCO1;
+  document.getElementById('edit-bank2').value = BANK_NAMES.BANCO2;
+  document.getElementById('modalNames').classList.add('open');
+}
+function closeEditNames(){ document.getElementById('modalNames').classList.remove('open'); }
+
+/* ══════════════════════════════════════════════════════════
+   ESTADO GLOBAL + CARGA DE DATOS
+══════════════════════════════════════════════════════════ */
+let TIMELINE = [];    // todos los movimientos bancarios unificados
+let GF = { from: null, to: null };
+let CURRENT_BANK = 'ALL';  // ALL | BANCO1 | BANCO2
+
+// Mapeo de subtipos a concepto legible
+const SUBTIPO_LABEL = {
+  'SALDO_INI'     : 'Saldo Inicial',
+  'DEPOSITO'      : 'Depósito de efectivo',
+  'TRANSFER_IN'   : 'Transferencia recibida',
+  'RENDIMIENTO'   : 'Rendimiento / intereses',
+  'OTRO_ABONO'    : 'Otro abono',
+  'RETIRO'        : 'Retiro del banco',
+  'TRANSFER_OUT'  : 'Transferencia enviada',
+  'PAGO_SERVICIO' : 'Pago de servicio',
+  'COMISION'      : 'Comisión bancaria',
+  'OTRO_CARGO'    : 'Otro cargo',
+  'AJUSTE_POS'    : 'Ajuste bancario (+)',
+  'AJUSTE_NEG'    : 'Ajuste bancario (−)',
+};
+
+const ABONO_SUBS = ['SALDO_INI','DEPOSITO','TRANSFER_IN','RENDIMIENTO','OTRO_ABONO','AJUSTE_POS'];
+
+async function loadAll(){
+  try {
+    const [r1, r2] = await Promise.all([
+      jsonp({ action:'getDatos', empresa: SESSION.empresa }),
+      jsonp({ action:'getCxC',    empresa: SESSION.empresa })
+    ]);
+
+    TIMELINE = [];
+
+    // ── Automáticos: movimientos bancarios derivados de la captura diaria ──
+    if (r1 && r1.success && Array.isArray(r1.data)) {
+      r1.data.forEach(d => {
+        const fecha = String(d.f || d.fecha || '').slice(0,10);
+        if (!fecha) return;
+        const vtar = parseFloat(d.vtar)||0;
+        const pac  = parseFloat(d.pac)||0;
+        const pacF = String(d.pacF||'EFECTIVO');
+        const sef  = parseFloat(d.sef)||0;
+        const sefF = String(d.sefF||'EFECTIVO');
+        // Ventas con tarjeta → abono al BANCO1 (por convención)
+        if (vtar > 0) {
+          TIMELINE.push({ fecha, concepto:'Ventas con tarjeta (automático)', subtipo:'AUTO_VTAR', abono:vtar, cargo:0, banco:'BANCO1', origen:'AUTO' });
+        }
+        if (pac > 0 && pacF === 'TARJETA') {
+          TIMELINE.push({ fecha, concepto:'Pago a compras a crédito (tarjeta)', subtipo:'AUTO_PAC', abono:0, cargo:pac, banco:'BANCO1', origen:'AUTO' });
+        }
+        if (sef > 0 && sefF === 'TARJETA') {
+          TIMELINE.push({ fecha, concepto:'Nómina pagada con tarjeta', subtipo:'AUTO_SEF', abono:0, cargo:sef, banco:'BANCO1', origen:'AUTO' });
+        }
+      });
+    }
+
+    // ── Manuales: tipos BANCO_* guardados en Otros Conceptos ──
+    // Convención:
+    //   tipo = BANCO_ABONO | BANCO_CARGO | BANCO_SALDO_INI | BANCO_AJUSTE
+    //   forma_pago = BANCO1 | BANCO2
+    //   notas = "SUBTIPO|Concepto libre"    (ej: "DEPOSITO|Depósito del corte")
+    // También detectamos forma_pago = BANCO (de cuentas Otros Conceptos) como movimiento bancario
+    if (r2 && r2.success && Array.isArray(r2.data)) {
+      r2.data.forEach(m => {
+        const tipo = String(m.tipo || '').toUpperCase();
+        const forma = String(m.formaPago || m.forma_pago || '').toUpperCase();
+        const monto = parseFloat(m.monto)||0;
+        if (monto <= 0) return;
+        const fecha = String(m.fecha || '').slice(0,10);
+        if (!fecha) return;
+
+        // Extraer subtipo y concepto del notas
+        const notasRaw = String(m.notas || m.concepto || '');
+        let subtipo = '', concepto = notasRaw;
+        const barIdx = notasRaw.indexOf('|');
+        if (barIdx > -1) { subtipo = notasRaw.slice(0, barIdx); concepto = notasRaw.slice(barIdx+1); }
+
+        // Caso 1: movimiento bancario explícito guardado desde bancos.html
+        if (tipo.startsWith('BANCO_')) {
+          const banco = (forma === 'BANCO1' || forma === 'BANCO2') ? forma : 'BANCO1';
+          const esAbono = tipo === 'BANCO_ABONO' || tipo === 'BANCO_SALDO_INI' || (tipo === 'BANCO_AJUSTE' && subtipo === 'AJUSTE_POS');
+          const esAjuste = tipo === 'BANCO_AJUSTE';
+          TIMELINE.push({
+            fecha,
+            concepto: (SUBTIPO_LABEL[subtipo] || concepto || tipo) + (concepto && SUBTIPO_LABEL[subtipo] ? ' — ' + concepto : ''),
+            subtipo,
+            abono: esAbono ? monto : 0,
+            cargo: esAbono ? 0 : monto,
+            banco,
+            origen: esAjuste ? 'AJUSTE' : (tipo === 'BANCO_SALDO_INI' ? 'SALDO' : 'MANUAL')
+          });
+          return;
+        }
+
+        // Caso 2: movimientos de Otros Conceptos con forma de pago = BANCO
+        if (forma === 'BANCO' || forma === 'BANCO1' || forma === 'BANCO2') {
+          const banco = (forma === 'BANCO1' || forma === 'BANCO2') ? forma : 'BANCO1';
+          const esAbono = tipo === 'COBRO_OTRO';
+          TIMELINE.push({
+            fecha,
+            concepto: (concepto || tipo.replace(/_/g,' ')) + ' (CxC Otros)',
+            subtipo: 'CXC_OTRO',
+            abono: esAbono ? monto : 0,
+            cargo: esAbono ? 0 : monto,
+            banco,
+            origen: 'MANUAL'
+          });
+        }
+      });
+    }
+
+    // Ordenar por fecha ascendente
+    TIMELINE.sort((a,b) => a.fecha < b.fecha ? -1 : (a.fecha > b.fecha ? 1 : 0));
+
+  } catch(e){
+    console.warn('Error cargando movimientos bancarios:', e);
+    toast('err','Error cargando datos');
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   FILTROS Y CÁLCULOS
+══════════════════════════════════════════════════════════ */
+function filterByBank(arr){
+  if (CURRENT_BANK === 'ALL') return arr.slice();
+  return arr.filter(m => m.banco === CURRENT_BANK);
+}
+
+function filterByPeriod(arr){
+  if (!GF.from && !GF.to) return arr.slice();
+  return arr.filter(m => {
+    if (GF.from && m.fecha < GF.from) return false;
+    if (GF.to   && m.fecha > GF.to)   return false;
+    return true;
+  });
+}
+
+// Saldo inicial = saldo acumulado al inicio del período (antes de GF.from)
+function getSaldoInicial(movs){
+  if (!GF.from) return 0;
+  let saldo = 0;
+  movs.forEach(m => { if (m.fecha < GF.from) saldo += m.abono - m.cargo; });
+  return saldo;
+}
+
+function setPeriodQuick(key, btn){
+  document.querySelectorAll('.btn-quick').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const today = new Date();
+  const fmtD = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  if (key === 'mes') {
+    const start = new Date(today.getFullYear(), today.getMonth(), 1);
+    GF.from = fmtD(start); GF.to = fmtD(today);
+  } else if (key === '3meses') {
+    const start = new Date(today); start.setMonth(start.getMonth()-3);
+    GF.from = fmtD(start); GF.to = fmtD(today);
+  } else if (key === 'anio') {
+    const start = new Date(today.getFullYear(), 0, 1);
+    GF.from = fmtD(start); GF.to = fmtD(today);
+  } else {
+    GF.from = null; GF.to = null;
+  }
+  document.getElementById('periodFrom').value = GF.from || '';
+  document.getElementById('periodTo').value   = GF.to   || '';
+  renderAll();
+}
+function applyPeriod(){
+  GF.from = document.getElementById('periodFrom').value || null;
+  GF.to   = document.getElementById('periodTo').value   || null;
+  document.querySelectorAll('.btn-quick').forEach(b => b.classList.remove('active'));
+  renderAll();
+}
+function selectBank(b){
+  CURRENT_BANK = b;
+  document.querySelectorAll('.bank-tab').forEach(x => x.classList.remove('active'));
+  const active = document.querySelector('.bank-tab[data-bank="'+b+'"]');
+  if (active) active.classList.add('active');
+  renderAll();
+}
+
+/* ══════════════════════════════════════════════════════════
+   FORMATOS
+══════════════════════════════════════════════════════════ */
+const fmt = n => '$' + Number(n||0).toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtK = n => { const v = Number(n)||0; return Math.abs(v) >= 1000 ? '$'+(v/1000).toFixed(1)+'K' : '$'+Math.round(v); };
+const fmtFecha = f => { const d = new Date(f+'T12:00:00'); return d.toLocaleDateString('es-MX', {day:'numeric', month:'short', year:'numeric'}); };
+
+/* ══════════════════════════════════════════════════════════
+   RENDER KPIs + ALERTA
+══════════════════════════════════════════════════════════ */
+function renderKPIs(){
+  const movsBank = filterByBank(TIMELINE);
+  const movsPeriod = filterByPeriod(movsBank);
+  const saldoIni = getSaldoInicial(movsBank);
+  let tAbonos = 0, tCargos = 0;
+  movsPeriod.forEach(m => { tAbonos += m.abono; tCargos += m.cargo; });
+  const saldoFin = saldoIni + tAbonos - tCargos;
+
+  document.getElementById('kpi-saldo-ini').textContent = fmt(saldoIni);
+  document.getElementById('kpi-saldo-ini-sub').textContent = GF.from ? 'al ' + fmtFecha(GF.from) : 'sin movimientos previos';
+  document.getElementById('kpi-abonos').textContent = fmt(tAbonos);
+  document.getElementById('kpi-cargos').textContent = fmt(tCargos);
+  document.getElementById('kpi-saldo-fin').textContent = fmt(saldoFin);
+  document.getElementById('kpi-saldo-fin').className = 'kpi-val ' + (saldoFin < 0 ? 'r' : 'b');
+  document.getElementById('kpi-saldo-fin-sub').textContent = GF.to ? 'al ' + fmtFecha(GF.to) : 'saldo actual';
+
+  // Alerta de ajustes
+  const ajustes = movsPeriod.filter(m => m.origen === 'AJUSTE');
+  const alertEl = document.getElementById('alertAjustes');
+  if (ajustes.length > 0) {
+    const total = ajustes.reduce((s,m) => s + (m.abono - m.cargo), 0);
+    document.getElementById('alertText').innerHTML =
+      `Se registraron <b>${ajustes.length} ajuste(s) bancario(s)</b> en este período por un neto de <b>${fmt(total)}</b>. Revisa la tabla detallada y valida que sean correctos — estos movimientos no deberían ser frecuentes.`;
+    alertEl.classList.add('show');
+  } else {
+    alertEl.classList.remove('show');
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   GRÁFICAS
+══════════════════════════════════════════════════════════ */
+let chSaldo=null, chMov=null, chComp=null;
+const MESES_C = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+function destroyIf(c){ if (c) try{ c.destroy(); }catch(e){} }
+
+function agruparBuckets(movs, useMonthly){
+  const buckets = {};
+  movs.forEach(m => {
+    const d = new Date(m.fecha + 'T12:00:00');
+    const key = useMonthly ? (d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')) : m.fecha;
+    const label = useMonthly
+      ? MESES_C[d.getMonth()]+' '+String(d.getFullYear()).slice(2)
+      : String(d.getDate()).padStart(2,'0')+' '+MESES_C[d.getMonth()];
+    if (!buckets[key]) buckets[key] = { label, abonos:0, cargos:0, delta:0 };
+    buckets[key].abonos += m.abono;
+    buckets[key].cargos += m.cargo;
+    buckets[key].delta += m.abono - m.cargo;
+  });
+  const keys = Object.keys(buckets).sort();
+  return {
+    labels: keys.map(k => buckets[k].label),
+    abonos: keys.map(k => buckets[k].abonos),
+    cargos: keys.map(k => buckets[k].cargos),
+    deltas: keys.map(k => buckets[k].delta)
+  };
+}
+
+function renderCharts(){
+  const movsBank = filterByBank(TIMELINE);
+  const saldoIni = getSaldoInicial(movsBank);
+  const movsPeriod = filterByPeriod(movsBank);
+
+  // Decidir granularidad
+  let useMonthly = false;
+  if (GF.from && GF.to) {
+    const d = (new Date(GF.to) - new Date(GF.from)) / 86400000;
+    useMonthly = d > 60;
+  } else if (!GF.from && !GF.to && movsPeriod.length > 90) {
+    useMonthly = true;
+  }
+
+  const data = agruparBuckets(movsPeriod, useMonthly);
+
+  // ── 1) Línea: saldo acumulado ──
+  let acum = saldoIni;
+  const saldoSerie = data.deltas.map(d => { acum += d; return acum; });
+  destroyIf(chSaldo);
+  const ctx1 = document.getElementById('cv_saldo').getContext('2d');
+  chSaldo = new Chart(ctx1, {
+    type: 'line',
+    data: {
+      labels: data.labels.length ? data.labels : ['Sin movimientos'],
+      datasets: [{
+        label: 'Saldo acumulado',
+        data: data.labels.length ? saldoSerie : [saldoIni],
+        borderColor: '#4361ee',
+        backgroundColor: 'rgba(67,97,238,.14)',
+        borderWidth: 2.5, tension:.3, fill:true, pointRadius:3
+      }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: {
+        legend: { labels:{color:'#aaa', font:{size:11,weight:'700'}} },
+        tooltip: { callbacks:{ label: c => ' Saldo: '+fmt(c.parsed.y) } }
+      },
+      scales: {
+        x: { grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#888', font:{size:10}, maxTicksLimit:12} },
+        y: { grid:{color:'rgba(255,255,255,.06)'}, ticks:{color:'#888', font:{size:10}, callback:v=>fmtK(v)} }
+      }
+    }
+  });
+
+  // ── 2) Barras: cargos vs abonos ──
+  destroyIf(chMov);
+  const ctx2 = document.getElementById('cv_movimientos').getContext('2d');
+  chMov = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: data.labels.length ? data.labels : ['Sin movimientos'],
+      datasets: [
+        { label:'Abonos', data: data.labels.length ? data.abonos : [0], backgroundColor:'rgba(46,196,182,.7)', borderColor:'#2ec4b6', borderWidth:1 },
+        { label:'Cargos', data: data.labels.length ? data.cargos : [0], backgroundColor:'rgba(230,57,70,.7)',  borderColor:'#e63946', borderWidth:1 }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{labels:{color:'#aaa', font:{size:11,weight:'700'}}}, tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+fmt(c.parsed.y)}} },
+      scales: {
+        x: { grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#888', font:{size:10}, maxTicksLimit:12} },
+        y: { grid:{color:'rgba(255,255,255,.06)'}, ticks:{color:'#888', font:{size:10}, callback:v=>fmtK(v)} }
+      }
+    }
+  });
+
+  // ── 3) Dona: composición de cargos por subtipo ──
+  const compo = {};
+  movsPeriod.forEach(m => {
+    if (m.cargo > 0) {
+      const label = SUBTIPO_LABEL[m.subtipo] || (m.subtipo === 'AUTO_PAC' ? 'Pago compras (tarjeta)' : m.subtipo === 'AUTO_SEF' ? 'Nómina (tarjeta)' : 'Otro');
+      compo[label] = (compo[label]||0) + m.cargo;
+    }
+  });
+  const compoKeys = Object.keys(compo);
+  const palette = ['#e63946','#F5821F','#f4d35e','#9b59b6','#3498db','#2ec4b6','#e74c3c','#1abc9c'];
+  destroyIf(chComp);
+  const ctx3 = document.getElementById('cv_composicion').getContext('2d');
+  chComp = new Chart(ctx3, {
+    type: 'doughnut',
+    data: {
+      labels: compoKeys.length ? compoKeys : ['Sin cargos'],
+      datasets: [{
+        data: compoKeys.length ? compoKeys.map(k => compo[k]) : [1],
+        backgroundColor: compoKeys.length ? compoKeys.map((_,i) => palette[i%palette.length]+'bb') : ['rgba(100,100,100,.3)'],
+        borderColor: compoKeys.length ? compoKeys.map((_,i) => palette[i%palette.length]) : ['#666'],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: {
+        legend: { position:'right', labels:{color:'#aaa', font:{size:10,weight:'700'}, padding:6} },
+        tooltip: { callbacks:{ label: c => ' '+c.label+': '+fmt(c.parsed) } }
+      }
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
+   TABLA
+══════════════════════════════════════════════════════════ */
+function renderTabla(){
+  if (IS_DIRECTOR) return;
+  const movsBank = filterByBank(TIMELINE);
+  const movsPeriod = filterByPeriod(movsBank);
+  let saldoAcum = getSaldoInicial(movsBank);
+  const tbody = document.getElementById('tbody-movs');
+  if (!movsPeriod.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Sin movimientos en el período seleccionado</td></tr>';
+    return;
+  }
+  tbody.innerHTML = movsPeriod.map(m => {
+    saldoAcum += m.abono - m.cargo;
+    const bancoNombre = BANK_NAMES[m.banco] || m.banco;
+    let badge = '';
+    if (m.origen === 'AUTO')     badge = '<span class="badge-source badge-auto">AUTO</span>';
+    else if (m.origen === 'MANUAL')   badge = '<span class="badge-source badge-manual">Manual</span>';
+    else if (m.origen === 'AJUSTE')   badge = '<span class="badge-source badge-ajuste">⚠️ AJUSTE</span>';
+    else if (m.origen === 'SALDO')    badge = '<span class="badge-source badge-saldo">Saldo inicial</span>';
+    return `<tr>
+      <td style="color:#aaa;font-size:12px;white-space:nowrap;">${fmtFecha(m.fecha)}</td>
+      <td>${m.concepto}</td>
+      <td>${badge}</td>
+      <td style="color:#aaa;font-size:12px;">${bancoNombre}</td>
+      <td class="right" style="color:var(--red)">${m.cargo > 0 ? fmt(m.cargo) : '—'}</td>
+      <td class="right" style="color:var(--green)">${m.abono > 0 ? fmt(m.abono) : '—'}</td>
+      <td class="right" style="font-weight:700;color:${saldoAcum>=0?'var(--blue)':'var(--red)'}">${fmt(saldoAcum)}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════════════
+   RENDER PRINCIPAL
+══════════════════════════════════════════════════════════ */
+function renderAll(){
+  renderKPIs();
+  renderCharts();
+  renderTabla();
+}
+
+/* ══════════════════════════════════════════════════════════
+   FORMULARIO DE CAPTURA
+══════════════════════════════════════════════════════════ */
+let FORM_IS_AJUSTE = false;
+
+function openForm(isAjuste){
+  FORM_IS_AJUSTE = !!isAjuste;
+  const box = document.getElementById('formBox');
+  box.classList.add('show');
+  box.classList.toggle('ajuste-mode', FORM_IS_AJUSTE);
+  document.getElementById('formTitle').textContent = FORM_IS_AJUSTE ? '🛠️ Ajuste bancario' : '➕ Nuevo movimiento bancario';
+  document.getElementById('wrap-ajuste-dir').style.display = FORM_IS_AJUSTE ? '' : 'none';
+  // Default tipo si es ajuste: no mostramos el select de tipo normal (el subtipo vendrá del f_ajuste_dir)
+  document.getElementById('f_tipo').parentElement.style.display = FORM_IS_AJUSTE ? 'none' : '';
+  document.getElementById('f_tipo').value = '';
+  document.getElementById('f_monto').value = '';
+  document.getElementById('f_notas').value = '';
+  document.getElementById('f_banco').value = CURRENT_BANK === 'BANCO2' ? 'BANCO2' : 'BANCO1';
+  box.scrollIntoView({behavior:'smooth', block:'center'});
+}
+function closeForm(){ document.getElementById('formBox').classList.remove('show'); }
+function onTipoChange(){ /* placeholder por si luego queremos reaccionar */ }
+
+async function guardarMov(){
+  const monto = parseFloat(document.getElementById('f_monto').value)||0;
+  const banco = document.getElementById('f_banco').value;
+  const concepto = document.getElementById('f_notas').value.trim();
+  if (monto <= 0) { toast('err','Monto inválido'); return; }
+
+  let tipo, subtipo, conceptoMostrar;
+  if (FORM_IS_AJUSTE) {
+    const dir = document.getElementById('f_ajuste_dir').value;
+    tipo = 'BANCO_AJUSTE';
+    subtipo = dir === 'POS' ? 'AJUSTE_POS' : 'AJUSTE_NEG';
+    conceptoMostrar = concepto || SUBTIPO_LABEL[subtipo];
+    if (!confirm('¿Confirmas el ajuste bancario por '+fmt(monto)+'?\n\nEste tipo de movimientos se monitorea — debe usarse solo en excepciones.')) return;
+  } else {
+    const sel = document.getElementById('f_tipo').value;
+    if (!sel) { toast('err','Selecciona un tipo de movimiento'); return; }
+    subtipo = sel;
+    // Tipo para backend: BANCO_SALDO_INI para saldo inicial; resto BANCO_ABONO o BANCO_CARGO
+    if (sel === 'SALDO_INI') tipo = 'BANCO_SALDO_INI';
+    else if (ABONO_SUBS.includes(sel)) tipo = 'BANCO_ABONO';
+    else tipo = 'BANCO_CARGO';
+    conceptoMostrar = concepto || SUBTIPO_LABEL[subtipo];
+  }
+
+  const notasField = subtipo + '|' + conceptoMostrar;
+  document.getElementById('btn-guardar').disabled = true;
+  document.getElementById('btn-guardar').textContent = 'Guardando...';
+
+  try {
+    const r = await jsonp({
+      action: 'saveCxC',
+      empresa: SESSION.empresa,
+      tipo,
+      concepto: conceptoMostrar,
+      monto,
+      forma_pago: banco,   // BANCO1 o BANCO2
+      notas: notasField,
+      usuario: SESSION.usuario || SESSION.nombre || 'SYS',
+    });
+    if (r && r.success) {
+      toast('ok','✓ Movimiento guardado');
+      closeForm();
+      await loadAll();
+      renderAll();
+    } else {
+      toast('err', (r && r.error) || 'Error al guardar');
+    }
+  } catch(e) {
+    console.warn(e); toast('err','Error de conexión');
+  } finally {
+    document.getElementById('btn-guardar').disabled = false;
+    document.getElementById('btn-guardar').textContent = '💾 Guardar movimiento';
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════════ */
+(async function init(){
+  loadBankNames();
+  await loadAll();
+  renderAll();
+})();
+</script>
+</body>
+</html>
