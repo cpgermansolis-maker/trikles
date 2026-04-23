@@ -360,11 +360,40 @@ function toggleMenu(){ document.getElementById('mobileNav').classList.toggle('op
 
 const SESSION = getS();
 if (!SESSION) location.href = 'acceso.html';
-else document.getElementById('topbar-name').textContent = (SESSION.empresa || 'TRIKLES').replace(/_/g,' ').toUpperCase();
+
+// Empresa activa: para SuperAdmin usa empresaFiltro si existe; resto usa su empresa fija
+const ACTIVE_EMPRESA = (SESSION && SESSION.empresaFiltro && SESSION.empresaFiltro !== 'ALL')
+  ? SESSION.empresaFiltro
+  : (SESSION && SESSION.empresa) || 'TRIKLES';
+
+// Pintado inicial del nombre (se refina al cargar branding de la empresa)
+if (SESSION) document.getElementById('topbar-name').textContent = ACTIVE_EMPRESA.replace(/_/g,' ').toUpperCase();
 
 // Role check: directivos ven solo KPIs + gráficas + alerta
 const IS_DIRECTOR = SESSION && (SESSION.rol === 'DIR_GENERAL' || SESSION.rol === 'DIR_FINANZAS');
 if (IS_DIRECTOR) document.body.classList.add('director-mode');
+
+// Carga nombre/logo/colores reales de la empresa desde backend (getEmpresas)
+async function applyBranding(){
+  if (!SESSION) return;
+  try {
+    const r = await jsonp({ action: 'getEmpresas' });
+    if (!r || !r.success || !r.data) return;
+    const emp = r.data.find(e => (e.id || '').toLowerCase() === ACTIVE_EMPRESA.toLowerCase());
+    if (!emp) return;
+    const nombre = emp.nombre || ACTIVE_EMPRESA;
+    document.getElementById('topbar-name').textContent = String(nombre).toUpperCase();
+    if (emp.logo) {
+      const logoEl = document.getElementById('topbar-logo');
+      if (logoEl) logoEl.src = emp.logo;
+    }
+    // Cambiar color principal del topbar border según empresa (opcional)
+    if (emp.color1) {
+      const topbar = document.querySelector('.topbar');
+      if (topbar) topbar.style.borderBottomColor = emp.color1;
+    }
+  } catch(e) { console.warn('branding:', e); }
+}
 
 /* ══════════════════════════════════════════════════════════
    API
@@ -395,7 +424,7 @@ function toast(type, msg){
 /* ══════════════════════════════════════════════════════════
    BANK NAMES (localStorage por empresa)
 ══════════════════════════════════════════════════════════ */
-const BANK_NAMES_KEY = 'trikles_bank_names_' + (SESSION?.empresa || 'default');
+const BANK_NAMES_KEY = 'trikles_bank_names_' + ACTIVE_EMPRESA;
 let BANK_NAMES = { BANCO1: 'Cuenta 1', BANCO2: 'Cuenta 2' };
 function loadBankNames(){
   try {
@@ -455,8 +484,8 @@ const ABONO_SUBS = ['SALDO_INI','DEPOSITO','TRANSFER_IN','RENDIMIENTO','OTRO_ABO
 async function loadAll(){
   try {
     const [r1, r2] = await Promise.all([
-      jsonp({ action:'getDatos', empresa: SESSION.empresa }),
-      jsonp({ action:'getCxC',    empresa: SESSION.empresa })
+      jsonp({ action:'getDatos', empresa: ACTIVE_EMPRESA }),
+      jsonp({ action:'getCxC',    empresa: ACTIVE_EMPRESA })
     ]);
 
     TIMELINE = [];
@@ -874,7 +903,7 @@ async function guardarMov(){
   try {
     const r = await jsonp({
       action: 'saveCxC',
-      empresa: SESSION.empresa,
+      empresa: ACTIVE_EMPRESA,
       tipo,
       concepto: conceptoMostrar,
       monto,
@@ -903,6 +932,7 @@ async function guardarMov(){
 ══════════════════════════════════════════════════════════ */
 (async function init(){
   loadBankNames();
+  applyBranding(); // no-await: corre en paralelo, no bloquea
   await loadAll();
   renderAll();
 })();
