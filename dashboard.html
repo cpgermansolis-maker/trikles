@@ -313,6 +313,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     <a class="btn-nav" href="cuentas.html" id="btnCxC" style="display:none">💳 CxC</a>
       <a class="btn-nav" href="costos.html" id="btnCostos" style="display:none">💰 Costos</a>
     <a class="btn-nav" href="panel.html" id="btnPanel" style="display:none">⚙️ Panel</a>
+    <a class="btn-nav" href="bancos.html" style="background:rgba(67,97,238,.15);border-color:rgba(67,97,238,.5);color:#4361ee">🏦 Bancos</a>
     <a class="btn-nav" href="juegos.html" style="background:rgba(245,130,31,.15);border-color:rgba(245,130,31,.5);color:#F5821F">🎮 Juegos</a>
     <button class="btn-pdf" onclick="exportPDF()">📄 PDF</button>
     <div class="user-pill"><div class="u-dot"></div><span id="userChip">...</span></div>
@@ -329,6 +330,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   <a class="btn-nav" href="cuentas.html" id="mNavCxC" style="display:none">💳 CxC</a>
   <a class="btn-nav" href="costos.html" id="mNavCostos" style="display:none">💰 Costos</a>
   <a class="btn-nav" href="panel.html" id="mNavPanel" style="display:none">⚙️ Panel</a>
+  <a class="btn-nav" href="bancos.html" style="background:rgba(67,97,238,.15);border-color:rgba(67,97,238,.5);color:#4361ee">🏦 Bancos</a>
   <a class="btn-nav" href="juegos.html" style="background:rgba(245,130,31,.15);border-color:rgba(245,130,31,.5);color:#F5821F">🎮 Juegos</a>
   <a class="btn-nav" href="manual.html">❓ Ayuda</a>
   <button class="btn-pdf" onclick="exportPDF();toggleMenu()">📄 PDF</button>
@@ -2589,6 +2591,131 @@ function exportPDF(){
   try { if (typeof buildNomina  === 'function') buildNomina(data); }  catch(e){ console.warn('buildNomina PDF:', e); }
   try { if (typeof buildReserva === 'function') buildReserva(data); } catch(e){ console.warn('buildReserva PDF:', e); }
 
+  // ── Construir gráficas de Bancos (offscreen) ──
+  // Requiere data getDatos (ALL) + getCxC. Creamos un contenedor oculto con 3 canvases
+  // y los renderizamos a imagen para incluir en el PDF.
+  let bancosImgs = {};
+  const bancosPromise = (async () => {
+    try {
+      // Construir TIMELINE bancario (igual que bancos.html)
+      const timeline = [];
+      data.forEach(d => {
+        const fecha = d.f || '';
+        const vtar = d.vtar || 0, pac = d.pac || 0, pacF = d.pacF || 'EFECTIVO';
+        const sef = d.sef || 0, sefF = d.sefF || 'EFECTIVO';
+        if (vtar > 0) timeline.push({ fecha, abono:vtar, cargo:0, subtipo:'AUTO_VTAR' });
+        if (pac > 0 && pacF === 'TARJETA') timeline.push({ fecha, abono:0, cargo:pac, subtipo:'AUTO_PAC' });
+        if (sef > 0 && sefF === 'TARJETA') timeline.push({ fecha, abono:0, cargo:sef, subtipo:'AUTO_SEF' });
+      });
+      // Agregar CxC BANCO_*
+      try {
+        const S = (typeof getS === 'function') ? getS() : null;
+        if (S) {
+          const rCxC = await new Promise((resolve, reject) => {
+            const cbn = 'pdfBanCb_' + Date.now();
+            const sc = document.createElement('script');
+            window[cbn] = d => { delete window[cbn]; sc.remove(); resolve(d); };
+            sc.onerror = () => { delete window[cbn]; sc.remove(); reject(); };
+            sc.src = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec?action=getCxC&empresa=' + encodeURIComponent(S.empresa) + '&callback=' + cbn;
+            document.head.appendChild(sc);
+            setTimeout(() => { try{delete window[cbn]; sc.remove();}catch(e){}; reject(); }, 10000);
+          });
+          if (rCxC && rCxC.success && Array.isArray(rCxC.data)) {
+            rCxC.data.forEach(m => {
+              const tipo = String(m.tipo||'').toUpperCase();
+              const forma = String(m.formaPago || m.forma_pago || '').toUpperCase();
+              const monto = parseFloat(m.monto)||0;
+              if (monto <= 0) return;
+              const fecha = String(m.fecha||'').slice(0,10);
+              const notasRaw = String(m.notas||'');
+              let subtipo = '';
+              const barIdx = notasRaw.indexOf('|');
+              if (barIdx > -1) subtipo = notasRaw.slice(0, barIdx);
+              if (tipo.startsWith('BANCO_')) {
+                const esAbono = tipo === 'BANCO_ABONO' || tipo === 'BANCO_SALDO_INI' || (tipo === 'BANCO_AJUSTE' && subtipo === 'AJUSTE_POS');
+                timeline.push({ fecha, abono: esAbono ? monto : 0, cargo: esAbono ? 0 : monto, subtipo });
+              } else if (forma === 'BANCO' || forma === 'BANCO1' || forma === 'BANCO2') {
+                const esAbono = tipo === 'COBRO_OTRO';
+                timeline.push({ fecha, abono: esAbono ? monto : 0, cargo: esAbono ? 0 : monto, subtipo:'CXC_OTRO' });
+              }
+            });
+          }
+        }
+      } catch(e){ console.warn('getCxC para PDF:', e); }
+
+      timeline.sort((a,b) => a.fecha < b.fecha ? -1 : (a.fecha > b.fecha ? 1 : 0));
+      if (!timeline.length) return;
+
+      // Crear contenedor oculto con 3 canvases
+      const container = document.createElement('div');
+      container.style.cssText = 'position:absolute;left:-99999px;top:0;width:820px;';
+      container.innerHTML = '<canvas id="pdf_cv_banco_saldo" width="800" height="300"></canvas>' +
+                            '<canvas id="pdf_cv_banco_mov" width="400" height="280"></canvas>' +
+                            '<canvas id="pdf_cv_banco_comp" width="400" height="280"></canvas>';
+      document.body.appendChild(container);
+
+      // Agrupar
+      const byDay = {};
+      timeline.forEach(m => {
+        if (!byDay[m.fecha]) byDay[m.fecha] = { abono:0, cargo:0 };
+        byDay[m.fecha].abono += m.abono;
+        byDay[m.fecha].cargo += m.cargo;
+      });
+      const keys = Object.keys(byDay).sort();
+      const labels = keys.map(k => k.slice(5));
+      let acum = 0;
+      const saldos = keys.map(k => { acum += byDay[k].abono - byDay[k].cargo; return acum; });
+      const abonos = keys.map(k => byDay[k].abono);
+      const cargos = keys.map(k => byDay[k].cargo);
+
+      // Composición de cargos
+      const compoMap = { 'Pago compras (tarjeta)':0, 'Nómina (tarjeta)':0, 'Retiros':0, 'Transferencias':0, 'Comisiones':0, 'Otros cargos':0 };
+      timeline.forEach(m => {
+        if (m.cargo <= 0) return;
+        if (m.subtipo === 'AUTO_PAC') compoMap['Pago compras (tarjeta)'] += m.cargo;
+        else if (m.subtipo === 'AUTO_SEF') compoMap['Nómina (tarjeta)'] += m.cargo;
+        else if (m.subtipo === 'RETIRO') compoMap['Retiros'] += m.cargo;
+        else if (m.subtipo === 'TRANSFER_OUT') compoMap['Transferencias'] += m.cargo;
+        else if (m.subtipo === 'COMISION') compoMap['Comisiones'] += m.cargo;
+        else compoMap['Otros cargos'] += m.cargo;
+      });
+      const compoKeys = Object.keys(compoMap).filter(k => compoMap[k] > 0);
+      const compoVals = compoKeys.map(k => compoMap[k]);
+
+      // Chart 1: Saldo
+      new Chart(document.getElementById('pdf_cv_banco_saldo'), {
+        type:'line',
+        data:{ labels, datasets:[{ label:'Saldo acumulado', data:saldos, borderColor:'#4361ee', backgroundColor:'rgba(67,97,238,.15)', fill:true, tension:.3, pointRadius:2 }] },
+        options:{ responsive:false, plugins:{legend:{labels:{color:'#444'}}}, scales:{ x:{ticks:{color:'#666'}}, y:{ticks:{color:'#666'}} } }
+      });
+      // Chart 2: Movs
+      new Chart(document.getElementById('pdf_cv_banco_mov'), {
+        type:'bar',
+        data:{ labels, datasets:[
+          { label:'Abonos', data:abonos, backgroundColor:'rgba(46,196,182,.7)' },
+          { label:'Cargos', data:cargos, backgroundColor:'rgba(230,57,70,.7)' }
+        ]},
+        options:{ responsive:false, plugins:{legend:{labels:{color:'#444'}}}, scales:{ x:{ticks:{color:'#666'}}, y:{ticks:{color:'#666'}} } }
+      });
+      // Chart 3: Composición
+      if (compoKeys.length > 0) {
+        const pal = ['#e63946','#F5821F','#f4d35e','#9b59b6','#3498db','#2ec4b6'];
+        new Chart(document.getElementById('pdf_cv_banco_comp'), {
+          type:'doughnut',
+          data:{ labels: compoKeys, datasets:[{ data: compoVals, backgroundColor: compoKeys.map((_,i)=>pal[i%pal.length]+'bb'), borderColor: compoKeys.map((_,i)=>pal[i%pal.length]), borderWidth:2 }] },
+          options:{ responsive:false, plugins:{legend:{position:'right', labels:{color:'#444', font:{size:10}}}} }
+        });
+      }
+
+      // Esperar un momento y capturar
+      await new Promise(r => setTimeout(r, 400));
+      try { bancosImgs.saldo = document.getElementById('pdf_cv_banco_saldo').toDataURL('image/png'); } catch(e){}
+      try { bancosImgs.mov   = document.getElementById('pdf_cv_banco_mov').toDataURL('image/png'); } catch(e){}
+      try { bancosImgs.comp  = document.getElementById('pdf_cv_banco_comp').toDataURL('image/png'); } catch(e){}
+      container.remove();
+    } catch(e) { console.warn('Bancos PDF:', e); }
+  })();
+
   // Helper: extrae el título real de cada gráfica del DOM (ignora el "?")
   function getChartTitle(canvasId) {
     const c = document.getElementById(canvasId);
@@ -2604,7 +2731,9 @@ function exportPDF(){
   }
 
   // Damos un respiro para que Chart.js termine de renderizar
-  setTimeout(()=>{
+  setTimeout(async ()=>{
+    // Esperar a que las gráficas de bancos terminen de generarse
+    try { await bancosPromise; } catch(e){}
     // Restaurar paneles al final (después de capturar)
     const restorePanels = () => lazyPanels.forEach(pid => {
       const el = document.getElementById(pid);
@@ -2874,6 +3003,16 @@ function exportPDF(){
       <div class="g2">
         ${imgs.cv_flujo_ing ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv_flujo_ing}</div><img class="ci" src="${imgs.cv_flujo_ing}"></div>` : ''}
         ${imgs.cv_flujo_egr ? `<div class="chart-cell"><div class="chart-ttl">${titles.cv_flujo_egr}</div><img class="ci" src="${imgs.cv_flujo_egr}"></div>` : ''}
+      </div>
+    </div>` : ''}
+
+    ${(bancosImgs.saldo || bancosImgs.mov || bancosImgs.comp) ? `
+    <div class="sec page-break">
+      <div class="sec-t">ESTADO DE CUENTA BANCARIO</div>
+      ${bancosImgs.saldo ? `<div class="chart-cell"><div class="chart-ttl">🏦 Evolución del Saldo Bancario</div><img class="ci" src="${bancosImgs.saldo}"></div>` : ''}
+      <div class="g2">
+        ${bancosImgs.mov ? `<div class="chart-cell"><div class="chart-ttl">🔄 Cargos vs Abonos</div><img class="ci" src="${bancosImgs.mov}"></div>` : ''}
+        ${bancosImgs.comp ? `<div class="chart-cell"><div class="chart-ttl">🥧 Composición de Cargos</div><img class="ci" src="${bancosImgs.comp}"></div>` : ''}
       </div>
     </div>` : ''}
 
