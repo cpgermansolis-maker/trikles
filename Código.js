@@ -27,6 +27,8 @@ const SHEETS = {
   CXC:             'CxC',
   TRANSCRIPCIONES: 'Transcripciones',
   SOLICITUDES_TR:  'Solicitudes_Transcripcion',
+  CASOS:           'Casos_Denuncia',
+  ENTREVISTAS:     'Entrevistas_Denuncia',
 };
 
 // ── Claves de PropertiesService para API keys del transcriptor ────────────
@@ -97,6 +99,16 @@ function doGet(e) {
       case 'tr_list':            result = trList(p);                   break;
       case 'tr_get':             result = trGet(p);                    break;
       case 'tr_delete':          result = trDelete(p);                 break;
+      // ── Denuncias (casos + entrevistas) ──────────────────────
+      case 'caso_list':          result = casoList(p);                 break;
+      case 'caso_create':        result = casoCreate(p);               break;
+      case 'caso_get':           result = casoGet(p);                  break;
+      case 'caso_update':        result = casoUpdate(p);               break;
+      case 'caso_delete':        result = casoDelete(p);               break;
+      case 'caso_close':         result = casoClose(p);                break;
+      case 'caso_reopen':        result = casoReopen(p);               break;
+      case 'entrevista_add':     result = entrevistaAdd(p);            break;
+      case 'entrevista_delete':  result = entrevistaDelete(p);         break;
       case 'ping':
         result = { success: true, message: 'API TRIKLES activa v2.0' };
         break;
@@ -158,6 +170,10 @@ function doPost(e) {
       case 'editar_usuario':  result = editarUsuario(params); break;
       case 'tr_save':         result = trSave(params); break;
       case 'tr_setKeys':      result = trSetKeys(params); break;
+      case 'caso_create':     result = casoCreate(params); break;
+      case 'caso_update':     result = casoUpdate(params); break;
+      case 'caso_close':      result = casoClose(params); break;
+      case 'entrevista_add':  result = entrevistaAdd(params); break;
       default: result = { success: false, error: 'Acción no reconocida' };
     }
 
@@ -926,6 +942,31 @@ function setupSheets() {
     ]]);
     formatHeader(sh);
     creadas.push(SHEETS.SOLICITUDES_TR);
+  }
+
+  // ── Hoja: Casos de Denuncia ──────────────────────────────────────────
+  sh = getOrCreateSheet(ss, SHEETS.CASOS);
+  if (sh.getLastRow() === 0 || sh.getRange(1,1).getValue() === '') {
+    sh.getRange(1, 1, 1, 18).setValues([[
+      'ID','Numero','Empresa','FechaApertura','Denunciante','Denunciado',
+      'Descripcion','FolderDriveId','DenunciaDocId','DenunciaAudioId',
+      'Estado','AbiertoPor','CerradoPor','FechaCierre','DictamenDocId',
+      'DictamenVeredicto','DictamenResumen','Timestamp'
+    ]]);
+    formatHeader(sh);
+    creadas.push(SHEETS.CASOS);
+  }
+
+  // ── Hoja: Entrevistas de Denuncia ────────────────────────────────────
+  sh = getOrCreateSheet(ss, SHEETS.ENTREVISTAS);
+  if (sh.getLastRow() === 0 || sh.getRange(1,1).getValue() === '') {
+    sh.getRange(1, 1, 1, 13).setValues([[
+      'ID','CasoID','Numero','FechaEntrevista','Entrevistado','Rol',
+      'EntrevistadorUsuario','NotasPrevias','DocDriveId',
+      'DuracionSeg','TamanioMB','ResumenCorto','Timestamp'
+    ]]);
+    formatHeader(sh);
+    creadas.push(SHEETS.ENTREVISTAS);
   }
 
   return {
@@ -2405,4 +2446,590 @@ function trDelete(params) {
     }
   }
   return { success: false, error: 'Transcripción no encontrada' };
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// DENUNCIAS INTERNAS: CASOS + ENTREVISTAS + DICTAMEN
+// ════════════════════════════════════════════════════════════════════════
+// Helpers
+function _getDenunciasFolder(empresa){
+  const empFolder = _trGetEmpresaFolder(empresa);
+  const iter = empFolder.getFoldersByName('Denuncias');
+  if (iter.hasNext()) return iter.next();
+  return empFolder.createFolder('Denuncias');
+}
+
+function _getCasoFolder(empresa, casoNumero, descBreve){
+  const parent = _getDenunciasFolder(empresa);
+  const folderName = casoNumero + ' - ' + String(descBreve || '').slice(0, 60).replace(/[\\\/:*?"<>|]/g,' ').trim();
+  const iter = parent.getFoldersByName(folderName);
+  if (iter.hasNext()) return iter.next();
+  return parent.createFolder(folderName);
+}
+
+function _generarNumeroCaso(empresa){
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SHEETS.CASOS);
+  const anio = new Date().getFullYear();
+  let max = 0;
+  if (sheet && sheet.getLastRow() > 1){
+    const data = sheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++){
+      const n = String(data[i][1] || ''); // Numero
+      const emp = String(data[i][2] || '');
+      if (emp.toLowerCase() !== String(empresa).toLowerCase()) continue;
+      const m = n.match(/CASO-(\d{4})-(\d+)/);
+      if (m && parseInt(m[1]) === anio) max = Math.max(max, parseInt(m[2]));
+    }
+  }
+  return 'CASO-' + anio + '-' + String(max + 1).padStart(3, '0');
+}
+
+// Verifica que el usuario pueda ACCEDER al caso (SA=todos, Admin=su empresa con auth)
+function _casoCheckAccess(usuario, empresaDelCaso){
+  const auth = _trCheckAuth(usuario);
+  if (!auth.user) return { ok: false, error: auth.error || 'No autorizado' };
+  if (!auth.ok) return { ok: false, error: 'No tienes permiso para denuncias' };
+  if (auth.user.rol === 'SUPER_ADMIN') return { ok: true, user: auth.user };
+  // Admin autorizado: solo su empresa
+  if (empresaDelCaso && String(empresaDelCaso).toLowerCase() !== String(auth.user.empresa).toLowerCase()){
+    return { ok: false, error: 'Solo puedes ver casos de tu empresa' };
+  }
+  return { ok: true, user: auth.user };
+}
+
+// ── casoList: lista de casos visibles para el usuario
+function casoList(params){
+  const auth = _trCheckAuth(params.usuario);
+  if (!auth.ok) return { success: false, error: auth.error || 'No autorizado' };
+
+  const esSA = auth.user.rol === 'SUPER_ADMIN';
+  const empresaFiltro = String(params.empresa || '').trim();
+  const empresaUsar = esSA ? empresaFiltro : String(auth.user.empresa);
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SHEETS.CASOS);
+  if (!sheet || sheet.getLastRow() < 2) return { success: true, data: [] };
+
+  const data = sheet.getDataRange().getValues();
+  const rows = [];
+  for (let i = 1; i < data.length; i++){
+    const emp = String(data[i][2]);
+    if (empresaUsar && emp !== empresaUsar) continue;
+
+    // Contar entrevistas del caso
+    const casoId = String(data[i][0]);
+    const entSheet = ss.getSheetByName(SHEETS.ENTREVISTAS);
+    let nEnt = 0;
+    if (entSheet && entSheet.getLastRow() > 1){
+      const eData = entSheet.getDataRange().getValues();
+      for (let j = 1; j < eData.length; j++){
+        if (String(eData[j][1]) === casoId) nEnt++;
+      }
+    }
+
+    rows.push({
+      id:              data[i][0],
+      numero:          data[i][1],
+      empresa:         data[i][2],
+      fechaApertura:   data[i][3],
+      denunciante:     data[i][4],
+      denunciado:      data[i][5],
+      descripcion:     String(data[i][6] || '').slice(0, 200),
+      folderUrl:       data[i][7]  ? 'https://drive.google.com/drive/folders/' + data[i][7] : '',
+      estado:          data[i][10],
+      abiertoPor:      data[i][11],
+      cerradoPor:      data[i][12],
+      fechaCierre:     data[i][13],
+      dictamenUrl:     data[i][14] ? 'https://docs.google.com/document/d/' + data[i][14] + '/edit' : '',
+      dictamenVeredicto: data[i][15],
+      timestamp:       data[i][17],
+      nEntrevistas:    nEnt,
+    });
+  }
+  rows.sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)));
+  return { success: true, data: rows };
+}
+
+// ── casoCreate: crea caso nuevo + carpeta + Doc de denuncia inicial
+function casoCreate(params){
+  const auth = _trCheckAuth(params.usuario);
+  if (!auth.ok) return { success: false, error: auth.error || 'No autorizado' };
+
+  const empresa      = String(params.empresa || auth.user.empresa || '').trim();
+  const denunciante  = String(params.denunciante || '').trim() || 'ANONIMA';
+  const denunciado   = String(params.denunciado || '').trim();
+  const descripcion  = String(params.descripcion || '').trim();
+  const minutaAudio  = String(params.minutaAudio || '').trim();       // si hubo grabación al capturar
+  const transcripcionAudio = String(params.transcripcionAudio || ''); // transcripción de la grabación inicial
+
+  if (!empresa)     return { success: false, error: 'Empresa requerida' };
+  if (!denunciado)  return { success: false, error: 'Denunciado requerido (persona o área)' };
+  if (!descripcion) return { success: false, error: 'Descripción de la denuncia requerida' };
+
+  // Admin solo su empresa
+  if (auth.user.rol !== 'SUPER_ADMIN' &&
+      empresa.toLowerCase() !== String(auth.user.empresa).toLowerCase()){
+    return { success: false, error: 'Solo puedes abrir casos en tu empresa' };
+  }
+
+  const numero = _generarNumeroCaso(empresa);
+  const descBreve = descripcion.split('\n')[0].slice(0, 60);
+  const folder = _getCasoFolder(empresa, numero, descBreve);
+
+  // Crear Doc de denuncia inicial
+  const fecha = Utilities.formatDate(new Date(), 'America/Mexico_City', 'yyyy-MM-dd HH:mm');
+  const doc = DocumentApp.create(numero + ' - 00 Denuncia Inicial');
+  const body = doc.getBody();
+  body.appendParagraph(numero + ' — DENUNCIA INICIAL').setHeading(DocumentApp.ParagraphHeading.TITLE);
+  body.appendParagraph('Empresa: ' + empresa);
+  body.appendParagraph('Fecha de apertura: ' + fecha);
+  body.appendParagraph('Abierto por: ' + auth.user.nombre + ' (' + auth.user.usuario + ')');
+  body.appendHorizontalRule();
+  body.appendParagraph('Denunciante: ' + denunciante);
+  body.appendParagraph('Denunciado: ' + denunciado);
+  body.appendHorizontalRule();
+  body.appendParagraph('DESCRIPCIÓN DE LA DENUNCIA').setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  descripcion.split('\n').forEach(ln => body.appendParagraph(ln));
+  if (minutaAudio){
+    body.appendPageBreak();
+    body.appendParagraph('MINUTA DE LA DECLARACIÓN INICIAL DEL DENUNCIANTE').setHeading(DocumentApp.ParagraphHeading.HEADING1);
+    minutaAudio.split('\n').forEach(ln => body.appendParagraph(ln));
+  }
+  if (transcripcionAudio){
+    body.appendPageBreak();
+    body.appendParagraph('TRANSCRIPCIÓN COMPLETA DE LA DECLARACIÓN INICIAL').setHeading(DocumentApp.ParagraphHeading.HEADING1);
+    transcripcionAudio.split('\n').forEach(ln => body.appendParagraph(ln));
+  }
+  doc.saveAndClose();
+  const file = DriveApp.getFileById(doc.getId());
+  folder.addFile(file);
+  DriveApp.getRootFolder().removeFile(file);
+
+  // Registrar caso
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SHEETS.CASOS);
+  const id = Utilities.getUuid();
+  sheet.appendRow([
+    id, numero, empresa, fecha, denunciante, denunciado,
+    descripcion, folder.getId(), doc.getId(), '',
+    'ABIERTO', auth.user.usuario, '', '', '',
+    '', '', new Date().toISOString()
+  ]);
+
+  return {
+    success: true,
+    id: id,
+    numero: numero,
+    folderUrl: 'https://drive.google.com/drive/folders/' + folder.getId(),
+    docUrl: doc.getUrl(),
+    message: 'Caso ' + numero + ' abierto'
+  };
+}
+
+// ── casoGet: detalle del caso + todas las entrevistas
+function casoGet(params){
+  const auth = _trCheckAuth(params.usuario);
+  if (!auth.ok) return { success: false, error: auth.error || 'No autorizado' };
+
+  const id = String(params.id || '');
+  if (!id) return { success: false, error: 'ID requerido' };
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const shCasos = ss.getSheetByName(SHEETS.CASOS);
+  if (!shCasos) return { success: false, error: 'Hoja Casos no existe' };
+
+  const data = shCasos.getDataRange().getValues();
+  let caso = null;
+  let filaCaso = -1;
+  for (let i = 1; i < data.length; i++){
+    if (String(data[i][0]) === id){
+      caso = {
+        id:              data[i][0],
+        numero:          data[i][1],
+        empresa:         data[i][2],
+        fechaApertura:   data[i][3],
+        denunciante:     data[i][4],
+        denunciado:      data[i][5],
+        descripcion:     data[i][6],
+        folderId:        data[i][7],
+        denunciaDocId:   data[i][8],
+        denunciaAudioId: data[i][9],
+        estado:          data[i][10],
+        abiertoPor:      data[i][11],
+        cerradoPor:      data[i][12],
+        fechaCierre:     data[i][13],
+        dictamenDocId:   data[i][14],
+        dictamenVeredicto: data[i][15],
+        dictamenResumen: data[i][16],
+        timestamp:       data[i][17],
+      };
+      filaCaso = i + 1;
+      break;
+    }
+  }
+  if (!caso) return { success: false, error: 'Caso no encontrado' };
+
+  // Check acceso
+  if (auth.user.rol !== 'SUPER_ADMIN' &&
+      String(caso.empresa).toLowerCase() !== String(auth.user.empresa).toLowerCase()){
+    return { success: false, error: 'No tienes acceso a este caso' };
+  }
+
+  caso.folderUrl      = caso.folderId      ? 'https://drive.google.com/drive/folders/' + caso.folderId : '';
+  caso.denunciaDocUrl = caso.denunciaDocId ? 'https://docs.google.com/document/d/' + caso.denunciaDocId + '/edit' : '';
+  caso.dictamenDocUrl = caso.dictamenDocId ? 'https://docs.google.com/document/d/' + caso.dictamenDocId + '/edit' : '';
+
+  // Traer entrevistas del caso
+  const shEnt = ss.getSheetByName(SHEETS.ENTREVISTAS);
+  const entrevistas = [];
+  if (shEnt && shEnt.getLastRow() > 1){
+    const eData = shEnt.getDataRange().getValues();
+    for (let i = 1; i < eData.length; i++){
+      if (String(eData[i][1]) === id){
+        const docId = eData[i][8];
+        entrevistas.push({
+          id:             eData[i][0],
+          casoId:         eData[i][1],
+          numero:         eData[i][2],
+          fecha:          eData[i][3],
+          entrevistado:   eData[i][4],
+          rol:            eData[i][5],
+          entrevistadorUsuario: eData[i][6],
+          notasPrevias:   eData[i][7],
+          docId:          docId,
+          docUrl:         docId ? 'https://docs.google.com/document/d/' + docId + '/edit' : '',
+          duracionSeg:    eData[i][9],
+          tamanioMB:      eData[i][10],
+          resumen:        eData[i][11],
+          timestamp:      eData[i][12],
+        });
+      }
+    }
+    entrevistas.sort((a,b) => String(a.numero).localeCompare(String(b.numero)));
+  }
+
+  return { success: true, caso, entrevistas };
+}
+
+// ── casoUpdate: edita campos del caso (descripción, denunciante, denunciado)
+function casoUpdate(params){
+  const auth = _trCheckAuth(params.usuario);
+  if (!auth.ok) return { success: false, error: auth.error || 'No autorizado' };
+
+  const id = String(params.id || '');
+  if (!id) return { success: false, error: 'ID requerido' };
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SHEETS.CASOS);
+  if (!sheet) return { success: false, error: 'Hoja no existe' };
+
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++){
+    if (String(data[i][0]) === id){
+      const empresa = String(data[i][2]);
+      if (auth.user.rol !== 'SUPER_ADMIN' &&
+          empresa.toLowerCase() !== String(auth.user.empresa).toLowerCase()){
+        return { success: false, error: 'No tienes acceso a este caso' };
+      }
+      if (params.denunciante !== undefined) sheet.getRange(i+1, 5).setValue(params.denunciante);
+      if (params.denunciado  !== undefined) sheet.getRange(i+1, 6).setValue(params.denunciado);
+      if (params.descripcion !== undefined) sheet.getRange(i+1, 7).setValue(params.descripcion);
+      return { success: true, message: 'Caso actualizado' };
+    }
+  }
+  return { success: false, error: 'Caso no encontrado' };
+}
+
+// ── casoDelete: elimina caso y sus entrevistas (solo SuperAdmin)
+function casoDelete(params){
+  const auth = _trCheckAuth(params.usuario);
+  if (!auth.ok || auth.user.rol !== 'SUPER_ADMIN'){
+    return { success: false, error: 'Solo el SuperAdmin puede borrar casos' };
+  }
+  const id = String(params.id || '');
+  if (!id) return { success: false, error: 'ID requerido' };
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const shCasos = ss.getSheetByName(SHEETS.CASOS);
+  const shEnt = ss.getSheetByName(SHEETS.ENTREVISTAS);
+  if (!shCasos) return { success: false, error: 'Hoja Casos no existe' };
+
+  const data = shCasos.getDataRange().getValues();
+  let folderId = '';
+  for (let i = data.length - 1; i >= 1; i--){
+    if (String(data[i][0]) === id){
+      folderId = data[i][7];
+      shCasos.deleteRow(i + 1);
+      break;
+    }
+  }
+  // Borrar entrevistas asociadas
+  if (shEnt && shEnt.getLastRow() > 1){
+    const eData = shEnt.getDataRange().getValues();
+    for (let i = eData.length - 1; i >= 1; i--){
+      if (String(eData[i][1]) === id) shEnt.deleteRow(i + 1);
+    }
+  }
+  // Mover carpeta a papelera
+  if (folderId){
+    try { DriveApp.getFolderById(folderId).setTrashed(true); } catch(e) {}
+  }
+  return { success: true, message: 'Caso eliminado' };
+}
+
+// ── casoClose: cierra caso con dictamen (el dictamen viene procesado por Claude)
+function casoClose(params){
+  const auth = _trCheckAuth(params.usuario);
+  if (!auth.ok) return { success: false, error: auth.error || 'No autorizado' };
+
+  const id        = String(params.id || '');
+  const veredicto = String(params.veredicto || '').toUpperCase(); // PROCEDE | NO_PROCEDE | INCONCLUSO
+  const dictamen  = String(params.dictamen || '');
+  const resumen   = String(params.resumen || '').slice(0, 500);
+  if (!id) return { success: false, error: 'ID requerido' };
+  if (!['PROCEDE','NO_PROCEDE','INCONCLUSO'].includes(veredicto)){
+    return { success: false, error: 'Veredicto inválido (PROCEDE/NO_PROCEDE/INCONCLUSO)' };
+  }
+  if (!dictamen) return { success: false, error: 'Dictamen requerido' };
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SHEETS.CASOS);
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++){
+    if (String(data[i][0]) === id){
+      const empresa = String(data[i][2]);
+      const numero  = String(data[i][1]);
+      if (auth.user.rol !== 'SUPER_ADMIN' &&
+          empresa.toLowerCase() !== String(auth.user.empresa).toLowerCase()){
+        return { success: false, error: 'No tienes acceso a este caso' };
+      }
+
+      // Crear Doc del dictamen
+      const fecha = Utilities.formatDate(new Date(), 'America/Mexico_City', 'yyyy-MM-dd HH:mm');
+      const doc = DocumentApp.create(numero + ' - 99 DICTAMEN FINAL - ' + veredicto);
+      const body = doc.getBody();
+      body.appendParagraph(numero + ' — DICTAMEN FINAL').setHeading(DocumentApp.ParagraphHeading.TITLE);
+      const verLabel = veredicto === 'PROCEDE' ? '✅ PROCEDE' :
+                       veredicto === 'NO_PROCEDE' ? '❌ NO PROCEDE' : '⚠️ INCONCLUSO';
+      const p = body.appendParagraph('Veredicto: ' + verLabel);
+      p.setHeading(DocumentApp.ParagraphHeading.HEADING1);
+      body.appendParagraph('Empresa: ' + empresa);
+      body.appendParagraph('Fecha de cierre: ' + fecha);
+      body.appendParagraph('Cerrado por: ' + auth.user.nombre + ' (' + auth.user.usuario + ')');
+      body.appendHorizontalRule();
+      dictamen.split('\n').forEach(ln => body.appendParagraph(ln));
+      doc.saveAndClose();
+
+      // Mover Doc a la carpeta del caso
+      const folderId = data[i][7];
+      if (folderId){
+        try {
+          const folder = DriveApp.getFolderById(folderId);
+          const file = DriveApp.getFileById(doc.getId());
+          folder.addFile(file);
+          DriveApp.getRootFolder().removeFile(file);
+        } catch(e) {}
+      }
+
+      // Actualizar la fila
+      const estado = 'CERRADO_' + veredicto;
+      sheet.getRange(i+1, 11).setValue(estado);            // Estado
+      sheet.getRange(i+1, 13).setValue(auth.user.usuario); // CerradoPor
+      sheet.getRange(i+1, 14).setValue(fecha);             // FechaCierre
+      sheet.getRange(i+1, 15).setValue(doc.getId());       // DictamenDocId
+      sheet.getRange(i+1, 16).setValue(veredicto);         // DictamenVeredicto
+      sheet.getRange(i+1, 17).setValue(resumen);           // DictamenResumen
+
+      return {
+        success: true,
+        docId: doc.getId(),
+        docUrl: doc.getUrl(),
+        estado: estado,
+        message: 'Caso cerrado con veredicto ' + veredicto
+      };
+    }
+  }
+  return { success: false, error: 'Caso no encontrado' };
+}
+
+// ── casoReopen: reabrir un caso cerrado
+function casoReopen(params){
+  const auth = _trCheckAuth(params.usuario);
+  if (!auth.ok) return { success: false, error: auth.error || 'No autorizado' };
+
+  const id = String(params.id || '');
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SHEETS.CASOS);
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++){
+    if (String(data[i][0]) === id){
+      const empresa = String(data[i][2]);
+      if (auth.user.rol !== 'SUPER_ADMIN' &&
+          empresa.toLowerCase() !== String(auth.user.empresa).toLowerCase()){
+        return { success: false, error: 'No tienes acceso a este caso' };
+      }
+      sheet.getRange(i+1, 11).setValue('EN_INVESTIGACION');
+      sheet.getRange(i+1, 13).setValue('');
+      sheet.getRange(i+1, 14).setValue('');
+      return { success: true, message: 'Caso reabierto' };
+    }
+  }
+  return { success: false, error: 'Caso no encontrado' };
+}
+
+// ── entrevistaAdd: agrega entrevista al caso (minuta ya viene del cliente)
+function entrevistaAdd(params){
+  const auth = _trCheckAuth(params.usuario);
+  if (!auth.ok) return { success: false, error: auth.error || 'No autorizado' };
+
+  const casoId       = String(params.casoId || '');
+  const entrevistado = String(params.entrevistado || '').trim();
+  const rol          = String(params.rol || '').toUpperCase();
+  const notasPrev    = String(params.notasPrevias || '');
+  const minuta       = String(params.minuta || '');
+  const transcripcion= String(params.transcripcion || '');
+  const duracionSeg  = parseInt(params.duracionSeg) || 0;
+  const tamanioMB    = parseFloat(params.tamanioMB) || 0;
+  const resumen      = String(params.resumen || '').slice(0, 500);
+
+  if (!casoId)       return { success: false, error: 'CasoID requerido' };
+  if (!entrevistado) return { success: false, error: 'Entrevistado requerido' };
+  if (!['DENUNCIANTE','DENUNCIADO','TESTIGO','INVOLUCRADO'].includes(rol)){
+    return { success: false, error: 'Rol inválido' };
+  }
+  if (!minuta && !transcripcion) return { success: false, error: 'Sin contenido que guardar' };
+
+  // Traer caso
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const shCasos = ss.getSheetByName(SHEETS.CASOS);
+  const data = shCasos.getDataRange().getValues();
+  let caso = null; let filaCaso = -1;
+  for (let i = 1; i < data.length; i++){
+    if (String(data[i][0]) === casoId){
+      caso = {
+        empresa: String(data[i][2]), numero: String(data[i][1]),
+        folderId: data[i][7], estado: data[i][10]
+      };
+      filaCaso = i + 1;
+      break;
+    }
+  }
+  if (!caso) return { success: false, error: 'Caso no encontrado' };
+
+  if (auth.user.rol !== 'SUPER_ADMIN' &&
+      caso.empresa.toLowerCase() !== String(auth.user.empresa).toLowerCase()){
+    return { success: false, error: 'No tienes acceso a este caso' };
+  }
+  if (String(caso.estado).startsWith('CERRADO_')){
+    return { success: false, error: 'El caso está cerrado. Reábrelo antes de agregar entrevistas.' };
+  }
+
+  // Calcular número de entrevista
+  const shEnt = ss.getSheetByName(SHEETS.ENTREVISTAS);
+  let max = 0;
+  if (shEnt && shEnt.getLastRow() > 1){
+    const eData = shEnt.getDataRange().getValues();
+    for (let j = 1; j < eData.length; j++){
+      if (String(eData[j][1]) === casoId){
+        const n = parseInt(String(eData[j][2]).replace(/^0+/,'')) || 0;
+        max = Math.max(max, n);
+      }
+    }
+  }
+  const numero = String(max + 1).padStart(2, '0');
+
+  // Crear Doc
+  const fecha = Utilities.formatDate(new Date(), 'America/Mexico_City', 'yyyy-MM-dd HH:mm');
+  const docName = caso.numero + ' - ' + numero + ' Entrevista ' + rol + ' - ' + entrevistado;
+  const doc = DocumentApp.create(docName);
+  const body = doc.getBody();
+  body.appendParagraph(caso.numero + ' — ENTREVISTA ' + numero).setHeading(DocumentApp.ParagraphHeading.TITLE);
+  body.appendParagraph('Entrevistado: ' + entrevistado + ' (rol: ' + rol + ')');
+  body.appendParagraph('Fecha: ' + fecha);
+  body.appendParagraph('Entrevistador: ' + auth.user.nombre + ' (' + auth.user.usuario + ')');
+  if (notasPrev){
+    body.appendHorizontalRule();
+    body.appendParagraph('NOTAS PREVIAS').setHeading(DocumentApp.ParagraphHeading.HEADING2);
+    notasPrev.split('\n').forEach(ln => body.appendParagraph(ln));
+  }
+  body.appendHorizontalRule();
+  body.appendParagraph('MINUTA DE LA ENTREVISTA').setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  minuta.split('\n').forEach(ln => body.appendParagraph(ln));
+  if (transcripcion){
+    body.appendPageBreak();
+    body.appendParagraph('TRANSCRIPCIÓN COMPLETA').setHeading(DocumentApp.ParagraphHeading.HEADING1);
+    transcripcion.split('\n').forEach(ln => body.appendParagraph(ln));
+  }
+  doc.saveAndClose();
+
+  // Mover a la carpeta del caso
+  if (caso.folderId){
+    try {
+      const folder = DriveApp.getFolderById(caso.folderId);
+      const file = DriveApp.getFileById(doc.getId());
+      folder.addFile(file);
+      DriveApp.getRootFolder().removeFile(file);
+    } catch(e) {}
+  }
+
+  // Registrar entrevista
+  const id = Utilities.getUuid();
+  shEnt.appendRow([
+    id, casoId, numero, fecha, entrevistado, rol,
+    auth.user.usuario, notasPrev, doc.getId(),
+    duracionSeg, tamanioMB, resumen, new Date().toISOString()
+  ]);
+
+  // Actualizar estado del caso a EN_INVESTIGACION si estaba ABIERTO
+  if (caso.estado === 'ABIERTO') shCasos.getRange(filaCaso, 11).setValue('EN_INVESTIGACION');
+
+  return {
+    success: true,
+    id: id,
+    numero: numero,
+    docId: doc.getId(),
+    docUrl: doc.getUrl(),
+    message: 'Entrevista ' + numero + ' agregada'
+  };
+}
+
+// ── entrevistaDelete: borrar una entrevista
+function entrevistaDelete(params){
+  const auth = _trCheckAuth(params.usuario);
+  if (!auth.ok) return { success: false, error: auth.error || 'No autorizado' };
+
+  const id = String(params.id || '');
+  if (!id) return { success: false, error: 'ID requerido' };
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const shEnt = ss.getSheetByName(SHEETS.ENTREVISTAS);
+  if (!shEnt) return { success: false, error: 'Hoja Entrevistas no existe' };
+
+  const data = shEnt.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++){
+    if (String(data[i][0]) === id){
+      const casoId = String(data[i][1]);
+      const creador = String(data[i][6]);
+      // Validar acceso: el caso debe ser de la empresa del admin, o ser SA
+      const shCasos = ss.getSheetByName(SHEETS.CASOS);
+      const cData = shCasos.getDataRange().getValues();
+      let empresaCaso = '';
+      for (let j = 1; j < cData.length; j++){
+        if (String(cData[j][0]) === casoId){ empresaCaso = String(cData[j][2]); break; }
+      }
+      const esCreador = creador.toLowerCase() === String(auth.user.usuario).toLowerCase();
+      const esSA = auth.user.rol === 'SUPER_ADMIN';
+      const mismaEmpresa = empresaCaso.toLowerCase() === String(auth.user.empresa).toLowerCase();
+      if (!esSA && !(esCreador && mismaEmpresa)){
+        return { success: false, error: 'Solo el SuperAdmin o quien creó la entrevista puede borrarla' };
+      }
+      // Mover Doc a papelera
+      const docId = data[i][8];
+      if (docId){ try { DriveApp.getFileById(docId).setTrashed(true); } catch(e) {} }
+      shEnt.deleteRow(i + 1);
+      return { success: true, message: 'Entrevista eliminada' };
+    }
+  }
+  return { success: false, error: 'Entrevista no encontrada' };
 }

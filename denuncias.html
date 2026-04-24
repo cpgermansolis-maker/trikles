@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TRIKLES — 🔒 Denuncias Internas</title>
+<style>
+:root{
+  --red:#e74c3c; --red2:#c0392b; --redL:rgba(231,76,60,.12);
+  --orange:#F5821F; --purple:#9b59b6; --purple2:#b979d1;
+  --white:#f0f0f0; --gray:#555; --light:#999;
+  --green:#2ecc71; --blue:#3498db; --yellow:#f1c40f;
+  --dark:#0c0c0c; --panel:#161616; --border:rgba(231,76,60,.22);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-system,sans-serif;min-height:100vh}
+
+/* TOPBAR */
+.topbar{background:linear-gradient(135deg,#080808,#161616);border-bottom:3px solid var(--red);display:flex;align-items:center;justify-content:space-between;padding:12px 28px;position:sticky;top:0;z-index:300}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.topbar-logo{height:44px}
+.topbar-name{font-size:22px;letter-spacing:4px;color:var(--red);font-weight:800}
+.topbar-sub{font-size:10px;color:var(--gray);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.btn-nav{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--light);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+.btn-nav:hover{background:rgba(231,76,60,.12);border-color:var(--red)}
+.btn-out{background:none;border:1px solid rgba(230,57,70,.45);color:#e63946;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700}
+.btn-out:hover{background:rgba(230,57,70,.1)}
+.hamburger{display:none;background:none;border:none;flex-direction:column;gap:4px;cursor:pointer;padding:6px;z-index:400}
+.hamburger span{display:block;width:22px;height:2px;background:var(--red);transition:.2s}
+.mobile-nav{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.96);z-index:350;flex-direction:column;align-items:center;justify-content:flex-start;gap:14px;padding:60px 16px 24px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.mobile-nav.open{display:flex}
+.mobile-nav .btn-nav{font-size:16px;padding:12px 32px;width:min(240px,82vw);justify-content:center;flex-shrink:0}
+.mobile-nav .btn-out{font-size:16px;padding:12px 32px;width:min(240px,82vw);flex-shrink:0}
+.mobile-nav-close{position:absolute;top:20px;right:20px;background:none;border:none;color:var(--red);font-size:28px;cursor:pointer}
+
+/* MAIN */
+.main{max-width:1200px;margin:0 auto;padding:24px 18px}
+.page-title{font-size:22px;font-weight:800;color:var(--red);letter-spacing:1px}
+.page-sub{font-size:12px;color:var(--gray);margin-top:4px;margin-bottom:24px}
+
+/* Buttons */
+.btn-primary{background:linear-gradient(135deg,var(--red),var(--red2));border:none;color:#fff;padding:10px 24px;border-radius:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;display:inline-flex;align-items:center;gap:8px;transition:.2s;text-decoration:none}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(231,76,60,.35)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-primary.purple{background:linear-gradient(135deg,var(--purple),#6c3483)}
+.btn-primary.purple:hover{box-shadow:0 6px 18px rgba(155,89,182,.35)}
+.btn-primary.green{background:linear-gradient(135deg,var(--green),#229954)}
+.btn-primary.green:hover{box-shadow:0 6px 18px rgba(46,204,113,.35)}
+.btn-secondary{background:#222;border:1px solid #444;color:#ccc;padding:10px 20px;border-radius:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px}
+.btn-secondary:hover{background:#2a2a2a}
+
+/* Toolbar */
+.toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:18px;padding:14px;background:var(--panel);border:1px solid #222;border-radius:12px}
+.toolbar-left{display:flex;gap:8px;align-items:center;flex:1;min-width:220px}
+.toolbar-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.search-inp{background:#0c0c0c;border:1px solid #2a2a2a;color:#fff;padding:9px 12px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;outline:none;flex:1;max-width:320px}
+.search-inp:focus{border-color:var(--red)}
+.filter-sel{background:#0c0c0c;border:1px solid #2a2a2a;color:#fff;padding:9px 12px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;cursor:pointer;outline:none}
+.filter-sel:focus{border-color:var(--red)}
+
+/* Card de caso */
+.case-card{background:var(--panel);border:1px solid #222;border-radius:12px;padding:18px;margin-bottom:12px;cursor:pointer;transition:.2s;border-left:4px solid #333}
+.case-card:hover{border-color:var(--red);background:#1a1a1a}
+.case-card.abierto{border-left-color:var(--yellow)}
+.case-card.investigacion{border-left-color:var(--blue)}
+.case-card.procede{border-left-color:var(--green)}
+.case-card.no_procede{border-left-color:var(--red)}
+.case-card.inconcluso{border-left-color:var(--gray);filter:saturate(.7)}
+.case-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+.case-num{font-family:'Courier New',monospace;font-weight:800;color:var(--red);font-size:14px;letter-spacing:1px}
+.case-badge{padding:3px 10px;font-size:10px;font-weight:800;border-radius:12px;text-transform:uppercase;letter-spacing:1px}
+.case-badge.abierto{background:rgba(241,196,15,.15);color:var(--yellow);border:1px solid var(--yellow)}
+.case-badge.investigacion{background:rgba(52,152,219,.15);color:var(--blue);border:1px solid var(--blue)}
+.case-badge.procede{background:rgba(46,204,113,.15);color:var(--green);border:1px solid var(--green)}
+.case-badge.no_procede{background:rgba(231,76,60,.15);color:var(--red);border:1px solid var(--red)}
+.case-badge.inconcluso{background:rgba(150,150,150,.15);color:#aaa;border:1px solid #666}
+.case-desc{font-size:13px;color:#ddd;line-height:1.5;margin-bottom:8px}
+.case-meta{display:flex;gap:16px;font-size:11px;color:var(--gray);flex-wrap:wrap}
+.case-meta span{display:inline-flex;align-items:center;gap:4px}
+.case-empty{padding:60px;text-align:center;color:var(--gray);background:var(--panel);border:1px solid #222;border-radius:12px}
+
+/* Detalle del caso */
+.detail-header{background:var(--panel);border:1px solid #222;border-radius:12px;padding:18px;margin-bottom:16px;border-left:4px solid var(--red)}
+.detail-nav{display:flex;gap:10px;align-items:center;font-size:12px;color:var(--gray);margin-bottom:12px}
+.detail-nav a{color:var(--red);text-decoration:none;cursor:pointer}
+.detail-nav a:hover{text-decoration:underline}
+.detail-row{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px}
+.detail-field{flex:1;min-width:180px}
+.detail-field label{display:block;font-size:10px;color:var(--light);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.detail-field .val{font-size:13px;color:var(--white);font-weight:600}
+.detail-desc{background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:12px;margin-top:12px;font-size:13px;color:#ddd;line-height:1.6;white-space:pre-wrap}
+.card{background:var(--panel);border:1px solid #222;border-radius:12px;padding:18px;margin-bottom:16px}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap}
+.card-ttl{font-size:14px;font-weight:800;color:var(--red);letter-spacing:.5px}
+
+/* Entrevista list */
+.ent-row{display:grid;grid-template-columns:36px 1fr auto;gap:12px;padding:12px;border-bottom:1px solid #1f1f1f;align-items:center}
+.ent-row:last-child{border-bottom:none}
+.ent-num{background:var(--red);color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;font-family:'Courier New',monospace}
+.ent-main{min-width:0}
+.ent-ttl{font-weight:700;font-size:13px;color:var(--white);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ent-rol{padding:2px 8px;font-size:9px;font-weight:800;border-radius:10px;letter-spacing:1px}
+.ent-rol.DENUNCIANTE{background:rgba(241,196,15,.15);color:var(--yellow);border:1px solid var(--yellow)}
+.ent-rol.DENUNCIADO{background:rgba(231,76,60,.15);color:var(--red);border:1px solid var(--red)}
+.ent-rol.TESTIGO{background:rgba(52,152,219,.15);color:var(--blue);border:1px solid var(--blue)}
+.ent-rol.INVOLUCRADO{background:rgba(155,89,182,.15);color:var(--purple2);border:1px solid var(--purple)}
+.ent-meta{font-size:11px;color:var(--gray);margin-top:4px}
+.ent-act{display:flex;gap:6px}
+.btn-sm{padding:6px 10px;font-size:11px;border-radius:6px;border:1px solid;cursor:pointer;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;background:transparent}
+.btn-sm-open{background:rgba(52,152,219,.12);border-color:rgba(52,152,219,.5);color:var(--blue)}
+.btn-sm-del{background:rgba(231,76,60,.1);border-color:rgba(231,76,60,.4);color:var(--red)}
+.empty-list{padding:24px;text-align:center;color:var(--gray);font-size:13px}
+
+/* Dictamen */
+.dictamen-box{border-radius:12px;padding:20px;margin-bottom:16px}
+.dictamen-box.procede{background:rgba(46,204,113,.08);border:2px solid var(--green)}
+.dictamen-box.no_procede{background:rgba(231,76,60,.08);border:2px solid var(--red)}
+.dictamen-box.inconcluso{background:rgba(150,150,150,.08);border:2px solid #777}
+.dictamen-head{display:flex;gap:14px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.dictamen-badge{font-size:20px;font-weight:900;padding:8px 20px;border-radius:12px;letter-spacing:2px}
+.dictamen-box.procede .dictamen-badge{background:var(--green);color:#fff}
+.dictamen-box.no_procede .dictamen-badge{background:var(--red);color:#fff}
+.dictamen-box.inconcluso .dictamen-badge{background:#777;color:#fff}
+.dictamen-text{background:#0a0a0a;border:1px solid #2a2a2a;border-radius:8px;padding:14px;font-size:13px;line-height:1.7;color:#ddd;white-space:pre-wrap;max-height:600px;overflow-y:auto}
+
+/* Form (modales) */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:#141414;border:1px solid var(--border);border-radius:14px;padding:24px;max-width:620px;width:100%;max-height:92vh;overflow-y:auto}
+.modal-ttl{font-size:16px;font-weight:800;color:var(--red);margin-bottom:12px;letter-spacing:.5px}
+.modal-txt{font-size:12px;color:var(--gray);line-height:1.6;margin-bottom:14px}
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.fg label{font-size:11px;color:var(--light);text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.fg input,.fg select,.fg textarea{background:#0c0c0c;border:1px solid #2a2a2a;color:#fff;padding:10px 12px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;outline:none;transition:.2s}
+.fg textarea{min-height:90px;resize:vertical}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(231,76,60,.12)}
+.fg-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.fg-grid{grid-template-columns:1fr}}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+
+/* Drop zone y recording (copia del transcriptor) */
+.dropzone{border:2px dashed #3a3a3a;border-radius:12px;padding:28px 16px;text-align:center;cursor:pointer;background:#0a0a0a;transition:.2s;margin-bottom:12px}
+.dropzone:hover,.dropzone.drag{border-color:var(--red);background:rgba(231,76,60,.05)}
+.dz-ico{font-size:32px;margin-bottom:6px}
+.dz-ttl{font-size:13px;font-weight:800;color:var(--white);margin-bottom:3px}
+.dz-txt{font-size:11px;color:var(--gray)}
+.dz-file{font-size:12px;color:var(--red);margin-top:8px;font-weight:700}
+.or-divider{text-align:center;color:var(--gray);font-size:11px;letter-spacing:4px;margin:12px 0;position:relative}
+.or-divider::before,.or-divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:#2a2a2a}
+.or-divider::before{left:0} .or-divider::after{right:0}
+.rec-zone{border:2px solid #2a2a2a;border-radius:12px;padding:20px 14px;background:#0a0a0a;text-align:center;transition:.2s}
+.rec-zone.active{border-color:var(--red);background:rgba(231,76,60,.05)}
+.rec-btn-start{background:linear-gradient(135deg,var(--red),var(--red2));border:none;color:#fff;padding:10px 22px;border-radius:10px;cursor:pointer;font-weight:800;font-size:12px;display:inline-flex;align-items:center;gap:8px}
+.rec-btn-start:hover{transform:translateY(-1px)}
+.rec-indicator{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:20px;background:rgba(231,76,60,.15);border:1px solid var(--red);font-size:10px;font-weight:800;color:var(--red);letter-spacing:2px;margin-bottom:8px}
+.rec-indicator.paused{background:rgba(241,196,15,.15);border-color:var(--yellow);color:var(--yellow)}
+.rec-pulse{width:8px;height:8px;border-radius:50%;background:var(--red);animation:recPulse 1s infinite}
+.rec-indicator.paused .rec-pulse{animation:none;background:var(--yellow)}
+@keyframes recPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.85)}}
+.rec-time{font-size:32px;font-weight:900;color:var(--white);letter-spacing:4px;font-family:'Courier New',monospace;margin:6px 0}
+.rec-meter{height:5px;background:#1a1a1a;border-radius:3px;overflow:hidden;margin:8px auto;max-width:260px;border:1px solid #2a2a2a}
+.rec-meter-bar{height:100%;background:linear-gradient(90deg,var(--green),var(--yellow),var(--red));width:0%;transition:width .1s}
+.rec-controls{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+
+/* Progress (compartido) */
+.progress{background:#0c0c0c;border:1px solid #2a2a2a;border-radius:10px;padding:14px;margin-top:12px;display:none}
+.progress.on{display:block}
+.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:12px}
+.prog-dot{width:16px;height:16px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;font-size:10px;color:#888;flex-shrink:0}
+.prog-dot.on{background:rgba(231,76,60,.2);color:var(--red);animation:pulse 1.4s infinite}
+.prog-dot.ok{background:var(--green);color:#fff}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.4)}50%{box-shadow:0 0 0 6px rgba(231,76,60,0)}}
+.prog-bar{height:4px;background:#222;border-radius:2px;overflow:hidden;margin-top:6px}
+.prog-bar-fill{height:100%;background:linear-gradient(90deg,var(--red),#ff6b6b);width:0%;transition:width .3s;border-radius:2px}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:14px 18px;color:#fff;font-size:13px;display:flex;align-items:flex-start;gap:10px;max-width:360px;z-index:600;transform:translateX(400px);transition:transform .3s;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.toast.show{transform:translateX(0)}
+.toast.success{border-left:4px solid var(--green)}
+.toast.error{border-left:4px solid var(--red)}
+.toast.info{border-left:4px solid var(--blue)}
+.toast.warning{border-left:4px solid var(--yellow)}
+.t-title{font-weight:800;font-size:13px;margin-bottom:2px}
+.t-msg{font-size:12px;color:#ccc}
+
+/* Promo (sin autorización) */
+.promo-hero{background:linear-gradient(135deg,rgba(231,76,60,.15),rgba(155,89,182,.05));border:1px solid var(--border);border-radius:16px;padding:36px 28px;text-align:center;margin-bottom:24px}
+.promo-hero-emoji{font-size:56px;margin-bottom:12px}
+.promo-hero-ttl{font-size:24px;font-weight:800;color:var(--red);margin-bottom:10px;letter-spacing:1px}
+.promo-hero-sub{font-size:14px;color:#ccc;max-width:640px;margin:0 auto;line-height:1.6}
+.promo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:24px}
+.promo-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px}
+.promo-card-ico{font-size:28px;margin-bottom:8px}
+.promo-card-ttl{font-size:14px;font-weight:800;color:var(--red);margin-bottom:6px}
+.promo-card-txt{font-size:12px;color:#bbb;line-height:1.6}
+.promo-cta{background:rgba(231,76,60,.06);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center}
+.promo-cta-ttl{font-size:16px;font-weight:800;color:var(--white);margin-bottom:6px}
+.promo-cta-sub{font-size:12px;color:var(--gray);margin-bottom:16px}
+
+/* Loading */
+.loading-box{padding:60px;text-align:center;color:var(--gray)}
+.spinner{width:24px;height:24px;border:3px solid rgba(231,76,60,.3);border-top-color:var(--red);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Responsive */
+@media(max-width:768px){
+  .hamburger{display:flex}
+  .topbar-right > .btn-nav,.topbar-right > .btn-out{display:none}
+  .topbar{padding:10px 14px}
+  .topbar-name{font-size:15px;letter-spacing:2px}
+  .topbar-logo{height:32px}
+  .main{padding:16px 12px}
+  .ent-row{grid-template-columns:30px 1fr;gap:10px}
+  .ent-act{grid-column:2;justify-content:flex-start}
+  .detail-row{gap:12px}
+}
+</style>
+<link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <img class="topbar-logo" src="https://drive.google.com/thumbnail?id=1V0WQV5mzAmKg7TYpQSl4V_vCd4D2jVX7&sz=w200" alt="Trikles" onerror="this.style.display='none'">
+    <div>
+      <div class="topbar-name" id="tbName">TRIKLES</div>
+      <div class="topbar-sub">🔒 DENUNCIAS INTERNAS</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+    <a class="btn-nav" href="dashboard.html">📊 Dashboard</a>
+    <a class="btn-nav" href="transcripcion.html">🎙️ Transcribir</a>
+    <a class="btn-nav" href="panel.html" id="lnkPanel" style="display:none">⚙️ Panel</a>
+    <button class="btn-out" onclick="logout()">Salir ✕</button>
+  </div>
+</header>
+
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-close" onclick="toggleMenu()">✕</button>
+  <a href="dashboard.html" class="btn-nav">📊 Dashboard</a>
+  <a href="transcripcion.html" class="btn-nav">🎙️ Transcribir</a>
+  <a href="panel.html" class="btn-nav" id="mNavPanel" style="display:none">⚙️ Panel</a>
+  <a href="manual.html" class="btn-nav">❓ Ayuda</a>
+  <button class="btn-out" onclick="logout()">Salir ✕</button>
+</div>
+
+<main class="main">
+
+  <!-- Loader inicial -->
+  <div id="initialLoader" class="loading-box">
+    <div class="spinner"></div>
+    Verificando acceso...
+  </div>
+
+  <!-- PROMO (sin autorización) -->
+  <div id="promo" style="display:none">
+    <div class="promo-hero">
+      <div class="promo-hero-emoji">🔒</div>
+      <div class="promo-hero-ttl">Investigaciones de Denuncias Internas</div>
+      <div class="promo-hero-sub">Gestiona casos completos de denuncia con rigor, confidencialidad y dictámenes objetivos respaldados por IA.</div>
+    </div>
+    <div class="promo-grid">
+      <div class="promo-card"><div class="promo-card-ico">📂</div><div class="promo-card-ttl">Casos con ciclo de vida</div><div class="promo-card-txt">De la denuncia inicial al dictamen final, cada caso queda con su expediente completo en Drive.</div></div>
+      <div class="promo-card"><div class="promo-card-ico">🎤</div><div class="promo-card-ttl">Entrevistas documentadas</div><div class="promo-card-txt">Cada declaración se graba, transcribe y minuta de forma objetiva, sin calificativos.</div></div>
+      <div class="promo-card"><div class="promo-card-ico">⚖️</div><div class="promo-card-ttl">Dictamen con IA</div><div class="promo-card-txt">Al cerrar el caso, Claude analiza toda la evidencia y emite veredicto: procede / no procede / inconcluso.</div></div>
+      <div class="promo-card"><div class="promo-card-ico">🔍</div><div class="promo-card-ttl">Análisis cruzado</div><div class="promo-card-txt">Detecta contradicciones entre testimonios, hechos probados y no probados, sin sesgo humano.</div></div>
+      <div class="promo-card"><div class="promo-card-ico">🛡️</div><div class="promo-card-ttl">Confidencial por diseño</div><div class="promo-card-txt">Admins ven solo los casos de su empresa; el SuperAdmin supervisa todo el sistema.</div></div>
+      <div class="promo-card"><div class="promo-card-ico">📁</div><div class="promo-card-ttl">Expediente en Drive</div><div class="promo-card-txt">Cada caso crea su carpeta con: denuncia inicial, entrevistas numeradas y dictamen final.</div></div>
+    </div>
+    <div class="promo-cta">
+      <div class="promo-cta-ttl">🔐 ¿Necesitas acceso?</div>
+      <div class="promo-cta-sub">Usa el mismo permiso que el módulo de transcripción. Solicítalo al SuperAdmin desde allí.</div>
+      <a class="btn-primary purple" href="transcripcion.html">🎙️ Ir a solicitar acceso</a>
+    </div>
+  </div>
+
+  <!-- VISTA: LISTA DE CASOS -->
+  <div id="viewList" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px">
+      <div>
+        <div class="page-title">🔒 Denuncias Internas</div>
+        <div class="page-sub">Gestión confidencial de casos e investigaciones</div>
+      </div>
+      <button class="btn-primary" onclick="openNewCaseModal()">➕ Abrir nuevo caso</button>
+    </div>
+
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <input type="text" id="listSearch" class="search-inp" placeholder="Buscar por número, denunciante, denunciado..." oninput="renderList()">
+      </div>
+      <div class="toolbar-right">
+        <select id="listEmpresaFilter" class="filter-sel" style="display:none" onchange="loadCases()"></select>
+        <select id="listEstadoFilter" class="filter-sel" onchange="renderList()">
+          <option value="">Todos los estados</option>
+          <option value="ABIERTO">🟡 Abierto</option>
+          <option value="EN_INVESTIGACION">🔵 En investigación</option>
+          <option value="CERRADO_PROCEDE">✅ Procede</option>
+          <option value="CERRADO_NO_PROCEDE">❌ No procede</option>
+          <option value="CERRADO_INCONCLUSO">⚠️ Inconcluso</option>
+        </select>
+        <button class="btn-secondary" onclick="loadCases()" style="padding:9px 14px">🔄</button>
+      </div>
+    </div>
+
+    <div id="listContent"><div class="loading-box"><div class="spinner"></div>Cargando casos...</div></div>
+  </div>
+
+  <!-- VISTA: DETALLE DEL CASO -->
+  <div id="viewDetail" style="display:none"></div>
+
+</main>
+
+<!-- ═══ MODAL: Nuevo caso ═══ -->
+<div class="modal-bg" id="modalNewCase">
+  <div class="modal">
+    <div class="modal-ttl">📂 Abrir nuevo caso</div>
+    <div class="modal-txt">Captura los datos iniciales de la denuncia. Opcionalmente puedes grabar o subir la declaración del denunciante en este mismo paso.</div>
+
+    <div class="fg" id="newCaseEmpresaWrap" style="display:none">
+      <label>Empresa *</label>
+      <select id="newCaseEmpresa"></select>
+    </div>
+
+    <div class="fg-grid">
+      <div class="fg">
+        <label>Denunciante</label>
+        <input type="text" id="newCaseDenunciante" placeholder='Deja vacío si es anónima'>
+      </div>
+      <div class="fg">
+        <label>Denunciado *</label>
+        <input type="text" id="newCaseDenunciado" placeholder="Nombre, puesto o área">
+      </div>
+    </div>
+    <div class="fg">
+      <label>Descripción de la denuncia *</label>
+      <textarea id="newCaseDescripcion" placeholder="Qué se denuncia, contexto, fechas aproximadas, lugares..."></textarea>
+    </div>
+
+    <!-- Opcional: adjuntar grabación inicial del denunciante -->
+    <details style="margin-bottom:12px;padding:12px;background:#0c0c0c;border:1px solid #222;border-radius:8px">
+      <summary style="cursor:pointer;font-size:12px;color:var(--gray);font-weight:700">🎤 ¿Tienes una grabación / audio inicial del denunciante? (opcional)</summary>
+      <div style="margin-top:12px">
+        <div class="dropzone" id="newCaseDropzone" onclick="document.getElementById('newCaseAudioInp').click()">
+          <div class="dz-ico">🎵</div>
+          <div class="dz-ttl">Arrastra el audio aquí o haz clic</div>
+          <div class="dz-file" id="newCaseDzFile"></div>
+          <input type="file" id="newCaseAudioInp" accept="audio/*" style="display:none" onchange="onNewCaseFileSelected(event)">
+        </div>
+        <div class="or-divider">— o —</div>
+        <div class="rec-zone" id="newCaseRecZone">
+          <div id="newCaseRecIdle">
+            <button class="rec-btn-start" onclick="startRecordingNewCase()">● Grabar declaración</button>
+          </div>
+          <div id="newCaseRecActive" style="display:none">
+            <div class="rec-indicator" id="newCaseRecIndicator"><span class="rec-pulse"></span><span id="newCaseRecStateLbl">GRABANDO</span></div>
+            <div class="rec-time" id="newCaseRecTimer">00:00:00</div>
+            <div class="rec-meter"><div class="rec-meter-bar" id="newCaseRecMeterBar"></div></div>
+            <div class="rec-controls">
+              <button class="btn-secondary" onclick="togglePauseRecNewCase()" id="newCaseBtnPause">⏸ Pausar</button>
+              <button class="rec-btn-start" onclick="stopRecordingNewCase()">■ Usar</button>
+              <button class="btn-secondary" onclick="cancelRecordingNewCase()" style="color:var(--red)">✕ Descartar</button>
+            </div>
+          </div>
+        </div>
+        <div class="progress" id="newCaseProgress">
+          <div class="prog-row"><div class="prog-dot" id="ncStep1"><span>1</span></div> <span>Subiendo audio...</span></div>
+          <div class="prog-row"><div class="prog-dot" id="ncStep2"><span>2</span></div> <span>Transcribiendo...</span></div>
+          <div class="prog-row"><div class="prog-dot" id="ncStep3"><span>3</span></div> <span>Generando minuta...</span></div>
+          <div class="prog-bar"><div class="prog-bar-fill" id="newCaseProgBar"></div></div>
+        </div>
+      </div>
+    </details>
+
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('NewCase')">Cancelar</button>
+      <button class="btn-primary" onclick="guardarNuevoCaso()" id="btnGuardarCaso">📂 Abrir caso</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: Nueva entrevista ═══ -->
+<div class="modal-bg" id="modalNewInterview">
+  <div class="modal">
+    <div class="modal-ttl">🎤 Nueva entrevista</div>
+    <div class="modal-txt" id="newIntCasoLabel">Agregar entrevista al caso ...</div>
+
+    <div class="fg-grid">
+      <div class="fg">
+        <label>Entrevistado *</label>
+        <input type="text" id="newIntNombre" placeholder="Nombre completo">
+      </div>
+      <div class="fg">
+        <label>Rol *</label>
+        <select id="newIntRol">
+          <option value="DENUNCIANTE">Denunciante</option>
+          <option value="DENUNCIADO">Denunciado</option>
+          <option value="TESTIGO">Testigo</option>
+          <option value="INVOLUCRADO">Involucrado</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Notas previas (opcional)</label>
+      <textarea id="newIntNotas" placeholder="Contexto, preguntas planteadas, información previa conocida..."></textarea>
+    </div>
+
+    <div class="dropzone" id="intDropzone" onclick="document.getElementById('intAudioInp').click()">
+      <div class="dz-ico">🎵</div>
+      <div class="dz-ttl">Arrastra el audio aquí o haz clic</div>
+      <div class="dz-file" id="intDzFile"></div>
+      <input type="file" id="intAudioInp" accept="audio/*" style="display:none" onchange="onIntFileSelected(event)">
+    </div>
+    <div class="or-divider">— o —</div>
+    <div class="rec-zone" id="intRecZone">
+      <div id="intRecIdle">
+        <button class="rec-btn-start" onclick="startRecordingInt()">● Grabar entrevista</button>
+      </div>
+      <div id="intRecActive" style="display:none">
+        <div class="rec-indicator" id="intRecIndicator"><span class="rec-pulse"></span><span id="intRecStateLbl">GRABANDO</span></div>
+        <div class="rec-time" id="intRecTimer">00:00:00</div>
+        <div class="rec-meter"><div class="rec-meter-bar" id="intRecMeterBar"></div></div>
+        <div class="rec-controls">
+          <button class="btn-secondary" onclick="togglePauseRecInt()" id="intBtnPause">⏸ Pausar</button>
+          <button class="rec-btn-start" onclick="stopRecordingInt()">■ Usar</button>
+          <button class="btn-secondary" onclick="cancelRecordingInt()" style="color:var(--red)">✕ Descartar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress" id="intProgress">
+      <div class="prog-row"><div class="prog-dot" id="intStep1"><span>1</span></div> <span>Subiendo audio...</span></div>
+      <div class="prog-row"><div class="prog-dot" id="intStep2"><span>2</span></div> <span>Transcribiendo...</span></div>
+      <div class="prog-row"><div class="prog-dot" id="intStep3"><span>3</span></div> <span>Generando minuta objetiva...</span></div>
+      <div class="prog-row"><div class="prog-dot" id="intStep4"><span>4</span></div> <span>Guardando en el caso...</span></div>
+      <div class="prog-bar"><div class="prog-bar-fill" id="intProgBar"></div></div>
+    </div>
+
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('NewInterview')">Cancelar</button>
+      <button class="btn-primary" onclick="procesarEntrevista()" id="btnProcesarInt" disabled>▶ Procesar y guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: Cerrar con dictamen ═══ -->
+<div class="modal-bg" id="modalClose">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-ttl">⚖️ Cerrar caso con dictamen</div>
+    <div class="modal-txt">Claude va a leer toda la evidencia del caso (denuncia + entrevistas) y emitir un dictamen objetivo. Esto puede tardar 30-60 segundos.</div>
+
+    <div id="closeStep1">
+      <div style="padding:16px;background:#0c0c0c;border:1px solid #222;border-radius:8px;margin-bottom:12px;font-size:12px;color:#ccc" id="closeSummary"></div>
+      <div class="modal-btns">
+        <button class="btn-secondary" onclick="closeModal('Close')">Cancelar</button>
+        <button class="btn-primary" onclick="procesarDictamen()" id="btnProcesarDictamen">⚖️ Generar dictamen con IA</button>
+      </div>
+    </div>
+
+    <div id="closeStep2" style="display:none">
+      <div class="loading-box"><div class="spinner"></div><div id="closeLoadingText">Claude está analizando el expediente completo...</div></div>
+    </div>
+
+    <div id="closeStep3" style="display:none">
+      <div id="closeResultBox"></div>
+      <div class="fg">
+        <label>Revisa el dictamen antes de confirmar</label>
+        <textarea id="closeDictamenEdit" style="min-height:260px;font-family:'Courier New',monospace;font-size:12px"></textarea>
+      </div>
+      <div class="modal-btns">
+        <button class="btn-secondary" onclick="closeModal('Close')">Cancelar</button>
+        <button class="btn-primary green" onclick="confirmarDictamen()" id="btnConfirmarDictamen">✓ Guardar dictamen y cerrar caso</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><div class="t-ico" style="font-size:18px"></div><div><div class="t-title"></div><div class="t-msg"></div></div></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════════════════════════
+const API_BASE = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
+const SK = 'trikles_session';
+const GEMINI_MODEL = 'gemini-2.5-flash';
+const CLAUDE_MODEL = 'claude-sonnet-4-5-20250929';
+
+const STATE = {
+  session: null,
+  authorized: false,
+  geminiKey: '',
+  claudeKey: '',
+  casos: [],
+  empresas: [],
+  currentCaso: null,
+  currentEntrevistas: [],
+  // Archivos temporales por modal
+  newCaseFile: null,
+  newCaseMinuta: '',
+  newCaseTranscripcion: '',
+  intFile: null,
+  intMinuta: '',
+  intTranscripcion: '',
+  intDuracion: 0,
+  closeDictamenText: '',
+  closeVeredicto: '',
+  closeResumen: '',
+};
+
+// ════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════════════════
+function getS(){try{const s=JSON.parse(sessionStorage.getItem(SK)||localStorage.getItem(SK+'_r')||'null');if(s&&s.expires>Date.now())return s;return null}catch(e){return null}}
+function clearS(){sessionStorage.removeItem(SK);localStorage.removeItem(SK+'_r')}
+function logout(){clearS();window.location.href='acceso.html'}
+function toggleMenu(){document.getElementById('mobileNav').classList.toggle('open')}
+function openModal(n){document.getElementById('modal'+n).classList.add('open')}
+function closeModal(n){document.getElementById('modal'+n).classList.remove('open')}
+function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function toast(type,title,msg,dur=4000){
+  const icons={success:'✅',error:'❌',info:'💡',warning:'⚠️'};
+  const t=document.getElementById('toast');
+  t.className='toast show '+type;
+  t.querySelector('.t-ico').textContent=icons[type]||'ℹ️';
+  t.querySelector('.t-title').textContent=title;
+  t.querySelector('.t-msg').textContent=msg||'';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),dur);
+}
+function apiCall(params){
+  return new Promise((resolve,reject)=>{
+    const cb='dnCb_'+Date.now()+'_'+Math.floor(Math.random()*1e6);
+    const s=document.createElement('script');let done=false;
+    const finish=(ok,d)=>{if(done)return;done=true;delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);ok?resolve(d):reject(d)};
+    window[cb]=d=>finish(true,d);
+    s.onerror=()=>finish(false,new Error('Error de carga'));
+    s.src=API_BASE+'?'+new URLSearchParams({...params,callback:cb});
+    document.head.appendChild(s);
+    setTimeout(()=>finish(false,new Error('Timeout')),30000);
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  const s = getS();
+  if(!s){ window.location.href='acceso.html'; return; }
+  STATE.session = s;
+  const tbName = document.getElementById('tbName');
+  if(tbName) tbName.textContent = (s.empresa || 'TRIKLES').replace(/_/g,' ');
+  if(s.rol === 'SUPER_ADMIN' || s.rol === 'ADMIN'){
+    document.getElementById('lnkPanel').style.display='inline-flex';
+    document.getElementById('mNavPanel').style.display='flex';
+  }
+
+  // Verificar autorización + obtener keys
+  try {
+    const r = await apiCall({action:'tr_getConfig', usuario:s.usuario});
+    document.getElementById('initialLoader').style.display='none';
+    if(r.success && r.authorized && r.keysConfigured){
+      STATE.authorized = true;
+      STATE.geminiKey = r.geminiKey;
+      STATE.claudeKey = r.claudeKey;
+      await entrarModuloListo();
+    } else {
+      document.getElementById('promo').style.display='block';
+    }
+  } catch(e){
+    document.getElementById('initialLoader').innerHTML = '<div style="color:var(--red)">❌ Error de conexión. Recarga la página.</div>';
+  }
+});
+
+async function entrarModuloListo(){
+  document.getElementById('viewList').style.display='block';
+  // Mostrar filtro de empresas si es SuperAdmin
+  if(STATE.session.rol === 'SUPER_ADMIN'){
+    const fsel = document.getElementById('listEmpresaFilter');
+    fsel.style.display='inline-block';
+    await cargarEmpresas();
+  }
+  loadCases();
+}
+
+async function cargarEmpresas(){
+  try {
+    const r = await apiCall({action:'getEmpresas'});
+    if(!r.success) return;
+    STATE.empresas = r.data.filter(e => String(e.activa).toUpperCase()==='SI');
+    const fsel = document.getElementById('listEmpresaFilter');
+    fsel.innerHTML = '<option value="">Todas las empresas</option>' +
+      STATE.empresas.map(e=>`<option value="${escapeHtml(e.id)}">${escapeHtml(e.nombre)}</option>`).join('');
+    const s = STATE.session;
+    if(s.empresaFiltro && fsel.querySelector(`option[value="${s.empresaFiltro}"]`)) fsel.value = s.empresaFiltro;
+
+    // Para el modal de nuevo caso
+    const ne = document.getElementById('newCaseEmpresa');
+    ne.innerHTML = STATE.empresas.map(e=>`<option value="${escapeHtml(e.id)}">${escapeHtml(e.nombre)}</option>`).join('');
+    document.getElementById('newCaseEmpresaWrap').style.display='flex';
+    if(s.empresaFiltro) ne.value = s.empresaFiltro;
+  } catch(e){}
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// LISTA DE CASOS
+// ════════════════════════════════════════════════════════════════════════
+async function loadCases(){
+  const cont = document.getElementById('listContent');
+  cont.innerHTML = '<div class="loading-box"><div class="spinner"></div>Cargando casos...</div>';
+  const params = { action:'caso_list', usuario: STATE.session.usuario };
+  const fsel = document.getElementById('listEmpresaFilter');
+  if(STATE.session.rol === 'SUPER_ADMIN' && fsel.value) params.empresa = fsel.value;
+  try {
+    const r = await apiCall(params);
+    if(!r.success){ cont.innerHTML = '<div class="case-empty">❌ '+escapeHtml(r.error||'Error')+'</div>'; return; }
+    STATE.casos = r.data || [];
+    renderList();
+  } catch(e){
+    cont.innerHTML = '<div class="case-empty">Error de conexión. Recarga la página.</div>';
+  }
+}
+
+function renderList(){
+  const cont = document.getElementById('listContent');
+  const q = document.getElementById('listSearch').value.toLowerCase().trim();
+  const estado = document.getElementById('listEstadoFilter').value;
+  let rows = STATE.casos.slice();
+  if(q) rows = rows.filter(c =>
+    String(c.numero||'').toLowerCase().includes(q) ||
+    String(c.denunciante||'').toLowerCase().includes(q) ||
+    String(c.denunciado||'').toLowerCase().includes(q) ||
+    String(c.descripcion||'').toLowerCase().includes(q)
+  );
+  if(estado) rows = rows.filter(c => c.estado === estado);
+  if(!rows.length){
+    cont.innerHTML = '<div class="case-empty">📂 Sin casos que mostrar' + (q||estado?' con los filtros aplicados.':'. Abre el primero con el botón de arriba.') + '</div>';
+    return;
+  }
+  cont.innerHTML = rows.map(c => {
+    const estadoClass = {
+      'ABIERTO':'abierto','EN_INVESTIGACION':'investigacion',
+      'CERRADO_PROCEDE':'procede','CERRADO_NO_PROCEDE':'no_procede','CERRADO_INCONCLUSO':'inconcluso'
+    }[c.estado] || '';
+    const estadoLbl = {
+      'ABIERTO':'🟡 Abierto','EN_INVESTIGACION':'🔵 En investigación',
+      'CERRADO_PROCEDE':'✅ Procede','CERRADO_NO_PROCEDE':'❌ No procede','CERRADO_INCONCLUSO':'⚠️ Inconcluso'
+    }[c.estado] || c.estado;
+    return `
+      <div class="case-card ${estadoClass}" onclick="openDetail('${escapeHtml(c.id)}')">
+        <div class="case-head">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <span class="case-num">${escapeHtml(c.numero)}</span>
+            <span class="case-badge ${estadoClass}">${estadoLbl}</span>
+          </div>
+          <div style="font-size:11px;color:var(--gray)">${escapeHtml(String(c.fechaApertura).slice(0,16))}</div>
+        </div>
+        <div class="case-desc">${escapeHtml(c.descripcion)}</div>
+        <div class="case-meta">
+          <span>🏢 ${escapeHtml(c.empresa)}</span>
+          <span>👤 ${escapeHtml(c.denunciante||'Anónima')}</span>
+          <span>→</span>
+          <span>🎯 ${escapeHtml(c.denunciado)}</span>
+          <span>🎤 ${c.nEntrevistas} entrevista${c.nEntrevistas===1?'':'s'}</span>
+          <span>· Abierto por ${escapeHtml(c.abiertoPor)}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// NUEVO CASO
+// ════════════════════════════════════════════════════════════════════════
+function openNewCaseModal(){
+  // Reset
+  document.getElementById('newCaseDenunciante').value = '';
+  document.getElementById('newCaseDenunciado').value = '';
+  document.getElementById('newCaseDescripcion').value = '';
+  document.getElementById('newCaseDzFile').textContent = '';
+  STATE.newCaseFile = null;
+  STATE.newCaseMinuta = '';
+  STATE.newCaseTranscripcion = '';
+  document.getElementById('newCaseProgress').classList.remove('on');
+  openModal('NewCase');
+}
+
+async function guardarNuevoCaso(){
+  const btn = document.getElementById('btnGuardarCaso');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+
+  const s = STATE.session;
+  const params = {
+    action: 'caso_create',
+    usuario: s.usuario,
+    empresa: (STATE.session.rol === 'SUPER_ADMIN')
+      ? document.getElementById('newCaseEmpresa').value
+      : s.empresa,
+    denunciante: document.getElementById('newCaseDenunciante').value.trim(),
+    denunciado: document.getElementById('newCaseDenunciado').value.trim(),
+    descripcion: document.getElementById('newCaseDescripcion').value.trim(),
+  };
+
+  // Si hay audio inicial, procesarlo antes
+  if(STATE.newCaseFile){
+    try {
+      document.getElementById('newCaseProgress').classList.add('on');
+      setStepNC(1,'on');
+      const f = STATE.newCaseFile;
+      const fileData = await uploadAudioToGemini(f, STATE.geminiKey, pct => setProgressNC(pct*0.35));
+      setStepNC(1,'ok'); setStepNC(2,'on'); setProgressNC(40);
+      const transcripcion = await transcribeWithGemini(fileData, STATE.geminiKey);
+      STATE.newCaseTranscripcion = transcripcion;
+      setStepNC(2,'ok'); setStepNC(3,'on'); setProgressNC(70);
+      const minuta = await makeMinutaWithClaude(transcripcion, 'DENUNCIA_INICIAL', STATE.claudeKey);
+      STATE.newCaseMinuta = minuta;
+      setStepNC(3,'ok'); setProgressNC(100);
+      params.minutaAudio = minuta;
+      params.transcripcionAudio = transcripcion;
+    } catch(e){
+      toast('error','Falló el procesamiento del audio inicial', e.message || 'Igual intentaré abrir el caso sin ese audio.');
+    }
+  }
+
+  try {
+    const r = await apiCall(params);
+    if(r.success){
+      toast('success','Caso abierto', r.numero + ' creado correctamente');
+      closeModal('NewCase');
+      await loadCases();
+      openDetail(r.id);
+    } else {
+      toast('error','Error', r.error || 'No se pudo crear el caso');
+    }
+  } catch(e){
+    toast('error','Error de conexión','Inténtalo de nuevo.');
+  }
+  btn.disabled = false; btn.textContent = '📂 Abrir caso';
+}
+
+function setStepNC(n, state){ const el=document.getElementById('ncStep'+n); if(!el)return; el.classList.remove('on','ok'); if(state)el.classList.add(state); el.querySelector('span').textContent=state==='ok'?'✓':n; }
+function setProgressNC(pct){ document.getElementById('newCaseProgBar').style.width = pct+'%'; }
+function onNewCaseFileSelected(e){ if(e.target.files && e.target.files[0]) setNewCaseFile(e.target.files[0]); }
+function setNewCaseFile(f){
+  STATE.newCaseFile = f;
+  document.getElementById('newCaseDzFile').textContent = `📎 ${f.name} · ${(f.size/1024/1024).toFixed(1)} MB`;
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// DETALLE DEL CASO
+// ════════════════════════════════════════════════════════════════════════
+async function openDetail(id){
+  document.getElementById('viewList').style.display = 'none';
+  document.getElementById('viewDetail').style.display = 'block';
+  document.getElementById('viewDetail').innerHTML = '<div class="loading-box"><div class="spinner"></div>Cargando caso...</div>';
+
+  try {
+    const r = await apiCall({action:'caso_get', usuario: STATE.session.usuario, id});
+    if(!r.success){
+      document.getElementById('viewDetail').innerHTML = '<div class="case-empty">❌ '+escapeHtml(r.error||'Error')+'</div>';
+      return;
+    }
+    STATE.currentCaso = r.caso;
+    STATE.currentEntrevistas = r.entrevistas || [];
+    renderDetail();
+  } catch(e){
+    document.getElementById('viewDetail').innerHTML = '<div class="case-empty">Error de conexión</div>';
+  }
+}
+
+function volverALista(){
+  document.getElementById('viewList').style.display = 'block';
+  document.getElementById('viewDetail').style.display = 'none';
+  STATE.currentCaso = null;
+  STATE.currentEntrevistas = [];
+}
+
+function renderDetail(){
+  const c = STATE.currentCaso;
+  const ents = STATE.currentEntrevistas;
+  const esSA = STATE.session.rol === 'SUPER_ADMIN';
+  const estadoClass = {
+    'ABIERTO':'abierto','EN_INVESTIGACION':'investigacion',
+    'CERRADO_PROCEDE':'procede','CERRADO_NO_PROCEDE':'no_procede','CERRADO_INCONCLUSO':'inconcluso'
+  }[c.estado] || '';
+  const estadoLbl = {
+    'ABIERTO':'🟡 Abierto','EN_INVESTIGACION':'🔵 En investigación',
+    'CERRADO_PROCEDE':'✅ Procede','CERRADO_NO_PROCEDE':'❌ No procede','CERRADO_INCONCLUSO':'⚠️ Inconcluso'
+  }[c.estado] || c.estado;
+  const cerrado = String(c.estado).startsWith('CERRADO_');
+  const veredicto = String(c.dictamenVeredicto || '').toUpperCase();
+
+  let dictamenHtml = '';
+  if(cerrado && veredicto){
+    const verClass = veredicto.toLowerCase();
+    const verLabel = veredicto === 'PROCEDE' ? '✅ PROCEDE' : veredicto === 'NO_PROCEDE' ? '❌ NO PROCEDE' : '⚠️ INCONCLUSO';
+    dictamenHtml = `
+      <div class="dictamen-box ${verClass}">
+        <div class="dictamen-head">
+          <div class="dictamen-badge">${verLabel}</div>
+          <div style="flex:1">
+            <div style="font-weight:800;font-size:14px">Dictamen Final</div>
+            <div style="font-size:11px;color:var(--gray);margin-top:2px">Cerrado el ${escapeHtml(String(c.fechaCierre||'').slice(0,16))} por ${escapeHtml(c.cerradoPor||'')}</div>
+          </div>
+          ${c.dictamenDocUrl ? `<a class="btn-sm btn-sm-open" href="${escapeHtml(c.dictamenDocUrl)}" target="_blank">📄 Abrir dictamen</a>` : ''}
+        </div>
+        ${c.dictamenResumen ? `<div style="font-size:12px;color:#ccc;padding:10px;background:rgba(0,0,0,.3);border-radius:6px">${escapeHtml(c.dictamenResumen)}</div>` : ''}
+      </div>`;
+  }
+
+  document.getElementById('viewDetail').innerHTML = `
+    <div class="detail-header">
+      <div class="detail-nav">
+        <a onclick="volverALista()">← Volver a lista de casos</a>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+            <span class="case-num" style="font-size:18px">${escapeHtml(c.numero)}</span>
+            <span class="case-badge ${estadoClass}">${estadoLbl}</span>
+          </div>
+          <div style="font-size:12px;color:var(--gray)">Abierto ${escapeHtml(String(c.fechaApertura).slice(0,16))} · por ${escapeHtml(c.abiertoPor)}</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${c.folderUrl ? `<a class="btn-secondary" href="${escapeHtml(c.folderUrl)}" target="_blank" style="text-decoration:none">📁 Carpeta Drive</a>` : ''}
+          ${esSA ? `<button class="btn-secondary" onclick="borrarCaso('${escapeHtml(c.id)}')" style="color:var(--red);border-color:rgba(231,76,60,.5)">🗑 Borrar caso</button>` : ''}
+        </div>
+      </div>
+
+      <div class="detail-row" style="margin-top:14px">
+        <div class="detail-field"><label>🏢 Empresa</label><div class="val">${escapeHtml(c.empresa)}</div></div>
+        <div class="detail-field"><label>👤 Denunciante</label><div class="val">${escapeHtml(c.denunciante||'Anónima')}</div></div>
+        <div class="detail-field"><label>🎯 Denunciado</label><div class="val">${escapeHtml(c.denunciado)}</div></div>
+      </div>
+      <div class="detail-desc">${escapeHtml(c.descripcion)}</div>
+      ${c.denunciaDocUrl ? `<div style="margin-top:10px"><a class="btn-sm btn-sm-open" href="${escapeHtml(c.denunciaDocUrl)}" target="_blank" style="text-decoration:none">📄 Abrir doc de la denuncia inicial</a></div>` : ''}
+    </div>
+
+    ${dictamenHtml}
+
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-ttl">🎤 Entrevistas (${ents.length})</div>
+        ${!cerrado ? `<button class="btn-primary" onclick="openNewInterview()">➕ Nueva entrevista</button>` : ''}
+      </div>
+      <div id="entList">${renderEntList(ents, cerrado)}</div>
+    </div>
+
+    ${!cerrado && ents.length > 0 ? `
+      <div class="card" style="border-color:var(--green);background:rgba(46,204,113,.05)">
+        <div class="card-hdr">
+          <div>
+            <div class="card-ttl" style="color:var(--green)">⚖️ Cerrar caso</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:4px">Cuando termines las entrevistas, pídele a Claude que analice todo y emita el dictamen.</div>
+          </div>
+          <button class="btn-primary green" onclick="openCloseModal()">⚖️ Cerrar con dictamen de IA</button>
+        </div>
+      </div>` : ''}
+
+    ${cerrado ? `
+      <div style="text-align:center;margin-top:16px">
+        <button class="btn-secondary" onclick="reabrirCaso('${escapeHtml(c.id)}')">♻️ Reabrir caso</button>
+      </div>` : ''}
+  `;
+}
+
+function renderEntList(ents, cerrado){
+  if(!ents.length) return '<div class="empty-list">Sin entrevistas todavía. Usa el botón "Nueva entrevista" para empezar.</div>';
+  const esSA = STATE.session.rol === 'SUPER_ADMIN';
+  return ents.map(e => `
+    <div class="ent-row">
+      <div class="ent-num">${escapeHtml(e.numero)}</div>
+      <div class="ent-main">
+        <div class="ent-ttl">
+          ${escapeHtml(e.entrevistado)}
+          <span class="ent-rol ${escapeHtml(e.rol)}">${escapeHtml(e.rol)}</span>
+        </div>
+        <div class="ent-meta">${escapeHtml(String(e.fecha).slice(0,16))} · por ${escapeHtml(e.entrevistadorUsuario)} · ${e.duracionSeg?Math.floor(e.duracionSeg/60)+' min':''}</div>
+      </div>
+      <div class="ent-act">
+        ${e.docUrl ? `<a class="btn-sm btn-sm-open" href="${escapeHtml(e.docUrl)}" target="_blank">📄 Abrir</a>` : ''}
+        ${(!cerrado && (esSA || e.entrevistadorUsuario === STATE.session.usuario)) ? `<button class="btn-sm btn-sm-del" onclick="borrarEntrevista('${escapeHtml(e.id)}')">🗑</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+async function borrarCaso(id){
+  if(!confirm('¿BORRAR este caso permanentemente? Se eliminará la carpeta de Drive y todas sus entrevistas.')) return;
+  const r = await apiCall({action:'caso_delete', usuario:STATE.session.usuario, id});
+  if(r.success){ toast('success','Eliminado','El caso fue borrado.'); volverALista(); loadCases(); }
+  else toast('error','Error', r.error||'No se pudo borrar');
+}
+
+async function borrarEntrevista(id){
+  if(!confirm('¿Borrar esta entrevista? El documento se moverá a la papelera de Drive.')) return;
+  const r = await apiCall({action:'entrevista_delete', usuario:STATE.session.usuario, id});
+  if(r.success){ toast('success','Eliminada'); openDetail(STATE.currentCaso.id); }
+  else toast('error','Error', r.error||'No se pudo borrar');
+}
+
+async function reabrirCaso(id){
+  if(!confirm('¿Reabrir este caso? Podrás agregar más entrevistas y volver a emitir dictamen.')) return;
+  const r = await apiCall({action:'caso_reopen', usuario:STATE.session.usuario, id});
+  if(r.success){ toast('success','Reabierto','El caso vuelve a investigación.'); openDetail(id); }
+  else toast('error','Error', r.error||'No se pudo reabrir');
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// NUEVA ENTREVISTA
+// ════════════════════════════════════════════════════════════════════════
+function openNewInterview(){
+  document.getElementById('newIntNombre').value = '';
+  document.getElementById('newIntRol').value = 'DENUNCIANTE';
+  document.getElementById('newIntNotas').value = '';
+  document.getElementById('intDzFile').textContent = '';
+  STATE.intFile = null; STATE.intMinuta = ''; STATE.intTranscripcion = ''; STATE.intDuracion = 0;
+  document.getElementById('intProgress').classList.remove('on');
+  document.getElementById('btnProcesarInt').disabled = true;
+  document.getElementById('newIntCasoLabel').textContent =
+    'Caso ' + STATE.currentCaso.numero + ' · Agregar una nueva entrevista';
+  openModal('NewInterview');
+}
+
+function onIntFileSelected(e){ if(e.target.files && e.target.files[0]) setIntFile(e.target.files[0]); }
+function setIntFile(f){
+  STATE.intFile = f;
+  document.getElementById('intDzFile').textContent = `📎 ${f.name} · ${(f.size/1024/1024).toFixed(1)} MB`;
+  document.getElementById('btnProcesarInt').disabled = false;
+}
+
+function setStepInt(n, state){ const el=document.getElementById('intStep'+n); if(!el)return; el.classList.remove('on','ok'); if(state)el.classList.add(state); el.querySelector('span').textContent=state==='ok'?'✓':n; }
+function setProgressInt(pct){ document.getElementById('intProgBar').style.width = pct+'%'; }
+
+async function procesarEntrevista(){
+  const nombre = document.getElementById('newIntNombre').value.trim();
+  const rol    = document.getElementById('newIntRol').value;
+  const notas  = document.getElementById('newIntNotas').value.trim();
+  if(!nombre){ toast('error','Falta nombre','Pon el nombre del entrevistado'); return; }
+  if(!STATE.intFile){ toast('error','Falta audio','Adjunta o graba la entrevista'); return; }
+
+  const btn = document.getElementById('btnProcesarInt');
+  btn.disabled = true;
+  document.getElementById('intProgress').classList.add('on');
+  setStepInt(1,'on'); setProgressInt(0);
+
+  try {
+    const fileData = await uploadAudioToGemini(STATE.intFile, STATE.geminiKey, pct => setProgressInt(pct*0.30));
+    setStepInt(1,'ok'); setStepInt(2,'on'); setProgressInt(35);
+    const transcripcion = await transcribeWithGemini(STATE.intFile.type || 'audio/webm', fileData, STATE.geminiKey);
+    STATE.intTranscripcion = transcripcion;
+    setStepInt(2,'ok'); setStepInt(3,'on'); setProgressInt(65);
+
+    // Contexto para Claude: que sepa de qué caso es
+    const contexto = 'CASO: ' + STATE.currentCaso.numero + '\n' +
+                     'DENUNCIA: ' + STATE.currentCaso.descripcion + '\n' +
+                     'DENUNCIADO: ' + STATE.currentCaso.denunciado + '\n' +
+                     'ENTREVISTADO: ' + nombre + ' (' + rol + ')' +
+                     (notas ? '\nNOTAS DEL ENTREVISTADOR: ' + notas : '');
+    const minuta = await makeEntrevistaMinuta(transcripcion, rol, contexto, STATE.claudeKey);
+    STATE.intMinuta = minuta;
+    setStepInt(3,'ok'); setStepInt(4,'on'); setProgressInt(90);
+
+    const resumen = minuta.split('\n').filter(l=>l.trim()).slice(0,3).join(' ').slice(0,300);
+    const r = await apiCall({
+      action: 'entrevista_add',
+      usuario: STATE.session.usuario,
+      casoId: STATE.currentCaso.id,
+      entrevistado: nombre,
+      rol,
+      notasPrevias: notas,
+      minuta,
+      transcripcion,
+      duracionSeg: STATE.intDuracion || 0,
+      tamanioMB: (STATE.intFile.size/1024/1024).toFixed(2),
+      resumen,
+    });
+    if(!r.success) throw new Error(r.error || 'No se pudo guardar');
+    setStepInt(4,'ok'); setProgressInt(100);
+    toast('success','Entrevista guardada', r.numero + ' · ' + nombre);
+    closeModal('NewInterview');
+    openDetail(STATE.currentCaso.id);
+  } catch(e){
+    toast('error','Falló', e.message || 'Inténtalo de nuevo');
+    btn.disabled = false;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// GEMINI + CLAUDE (compartido con transcripcion.html)
+// ════════════════════════════════════════════════════════════════════════
+async function uploadAudioToGemini(file, apiKey, onProgress){
+  const mime = file.type || 'audio/mpeg';
+  const size = file.size;
+  const startResp = await fetch(
+    'https://generativelanguage.googleapis.com/upload/v1beta/files?key='+encodeURIComponent(apiKey),
+    { method:'POST', headers:{
+        'X-Goog-Upload-Protocol':'resumable','X-Goog-Upload-Command':'start',
+        'X-Goog-Upload-Header-Content-Length':String(size),'X-Goog-Upload-Header-Content-Type':mime,
+        'Content-Type':'application/json' },
+      body: JSON.stringify({ file:{ display_name:file.name } }) });
+  if(!startResp.ok) throw new Error('Gemini upload start: '+startResp.status);
+  const uploadUrl = startResp.headers.get('x-goog-upload-url') || startResp.headers.get('X-Goog-Upload-URL');
+  if(!uploadUrl) throw new Error('Gemini no devolvió URL de subida');
+  const uploadResult = await new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', uploadUrl);
+    xhr.setRequestHeader('Content-Length', String(size));
+    xhr.setRequestHeader('X-Goog-Upload-Offset','0');
+    xhr.setRequestHeader('X-Goog-Upload-Command','upload, finalize');
+    xhr.upload.onprogress = e => { if(onProgress && e.lengthComputable) onProgress(e.loaded/e.total); };
+    xhr.onload = () => { if(xhr.status>=200 && xhr.status<300){ try{resolve(JSON.parse(xhr.responseText))}catch(e){reject(new Error('Respuesta inválida'))} } else reject(new Error('Upload falló: '+xhr.status)); };
+    xhr.onerror = () => reject(new Error('Error de red al subir'));
+    xhr.send(file);
+  });
+  const f = uploadResult.file || uploadResult;
+  if(!f.uri) throw new Error('Gemini no retornó URI');
+  let tries = 0;
+  while(f.state && f.state !== 'ACTIVE' && tries < 20){
+    await new Promise(r => setTimeout(r, 2000));
+    const check = await fetch(f.uri.replace(/^https?:\/\/[^/]+/,'https://generativelanguage.googleapis.com')+'?key='+encodeURIComponent(apiKey));
+    if(check.ok){ const d = await check.json(); if(d.state) f.state = d.state; if(d.state==='ACTIVE')break; if(d.state==='FAILED')throw new Error('Gemini marcó FAILED'); }
+    tries++;
+  }
+  return { uri:f.uri, mimeType:mime, name:f.name };
+}
+
+async function transcribeWithGemini(mimeOrFileData, fileDataOrKey, maybeKey){
+  // Permitir que se llame como (fileData, apiKey) o (mime, fileData, apiKey)
+  let fileData, apiKey;
+  if(typeof mimeOrFileData === 'string'){ fileData = fileDataOrKey; apiKey = maybeKey; }
+  else { fileData = mimeOrFileData; apiKey = fileDataOrKey; }
+  const prompt = `Transcribe este audio en español de México textualmente. Reglas:
+- Preserva TODO el contenido, no omitas nada.
+- Si hay varios hablantes identificables, etiquétalos como "Hablante 1:", "Hablante 2:", etc.
+- Marca pausas largas o ruidos con [pausa] o [inaudible].
+- NO agregues encabezados ni comentarios tuyos. Solo la transcripción textual.`;
+  const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=`+encodeURIComponent(apiKey),
+    { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        contents: [{role:'user', parts:[ { text:prompt }, { file_data:{ mime_type: fileData.mimeType, file_uri: fileData.uri } } ]}],
+        generationConfig:{ temperature:0.1, maxOutputTokens:32768 }
+      }) });
+  if(!resp.ok){ const t = await resp.text(); throw new Error('Gemini generate: '+resp.status+' '+t.slice(0,300)); }
+  const data = await resp.json();
+  const text = data.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('') || '';
+  if(!text) throw new Error('Gemini no devolvió transcripción');
+  return text.trim();
+}
+
+const PROMPT_ENTREVISTA = `Eres un documentalista profesional de investigaciones internas en empresas.
+
+Tu tarea: convertir la transcripción de la entrevista en una minuta objetiva y factual.
+
+REGLAS ABSOLUTAS:
+- Tono 100% OBJETIVO. Usa verbos factuales: "declara que", "menciona que", "afirma que", "responde que".
+- NO califiques conductas ("grave", "preocupante", "inaceptable"). NO emitas juicios.
+- NO hagas recomendaciones disciplinarias.
+- NO inventes información que no esté en la transcripción.
+
+Estructura OBLIGATORIA (Markdown):
+
+## Datos de la entrevista
+- Entrevistado y rol (el contexto te lo indica).
+- Duración aproximada si la puedes inferir.
+
+## Declaraciones principales
+Bullet points con cada declaración importante. Una por línea.
+
+## Cronología mencionada
+Fechas, horas y lugares que el entrevistado refirió.
+
+## Personas mencionadas
+Con el rol que el entrevistado les atribuye.
+
+## Señalamientos o acusaciones
+Puntos concretos que el entrevistado señala. Usa comillas textuales cuando sea literal.
+
+## Evidencias que el entrevistado refiere
+Correos, documentos, testigos, grabaciones, etc.
+
+## Declaraciones literales relevantes
+2-5 citas textuales entrecomilladas particularmente importantes.
+
+## Contradicciones o dudas del entrevistador
+Si en el contexto te pasaron notas del entrevistador, inclúyelas aquí.
+
+## Observaciones del comportamiento
+Si en la transcripción se mencionan pausas largas, nervios audibles, evasivas, cambios de tema, anótalos como hechos observables (nunca interpretes).`;
+
+const PROMPT_DENUNCIA_INICIAL = `Eres un documentalista neutral. Convierte esta declaración inicial del denunciante en un informe estructurado y objetivo.
+
+REGLAS:
+- Tono factual. Verbos: "el denunciante declara que", "menciona que", "afirma que".
+- NO califiques. NO recomiendes sanciones.
+
+Estructura (Markdown):
+## Motivo de la denuncia
+Resumen factual en 2-3 oraciones.
+
+## Hechos descritos
+Bullet points cronológicos.
+
+## Personas mencionadas
+Con el rol que se les atribuye.
+
+## Evidencias referidas
+Lo que el denunciante dice tener o que existe.
+
+## Declaraciones literales importantes
+Citas textuales.`;
+
+async function makeMinutaWithClaude(transcripcion, tipo, apiKey){
+  const system = tipo === 'DENUNCIA_INICIAL' ? PROMPT_DENUNCIA_INICIAL : PROMPT_ENTREVISTA;
+  return callClaude(system, 'Aquí está la transcripción:\n\n'+transcripcion, apiKey);
+}
+
+async function makeEntrevistaMinuta(transcripcion, rol, contexto, apiKey){
+  const content = `CONTEXTO DE LA INVESTIGACIÓN:\n${contexto}\n\n--- TRANSCRIPCIÓN DE LA ENTREVISTA ---\n${transcripcion}`;
+  return callClaude(PROMPT_ENTREVISTA, content, apiKey);
+}
+
+async function callClaude(system, user, apiKey, maxTokens){
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true',
+    },
+    body: JSON.stringify({
+      model: CLAUDE_MODEL,
+      max_tokens: maxTokens || 8192,
+      system: system,
+      messages: [{ role:'user', content: user }],
+    })
+  });
+  if(!resp.ok){ const t = await resp.text(); throw new Error('Claude: '+resp.status+' '+t.slice(0,300)); }
+  const data = await resp.json();
+  const text = data.content?.map(c => c.text || '').join('') || '';
+  if(!text) throw new Error('Claude no devolvió respuesta');
+  return text.trim();
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// CERRAR CASO CON DICTAMEN (Claude analiza todo el expediente)
+// ════════════════════════════════════════════════════════════════════════
+const PROMPT_DICTAMEN = `Eres un auditor interno senior e independiente. Tu tarea es emitir un DICTAMEN FINAL sobre una denuncia interna, basándote ÚNICAMENTE en la evidencia documentada del expediente que se te proporciona.
+
+REGLAS ABSOLUTAS:
+- OBJETIVIDAD TOTAL. Basa cada conclusión en evidencia del expediente.
+- NO uses calificativos emocionales ("grave", "preocupante").
+- NO recomiendes sanciones disciplinarias. Sí puedes recomendar pasos procesales (nueva entrevista, solicitud de evidencia, etc.).
+- Si las evidencias son insuficientes o contradictorias, el veredicto debe ser INCONCLUSO.
+- Respeta la presunción de inocencia: solo da por probado lo que tiene evidencia sólida.
+
+Estructura OBLIGATORIA (Markdown):
+
+## 1. Resumen del Caso
+Motivo de la denuncia, denunciante, denunciado, fechas clave (2-4 oraciones).
+
+## 2. Metodología
+Qué entrevistas se realizaron (número y roles). Qué evidencia documental se aportó.
+
+## 3. Hechos PROBADOS
+Lista numerada. Cada hecho probado con la evidencia que lo sustenta (cita la entrevista o el documento).
+
+## 4. Hechos NO probados
+Lista numerada. Hechos alegados que no tienen evidencia suficiente, o que fueron desmentidos.
+
+## 5. Contradicciones entre testimonios
+Si hay versiones que se contradicen, descríbelas aquí citando a los entrevistados y qué dijo cada uno.
+
+## 6. Análisis de credibilidad
+SIN juzgar, solo contrasta: cuáles testimonios son consistentes entre sí, cuáles se apoyan con evidencia documental, cuáles son únicos sin corroboración.
+
+## 7. VEREDICTO
+Una sola línea con uno de estos valores:
+**VEREDICTO: PROCEDE**  →  Hay evidencia suficiente de la conducta denunciada.
+**VEREDICTO: NO_PROCEDE**  →  La evidencia disponible desmiente la denuncia o muestra que no hubo conducta reprochable.
+**VEREDICTO: INCONCLUSO**  →  La evidencia es insuficiente o contradictoria para emitir un veredicto definitivo.
+
+## 8. Justificación del veredicto
+2-4 párrafos explicando por qué llegaste a ese veredicto, apoyado en los hechos probados.
+
+## 9. Recomendaciones procesuales
+Acciones NO disciplinarias recomendadas (nuevas entrevistas, recopilar evidencia adicional, cerrar caso, archivar, etc.). NO propongas castigos ni sanciones.
+
+## 10. Resumen ejecutivo
+1 párrafo de 3-4 líneas con el veredicto y los puntos clave, apto para presentar a dirección general.
+
+Al inicio del texto, como primera línea, escribe solo:
+VEREDICTO_MACHINE: PROCEDE|NO_PROCEDE|INCONCLUSO
+(Esto se usará para clasificar automáticamente; que coincida con tu sección 7.)`;
+
+function openCloseModal(){
+  const c = STATE.currentCaso;
+  const ents = STATE.currentEntrevistas;
+  document.getElementById('closeStep1').style.display = 'block';
+  document.getElementById('closeStep2').style.display = 'none';
+  document.getElementById('closeStep3').style.display = 'none';
+  document.getElementById('closeSummary').innerHTML = `
+    <strong>${escapeHtml(c.numero)}</strong><br>
+    Denunciante: ${escapeHtml(c.denunciante||'Anónima')} · Denunciado: ${escapeHtml(c.denunciado)}<br>
+    <strong>${ents.length} entrevista${ents.length===1?'':'s'}</strong> documentadas:<br>
+    ${ents.map(e => '• ' + escapeHtml(e.numero) + ' ' + escapeHtml(e.entrevistado) + ' (' + escapeHtml(e.rol) + ')').join('<br>')}
+  `;
+  openModal('Close');
+}
+
+async function procesarDictamen(){
+  document.getElementById('closeStep1').style.display = 'none';
+  document.getElementById('closeStep2').style.display = 'block';
+
+  const c = STATE.currentCaso;
+  const ents = STATE.currentEntrevistas;
+
+  // Traer contenido completo de cada entrevista vía trGet? NO — ya tenemos resumen + doc URL
+  // Para el dictamen necesitamos el contenido completo. Lo pedimos al backend.
+  document.getElementById('closeLoadingText').textContent = 'Reuniendo evidencia del expediente...';
+  let evidencia = `=== EXPEDIENTE ${c.numero} ===\n`;
+  evidencia += `EMPRESA: ${c.empresa}\n`;
+  evidencia += `DENUNCIANTE: ${c.denunciante || 'Anónima'}\n`;
+  evidencia += `DENUNCIADO: ${c.denunciado}\n`;
+  evidencia += `FECHA DE APERTURA: ${c.fechaApertura}\n\n`;
+  evidencia += `=== DENUNCIA INICIAL ===\n${c.descripcion}\n\n`;
+
+  // Cada entrevista: leer el Doc (no tenemos el minuta textualmente, solo el resumen)
+  // Alternativa: usar el resumen + metadata. Es suficiente para Claude con 200k context.
+  for(const e of ents){
+    try {
+      // Pedimos al backend el contenido del doc via trGet? No tenemos ese endpoint aquí.
+      // En su lugar, leer el doc via Drive API también requeriría OAuth — complicado.
+      // Uso el resumen (es corto pero lo suficiente como primer intento). Si insuficiente, iteramos.
+      evidencia += `\n=== ENTREVISTA ${e.numero} · ${e.entrevistado} (${e.rol}) ===\n`;
+      evidencia += `Fecha: ${e.fecha}\n`;
+      evidencia += `Entrevistador: ${e.entrevistadorUsuario}\n`;
+      if(e.notasPrevias) evidencia += `Notas previas: ${e.notasPrevias}\n`;
+      evidencia += `[Minuta completa disponible en el Doc: ${e.docUrl}]\n`;
+      evidencia += `Resumen: ${e.resumen || '(sin resumen)'}\n`;
+    } catch(err){}
+  }
+
+  document.getElementById('closeLoadingText').textContent = 'Claude está analizando la evidencia y redactando el dictamen...';
+  try {
+    const dictamen = await callClaude(PROMPT_DICTAMEN, evidencia, STATE.claudeKey, 8192);
+    STATE.closeDictamenText = dictamen;
+
+    // Extraer veredicto de la primera línea
+    const firstLine = dictamen.split('\n')[0].trim();
+    const m = firstLine.match(/VEREDICTO_MACHINE:\s*(PROCEDE|NO_PROCEDE|INCONCLUSO)/i);
+    STATE.closeVeredicto = m ? m[1].toUpperCase() : 'INCONCLUSO';
+    STATE.closeResumen = (dictamen.match(/##\s*10\.?\s*Resumen ejecutivo([\s\S]*?)(?=##|$)/i)||[])[1]?.trim().slice(0,500) || '';
+
+    document.getElementById('closeStep2').style.display = 'none';
+    document.getElementById('closeStep3').style.display = 'block';
+
+    const verClass = STATE.closeVeredicto.toLowerCase();
+    const verLabel = STATE.closeVeredicto === 'PROCEDE' ? '✅ PROCEDE' :
+                     STATE.closeVeredicto === 'NO_PROCEDE' ? '❌ NO PROCEDE' : '⚠️ INCONCLUSO';
+    document.getElementById('closeResultBox').innerHTML = `
+      <div class="dictamen-box ${verClass}" style="margin-bottom:12px">
+        <div class="dictamen-head">
+          <div class="dictamen-badge">${verLabel}</div>
+          <div style="flex:1">
+            <div style="font-weight:800">Veredicto propuesto por Claude</div>
+            <div style="font-size:11px;color:var(--gray)">Puedes editar el dictamen completo antes de confirmar</div>
+          </div>
+        </div>
+      </div>`;
+    // Quitar la línea VEREDICTO_MACHINE antes de mostrar
+    const cleanDictamen = dictamen.replace(/^VEREDICTO_MACHINE:.*\n?/i,'').trim();
+    document.getElementById('closeDictamenEdit').value = cleanDictamen;
+  } catch(e){
+    toast('error','Falló el dictamen', e.message || 'Inténtalo de nuevo');
+    document.getElementById('closeStep2').style.display = 'none';
+    document.getElementById('closeStep1').style.display = 'block';
+  }
+}
+
+async function confirmarDictamen(){
+  const btn = document.getElementById('btnConfirmarDictamen');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  const dictamenFinal = document.getElementById('closeDictamenEdit').value.trim();
+  try {
+    const r = await apiCall({
+      action:'caso_close',
+      usuario: STATE.session.usuario,
+      id: STATE.currentCaso.id,
+      veredicto: STATE.closeVeredicto,
+      dictamen: dictamenFinal,
+      resumen: STATE.closeResumen,
+    });
+    if(r.success){
+      toast('success','Caso cerrado','Dictamen guardado en Drive');
+      closeModal('Close');
+      openDetail(STATE.currentCaso.id);
+    } else {
+      toast('error','Error', r.error || 'No se pudo cerrar');
+      btn.disabled = false; btn.textContent = '✓ Guardar dictamen y cerrar caso';
+    }
+  } catch(e){
+    toast('error','Error de conexión','Inténtalo de nuevo');
+    btn.disabled = false; btn.textContent = '✓ Guardar dictamen y cerrar caso';
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// GRABACIÓN EN VIVO (para nuevo caso y para entrevistas — REC_NC y REC_INT)
+// ════════════════════════════════════════════════════════════════════════
+function pickMime(){
+  const cands = ['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus','audio/ogg'];
+  for(const m of cands){ if(window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m; }
+  return '';
+}
+
+function makeRec(prefix, setFileFn){
+  const R = { rec:null, stream:null, chunks:[], mime:'', t0:0, pt:0, ps:0, ti:null, mi:null, an:null, ctx:null };
+  async function start(){
+    if(R.rec) return;
+    if(!navigator.mediaDevices?.getUserMedia){ toast('error','No soportado','Navegador sin getUserMedia'); return; }
+    const mime = pickMime();
+    if(!mime){ toast('error','No soportado','Tu navegador no soporta formatos de audio compatibles'); return; }
+    try { R.stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}}); }
+    catch(e){ toast('error','Sin permiso','Autoriza el micrófono en tu navegador'); return; }
+    R.mime = mime; R.chunks = [];
+    R.rec = new MediaRecorder(R.stream, { mimeType: mime });
+    R.rec.ondataavailable = e => { if(e.data && e.data.size) R.chunks.push(e.data); };
+    R.rec.onstop = onStop;
+    R.rec.start(1000);
+    R.t0 = Date.now(); R.pt = 0; R.ps = 0;
+    document.getElementById(prefix+'RecIdle').style.display = 'none';
+    document.getElementById(prefix+'RecActive').style.display = 'block';
+    document.getElementById(prefix+'RecZone').classList.add('active');
+    setState('recording');
+    tick(); R.ti = setInterval(tick, 500);
+    startMeter();
+    window.addEventListener('beforeunload', warn);
+  }
+  function setState(s){
+    const lbl = document.getElementById(prefix+'RecStateLbl');
+    const ind = document.getElementById(prefix+'RecIndicator');
+    const btn = document.getElementById(prefix+'BtnPause');
+    if(s === 'recording'){ lbl.textContent = 'GRABANDO'; ind.classList.remove('paused'); btn.textContent = '⏸ Pausar'; }
+    else { lbl.textContent = 'EN PAUSA'; ind.classList.add('paused'); btn.textContent = '▶ Reanudar'; }
+  }
+  function togglePause(){
+    if(!R.rec) return;
+    if(R.rec.state === 'recording'){ R.rec.pause(); R.ps = Date.now(); setState('paused'); }
+    else if(R.rec.state === 'paused'){ R.pt += Date.now()-R.ps; R.ps = 0; R.rec.resume(); setState('recording'); }
+  }
+  function stop(){ if(R.rec) try{ R.rec.stop(); }catch(e){} }
+  function cancel(){ if(!R.rec) return; if(!confirm('¿Descartar la grabación?')) return; R.chunks = []; try{ R.rec.stop(); }catch(e){} setTimeout(()=>{ document.getElementById(prefix+'RecIdle').style.display='block'; document.getElementById(prefix+'RecActive').style.display='none'; document.getElementById(prefix+'RecZone').classList.remove('active'); },100); }
+  function onStop(){
+    if(R.ti){ clearInterval(R.ti); R.ti = null; }
+    stopMeter();
+    window.removeEventListener('beforeunload', warn);
+    if(R.stream){ R.stream.getTracks().forEach(t=>t.stop()); R.stream = null; }
+    const chunks = R.chunks; const mime = R.mime;
+    R.rec = null; R.chunks = [];
+    document.getElementById(prefix+'RecIdle').style.display = 'block';
+    document.getElementById(prefix+'RecActive').style.display = 'none';
+    document.getElementById(prefix+'RecZone').classList.remove('active');
+    if(!chunks.length) return;
+    const blob = new Blob(chunks, { type: mime });
+    const ext = mime.includes('mp4')?'m4a':mime.includes('ogg')?'ogg':'webm';
+    const file = new File([blob], `grabacion-${Date.now()}.${ext}`, { type: mime });
+    setFileFn(file);
+    toast('success','Grabación lista','Audio capturado correctamente');
+  }
+  function tick(){
+    const pausedNow = R.ps ? (Date.now()-R.ps) : 0;
+    const s = Math.max(0, Math.floor((Date.now()-R.t0-R.pt-pausedNow)/1000));
+    const hh = String(Math.floor(s/3600)).padStart(2,'0');
+    const mm = String(Math.floor((s%3600)/60)).padStart(2,'0');
+    const ss = String(s%60).padStart(2,'0');
+    const t = document.getElementById(prefix+'RecTimer');
+    if(t) t.textContent = `${hh}:${mm}:${ss}`;
+    if(prefix === 'int') STATE.intDuracion = s;
+  }
+  function startMeter(){
+    try {
+      R.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const src = R.ctx.createMediaStreamSource(R.stream);
+      R.an = R.ctx.createAnalyser(); R.an.fftSize = 256;
+      src.connect(R.an);
+      const buf = new Uint8Array(R.an.frequencyBinCount);
+      const bar = document.getElementById(prefix+'RecMeterBar');
+      R.mi = setInterval(() => {
+        if(!R.an) return;
+        R.an.getByteFrequencyData(buf);
+        let sum = 0; for(let i=0;i<buf.length;i++) sum += buf[i];
+        const pct = Math.min(100, (sum/buf.length/128)*100);
+        if(bar) bar.style.width = pct + '%';
+      }, 100);
+    } catch(e){}
+  }
+  function stopMeter(){
+    if(R.mi){ clearInterval(R.mi); R.mi = null; }
+    if(R.ctx){ try{R.ctx.close()}catch(e){} R.ctx = null; }
+    R.an = null;
+    const bar = document.getElementById(prefix+'RecMeterBar');
+    if(bar) bar.style.width = '0%';
+  }
+  function warn(e){ e.preventDefault(); e.returnValue = 'Tienes una grabación activa'; return e.returnValue; }
+  return { start, stop, cancel, togglePause };
+}
+
+const RecNewCase = makeRec('newCase', setNewCaseFile);
+const RecInt     = makeRec('int',     setIntFile);
+function startRecordingNewCase(){ RecNewCase.start(); }
+function stopRecordingNewCase(){  RecNewCase.stop(); }
+function cancelRecordingNewCase(){ RecNewCase.cancel(); }
+function togglePauseRecNewCase(){ RecNewCase.togglePause(); }
+function startRecordingInt(){ RecInt.start(); }
+function stopRecordingInt(){  RecInt.stop(); }
+function cancelRecordingInt(){ RecInt.cancel(); }
+function togglePauseRecInt(){ RecInt.togglePause(); }
+
+// Drag&drop para dropzones dentro de modales
+[['newCaseDropzone','newCaseAudioInp','newCaseDzFile',setNewCaseFile],
+ ['intDropzone','intAudioInp','intDzFile',setIntFile]].forEach(([dzId,inpId,fileId,setFn])=>{
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const dz = document.getElementById(dzId); if(!dz) return;
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault(); dz.classList.remove('drag');
+      if(e.dataTransfer.files && e.dataTransfer.files[0]) setFn(e.dataTransfer.files[0]);
+    });
+  });
+});
+</script>
+</body>
+</html>
