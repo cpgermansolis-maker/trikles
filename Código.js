@@ -29,7 +29,30 @@ const SHEETS = {
   SOLICITUDES_TR:  'Solicitudes_Transcripcion',
   CASOS:           'Casos_Denuncia',
   ENTREVISTAS:     'Entrevistas_Denuncia',
+  EVIDENCIAS:      'Evidencias_Denuncia',
 };
+
+// Tipos de denuncia disponibles para el dropdown del expediente
+const TIPOS_DENUNCIA = [
+  'Acoso laboral',
+  'Acoso sexual',
+  'Discriminación',
+  'Fraude o malversación',
+  'Conflicto de interés',
+  'Violencia laboral',
+  'Violación al código de ética',
+  'Corrupción / soborno',
+  'Robo o sustracción',
+  'Represalia',
+  'Otro',
+];
+
+// Tipos de evidencia
+const TIPOS_EVIDENCIA = [
+  'Documento', 'Imagen', 'Audio', 'Video',
+  'Correo electrónico', 'Testimonio escrito',
+  'Registro / log', 'Acta o constancia', 'Otro',
+];
 
 // ── Claves de PropertiesService para API keys del transcriptor ────────────
 const TR_KEYS = {
@@ -109,6 +132,9 @@ function doGet(e) {
       case 'caso_reopen':        result = casoReopen(p);               break;
       case 'entrevista_add':     result = entrevistaAdd(p);            break;
       case 'entrevista_delete':  result = entrevistaDelete(p);         break;
+      case 'evidencia_add':      result = evidenciaAdd(p);             break;
+      case 'evidencia_delete':   result = evidenciaDelete(p);          break;
+      case 'tipos_denuncia':     result = { success:true, data:TIPOS_DENUNCIA, evidencias:TIPOS_EVIDENCIA }; break;
       case 'ping':
         result = { success: true, message: 'API TRIKLES activa v2.0' };
         break;
@@ -174,6 +200,7 @@ function doPost(e) {
       case 'caso_update':     result = casoUpdate(params); break;
       case 'caso_close':      result = casoClose(params); break;
       case 'entrevista_add':  result = entrevistaAdd(params); break;
+      case 'evidencia_add':   result = evidenciaAdd(params); break;
       default: result = { success: false, error: 'Acción no reconocida' };
     }
 
@@ -947,14 +974,24 @@ function setupSheets() {
   // ── Hoja: Casos de Denuncia ──────────────────────────────────────────
   sh = getOrCreateSheet(ss, SHEETS.CASOS);
   if (sh.getLastRow() === 0 || sh.getRange(1,1).getValue() === '') {
-    sh.getRange(1, 1, 1, 18).setValues([[
+    sh.getRange(1, 1, 1, 19).setValues([[
       'ID','Numero','Empresa','FechaApertura','Denunciante','Denunciado',
       'Descripcion','FolderDriveId','DenunciaDocId','DenunciaAudioId',
       'Estado','AbiertoPor','CerradoPor','FechaCierre','DictamenDocId',
-      'DictamenVeredicto','DictamenResumen','Timestamp'
+      'DictamenVeredicto','DictamenResumen','Timestamp','TipoDenuncia'
     ]]);
     formatHeader(sh);
     creadas.push(SHEETS.CASOS);
+  } else {
+    // Migración: agregar columna TipoDenuncia si no existe
+    const lastCol = sh.getLastColumn();
+    if (lastCol < 19){
+      sh.getRange(1, 19).setValue('TipoDenuncia');
+      const n = sh.getLastRow() - 1;
+      if (n > 0) sh.getRange(2, 19, n, 1).setValue('Otro');
+      formatHeader(sh);
+      creadas.push(SHEETS.CASOS + ' (migrada)');
+    }
   }
 
   // ── Hoja: Entrevistas de Denuncia ────────────────────────────────────
@@ -967,6 +1004,17 @@ function setupSheets() {
     ]]);
     formatHeader(sh);
     creadas.push(SHEETS.ENTREVISTAS);
+  }
+
+  // ── Hoja: Evidencias de Denuncia ─────────────────────────────────────
+  sh = getOrCreateSheet(ss, SHEETS.EVIDENCIAS);
+  if (sh.getLastRow() === 0 || sh.getRange(1,1).getValue() === '') {
+    sh.getRange(1, 1, 1, 11).setValues([[
+      'ID','CasoID','Numero','FechaRecabada','Tipo','Titulo',
+      'Descripcion','RecabadaPor','DriveFileId','LinkExterno','Timestamp'
+    ]]);
+    formatHeader(sh);
+    creadas.push(SHEETS.EVIDENCIAS);
   }
 
   return {
@@ -2560,6 +2608,8 @@ function casoCreate(params){
   const denunciante  = String(params.denunciante || '').trim() || 'ANONIMA';
   const denunciado   = String(params.denunciado || '').trim();
   const descripcion  = String(params.descripcion || '').trim();
+  const tipo         = String(params.tipoDenuncia || 'Otro').trim();
+  const fechaAp      = String(params.fechaApertura || '').trim(); // yyyy-MM-dd opcional
   const minutaAudio  = String(params.minutaAudio || '').trim();       // si hubo grabación al capturar
   const transcripcionAudio = String(params.transcripcionAudio || ''); // transcripción de la grabación inicial
 
@@ -2578,11 +2628,13 @@ function casoCreate(params){
   const folder = _getCasoFolder(empresa, numero, descBreve);
 
   // Crear Doc de denuncia inicial
-  const fecha = Utilities.formatDate(new Date(), 'America/Mexico_City', 'yyyy-MM-dd HH:mm');
+  const fechaActual = Utilities.formatDate(new Date(), 'America/Mexico_City', 'yyyy-MM-dd HH:mm');
+  const fecha = fechaAp ? (fechaAp + ' ' + Utilities.formatDate(new Date(), 'America/Mexico_City', 'HH:mm')) : fechaActual;
   const doc = DocumentApp.create(numero + ' - 00 Denuncia Inicial');
   const body = doc.getBody();
   body.appendParagraph(numero + ' — DENUNCIA INICIAL').setHeading(DocumentApp.ParagraphHeading.TITLE);
   body.appendParagraph('Empresa: ' + empresa);
+  body.appendParagraph('Tipo de denuncia: ' + tipo);
   body.appendParagraph('Fecha de apertura: ' + fecha);
   body.appendParagraph('Abierto por: ' + auth.user.nombre + ' (' + auth.user.usuario + ')');
   body.appendHorizontalRule();
@@ -2614,7 +2666,7 @@ function casoCreate(params){
     id, numero, empresa, fecha, denunciante, denunciado,
     descripcion, folder.getId(), doc.getId(), '',
     'ABIERTO', auth.user.usuario, '', '', '',
-    '', '', new Date().toISOString()
+    '', '', new Date().toISOString(), tipo
   ]);
 
   return {
@@ -2663,6 +2715,7 @@ function casoGet(params){
         dictamenVeredicto: data[i][15],
         dictamenResumen: data[i][16],
         timestamp:       data[i][17],
+        tipoDenuncia:    data[i][18] || 'Otro',
       };
       filaCaso = i + 1;
       break;
@@ -2709,7 +2762,34 @@ function casoGet(params){
     entrevistas.sort((a,b) => String(a.numero).localeCompare(String(b.numero)));
   }
 
-  return { success: true, caso, entrevistas };
+  // Traer evidencias del caso
+  const shEv = ss.getSheetByName(SHEETS.EVIDENCIAS);
+  const evidencias = [];
+  if (shEv && shEv.getLastRow() > 1){
+    const vData = shEv.getDataRange().getValues();
+    for (let i = 1; i < vData.length; i++){
+      if (String(vData[i][1]) === id){
+        const fileId = vData[i][8];
+        evidencias.push({
+          id:            vData[i][0],
+          casoId:        vData[i][1],
+          numero:        vData[i][2],
+          fechaRecabada: vData[i][3],
+          tipo:          vData[i][4],
+          titulo:        vData[i][5],
+          descripcion:   vData[i][6],
+          recabadaPor:   vData[i][7],
+          driveFileId:   fileId,
+          driveUrl:      fileId ? 'https://drive.google.com/file/d/' + fileId + '/view' : '',
+          linkExterno:   vData[i][9],
+          timestamp:     vData[i][10],
+        });
+      }
+    }
+    evidencias.sort((a,b) => String(a.numero).localeCompare(String(b.numero)));
+  }
+
+  return { success: true, caso, entrevistas, evidencias };
 }
 
 // ── casoUpdate: edita campos del caso (descripción, denunciante, denunciado)
@@ -2992,6 +3072,116 @@ function entrevistaAdd(params){
     docUrl: doc.getUrl(),
     message: 'Entrevista ' + numero + ' agregada'
   };
+}
+
+// ── evidenciaAdd: agrega una evidencia al caso
+function evidenciaAdd(params){
+  const auth = _trCheckAuth(params.usuario);
+  if (!auth.ok) return { success: false, error: auth.error || 'No autorizado' };
+
+  const casoId       = String(params.casoId || '');
+  const tipo         = String(params.tipo || 'Otro');
+  const titulo       = String(params.titulo || '').trim();
+  const descripcion  = String(params.descripcion || '').trim();
+  const linkExterno  = String(params.linkExterno || '').trim();
+  const fechaRec     = String(params.fechaRecabada || '').trim();
+  const fileDataB64  = String(params.fileDataBase64 || ''); // archivo opcional en base64
+  const fileName     = String(params.fileName || 'evidencia');
+  const fileMime     = String(params.fileMime || 'application/octet-stream');
+
+  if (!casoId)      return { success: false, error: 'CasoID requerido' };
+  if (!titulo)      return { success: false, error: 'Título requerido' };
+  if (!descripcion && !fileDataB64 && !linkExterno){
+    return { success: false, error: 'Agrega una descripción, archivo o link' };
+  }
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const shCasos = ss.getSheetByName(SHEETS.CASOS);
+  const data = shCasos.getDataRange().getValues();
+  let caso = null;
+  for (let i = 1; i < data.length; i++){
+    if (String(data[i][0]) === casoId){
+      caso = { empresa: String(data[i][2]), numero: String(data[i][1]), folderId: data[i][7], estado: data[i][10] };
+      break;
+    }
+  }
+  if (!caso) return { success: false, error: 'Caso no encontrado' };
+  if (auth.user.rol !== 'SUPER_ADMIN' &&
+      caso.empresa.toLowerCase() !== String(auth.user.empresa).toLowerCase()){
+    return { success: false, error: 'No tienes acceso a este caso' };
+  }
+
+  // Numero de evidencia
+  const shEv = getOrCreateSheet(ss, SHEETS.EVIDENCIAS);
+  let max = 0;
+  if (shEv.getLastRow() > 1){
+    const vData = shEv.getDataRange().getValues();
+    for (let j = 1; j < vData.length; j++){
+      if (String(vData[j][1]) === casoId){
+        const n = parseInt(String(vData[j][2]).replace(/^0+/,'')) || 0;
+        max = Math.max(max, n);
+      }
+    }
+  }
+  const numero = 'E' + String(max + 1).padStart(2, '0');
+
+  // Si hay archivo, crearlo en Drive dentro de la carpeta del caso
+  let driveFileId = '';
+  if (fileDataB64 && caso.folderId){
+    try {
+      const folder = DriveApp.getFolderById(caso.folderId);
+      const bytes = Utilities.base64Decode(fileDataB64);
+      const blob = Utilities.newBlob(bytes, fileMime, caso.numero + ' - ' + numero + ' ' + titulo + ' - ' + fileName);
+      const file = folder.createFile(blob);
+      driveFileId = file.getId();
+    } catch(e) {
+      return { success: false, error: 'Error al guardar el archivo en Drive: ' + e.toString() };
+    }
+  }
+
+  const fecha = fechaRec || Utilities.formatDate(new Date(), 'America/Mexico_City', 'yyyy-MM-dd');
+  const id = Utilities.getUuid();
+  shEv.appendRow([
+    id, casoId, numero, fecha, tipo, titulo,
+    descripcion, auth.user.usuario, driveFileId, linkExterno,
+    new Date().toISOString()
+  ]);
+  return {
+    success: true,
+    id, numero,
+    driveFileId,
+    driveUrl: driveFileId ? 'https://drive.google.com/file/d/' + driveFileId + '/view' : '',
+    message: 'Evidencia ' + numero + ' agregada'
+  };
+}
+
+// ── evidenciaDelete: borrar una evidencia (SA o quien la subió)
+function evidenciaDelete(params){
+  const auth = _trCheckAuth(params.usuario);
+  if (!auth.ok) return { success: false, error: auth.error || 'No autorizado' };
+  const id = String(params.id || '');
+  if (!id) return { success: false, error: 'ID requerido' };
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const shEv = ss.getSheetByName(SHEETS.EVIDENCIAS);
+  if (!shEv) return { success: false, error: 'Hoja Evidencias no existe' };
+
+  const data = shEv.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++){
+    if (String(data[i][0]) === id){
+      const creador = String(data[i][7]);
+      const esCreador    = creador.toLowerCase() === String(auth.user.usuario).toLowerCase();
+      const esSuperAdmin = auth.user.rol === 'SUPER_ADMIN';
+      if (!esSuperAdmin && !esCreador){
+        return { success: false, error: 'Solo el SuperAdmin o quien subió la evidencia puede borrarla' };
+      }
+      const fileId = data[i][8];
+      if (fileId){ try { DriveApp.getFileById(fileId).setTrashed(true); } catch(e) {} }
+      shEv.deleteRow(i + 1);
+      return { success: true, message: 'Evidencia eliminada' };
+    }
+  }
+  return { success: false, error: 'Evidencia no encontrada' };
 }
 
 // ── entrevistaDelete: borrar una entrevista
