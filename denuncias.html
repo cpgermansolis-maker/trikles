@@ -580,6 +580,21 @@ function apiCall(params){
   });
 }
 
+// POST para payloads grandes (transcripciones, minutas, dictamenes)
+// text/plain evita preflight CORS; el backend hace JSON.parse(e.postData.contents)
+async function apiPost(params){
+  const resp = await fetch(API_BASE, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(params),
+    redirect: 'follow',
+  });
+  if(!resp.ok) throw new Error('HTTP ' + resp.status);
+  const text = await resp.text();
+  try { return JSON.parse(text); }
+  catch(e) { throw new Error('Respuesta inválida del servidor'); }
+}
+
 // ════════════════════════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════════════════════════
@@ -761,7 +776,7 @@ async function guardarNuevoCaso(){
   }
 
   try {
-    const r = await apiCall(params);
+    const r = await apiPost(params);
     if(r.success){
       toast('success','Caso abierto', r.numero + ' creado correctamente');
       closeModal('NewCase');
@@ -1000,7 +1015,7 @@ async function procesarEntrevista(){
     setStepInt(3,'ok'); setStepInt(4,'on'); setProgressInt(90);
 
     const resumen = minuta.split('\n').filter(l=>l.trim()).slice(0,3).join(' ').slice(0,300);
-    const r = await apiCall({
+    const r = await apiPost({
       action: 'entrevista_add',
       usuario: STATE.session.usuario,
       casoId: STATE.currentCaso.id,
@@ -1330,7 +1345,7 @@ async function confirmarDictamen(){
   btn.disabled = true; btn.textContent = 'Guardando...';
   const dictamenFinal = document.getElementById('closeDictamenEdit').value.trim();
   try {
-    const r = await apiCall({
+    const r = await apiPost({
       action:'caso_close',
       usuario: STATE.session.usuario,
       id: STATE.currentCaso.id,

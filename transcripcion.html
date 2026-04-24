@@ -515,6 +515,20 @@ function apiCall(params){
   });
 }
 
+// POST para payloads grandes (transcripciones, minutas). text/plain evita preflight CORS.
+async function apiPost(params){
+  const resp = await fetch(API_BASE, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(params),
+    redirect: 'follow',
+  });
+  if(!resp.ok) throw new Error('HTTP ' + resp.status);
+  const text = await resp.text();
+  try { return JSON.parse(text); }
+  catch(e) { throw new Error('Respuesta inválida del servidor'); }
+}
+
 // ════════════════════════════════════════════════════════════════════════
 // UI helpers
 // ════════════════════════════════════════════════════════════════════════
@@ -1166,7 +1180,7 @@ async function guardarEnDrive(){
   try {
     const titulo = document.getElementById('tituloInp').value.trim() ||
                    (STATE.tipo === 'DENUNCIA' ? 'Denuncia' : 'Junta') + ' — ' + new Date().toLocaleDateString('es-MX');
-    const r = await apiCall({
+    const r = await apiPost({
       action: 'tr_save',
       usuario: s.usuario,
       empresa: STATE.empresa || s.empresa,
