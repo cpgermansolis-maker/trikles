@@ -486,8 +486,26 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
 // ════════════════════════════════════════════════════════════════════════
 const API_BASE = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
 const SK = 'trikles_session';
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_MODEL = 'gemini-2.0-flash';
 const CLAUDE_MODEL = 'claude-sonnet-4-5-20250929';
+
+// Reintento con espera exponencial para errores transitorios de API (503, 429, overload)
+async function withRetry(fn, maxRetries, onRetry){
+  let last;
+  for(let i = 0; i <= maxRetries; i++){
+    try { return await fn(); }
+    catch(e){
+      last = e;
+      const msg = String(e.message || '');
+      const retryable = /503|UNAVAILABLE|overload|high demand|429|rate|temporar/i.test(msg);
+      if(i === maxRetries || !retryable) throw e;
+      const waitMs = 2000 * Math.pow(2, i); // 2s, 4s, 8s
+      if(onRetry) onRetry(i + 1, Math.ceil(waitMs / 1000));
+      await new Promise(r => setTimeout(r, waitMs));
+    }
+  }
+  throw last;
+}
 
 const STATE = {
   session: null,
@@ -1036,17 +1054,21 @@ async function transcribeWithGemini(mimeOrFileData, fileDataOrKey, maybeKey){
 - Si hay varios hablantes identificables, etiquétalos como "Hablante 1:", "Hablante 2:", etc.
 - Marca pausas largas o ruidos con [pausa] o [inaudible].
 - NO agregues encabezados ni comentarios tuyos. Solo la transcripción textual.`;
-  const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=`+encodeURIComponent(apiKey),
-    { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        contents: [{role:'user', parts:[ { text:prompt }, { file_data:{ mime_type: fileData.mimeType, file_uri: fileData.uri } } ]}],
-        generationConfig:{ temperature:0.1, maxOutputTokens:32768 }
-      }) });
-  if(!resp.ok){ const t = await resp.text(); throw new Error('Gemini generate: '+resp.status+' '+t.slice(0,300)); }
-  const data = await resp.json();
-  const text = data.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('') || '';
-  if(!text) throw new Error('Gemini no devolvió transcripción');
-  return text.trim();
+  return withRetry(async () => {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=`+encodeURIComponent(apiKey),
+      { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          contents: [{role:'user', parts:[ { text:prompt }, { file_data:{ mime_type: fileData.mimeType, file_uri: fileData.uri } } ]}],
+          generationConfig:{ temperature:0.1, maxOutputTokens:32768 }
+        }) });
+    if(!resp.ok){ const t = await resp.text(); throw new Error('Gemini generate: '+resp.status+' '+t.slice(0,300)); }
+    const data = await resp.json();
+    const text = data.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('') || '';
+    if(!text) throw new Error('Gemini no devolvió transcripción');
+    return text.trim();
+  }, 3, (n, waitSec) => {
+    toast('warning', 'Gemini saturado', `Reintentando en ${waitSec} segundos... (${n}/3)`, 3000);
+  });
 }
 
 const PROMPT_ENTREVISTA = `Eres un documentalista profesional de investigaciones internas en empresas.
@@ -1122,26 +1144,30 @@ async function makeEntrevistaMinuta(transcripcion, rol, contexto, apiKey){
 }
 
 async function callClaude(system, user, apiKey, maxTokens){
-  const resp = await fetch('https://api.anthropic.com/v1/messages', {
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version':'2023-06-01',
-      'anthropic-dangerous-direct-browser-access':'true',
-    },
-    body: JSON.stringify({
-      model: CLAUDE_MODEL,
-      max_tokens: maxTokens || 8192,
-      system: system,
-      messages: [{ role:'user', content: user }],
-    })
+  return withRetry(async () => {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true',
+      },
+      body: JSON.stringify({
+        model: CLAUDE_MODEL,
+        max_tokens: maxTokens || 8192,
+        system: system,
+        messages: [{ role:'user', content: user }],
+      })
+    });
+    if(!resp.ok){ const t = await resp.text(); throw new Error('Claude: '+resp.status+' '+t.slice(0,300)); }
+    const data = await resp.json();
+    const text = data.content?.map(c => c.text || '').join('') || '';
+    if(!text) throw new Error('Claude no devolvió respuesta');
+    return text.trim();
+  }, 3, (n, waitSec) => {
+    toast('warning', 'Claude saturado', `Reintentando en ${waitSec} segundos... (${n}/3)`, 3000);
   });
-  if(!resp.ok){ const t = await resp.text(); throw new Error('Claude: '+resp.status+' '+t.slice(0,300)); }
-  const data = await resp.json();
-  const text = data.content?.map(c => c.text || '').join('') || '';
-  if(!text) throw new Error('Claude no devolvió respuesta');
-  return text.trim();
 }
 
 // ════════════════════════════════════════════════════════════════════════
