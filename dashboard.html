@@ -42,6 +42,25 @@ body{background:var(--bg);color:var(--white);font-family:'Nunito',sans-serif;min
 .btn-nav:hover{border-color:var(--orange);color:var(--orange);}
 .btn-nav.dash{background:linear-gradient(135deg,rgba(245,130,31,.2),rgba(245,130,31,.1));
   border-color:rgba(245,130,31,.5);color:var(--orange);font-weight:900;}
+
+/* Dropdown agrupado "IA" (Transcribir + Denuncias) */
+.nav-group{position:relative;display:inline-flex}
+.nav-group-btn{background:linear-gradient(135deg,rgba(155,89,182,.15),rgba(231,76,60,.15));
+  border:1px solid rgba(155,89,182,.45);color:#c88bc3;padding:7px 14px;border-radius:8px;
+  cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;
+  display:inline-flex;align-items:center;gap:5px;transition:.2s}
+.nav-group-btn:hover{border-color:#e74c3c;background:linear-gradient(135deg,rgba(155,89,182,.25),rgba(231,76,60,.25))}
+.nav-group-btn .caret{font-size:9px;margin-left:4px;transition:transform .2s}
+.nav-group.open .nav-group-btn .caret{transform:rotate(180deg)}
+.nav-group-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;min-width:210px;
+  background:#141414;border:1px solid #333;border-radius:10px;padding:6px;z-index:401;
+  box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.nav-group.open .nav-group-menu{display:flex;flex-direction:column;gap:2px}
+.nav-group-menu a{display:flex;align-items:center;gap:8px;padding:10px 14px;color:#ccc;
+  font-size:12px;font-weight:700;text-decoration:none;border-radius:7px;transition:.15s}
+.nav-group-menu a.purple:hover,.nav-group-menu a.purple.current{background:rgba(155,89,182,.2);color:#b979d1}
+.nav-group-menu a.red:hover,.nav-group-menu a.red.current{background:rgba(231,76,60,.18);color:#e74c3c}
+.nav-group-menu a .sub{display:block;font-size:10px;color:var(--gray);font-weight:600;margin-top:2px}
 .btn-pdf{background:linear-gradient(135deg,var(--orange),var(--orange2));border:none;color:#fff;
   padding:7px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;
   font-weight:800;cursor:pointer;transition:.2s;}
@@ -313,8 +332,13 @@ select.sel:focus{outline:none;border-color:var(--orange);}
     <a class="btn-nav" href="cuentas.html" id="btnCxC" style="display:none">💳 CxC</a>
       <a class="btn-nav" href="costos.html" id="btnCostos" style="display:none">💰 Costos</a>
     <a class="btn-nav" href="panel.html" id="btnPanel" style="display:none">⚙️ Panel</a>
-    <a class="btn-nav" href="transcripcion.html" id="btnTranscribir" style="background:rgba(155,89,182,.15);border-color:rgba(155,89,182,.55);color:#b979d1">🎙️ Transcribir</a>
-    <a class="btn-nav" href="denuncias.html" id="btnDenuncias" style="background:rgba(231,76,60,.15);border-color:rgba(231,76,60,.55);color:#e74c3c">🔒 Denuncias</a>
+    <div class="nav-group" id="navGroup">
+      <button class="nav-group-btn" onclick="toggleNavGroup(event)">🎙️ IA<span class="caret">▾</span></button>
+      <div class="nav-group-menu">
+        <a href="transcripcion.html" class="purple">🎙️ Transcribir<span class="sub">Juntas regulares</span></a>
+        <a href="denuncias.html" class="red">🔒 Denuncias<span class="sub">Investigaciones internas</span></a>
+      </div>
+    </div>
     <a class="btn-nav" href="juegos.html" style="background:rgba(245,130,31,.15);border-color:rgba(245,130,31,.5);color:#F5821F">🎮 Juegos</a>
     <button class="btn-pdf" onclick="exportPDF()">📄 PDF</button>
     <div class="user-pill"><div class="u-dot"></div><span id="userChip">...</span></div>
@@ -1382,6 +1406,16 @@ function toggleMenu() {
   nav.classList.toggle('open');
   btn.classList.toggle('open');
 }
+
+function toggleNavGroup(e){
+  if(e) e.stopPropagation();
+  const g = document.getElementById('navGroup');
+  if(g) g.classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  const g = document.getElementById('navGroup');
+  if(g && !g.contains(e.target)) g.classList.remove('open');
+});
 
 /* ──── KPIs ──── */
 function updateKPIs(data){
