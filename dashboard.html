@@ -2610,12 +2610,14 @@ function exportPDF(){
       try {
         const S = (typeof getS === 'function') ? getS() : null;
         if (S) {
+          // Usar la empresa que se está viendo: para SuperAdmin con filtro, empresaFiltro; si no, s.empresa
+          const empresaPdf = (S.empresaFiltro && S.empresaFiltro !== 'ALL') ? S.empresaFiltro : S.empresa;
           const rCxC = await new Promise((resolve, reject) => {
             const cbn = 'pdfBanCb_' + Date.now();
             const sc = document.createElement('script');
             window[cbn] = d => { delete window[cbn]; sc.remove(); resolve(d); };
             sc.onerror = () => { delete window[cbn]; sc.remove(); reject(); };
-            sc.src = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec?action=getCxC&empresa=' + encodeURIComponent(S.empresa) + '&callback=' + cbn;
+            sc.src = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec?action=getCxC&empresa=' + encodeURIComponent(empresaPdf) + '&callback=' + cbn;
             document.head.appendChild(sc);
             setTimeout(() => { try{delete window[cbn]; sc.remove();}catch(e){}; reject(); }, 10000);
           });
@@ -2643,7 +2645,9 @@ function exportPDF(){
       } catch(e){ console.warn('getCxC para PDF:', e); }
 
       timeline.sort((a,b) => a.fecha < b.fecha ? -1 : (a.fecha > b.fecha ? 1 : 0));
-      if (!timeline.length) return;
+      console.log('[PDF Bancos] Timeline con', timeline.length, 'movimientos');
+      // Continuar incluso si timeline está vacío: rendereamos gráficas "en cero" para que
+      // la sección siempre aparezca en el PDF (con mensaje claro de "sin movimientos")
 
       // Crear contenedor oculto con 3 canvases
       const container = document.createElement('div');
@@ -3005,15 +3009,21 @@ function exportPDF(){
       </div>
     </div>` : ''}
 
-    ${(bancosImgs.saldo || bancosImgs.mov || bancosImgs.comp) ? `
     <div class="sec page-break">
       <div class="sec-t">ESTADO DE CUENTA BANCARIO</div>
-      ${bancosImgs.saldo ? `<div class="chart-cell"><div class="chart-ttl">🏦 Evolución del Saldo Bancario</div><img class="ci" src="${bancosImgs.saldo}"></div>` : ''}
-      <div class="g2">
-        ${bancosImgs.mov ? `<div class="chart-cell"><div class="chart-ttl">🔄 Cargos vs Abonos</div><img class="ci" src="${bancosImgs.mov}"></div>` : ''}
-        ${bancosImgs.comp ? `<div class="chart-cell"><div class="chart-ttl">🥧 Composición de Cargos</div><img class="ci" src="${bancosImgs.comp}"></div>` : ''}
-      </div>
-    </div>` : ''}
+      ${(bancosImgs.saldo || bancosImgs.mov || bancosImgs.comp) ? `
+        ${bancosImgs.saldo ? `<div class="chart-cell"><div class="chart-ttl">🏦 Evolución del Saldo Bancario</div><img class="ci" src="${bancosImgs.saldo}"></div>` : ''}
+        <div class="g2">
+          ${bancosImgs.mov ? `<div class="chart-cell"><div class="chart-ttl">🔄 Cargos vs Abonos</div><img class="ci" src="${bancosImgs.mov}"></div>` : ''}
+          ${bancosImgs.comp ? `<div class="chart-cell"><div class="chart-ttl">🥧 Composición de Cargos</div><img class="ci" src="${bancosImgs.comp}"></div>` : ''}
+        </div>
+      ` : `
+        <div style="padding:40px;text-align:center;color:#888;font-size:14px;background:#f9f9f9;border:1px dashed #ddd;border-radius:8px;">
+          Sin movimientos bancarios capturados en el período seleccionado.<br>
+          <small>Registra movimientos desde el módulo <b>🏦 Bancos</b> para verlos aquí.</small>
+        </div>
+      `}
+    </div>
 
     ${(imgs.cv_res_saldo || imgs.cv_res_mov || imgs.cv_res_salidas || imgs.cv_cxp_saldo || imgs.cv_cxp_mov) ? `
     <div class="sec page-break">
