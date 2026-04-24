@@ -200,6 +200,7 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
   <div class="topbar-right">
     <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()"><span></span><span></span><span></span></button>
     <a class="btn-nav" href="dashboard.html">📊 Dashboard</a>
+    <a class="btn-nav" href="denuncias.html" style="background:rgba(231,76,60,.15);border-color:rgba(231,76,60,.55);color:#e74c3c">🔒 Denuncias</a>
     <a class="btn-nav" href="panel.html" id="lnkPanel" style="display:none">⚙️ Panel</a>
     <a class="btn-nav" href="manual.html">❓ Ayuda</a>
     <button class="btn-out" onclick="logout()">Salir ✕</button>
@@ -209,6 +210,7 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
 <div class="mobile-nav" id="mobileNav">
   <button class="mobile-nav-close" onclick="toggleMenu()">✕</button>
   <a href="dashboard.html" class="btn-nav">📊 Dashboard</a>
+  <a href="denuncias.html" class="btn-nav" style="background:rgba(231,76,60,.15);border-color:rgba(231,76,60,.55);color:#e74c3c">🔒 Denuncias</a>
   <a href="panel.html" class="btn-nav" id="mNavPanel" style="display:none">⚙️ Panel</a>
   <a href="bancos.html" class="btn-nav">🏦 Bancos</a>
   <a href="manual.html" class="btn-nav">❓ Ayuda</a>
@@ -295,18 +297,11 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
         </div>
       </div>
 
-      <div class="fg" style="margin-bottom:14px">
-        <label>Tipo de transcripción</label>
-        <div class="tipo-group">
-          <div class="tipo-opt selected" data-tipo="JUNTA" onclick="selectTipo('JUNTA')">
-            <div class="tipo-opt-ttl">📋 Junta Regular</div>
-            <div class="tipo-opt-txt">Resumen, participantes, acuerdos, pendientes</div>
-          </div>
-          <div class="tipo-opt" data-tipo="DENUNCIA" onclick="selectTipo('DENUNCIA')">
-            <div class="tipo-opt-ttl">🔒 Denuncia Interna</div>
-            <div class="tipo-opt-txt">Cronología, señalamientos, declaraciones literales</div>
-          </div>
-        </div>
+      <!-- Aviso hacia el módulo Denuncias -->
+      <div style="padding:12px 14px;background:rgba(231,76,60,.06);border-left:3px solid var(--red,#e74c3c);border-radius:6px;margin-bottom:14px;font-size:12px;color:#ccc">
+        <strong style="color:#e74c3c">🔒 ¿Estás documentando una denuncia interna?</strong><br>
+        Este módulo es para <strong>juntas regulares</strong>. Para investigaciones con múltiples entrevistas, veredicto y expediente completo, usa el módulo específico:
+        <a href="denuncias.html" style="color:#e74c3c;font-weight:800;margin-left:6px">→ Ir a Denuncias Internas</a>
       </div>
 
       <div class="dropzone" id="dropzone" onclick="document.getElementById('audioInp').click()">
@@ -628,15 +623,7 @@ async function cargarEmpresas(){
   } catch(e) { /* silencioso */ }
 }
 
-// ════════════════════════════════════════════════════════════════════════
-// TIPO (Junta / Denuncia)
-// ════════════════════════════════════════════════════════════════════════
-function selectTipo(tipo){
-  STATE.tipo = tipo;
-  document.querySelectorAll('.tipo-opt').forEach(el => {
-    el.classList.toggle('selected', el.dataset.tipo === tipo);
-  });
-}
+// STATE.tipo queda fijo en 'JUNTA'. Las denuncias viven en denuncias.html con un flujo de caso completo.
 
 // ════════════════════════════════════════════════════════════════════════
 // DROPZONE
