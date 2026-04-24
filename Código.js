@@ -134,6 +134,7 @@ function doGet(e) {
       case 'entrevista_delete':  result = entrevistaDelete(p);         break;
       case 'evidencia_add':      result = evidenciaAdd(p);             break;
       case 'evidencia_delete':   result = evidenciaDelete(p);          break;
+      case 'evaluacion_save':    result = evaluacionSave(p);           break;
       case 'tipos_denuncia':     result = { success:true, data:TIPOS_DENUNCIA, evidencias:TIPOS_EVIDENCIA }; break;
       case 'ping':
         result = { success: true, message: 'API TRIKLES activa v2.0' };
@@ -201,6 +202,7 @@ function doPost(e) {
       case 'caso_close':      result = casoClose(params); break;
       case 'entrevista_add':  result = entrevistaAdd(params); break;
       case 'evidencia_add':   result = evidenciaAdd(params); break;
+      case 'evaluacion_save': result = evaluacionSave(params); break;
       default: result = { success: false, error: 'Acción no reconocida' };
     }
 
@@ -3072,6 +3074,62 @@ function entrevistaAdd(params){
     docUrl: doc.getUrl(),
     message: 'Entrevista ' + numero + ' agregada'
   };
+}
+
+// ── evaluacionSave: guarda una evaluación preliminar como Doc en la carpeta del caso
+function evaluacionSave(params){
+  const auth = _trCheckAuth(params.usuario);
+  if (!auth.ok) return { success: false, error: auth.error || 'No autorizado' };
+
+  const casoId = String(params.casoId || '');
+  const texto  = String(params.texto || '').trim();
+  const veredictoTentativo = String(params.veredictoTentativo || '').toUpperCase();
+  if (!casoId || !texto) return { success: false, error: 'CasoID y texto requeridos' };
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SHEETS.CASOS);
+  const data = sheet.getDataRange().getValues();
+  let caso = null;
+  for (let i = 1; i < data.length; i++){
+    if (String(data[i][0]) === casoId){
+      caso = { empresa: String(data[i][2]), numero: String(data[i][1]), folderId: data[i][7] };
+      break;
+    }
+  }
+  if (!caso) return { success: false, error: 'Caso no encontrado' };
+  if (auth.user.rol !== 'SUPER_ADMIN' &&
+      caso.empresa.toLowerCase() !== String(auth.user.empresa).toLowerCase()){
+    return { success: false, error: 'No tienes acceso a este caso' };
+  }
+
+  const fecha = Utilities.formatDate(new Date(), 'America/Mexico_City', 'yyyy-MM-dd HH:mm');
+  const veredLbl = veredictoTentativo === 'PROCEDE' ? '🟢 PROCEDE TENTATIVO' :
+                   veredictoTentativo === 'NO_PROCEDE' ? '🔴 NO PROCEDE TENTATIVO' :
+                   veredictoTentativo === 'INCONCLUSO' ? '🟡 INCONCLUSO TENTATIVO' : '';
+  const docName = caso.numero + ' - Evaluación preliminar ' + fecha.replace(/[: ]/g,'-');
+  const doc = DocumentApp.create(docName);
+  const body = doc.getBody();
+  body.appendParagraph(caso.numero + ' — EVALUACIÓN PRELIMINAR').setHeading(DocumentApp.ParagraphHeading.TITLE);
+  body.appendParagraph('Fecha: ' + fecha);
+  body.appendParagraph('Generada por: ' + auth.user.nombre + ' (' + auth.user.usuario + ')');
+  if (veredLbl) body.appendParagraph('Orientación: ' + veredLbl);
+  body.appendHorizontalRule();
+  body.appendParagraph('NOTA: Este documento NO es un dictamen final. Es una evaluación del estado de la investigación destinada a identificar qué falta antes de emitir dictamen definitivo.')
+    .setItalic(true);
+  body.appendHorizontalRule();
+  texto.split('\n').forEach(ln => body.appendParagraph(ln));
+  doc.saveAndClose();
+
+  if (caso.folderId){
+    try {
+      const folder = DriveApp.getFolderById(caso.folderId);
+      const file = DriveApp.getFileById(doc.getId());
+      folder.addFile(file);
+      DriveApp.getRootFolder().removeFile(file);
+    } catch(e) {}
+  }
+
+  return { success: true, docId: doc.getId(), docUrl: doc.getUrl(), message: 'Evaluación guardada' };
 }
 
 // ── evidenciaAdd: agrega una evidencia al caso

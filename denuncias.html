@@ -581,6 +581,48 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
   </div>
 </div>
 
+<!-- ═══ MODAL: Evaluación preliminar ═══ -->
+<div class="modal-bg" id="modalEvaluacion">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-ttl">Evaluación preliminar del expediente</div>
+    <div class="modal-sub">Auditoría interna del estado de la investigación</div>
+
+    <div id="evalStep1">
+      <div class="modal-txt" style="background:#fff;border:1px solid #c5b59a;padding:14px 16px;border-radius:2px">
+        <strong>¿Qué hace esta evaluación?</strong><br>
+        Claude revisa tu expediente actual (denuncia + entrevistas + evidencias) y te dice de forma constructiva:<br>
+        • Si con lo que hay es suficiente para dictaminar o falta más.<br>
+        • Qué entrevistas adicionales te ayudarían.<br>
+        • Qué evidencias documentales te faltan.<br>
+        • Qué contradicciones o preguntas clave quedan sin respuesta.<br>
+        • Una orientación tentativa del posible veredicto (NO es oficial).<br><br>
+        <em>No confundas con el "Cerrar con dictamen" — ese es el fallo final y queda registrado. Esta evaluación es solo una herramienta de trabajo.</em>
+      </div>
+      <div style="padding:14px 16px;background:#fff;border:1px solid #c5b59a;border-radius:2px;font-size:13px;margin:14px 0;line-height:1.7" id="evalSummary"></div>
+      <div class="modal-btns">
+        <button class="btn-exp-secondary" onclick="closeModal('Evaluacion')">Cancelar</button>
+        <button class="btn-exp-primary" onclick="generarEvaluacion()" id="btnGenerarEval" style="background:#1f6f9e">🔎 Generar evaluación con IA</button>
+      </div>
+    </div>
+
+    <div id="evalStep2" style="display:none">
+      <div class="loading-box"><div class="spinner"></div><div id="evalLoadingText">Claude está revisando el expediente...</div></div>
+    </div>
+
+    <div id="evalStep3" style="display:none">
+      <div id="evalVeredictoBox"></div>
+      <div class="fg">
+        <label>Revisa y edita la evaluación si lo consideras necesario</label>
+        <textarea id="evalTextoEdit" style="min-height:320px;font-family:Georgia,serif;font-size:13px;line-height:1.7"></textarea>
+      </div>
+      <div class="modal-btns">
+        <button class="btn-exp-secondary" onclick="closeModal('Evaluacion')">Cerrar sin guardar</button>
+        <button class="btn-exp-primary" onclick="guardarEvaluacion()" id="btnGuardarEval" style="background:#1f6f9e">📄 Guardar en el expediente</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ MODAL: Cerrar con dictamen ═══ -->
 <div class="modal-bg" id="modalClose">
   <div class="modal" style="max-width:720px">
@@ -1036,12 +1078,23 @@ function renderDetail(){
       ${evs.length > 0 ? '<div style="margin-top:10px;padding:10px;background:rgba(52,152,219,.07);border-left:3px solid var(--blue);border-radius:4px;font-size:11px;color:var(--gray)">💡 Las evidencias serán analizadas por la IA al emitir el dictamen, junto con las declaraciones de las entrevistas.</div>' : ''}
     </div>
 
+    ${!cerrado && (ents.length > 0 || evs.length > 0) ? `
+      <div class="card" style="border-color:var(--blue);background:rgba(52,152,219,.05)">
+        <div class="card-hdr">
+          <div>
+            <div class="card-ttl" style="color:var(--blue)">🔎 Evaluación preliminar (antes de cerrar)</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:4px">Claude revisa qué tienes hasta ahora y te dice qué falta: entrevistas pendientes, evidencias recomendadas, contradicciones a aclarar y preguntas sin responder.</div>
+          </div>
+          <button class="btn-primary" style="background:linear-gradient(135deg,var(--blue),#1f6f9e)" onclick="openEvaluacionModal()">🔎 Evaluar estado del caso</button>
+        </div>
+      </div>` : ''}
+
     ${!cerrado && ents.length > 0 ? `
       <div class="card" style="border-color:var(--green);background:rgba(46,204,113,.05)">
         <div class="card-hdr">
           <div>
             <div class="card-ttl" style="color:var(--green)">⚖️ Cerrar caso</div>
-            <div style="font-size:12px;color:var(--gray);margin-top:4px">Cuando termines las entrevistas, pídele a Claude que analice todo y emita el dictamen.</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:4px">Cuando estés seguro de tener todos los elementos, pídele a Claude que emita el dictamen final.</div>
           </div>
           <button class="btn-primary green" onclick="openCloseModal()">⚖️ Cerrar con dictamen de IA</button>
         </div>
@@ -1519,6 +1572,169 @@ Acciones NO disciplinarias recomendadas (nuevas entrevistas, recopilar evidencia
 Al inicio del texto, como primera línea, escribe solo:
 VEREDICTO_MACHINE: PROCEDE|NO_PROCEDE|INCONCLUSO
 (Esto se usará para clasificar automáticamente; que coincida con tu sección 8.)`;
+
+const PROMPT_EVALUACION = `Eres un auditor interno senior. Vas a hacer una EVALUACIÓN PRELIMINAR del estado actual de una investigación interna. Esta NO es un dictamen final.
+
+Tu objetivo: ayudar al equipo de investigación a identificar qué falta antes de poder emitir un dictamen responsable.
+
+REGLAS:
+- Tono constructivo y profesional. Habla al equipo de investigación como si fueras su auditor de apoyo.
+- Sé específico: nombra entrevistas por su número (E01, E02...) y evidencias por su código (V01, V02...).
+- NO emitas juicios morales ("grave", "preocupante", "inaceptable").
+- NO propongas sanciones disciplinarias.
+- Si el expediente carece de elementos suficientes, dilo claramente y explica qué se necesita.
+
+ESTRUCTURA OBLIGATORIA (Markdown):
+
+## 1. Estado actual del expediente
+Breve recuento: cuántas entrevistas, qué roles están cubiertos (denunciante, denunciado, testigos), cuántas evidencias documentales y de qué tipo.
+
+## 2. Suficiencia para dictaminar
+¿Con lo recabado hasta hoy, se puede emitir un dictamen responsable? Responde: **SUFICIENTE** / **PARCIAL** / **INSUFICIENTE**, con justificación de 2-3 oraciones.
+
+## 3. Hechos alegados y su nivel de soporte
+Lista los hechos principales alegados por el denunciante. Para cada uno indica:
+- **Soporte por testimonios:** qué entrevistas lo apoyan (ej: "E01, E03") o "ninguna".
+- **Soporte documental:** qué evidencias lo respaldan (ej: "V02") o "ninguna".
+- **Nivel:** 🟢 FUERTE / 🟡 DÉBIL / 🔴 SIN SOPORTE.
+
+## 4. Personas mencionadas pendientes de entrevistar
+Si en la denuncia o en las entrevistas ya realizadas se mencionan personas (testigos, involucrados, superiores jerárquicos, etc.) que NO han sido entrevistadas, listarlas con el contexto en que fueron mencionadas.
+
+## 5. Evidencias documentales recomendadas por recabar
+Propón pruebas documentales específicas que ayudarían a probar o desvirtuar los hechos alegados (correos electrónicos, capturas de pantalla, registros de acceso, recibos, grabaciones de seguridad, contratos, actas, etc.). Sé concreto sobre qué buscar.
+
+## 6. Contradicciones detectadas
+Si hay versiones que se contradicen entre testimonios o entre testimonios y evidencias, descríbelas y sugiere cómo podrían aclararse (re-entrevista, evidencia adicional, confrontación de versiones).
+
+## 7. Preguntas clave sin responder
+Lista de preguntas críticas que el expediente actual no responde y que serían relevantes para el dictamen.
+
+## 8. Riesgos de dictamen prematuro
+Si se cerrara el caso HOY, ¿qué riesgos hay? (error injusto, impunidad, represalia no detectada, conclusión insostenible en tribunal, etc.).
+
+## 9. Recomendaciones concretas ordenadas por prioridad
+Lista numerada de acciones sugeridas. Ordena de más urgente a menos urgente. Sé accionable: "Entrevistar a X", "Solicitar correos de Y entre fechas Z", etc.
+
+## 10. Orientación tentativa (NO es dictamen)
+Con lo disponible HOY, si TUVIERAS que dictaminar ahora, ¿hacia dónde se inclinaría la balanza?
+Responde con UNO de estos valores exactos:
+**ORIENTACION: PROCEDE | NO_PROCEDE | INCONCLUSO**
+En 2-3 oraciones explica por qué.
+
+Recuerda cerrar recordando que esta evaluación es un insumo para el equipo, NO el dictamen final.
+
+Al inicio del texto, como primera línea, escribe SOLO:
+EVAL_ORIENTACION: PROCEDE|NO_PROCEDE|INCONCLUSO
+(Esto se usa para clasificación automática; que coincida con tu sección 10.)`;
+
+function openEvaluacionModal(){
+  const c = STATE.currentCaso;
+  const ents = STATE.currentEntrevistas;
+  const evs  = STATE.currentEvidencias || [];
+  document.getElementById('evalStep1').style.display = 'block';
+  document.getElementById('evalStep2').style.display = 'none';
+  document.getElementById('evalStep3').style.display = 'none';
+  document.getElementById('evalSummary').innerHTML = `
+    <strong>${escapeHtml(c.numero)}</strong> — ${escapeHtml(c.tipoDenuncia||'Otro')}<br>
+    Denunciante: ${escapeHtml(c.denunciante||'Anónima')} · Denunciado: ${escapeHtml(c.denunciado)}<br><br>
+    <strong>Elementos actuales del expediente:</strong><br>
+    • ${ents.length} entrevista${ents.length===1?'':'s'} (${[...new Set(ents.map(e=>e.rol))].join(', ')||'ninguna'})<br>
+    • ${evs.length} evidencia${evs.length===1?'':'s'} documental${evs.length===1?'':'es'}${evs.length?' ('+[...new Set(evs.map(v=>v.tipo))].join(', ')+')':''}<br>
+  `;
+  STATE.evalTexto = '';
+  STATE.evalOrientacion = '';
+  openModal('Evaluacion');
+}
+
+async function generarEvaluacion(){
+  document.getElementById('evalStep1').style.display = 'none';
+  document.getElementById('evalStep2').style.display = 'block';
+
+  const c = STATE.currentCaso;
+  const ents = STATE.currentEntrevistas;
+  const evs  = STATE.currentEvidencias || [];
+
+  // Armar expediente (similar al del dictamen)
+  let expediente = `=== EXPEDIENTE ${c.numero} ===\n`;
+  expediente += `EMPRESA: ${c.empresa}\n`;
+  expediente += `TIPO DE DENUNCIA: ${c.tipoDenuncia || 'Otro'}\n`;
+  expediente += `DENUNCIANTE: ${c.denunciante || 'Anónima'}\n`;
+  expediente += `DENUNCIADO: ${c.denunciado}\n`;
+  expediente += `FECHA DE APERTURA: ${c.fechaApertura}\n\n`;
+  expediente += `=== DENUNCIA INICIAL ===\n${c.descripcion}\n\n`;
+  expediente += `=== ENTREVISTAS (${ents.length}) ===\n`;
+  for(const e of ents){
+    expediente += `\n--- ENTREVISTA E${e.numero} · ${e.entrevistado} (${e.rol}) ---\n`;
+    expediente += `Fecha: ${e.fecha}\n`;
+    if(e.notasPrevias) expediente += `Notas previas: ${e.notasPrevias}\n`;
+    expediente += `Resumen: ${e.resumen || '(sin resumen)'}\n`;
+  }
+  expediente += `\n\n=== EVIDENCIAS DOCUMENTALES (${evs.length}) ===\n`;
+  if(!evs.length) expediente += '(Sin evidencias documentales.)\n';
+  for(const v of evs){
+    expediente += `\n--- EVIDENCIA ${v.numero} · [${v.tipo}] ${v.titulo} ---\n`;
+    expediente += `Fecha recabada: ${v.fechaRecabada}\n`;
+    expediente += `Descripción: ${v.descripcion || '(sin descripción)'}\n`;
+  }
+
+  document.getElementById('evalLoadingText').textContent = 'Claude está evaluando tu expediente...';
+  try {
+    const texto = await callClaude(PROMPT_EVALUACION, expediente, STATE.claudeKey, 8192);
+    // Extraer orientación de la primera línea
+    const firstLine = texto.split('\n')[0].trim();
+    const m = firstLine.match(/EVAL_ORIENTACION:\s*(PROCEDE|NO_PROCEDE|INCONCLUSO)/i);
+    STATE.evalOrientacion = m ? m[1].toUpperCase() : '';
+    const clean = texto.replace(/^EVAL_ORIENTACION:.*\n?/i,'').trim();
+    STATE.evalTexto = clean;
+
+    document.getElementById('evalStep2').style.display = 'none';
+    document.getElementById('evalStep3').style.display = 'block';
+
+    // Badge orientativo arriba (con aclaración de que no es dictamen)
+    let badge = '';
+    if(STATE.evalOrientacion){
+      const o = STATE.evalOrientacion;
+      const clr = o==='PROCEDE'?'#2e8b57' : o==='NO_PROCEDE'?'#7a1f1f' : '#8b7355';
+      const lbl = o==='PROCEDE'?'🟢 PROCEDE (tentativo)' : o==='NO_PROCEDE'?'🔴 NO PROCEDE (tentativo)' : '🟡 INCONCLUSO (tentativo)';
+      badge = `<div style="padding:12px 16px;background:${clr}22;border:2px solid ${clr};border-radius:2px;margin-bottom:14px;color:${clr};font-weight:800;font-family:Georgia,serif">
+        ${lbl} — Orientación preliminar, NO es el dictamen final
+      </div>`;
+    }
+    document.getElementById('evalVeredictoBox').innerHTML = badge;
+    document.getElementById('evalTextoEdit').value = clean;
+  } catch(e){
+    toast('error','Falló la evaluación', e.message || 'Inténtalo de nuevo');
+    document.getElementById('evalStep2').style.display = 'none';
+    document.getElementById('evalStep1').style.display = 'block';
+  }
+}
+
+async function guardarEvaluacion(){
+  const btn = document.getElementById('btnGuardarEval');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  const texto = document.getElementById('evalTextoEdit').value.trim();
+  try {
+    const r = await apiPost({
+      action: 'evaluacion_save',
+      usuario: STATE.session.usuario,
+      casoId: STATE.currentCaso.id,
+      texto: texto,
+      veredictoTentativo: STATE.evalOrientacion,
+    });
+    if(r.success){
+      toast('success','Evaluación guardada','Quedó en la carpeta del caso en Drive');
+      closeModal('Evaluacion');
+      if(r.docUrl) setTimeout(() => window.open(r.docUrl, '_blank'), 300);
+    } else {
+      toast('error','Error', r.error || 'No se pudo guardar');
+      btn.disabled = false; btn.textContent = '📄 Guardar en el expediente';
+    }
+  } catch(e){
+    toast('error','Error de conexión','Inténtalo de nuevo');
+    btn.disabled = false; btn.textContent = '📄 Guardar en el expediente';
+  }
+}
 
 function openCloseModal(){
   const c = STATE.currentCaso;
