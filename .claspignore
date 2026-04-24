@@ -1,0 +1,30 @@
+# Excluye todo por defecto
+**/**
+
+# Y vuelve a incluir SOLO lo que sí es parte del proyecto Apps Script
+!appsscript.json
+!Código.js
+!*.html
+
+# abc.js y sw.js son scripts de NAVEGADOR — NO deben subirse al server Apps Script
+# (usan window/document y romperían la ejecución del backend)
+abc.js
+sw.js
+
+# Excluye basura específica (snapshot del editor)
+Trikles - Editor del proyecto - Apps Script.html
+Trikles - Editor del proyecto - Apps Script_files/**
+
+# Excluye archivos del sistema / editor
+.git/**
+.claude/**
+.gitignore
+README.md
+.clasp.json
+.claspignore
+mobile.css
+abc.css
+node_modules/**
+memory/**
+TAD/**
+TRK/**

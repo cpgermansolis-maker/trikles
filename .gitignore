@@ -2,9 +2,8 @@
 TAD/
 TRK/
 
-# Export del editor de Apps Script (respaldo local, no es código activo)
-Trikles - Editor del proyecto - Apps Script.html
-Trikles - Editor del proyecto - Apps Script_files/
+# Respaldos locales del editor de Apps Script (no es código activo)
+_snapshot/
 
 # Archivos del sistema operativo
 .DS_Store

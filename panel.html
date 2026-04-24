@@ -365,6 +365,9 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
     <div class="sb-item" id="sb_roles" onclick="showPanel('roles')">
       <span class="sb-icon">🔐</span> Roles y Privilegios
     </div>
+    <div class="sb-item" id="sb_transcripcion" onclick="showPanel('transcripcion')">
+      <span class="sb-icon">🎙️</span> Transcripción
+    </div>
 
     <div class="sb-section">Sistema</div>
     <div class="sb-item" id="sb_accesos" onclick="showPanel('accesos')">
@@ -556,6 +559,66 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
       </div>
     </div>
 
+    <!-- TRANSCRIPCIÓN -->
+    <div class="panel" id="panel_transcripcion">
+      <div class="pg-hdr">
+        <div class="pg-ttl">🎙️ Transcripción de Audio</div>
+        <div class="pg-sub">Configura las API keys del módulo y gestiona las solicitudes de acceso</div>
+      </div>
+
+      <!-- Estado / configuración rápida -->
+      <div class="card" style="margin-bottom:18px;padding:16px;background:rgba(245,130,31,.06);border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+          <span style="font-size:22px">🔑</span>
+          <div>
+            <div style="font-weight:700;font-size:14px">API Keys del módulo</div>
+            <div style="font-size:11px;color:var(--gray)" id="tr_keys_status">Cargando...</div>
+          </div>
+        </div>
+        <div class="form-grid" style="grid-template-columns:1fr;gap:12px">
+          <div class="fg">
+            <label>🟡 API Key de Google Gemini
+              <a href="https://aistudio.google.com/apikey" target="_blank" style="font-size:11px;color:var(--orange);margin-left:8px">¿Cómo obtenerla?</a>
+            </label>
+            <div style="display:flex;gap:8px">
+              <input type="password" id="tr_gemini_key" placeholder="AIza..." style="flex:1">
+              <button type="button" class="btn btn-secondary" onclick="togglePwd('tr_gemini_key',this)" style="padding:6px 12px">👁</button>
+            </div>
+          </div>
+          <div class="fg">
+            <label>🟣 API Key de Claude (Anthropic)
+              <a href="https://console.anthropic.com/settings/keys" target="_blank" style="font-size:11px;color:var(--orange);margin-left:8px">¿Cómo obtenerla?</a>
+            </label>
+            <div style="display:flex;gap:8px">
+              <input type="password" id="tr_claude_key" placeholder="sk-ant-..." style="flex:1">
+              <button type="button" class="btn btn-secondary" onclick="togglePwd('tr_claude_key',this)" style="padding:6px 12px">👁</button>
+            </div>
+          </div>
+        </div>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn btn-primary" onclick="guardarTrKeys()" id="tr_btn_save_keys">💾 Guardar Keys</button>
+          <div id="tr_saving_keys" style="display:none" class="loading"><div class="spinner"></div>Guardando...</div>
+        </div>
+        <div style="margin-top:10px;padding:10px;background:rgba(231,76,60,.08);border-left:3px solid var(--red);border-radius:4px;font-size:11px;color:var(--gray)">
+          🔒 <b>Seguridad:</b> Las keys se guardan encriptadas en el servidor y solo se envían al navegador de usuarios autorizados. Si sospechas una fuga, regenera las keys en Google AI Studio / Anthropic Console.
+        </div>
+      </div>
+
+      <!-- Solicitudes de acceso -->
+      <div class="card" style="padding:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div>
+            <div style="font-weight:700;font-size:14px">📨 Solicitudes de acceso</div>
+            <div style="font-size:11px;color:var(--gray)">Usuarios que han pedido autorización para transcribir</div>
+          </div>
+          <button class="btn btn-secondary" onclick="loadTrSolicitudes()" style="padding:6px 12px;font-size:12px">🔄 Actualizar</button>
+        </div>
+        <div id="tr_solicitudes_list" style="font-size:12px">
+          <div style="padding:24px;text-align:center;color:var(--gray)">Cargando...</div>
+        </div>
+      </div>
+    </div>
+
     <!-- ZONA DE PELIGRO -->
     <div class="panel" id="panel_peligro">
       <div class="pg-hdr">
@@ -722,6 +785,16 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
         <label>Permisos del Rol Seleccionado</label>
         <div id="rol_preview" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px"></div>
       </div>
+      <div class="fg full" id="usr_tr_row">
+        <label>Módulos Especiales</label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;background:rgba(245,130,31,.06);border:1px solid var(--border);border-radius:8px;margin-top:4px">
+          <input type="checkbox" id="usr_transcripcion_auth" style="width:18px;height:18px;cursor:pointer;accent-color:var(--orange)">
+          <span>
+            <span style="font-weight:600">🎙️ Autorizar Transcripción de Audio</span>
+            <span style="display:block;font-size:11px;color:var(--gray);margin-top:2px">Permite transcribir juntas y denuncias de su empresa</span>
+          </span>
+        </label>
+      </div>
     </div>
     <div class="btn-row">
       <button class="btn btn-primary" onclick="guardarUsuario()" id="usr_btn_save">
@@ -851,6 +924,125 @@ function showPanel(name){
   if(name==='empresas')loadEmpresas();
   if(name==='usuarios')loadUsuarios();
   if(name==='roles')buildRoles();
+  if(name==='transcripcion'){loadTrConfig();loadTrSolicitudes();}
+}
+
+/* ══ TRANSCRIPCIÓN — Panel de Configuración ══ */
+function togglePwd(id, btn){
+  const input = document.getElementById(id);
+  if(!input) return;
+  if(input.type === 'password'){ input.type = 'text'; btn.textContent = '🙈'; }
+  else { input.type = 'password'; btn.textContent = '👁'; }
+}
+
+async function loadTrConfig(){
+  const s = getS(); if(!s) return;
+  const statusEl = document.getElementById('tr_keys_status');
+  try {
+    const r = await apiGet({action:'tr_getConfig', usuario: s.usuario});
+    if(r.success && r.authorized){
+      document.getElementById('tr_gemini_key').value = r.geminiKey || '';
+      document.getElementById('tr_claude_key').value = r.claudeKey || '';
+      if(r.keysConfigured){
+        statusEl.innerHTML = '<span style="color:var(--green)">✅ Keys configuradas</span>';
+      } else {
+        statusEl.innerHTML = '<span style="color:#e67e22">⚠️ Faltan keys por configurar</span>';
+      }
+    } else {
+      statusEl.innerHTML = '<span style="color:var(--red)">❌ No autorizado</span>';
+    }
+  } catch(e) {
+    statusEl.innerHTML = '<span style="color:var(--red)">Error al cargar</span>';
+  }
+}
+
+async function guardarTrKeys(){
+  const s = getS(); if(!s) return;
+  const geminiKey = document.getElementById('tr_gemini_key').value.trim();
+  const claudeKey = document.getElementById('tr_claude_key').value.trim();
+  if(!geminiKey || !claudeKey){
+    toast('error','Campos requeridos','Pega ambas API keys antes de guardar.'); return;
+  }
+  document.getElementById('tr_btn_save_keys').style.display='none';
+  document.getElementById('tr_saving_keys').style.display='flex';
+  try {
+    const r = await apiPost({action:'tr_setKeys', usuario:s.usuario, geminiKey, claudeKey});
+    if(r.success){
+      toast('success','Keys guardadas','Las API keys fueron actualizadas correctamente.');
+      loadTrConfig();
+    } else {
+      toast('error','Error', r.error || 'No se pudieron guardar');
+    }
+  } catch(e){
+    toast('error','Error de conexión','Inténtalo de nuevo.');
+  }
+  document.getElementById('tr_btn_save_keys').style.display='flex';
+  document.getElementById('tr_saving_keys').style.display='none';
+}
+
+async function loadTrSolicitudes(){
+  const s = getS(); if(!s) return;
+  const cont = document.getElementById('tr_solicitudes_list');
+  cont.innerHTML = '<div style="padding:24px;text-align:center;color:var(--gray)">Cargando...</div>';
+  try {
+    const r = await apiGet({action:'tr_listSolicitudes', usuario:s.usuario});
+    if(!r.success){
+      cont.innerHTML = '<div style="padding:16px;color:var(--red)">'+(r.error||'Error')+'</div>';
+      return;
+    }
+    if(!r.data || !r.data.length){
+      cont.innerHTML = '<div style="padding:24px;text-align:center;color:var(--gray)">No hay solicitudes.</div>';
+      return;
+    }
+    cont.innerHTML = r.data.map(sol => {
+      const est = String(sol.estado||'').toUpperCase();
+      const pending = est === 'PENDIENTE';
+      const badgeColor = pending ? 'rgba(241,196,15,.15);color:#f1c40f;border:1px solid #f1c40f'
+                        : est === 'APROBADA' ? 'rgba(46,204,113,.15);color:var(--green);border:1px solid var(--green)'
+                        : 'rgba(231,76,60,.15);color:var(--red);border:1px solid var(--red)';
+      const fecha = String(sol.timestamp||'').slice(0,16).replace('T',' ');
+      return `
+        <div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;background:#0e0e0e">
+          <div style="display:flex;justify-content:space-between;align-items:start;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:180px">
+              <div style="font-weight:700;font-size:13px">${escapeHtml(sol.nombre||sol.usuario)}</div>
+              <div style="font-size:11px;color:var(--gray);margin-top:2px">@${escapeHtml(sol.usuario)} · ${escapeHtml(sol.empresa)}${sol.email?' · '+escapeHtml(sol.email):''}</div>
+              ${sol.motivo?`<div style="font-size:11px;color:#bbb;margin-top:6px;padding:6px 8px;background:#161616;border-radius:4px">"${escapeHtml(sol.motivo)}"</div>`:''}
+              <div style="font-size:10px;color:var(--gray);margin-top:6px">${fecha}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+              <span style="padding:3px 9px;border-radius:10px;font-size:10px;font-weight:700;background:${badgeColor}">${est}</span>
+              ${pending?`
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-primary" style="padding:5px 10px;font-size:11px" onclick="resolverSolicitud(${sol.fila},'APROBADA')">✓ Aprobar</button>
+                  <button class="btn btn-secondary" style="padding:5px 10px;font-size:11px" onclick="resolverSolicitud(${sol.fila},'RECHAZADA')">✕ Rechazar</button>
+                </div>`:''}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    cont.innerHTML = '<div style="padding:16px;color:var(--red)">Error de conexión</div>';
+  }
+}
+
+async function resolverSolicitud(fila, decision){
+  const s = getS(); if(!s) return;
+  try {
+    const r = await apiPost({action:'tr_resolveSolicitud', usuario:s.usuario, fila, decision});
+    if(r.success){
+      toast('success','Listo', decision === 'APROBADA' ? 'Usuario autorizado' : 'Solicitud rechazada');
+      loadTrSolicitudes();
+    } else {
+      toast('error','Error', r.error || 'No se pudo resolver');
+    }
+  } catch(e){
+    toast('error','Error de conexión','Inténtalo de nuevo.');
+  }
+}
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 /* ══ MODAL ══ */
@@ -1189,8 +1381,22 @@ function openUsuarioModal(data){
   document.getElementById('usr_email').value=data?data.email:'';
   document.getElementById('usr_rol').value=data?data.rol:'';
   document.getElementById('usr_empresa').value=data?data.empresa:'';
-  if(data)onRolChange();
+  const trAuth = data ? String(data.TranscripcionAuth||data.transcripcionAuth||'').toUpperCase()==='SI' : false;
+  document.getElementById('usr_transcripcion_auth').checked = trAuth;
+  if(data)onRolChange();else updateTranscripcionVisibility('');
   document.getElementById('modal_usuario').classList.add('open');
+}
+
+function updateTranscripcionVisibility(rol){
+  const row = document.getElementById('usr_tr_row');
+  if(!row) return;
+  // SuperAdmin siempre autorizado (no mostrar el control); resto sí lo requiere
+  if(rol === 'SUPER_ADMIN'){
+    row.style.display = 'none';
+    document.getElementById('usr_transcripcion_auth').checked = true;
+  } else {
+    row.style.display = 'block';
+  }
 }
 
 function editUsuario(u){
@@ -1202,6 +1408,7 @@ function onRolChange(){
   const rol=document.getElementById('usr_rol').value;
   const row=document.getElementById('rol_preview_row');
   const prev=document.getElementById('rol_preview');
+  updateTranscripcionVisibility(rol);
   if(!rol){row.style.display='none';return;}
   row.style.display='block';
   const r=ROLES[rol];
@@ -1229,7 +1436,9 @@ async function guardarUsuario(){
   document.getElementById('usr_saving').style.display='flex';
   const action = isEdit ? 'editar_usuario' : 'alta_usuario';
   const usuarioOriginal = document.getElementById('usr_edit_id').value;
-  const params={action,nombre,usuario,usuario_original:usuarioOriginal||usuario,password:password||undefined,rol,empresa,email};
+  const trAuthChecked = document.getElementById('usr_transcripcion_auth').checked;
+  const transcripcionAuth = (rol === 'SUPER_ADMIN' || trAuthChecked) ? 'SI' : 'NO';
+  const params={action,nombre,usuario,usuario_original:usuarioOriginal||usuario,password:password||undefined,rol,empresa,email,transcripcionAuth};
   try{
     const r=await apiPost(params);
     if(r.success){
@@ -1325,8 +1534,11 @@ document.addEventListener('DOMContentLoaded',()=>{
     // Ocultar Zona de Peligro (solo SuperAdmin puede borrar datos)
     const sbPel = document.getElementById('sb_peligro');
     if(sbPel) sbPel.style.display = 'none';
-    // Ocultar cualquier card/elemento que apunte a empresas o peligro
-    document.querySelectorAll('[onclick*="empresas"],[onclick*="peligro"]').forEach(el => {
+    // Ocultar Transcripción (solo SuperAdmin configura keys / aprueba accesos)
+    const sbTr = document.getElementById('sb_transcripcion');
+    if(sbTr) sbTr.style.display = 'none';
+    // Ocultar cualquier card/elemento que apunte a empresas, peligro o transcripción
+    document.querySelectorAll('[onclick*="empresas"],[onclick*="peligro"],[onclick*="transcripcion"]').forEach(el => {
       el.style.display = 'none';
     });
     // Eliminar rol Super Admin del selector de roles
