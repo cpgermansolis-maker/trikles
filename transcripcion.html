@@ -24,6 +24,17 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
 .topbar-right{display:flex;align-items:center;gap:10px}
 .btn-nav{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--light);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
 .btn-nav:hover{background:rgba(155,89,182,.12);border-color:var(--purple)}
+.nav-group{position:relative;display:inline-flex}
+.nav-group-btn{background:linear-gradient(135deg,rgba(155,89,182,.15),rgba(231,76,60,.15));border:1px solid rgba(155,89,182,.45);color:#c88bc3;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:5px;transition:.2s}
+.nav-group-btn:hover{border-color:#e74c3c;background:linear-gradient(135deg,rgba(155,89,182,.25),rgba(231,76,60,.25))}
+.nav-group-btn .caret{font-size:9px;margin-left:4px;transition:transform .2s}
+.nav-group.open .nav-group-btn .caret{transform:rotate(180deg)}
+.nav-group-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;min-width:210px;background:#141414;border:1px solid #333;border-radius:10px;padding:6px;z-index:401;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.nav-group.open .nav-group-menu{display:flex;flex-direction:column;gap:2px}
+.nav-group-menu a{display:flex;align-items:center;gap:8px;padding:10px 14px;color:#ccc;font-size:12px;font-weight:700;text-decoration:none;border-radius:7px;transition:.15s}
+.nav-group-menu a.purple:hover,.nav-group-menu a.purple.current{background:rgba(155,89,182,.2);color:#b979d1}
+.nav-group-menu a.red:hover,.nav-group-menu a.red.current{background:rgba(231,76,60,.18);color:#e74c3c}
+.nav-group-menu a .sub{display:block;font-size:10px;color:var(--gray);font-weight:600;margin-top:2px}
 .btn-out{background:none;border:1px solid rgba(230,57,70,.45);color:#e63946;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700}
 .btn-out:hover{background:rgba(230,57,70,.1)}
 .hamburger{display:none;background:none;border:none;flex-direction:column;gap:4px;cursor:pointer;padding:6px;z-index:400}
@@ -200,7 +211,13 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
   <div class="topbar-right">
     <button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()"><span></span><span></span><span></span></button>
     <a class="btn-nav" href="dashboard.html">📊 Dashboard</a>
-    <a class="btn-nav" href="denuncias.html" style="background:rgba(231,76,60,.15);border-color:rgba(231,76,60,.55);color:#e74c3c">🔒 Denuncias</a>
+    <div class="nav-group" id="navGroup">
+      <button class="nav-group-btn" onclick="toggleNavGroup(event)">🎙️ IA<span class="caret">▾</span></button>
+      <div class="nav-group-menu">
+        <a href="transcripcion.html" class="purple current">🎙️ Transcribir<span class="sub">Juntas regulares · actual</span></a>
+        <a href="denuncias.html" class="red">🔒 Denuncias<span class="sub">Investigaciones internas</span></a>
+      </div>
+    </div>
     <a class="btn-nav" href="panel.html" id="lnkPanel" style="display:none">⚙️ Panel</a>
     <a class="btn-nav" href="manual.html">❓ Ayuda</a>
     <button class="btn-out" onclick="logout()">Salir ✕</button>
@@ -511,6 +528,8 @@ function toast(type, title, msg, dur=4000){
   clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), dur);
 }
 function toggleMenu(){ document.getElementById('mobileNav').classList.toggle('open'); }
+function toggleNavGroup(e){ if(e) e.stopPropagation(); const g=document.getElementById('navGroup'); if(g) g.classList.toggle('open'); }
+document.addEventListener('click', e => { const g=document.getElementById('navGroup'); if(g && !g.contains(e.target)) g.classList.remove('open'); });
 function openModal(name){ document.getElementById('modal' + name).classList.add('open'); }
 function closeModal(name){ document.getElementById('modal' + name).classList.remove('open'); }
 function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
