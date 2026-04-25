@@ -135,6 +135,8 @@ function doGet(e) {
       case 'evidencia_add':      result = evidenciaAdd(p);             break;
       case 'evidencia_delete':   result = evidenciaDelete(p);          break;
       case 'evaluacion_save':    result = evaluacionSave(p);           break;
+      case 'informe_save':       result = informeSave(p);              break;
+      case 'informe_generate':   result = informeGenerate(p);          break;
       case 'tipos_denuncia':     result = { success:true, data:TIPOS_DENUNCIA, evidencias:TIPOS_EVIDENCIA }; break;
       case 'ping':
         result = { success: true, message: 'API TRIKLES activa v2.0' };
@@ -203,6 +205,8 @@ function doPost(e) {
       case 'entrevista_add':  result = entrevistaAdd(params); break;
       case 'evidencia_add':   result = evidenciaAdd(params); break;
       case 'evaluacion_save': result = evaluacionSave(params); break;
+      case 'informe_save':    result = informeSave(params); break;
+      case 'informe_generate':result = informeGenerate(params); break;
       default: result = { success: false, error: 'Acción no reconocida' };
     }
 
@@ -976,21 +980,30 @@ function setupSheets() {
   // ── Hoja: Casos de Denuncia ──────────────────────────────────────────
   sh = getOrCreateSheet(ss, SHEETS.CASOS);
   if (sh.getLastRow() === 0 || sh.getRange(1,1).getValue() === '') {
-    sh.getRange(1, 1, 1, 19).setValues([[
+    sh.getRange(1, 1, 1, 20).setValues([[
       'ID','Numero','Empresa','FechaApertura','Denunciante','Denunciado',
       'Descripcion','FolderDriveId','DenunciaDocId','DenunciaAudioId',
       'Estado','AbiertoPor','CerradoPor','FechaCierre','DictamenDocId',
-      'DictamenVeredicto','DictamenResumen','Timestamp','TipoDenuncia'
+      'DictamenVeredicto','DictamenResumen','Timestamp','TipoDenuncia','InformeData'
     ]]);
     formatHeader(sh);
     creadas.push(SHEETS.CASOS);
   } else {
-    // Migración: agregar columna TipoDenuncia si no existe
+    // Migración progresiva
     const lastCol = sh.getLastColumn();
+    let migrada = false;
     if (lastCol < 19){
       sh.getRange(1, 19).setValue('TipoDenuncia');
       const n = sh.getLastRow() - 1;
       if (n > 0) sh.getRange(2, 19, n, 1).setValue('Otro');
+      migrada = true;
+    }
+    if (lastCol < 20){
+      sh.getRange(1, 20).setValue('InformeData');
+      // No llenamos las filas con valor por defecto; queda vacío y el front lo trata como null
+      migrada = true;
+    }
+    if (migrada){
       formatHeader(sh);
       creadas.push(SHEETS.CASOS + ' (migrada)');
     }
@@ -2718,6 +2731,7 @@ function casoGet(params){
         dictamenResumen: data[i][16],
         timestamp:       data[i][17],
         tipoDenuncia:    data[i][18] || 'Otro',
+        informeData:     (function(){ try { return data[i][19] ? JSON.parse(data[i][19]) : null; } catch(e){ return null; } })(),
       };
       filaCaso = i + 1;
       break;
@@ -3074,6 +3088,267 @@ function entrevistaAdd(params){
     docUrl: doc.getUrl(),
     message: 'Entrevista ' + numero + ' agregada'
   };
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// INFORME FINAL DEL CASO (estructurado, formato del expediente)
+// ════════════════════════════════════════════════════════════════════════
+// Estructura de InformeData (JSON guardado en la columna 20 de Casos_Denuncia):
+//   {
+//     denunciante:   { nombre, puesto, antiguedad, antecedentes },
+//     denunciados:   [ { nombre, puesto, antiguedad, antecedentes,
+//                        senalamientos: [ { conducta, detalle, resultado, detalleResultado } ] } ],
+//     resultadoEncuesta: '',     // texto opcional sobre encuesta de clima
+//     respuestaDenunciante: '',  // cómo respondió el denunciante al resultado
+//     medidasPreventivas: [string], // lista de medidas
+//     compromisos:   [ { descripcion, responsable, fecha } ],
+//     seguimientos:  [ { descripcion, responsable, estado } ]
+//   }
+
+// ── informeSave: guarda el JSON del informe en la columna del caso
+function informeSave(params){
+  const auth = _trCheckAuth(params.usuario);
+  if (!auth.ok) return { success: false, error: auth.error || 'No autorizado' };
+
+  const id = String(params.casoId || '');
+  const dataStr = String(params.data || '');
+  if (!id) return { success: false, error: 'CasoID requerido' };
+  if (!dataStr) return { success: false, error: 'Data requerida' };
+
+  // Validar que sea JSON válido
+  try { JSON.parse(dataStr); }
+  catch(e) { return { success: false, error: 'JSON inválido' }; }
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SHEETS.CASOS);
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++){
+    if (String(data[i][0]) === id){
+      const empresa = String(data[i][2]);
+      if (auth.user.rol !== 'SUPER_ADMIN' &&
+          empresa.toLowerCase() !== String(auth.user.empresa).toLowerCase()){
+        return { success: false, error: 'No tienes acceso a este caso' };
+      }
+      sheet.getRange(i + 1, 20).setValue(dataStr);
+      return { success: true, message: 'Informe guardado' };
+    }
+  }
+  return { success: false, error: 'Caso no encontrado' };
+}
+
+// ── informeGenerate: genera el Doc del informe final con la estructura exacta
+function informeGenerate(params){
+  const auth = _trCheckAuth(params.usuario);
+  if (!auth.ok) return { success: false, error: auth.error || 'No autorizado' };
+
+  const id = String(params.casoId || '');
+  if (!id) return { success: false, error: 'CasoID requerido' };
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const shCasos = ss.getSheetByName(SHEETS.CASOS);
+  const cdata = shCasos.getDataRange().getValues();
+  let caso = null; let filaCaso = -1;
+  for (let i = 1; i < cdata.length; i++){
+    if (String(cdata[i][0]) === id){
+      caso = {
+        id: cdata[i][0], numero: cdata[i][1], empresa: cdata[i][2],
+        fechaApertura: cdata[i][3], denunciante: cdata[i][4], denunciado: cdata[i][5],
+        descripcion: cdata[i][6], folderId: cdata[i][7], estado: cdata[i][10],
+        tipoDenuncia: cdata[i][18] || 'Otro',
+        informeData: (function(){ try { return cdata[i][19] ? JSON.parse(cdata[i][19]) : null; } catch(e){ return null; } })()
+      };
+      filaCaso = i + 1;
+      break;
+    }
+  }
+  if (!caso) return { success: false, error: 'Caso no encontrado' };
+  if (auth.user.rol !== 'SUPER_ADMIN' &&
+      String(caso.empresa).toLowerCase() !== String(auth.user.empresa).toLowerCase()){
+    return { success: false, error: 'No tienes acceso a este caso' };
+  }
+
+  const inf = caso.informeData;
+  if (!inf) return { success: false, error: 'No hay datos del informe — captúralos primero' };
+
+  // Traer entrevistas para incluir resúmenes
+  const shEnt = ss.getSheetByName(SHEETS.ENTREVISTAS);
+  const ents = [];
+  if (shEnt && shEnt.getLastRow() > 1){
+    const eData = shEnt.getDataRange().getValues();
+    for (let i = 1; i < eData.length; i++){
+      if (String(eData[i][1]) === id){
+        ents.push({
+          numero: eData[i][2], fecha: eData[i][3], entrevistado: eData[i][4],
+          rol: eData[i][5], resumen: eData[i][11]
+        });
+      }
+    }
+    ents.sort((a,b) => String(a.numero).localeCompare(String(b.numero)));
+  }
+
+  // Crear el Doc con la estructura exacta del formato
+  const fecha = Utilities.formatDate(new Date(), 'America/Mexico_City', 'yyyy-MM-dd HH:mm');
+  const doc = DocumentApp.create(caso.numero + ' - 95 Informe Final');
+  const body = doc.getBody();
+
+  // Encabezado
+  body.appendParagraph(caso.numero + ' — INFORME DE INVESTIGACIÓN').setHeading(DocumentApp.ParagraphHeading.TITLE);
+  body.appendParagraph('Empresa: ' + caso.empresa);
+  body.appendParagraph('Tipo de denuncia: ' + caso.tipoDenuncia);
+  body.appendParagraph('Fecha de apertura: ' + caso.fechaApertura);
+  body.appendParagraph('Fecha del informe: ' + fecha);
+  body.appendParagraph('Elaboró: ' + auth.user.nombre + ' (' + auth.user.usuario + ')');
+  body.appendHorizontalRule();
+
+  // 1. Denuncia
+  body.appendParagraph('Denuncia de ' + (inf.denunciante && inf.denunciante.nombre ? inf.denunciante.nombre : (caso.denunciante || 'Anónima')) +
+    (inf.denunciante && inf.denunciante.puesto ? ' – ' + inf.denunciante.puesto : '') + ' vs')
+    .setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  if (inf.denunciados && inf.denunciados.length){
+    inf.denunciados.forEach(d => {
+      const conductas = (d.senalamientos || []).map(s => s.conducta + (s.detalle ? ' (' + s.detalle + ')' : '')).join(', ');
+      body.appendParagraph((d.nombre || '—') + (d.puesto ? ' – ' + d.puesto : '') +
+        (conductas ? ', por "' + conductas + '"' : ''));
+    });
+  } else {
+    body.appendParagraph(caso.denunciado || '—');
+  }
+  if (String(inf.denunciante && inf.denunciante.nombre || caso.denunciante || '').toUpperCase() === 'ANONIMA' ||
+      !(inf.denunciante && inf.denunciante.nombre)){
+    body.appendParagraph('Denuncia anónima porque: "' + (caso.descripcion || '') + '"').setItalic(true);
+  }
+  body.appendParagraph('');
+
+  // 2. Trayectorias
+  body.appendParagraph('Trayectorias:').setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  if (inf.denunciante){
+    body.appendParagraph(_trayectoriaLine(inf.denunciante));
+  }
+  if (inf.denunciados){
+    inf.denunciados.forEach(d => body.appendParagraph(_trayectoriaLine(d)));
+  }
+  body.appendParagraph('');
+
+  // 3. Conclusión (derivada de los señalamientos)
+  body.appendParagraph('Conclusión:').setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  const probados = [], noProbados = [], pendientes = [];
+  if (inf.denunciados){
+    inf.denunciados.forEach(d => {
+      (d.senalamientos || []).forEach(s => {
+        const r = String(s.resultado || '').toLowerCase();
+        const linea = (s.conducta || 'Conducta sin nombre') + ' por ' + (d.nombre || '—');
+        if (r === 'comprobado' || r === 'aceptado') probados.push(linea);
+        else if (r === 'no acreditado' || r === 'negado' || r === 'no comprobado') noProbados.push(linea);
+        else pendientes.push(linea);
+      });
+    });
+  }
+  if (probados.length) probados.forEach(p => body.appendParagraph('Se comprobó: ' + p));
+  if (!probados.length) body.appendParagraph('No se comprobaron hechos.');
+  if (noProbados.length) body.appendParagraph('No se comprobaron: ' + noProbados.join('; '));
+  if (pendientes.length) body.appendParagraph('Pendiente / sin determinación: ' + pendientes.join('; '));
+  body.appendParagraph('');
+
+  // 4. Resultado
+  body.appendParagraph('Resultado:').setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  if (inf.resultadoEncuesta){
+    String(inf.resultadoEncuesta).split('\n').forEach(ln => body.appendParagraph(ln));
+  }
+  // Respuesta por denuncia (resultado por señalamiento)
+  body.appendParagraph('Respuesta por denuncia:').setBold(true);
+  if (inf.denunciados){
+    inf.denunciados.forEach(d => {
+      (d.senalamientos || []).forEach(s => {
+        let txt = (s.conducta || 'Conducta') + ' por ' + (d.nombre || '—');
+        if (s.detalleResultado) txt += ', ' + s.detalleResultado;
+        else if (s.resultado) txt += '. Resultado: ' + s.resultado + '.';
+        body.appendParagraph(txt);
+      });
+    });
+  }
+  body.appendParagraph('');
+
+  // 5. Entrevistas (resúmenes desde el módulo)
+  body.appendParagraph('Entrevistas:').setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  if (!ents.length) body.appendParagraph('— Sin entrevistas registradas —');
+  ents.forEach(e => {
+    body.appendParagraph((e.entrevistado || '—') + ' – ' + (e.rol || '—') + ':').setBold(true);
+    if (e.resumen) String(e.resumen).split('\n').forEach(ln => body.appendParagraph(ln));
+    else body.appendParagraph('(Ver minuta E' + e.numero + ' en la carpeta del caso)');
+  });
+  body.appendParagraph('');
+
+  // 6. Acciones sugeridas
+  body.appendParagraph('Acciones sugeridas:').setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  if (inf.denunciados){
+    inf.denunciados.forEach(d => {
+      const acc = (d.accionSugerida || '').trim();
+      if (acc) body.appendParagraph('Para ' + (d.nombre || '—') + ': ' + acc);
+    });
+  }
+  if (inf.respuestaDenunciante){
+    body.appendParagraph('Se informó a ' + (inf.denunciante && inf.denunciante.nombre || caso.denunciante || 'la denunciante') +
+      ' sobre el resultado: ' + inf.respuestaDenunciante);
+  }
+  body.appendParagraph('');
+
+  // 7. Medidas preventivas y de mejora
+  body.appendParagraph('Medidas preventivas y de mejora:').setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  if (Array.isArray(inf.medidasPreventivas) && inf.medidasPreventivas.length){
+    inf.medidasPreventivas.forEach(m => body.appendParagraph(String(m)));
+  } else {
+    body.appendParagraph('— Sin medidas preventivas registradas —');
+  }
+  body.appendParagraph('');
+
+  // 8. Compromiso
+  body.appendParagraph('Compromiso:').setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  if (Array.isArray(inf.compromisos) && inf.compromisos.length){
+    inf.compromisos.forEach(c => {
+      body.appendParagraph((c.descripcion || '') +
+        (c.responsable ? ' — Responsable: ' + c.responsable : '') +
+        (c.fecha ? ' — Fecha: ' + c.fecha : ''));
+    });
+  } else {
+    body.appendParagraph('— Sin compromisos registrados —');
+  }
+  body.appendParagraph('');
+
+  // 9. Seguimiento
+  body.appendParagraph('Seguimiento:').setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  if (Array.isArray(inf.seguimientos) && inf.seguimientos.length){
+    inf.seguimientos.forEach(s => {
+      body.appendParagraph((s.descripcion || '') +
+        (s.responsable ? ' — Responsable: ' + s.responsable : '') +
+        (s.estado ? ' — Estado: ' + s.estado : ''));
+    });
+  } else {
+    body.appendParagraph('— Sin acciones de seguimiento registradas —');
+  }
+
+  doc.saveAndClose();
+
+  // Mover el Doc a la carpeta del caso
+  if (caso.folderId){
+    try {
+      const folder = DriveApp.getFolderById(caso.folderId);
+      const file = DriveApp.getFileById(doc.getId());
+      folder.addFile(file);
+      DriveApp.getRootFolder().removeFile(file);
+    } catch(e) {}
+  }
+
+  return { success: true, docId: doc.getId(), docUrl: doc.getUrl(), message: 'Informe generado' };
+}
+
+function _trayectoriaLine(persona){
+  if (!persona) return '';
+  const partes = [];
+  partes.push(persona.nombre || '—');
+  if (persona.antiguedad) partes.push(persona.antiguedad + ' de antigüedad');
+  if (persona.puesto)     partes.push('como ' + persona.puesto);
+  if (persona.antecedentes) partes.push(String(persona.antecedentes).toLowerCase());
+  return partes.join(', ') + '.';
 }
 
 // ── evaluacionSave: guarda una evaluación preliminar como Doc en la carpeta del caso
