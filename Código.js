@@ -630,6 +630,19 @@ function altaUsuario(params) {
     }
   }
 
+  // SEGURIDAD: solo SuperAdmin puede asignar TranscripcionAuth manualmente.
+  // - Si el solicitante NO es SuperAdmin → siempre 'NO' (nunca da el permiso).
+  // - Si el rol del usuario que se crea es SUPER_ADMIN → 'SI' automático (siempre tiene).
+  // - Si el solicitante es SuperAdmin → respeta el flag enviado.
+  let transcripcionAuth;
+  if (String(params.rol).toUpperCase() === 'SUPER_ADMIN') {
+    transcripcionAuth = 'SI';
+  } else if (_isSuperAdmin(params.solicitanteUsuario)) {
+    transcripcionAuth = toSINO(params.transcripcionAuth);
+  } else {
+    transcripcionAuth = 'NO';
+  }
+
   sheet.appendRow([
     params.empresa,
     params.usuario,
@@ -640,7 +653,7 @@ function altaUsuario(params) {
     'SI',
     '',
     new Date().toISOString(),
-    toSINO(params.transcripcionAuth),
+    transcripcionAuth,
   ]);
 
   return { success: true, message: 'Usuario creado exitosamente' };
@@ -809,10 +822,25 @@ function editarUsuario(params) {
       if (params.usuario)  sheet.getRange(i + 1, 2).setValue(params.usuario);
       if (params.nombre)   sheet.getRange(i + 1, 5).setValue(params.nombre);
       if (params.email)    sheet.getRange(i + 1, 6).setValue(params.email);
-      if (params.rol)      sheet.getRange(i + 1, 4).setValue(params.rol);
       if (params.password) sheet.getRange(i + 1, 3).setValue(params.password);
-      if (params.transcripcionAuth !== undefined && params.transcripcionAuth !== '') {
-        sheet.getRange(i + 1, 10).setValue(toSINO(params.transcripcionAuth));
+
+      // Si cambia el rol a SUPER_ADMIN, automáticamente activar TranscripcionAuth
+      let nuevoRol = params.rol;
+      if (params.rol) {
+        sheet.getRange(i + 1, 4).setValue(params.rol);
+        if (String(params.rol).toUpperCase() === 'SUPER_ADMIN') {
+          sheet.getRange(i + 1, 10).setValue('SI');
+        }
+      }
+
+      // SEGURIDAD: solo SuperAdmin puede modificar TranscripcionAuth manualmente.
+      // Si el solicitante NO es SuperAdmin, ignorar silenciosamente el campo.
+      if (params.transcripcionAuth !== undefined && params.transcripcionAuth !== '' &&
+          _isSuperAdmin(params.solicitanteUsuario)) {
+        const rolActual = String(nuevoRol || data[i][3]).toUpperCase();
+        // Si el usuario es SUPER_ADMIN, siempre 'SI'; si no, respetar lo enviado
+        const valor = rolActual === 'SUPER_ADMIN' ? 'SI' : toSINO(params.transcripcionAuth);
+        sheet.getRange(i + 1, 10).setValue(valor);
       }
       return { success: true, message: 'Usuario actualizado correctamente' };
     }
@@ -2121,6 +2149,25 @@ function toSINO(v) {
   if (v === true || v === 'true' || v === 'SI' || v === 'si' || v === 'Si' ||
       v === 1 || v === '1' || v === 'on' || v === 'yes') return 'SI';
   return 'NO';
+}
+
+// Verifica si un usuario activo en el sistema es SUPER_ADMIN
+function _isSuperAdmin(usuarioName){
+  if (!usuarioName) return false;
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(SHEETS.USUARIOS);
+    if (!sheet) return false;
+    const data = sheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++){
+      if (String(data[i][1]).toLowerCase() === String(usuarioName).toLowerCase() &&
+          String(data[i][6]).toUpperCase() === 'SI' &&
+          String(data[i][3]).toUpperCase() === 'SUPER_ADMIN'){
+        return true;
+      }
+    }
+  } catch(e) {}
+  return false;
 }
 
 // ════════════════════════════════════════════════════════════════════════
