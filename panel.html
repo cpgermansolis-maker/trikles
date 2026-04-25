@@ -1390,7 +1390,18 @@ function openUsuarioModal(data){
 function updateTranscripcionVisibility(rol){
   const row = document.getElementById('usr_tr_row');
   if(!row) return;
-  // SuperAdmin siempre autorizado (no mostrar el control); resto sí lo requiere
+
+  // SEGURIDAD: solo el SuperAdmin LOGUEADO puede asignar este permiso.
+  // Si quien está editando NO es SA, el control queda oculto y no puede modificarse.
+  const sActual = getS();
+  const soyAdmin = !sActual || sActual.rol !== 'SUPER_ADMIN';
+  if (soyAdmin) {
+    row.style.display = 'none';
+    return;
+  }
+
+  // SuperAdmin viendo el modal: el control SÍ aparece, salvo cuando el rol del
+  // usuario que se edita ya es SUPER_ADMIN (siempre tiene permiso, no se necesita)
   if(rol === 'SUPER_ADMIN'){
     row.style.display = 'none';
     document.getElementById('usr_transcripcion_auth').checked = true;
@@ -1436,9 +1447,22 @@ async function guardarUsuario(){
   document.getElementById('usr_saving').style.display='flex';
   const action = isEdit ? 'editar_usuario' : 'alta_usuario';
   const usuarioOriginal = document.getElementById('usr_edit_id').value;
-  const trAuthChecked = document.getElementById('usr_transcripcion_auth').checked;
-  const transcripcionAuth = (rol === 'SUPER_ADMIN' || trAuthChecked) ? 'SI' : 'NO';
-  const params={action,nombre,usuario,usuario_original:usuarioOriginal||usuario,password:password||undefined,rol,empresa,email,transcripcionAuth};
+
+  // SEGURIDAD: solo el SuperAdmin envía el flag transcripcionAuth.
+  // El backend además valida y rechaza si viene de un Admin.
+  const sActual = getS();
+  const soyAdmin = !sActual || sActual.rol !== 'SUPER_ADMIN';
+  const params = {
+    action, nombre, usuario,
+    usuario_original: usuarioOriginal || usuario,
+    password: password || undefined,
+    rol, empresa, email,
+    solicitanteUsuario: sActual ? sActual.usuario : '', // backend usa esto para validar
+  };
+  if (!soyAdmin) {
+    const trAuthChecked = document.getElementById('usr_transcripcion_auth').checked;
+    params.transcripcionAuth = (rol === 'SUPER_ADMIN' || trAuthChecked) ? 'SI' : 'NO';
+  }
   try{
     const r=await apiPost(params);
     if(r.success){
