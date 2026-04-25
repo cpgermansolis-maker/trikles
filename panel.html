@@ -604,6 +604,44 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
         </div>
       </div>
 
+      <!-- Clave de auditor para Denuncias -->
+      <div class="card" style="margin-bottom:18px;padding:16px;background:rgba(231,76,60,.06);border:1px solid rgba(231,76,60,.3)">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+          <span style="font-size:22px">🔐</span>
+          <div>
+            <div style="font-weight:700;font-size:14px">Clave de auditor para Denuncias</div>
+            <div style="font-size:11px;color:var(--gray)" id="tr_auditor_status">Cargando...</div>
+          </div>
+        </div>
+        <div class="form-grid" style="grid-template-columns:1fr;gap:12px">
+          <div class="fg" id="tr_auditor_actual_wrap" style="display:none">
+            <label>Clave actual (requerida para cambiarla)</label>
+            <div style="display:flex;gap:8px">
+              <input type="password" id="tr_auditor_actual" placeholder="Ingresa la clave actual" style="flex:1">
+              <button type="button" class="btn btn-secondary" onclick="togglePwd('tr_auditor_actual',this)" style="padding:6px 12px">👁</button>
+            </div>
+          </div>
+          <div class="fg">
+            <label>Nueva clave (mínimo 6 caracteres)</label>
+            <div style="display:flex;gap:8px">
+              <input type="password" id="tr_auditor_nueva" placeholder="Define la nueva clave" style="flex:1">
+              <button type="button" class="btn btn-secondary" onclick="togglePwd('tr_auditor_nueva',this)" style="padding:6px 12px">👁</button>
+            </div>
+          </div>
+          <div class="fg">
+            <label>Confirmar nueva clave</label>
+            <input type="password" id="tr_auditor_confirm" placeholder="Repite la clave nueva">
+          </div>
+        </div>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn btn-primary" onclick="guardarAuditorKey()" id="tr_btn_save_auditor" style="background:linear-gradient(135deg,#7a1f1f,#a13030)">🔐 Guardar clave de auditor</button>
+          <div id="tr_saving_auditor" style="display:none" class="loading"><div class="spinner"></div>Guardando...</div>
+        </div>
+        <div style="margin-top:10px;padding:10px;background:rgba(231,76,60,.08);border-left:3px solid var(--red);border-radius:4px;font-size:11px;color:var(--gray)">
+          🛡️ <b>Doble barrera:</b> Esta clave se pide a TODOS los autorizados (incluido el SuperAdmin) cada vez que entran al módulo de Denuncias o tras 30 min de inactividad. Solo se guarda su hash (no la clave en sí). 5 intentos fallidos seguidos = 15 min de bloqueo + alerta en log de accesos.
+        </div>
+      </div>
+
       <!-- Solicitudes de acceso -->
       <div class="card" style="padding:16px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
@@ -937,7 +975,9 @@ function togglePwd(id, btn){
 
 async function loadTrConfig(){
   const s = getS(); if(!s) return;
-  const statusEl = document.getElementById('tr_keys_status');
+  const statusEl    = document.getElementById('tr_keys_status');
+  const auditorEl   = document.getElementById('tr_auditor_status');
+  const auditorWrap = document.getElementById('tr_auditor_actual_wrap');
   try {
     const r = await apiGet({action:'tr_getConfig', usuario: s.usuario});
     if(r.success && r.authorized){
@@ -948,12 +988,55 @@ async function loadTrConfig(){
       } else {
         statusEl.innerHTML = '<span style="color:#e67e22">⚠️ Faltan keys por configurar</span>';
       }
+      // Estado de la clave de auditor
+      if(auditorEl){
+        if(r.auditorConfigured){
+          auditorEl.innerHTML = '<span style="color:var(--green)">✅ Clave configurada — para cambiarla ingresa la actual</span>';
+          if(auditorWrap) auditorWrap.style.display = 'flex';
+        } else {
+          auditorEl.innerHTML = '<span style="color:#e67e22">⚠️ Clave NO configurada — el módulo de Denuncias está bloqueado para todos hasta que la definas</span>';
+          if(auditorWrap) auditorWrap.style.display = 'none';
+        }
+      }
     } else {
       statusEl.innerHTML = '<span style="color:var(--red)">❌ No autorizado</span>';
     }
   } catch(e) {
     statusEl.innerHTML = '<span style="color:var(--red)">Error al cargar</span>';
   }
+}
+
+async function guardarAuditorKey(){
+  const s = getS(); if(!s) return;
+  const nueva   = document.getElementById('tr_auditor_nueva').value;
+  const confirm = document.getElementById('tr_auditor_confirm').value;
+  const actual  = document.getElementById('tr_auditor_actual').value;
+
+  if(!nueva){ toast('error','Falta clave','Define la nueva clave'); return; }
+  if(nueva.length < 6){ toast('error','Clave muy corta','Debe tener al menos 6 caracteres'); return; }
+  if(nueva !== confirm){ toast('error','No coinciden','Las dos nuevas claves deben coincidir'); return; }
+
+  document.getElementById('tr_btn_save_auditor').style.display = 'none';
+  document.getElementById('tr_saving_auditor').style.display = 'flex';
+  try {
+    const params = { action:'tr_setAuditorKey', usuario: s.usuario, claveNueva: nueva };
+    if(actual) params.claveActual = actual;
+    const r = await apiPost(params);
+    if(r.success){
+      toast('success','Clave guardada', r.message || 'Clave de auditor actualizada');
+      // Limpiar campos
+      document.getElementById('tr_auditor_actual').value  = '';
+      document.getElementById('tr_auditor_nueva').value   = '';
+      document.getElementById('tr_auditor_confirm').value = '';
+      loadTrConfig();
+    } else {
+      toast('error','No se pudo guardar', r.error || 'Inténtalo de nuevo');
+    }
+  } catch(e){
+    toast('error','Error de conexión','Inténtalo de nuevo.');
+  }
+  document.getElementById('tr_btn_save_auditor').style.display = 'flex';
+  document.getElementById('tr_saving_auditor').style.display = 'none';
 }
 
 async function guardarTrKeys(){
