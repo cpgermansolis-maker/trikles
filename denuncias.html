@@ -1713,11 +1713,11 @@ function validarInforme(inf){
     detail: dnOk ? `${dn.length} denunciado${dn.length===1?'':'s'} con datos completos` : dnDetalles.join(' · ')
   });
 
-  // Respuesta del denunciante
+  // Respuesta del denunciante — NO obligatoria, se auto-completa al cerrar
   const respOk = !!(inf.respuestaDenunciante && inf.respuestaDenunciante.trim());
   secciones.push({
-    key:'respuesta', label:'Respuesta del denunciante', ok:respOk,
-    detail: respOk ? 'Capturada' : 'Falta capturar respuesta del denunciante al resultado'
+    key:'respuesta', label:'Resultado y respuesta del denunciante', ok:respOk, optional:true,
+    detail: respOk ? 'Capturada' : 'Se completa automáticamente al cerrar con dictamen de IA'
   });
 
   // Medidas preventivas
@@ -1827,7 +1827,10 @@ function renderInformeModal(){
 
     <!-- 1. Denunciante -->
     <div class="inf-pane active" id="ifp_den">
-      <div class="inf-help">Trayectoria de la persona que presentó la denuncia. Si es anónima, escribe "Anónima" en el nombre.</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+        <div class="inf-help" style="margin:0">Trayectoria de la persona que presentó la denuncia. Si es anónima, escribe "Anónima" en el nombre.</div>
+        <button class="btn-exp-secondary" style="padding:6px 12px;font-size:11px;background:linear-gradient(135deg,rgba(155,89,182,.1),rgba(122,31,31,.08))" onclick="autoFillSection('denunciante')">🪄 Llenar con IA</button>
+      </div>
       <div class="fg-grid">
         <div class="fg"><label>Nombre del denunciante</label><input type="text" id="ifd_nom" value="${escapeHtml(inf.denunciante.nombre)}" placeholder="Anónima si aplica"></div>
         <div class="fg"><label>Puesto</label><input type="text" id="ifd_pue" value="${escapeHtml(inf.denunciante.puesto)}" placeholder="Auxiliar Administrativo"></div>
@@ -1838,41 +1841,64 @@ function renderInformeModal(){
 
     <!-- 2. Denunciados -->
     <div class="inf-pane" id="ifp_dnd">
-      <div class="inf-help">Cada persona denunciada con su trayectoria y los señalamientos específicos. Cada señalamiento debe tener su resultado (Comprobado / No acreditado / Aceptado / Negado / Pendiente).</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+        <div class="inf-help" style="margin:0">Cada persona denunciada con su trayectoria y los señalamientos. Cada señalamiento debe tener su resultado.</div>
+        <button class="btn-exp-secondary" style="padding:6px 12px;font-size:11px;background:linear-gradient(135deg,rgba(155,89,182,.1),rgba(122,31,31,.08))" onclick="autoFillSection('denunciados')">🪄 Llenar con IA</button>
+      </div>
       <div id="dndList">${renderDenunciadosList(inf.denunciados)}</div>
       <button class="rep-add" onclick="addDenunciado()">+ Agregar denunciado</button>
     </div>
 
-    <!-- 3. Resultado y respuesta -->
+    <!-- 3. Resultado y respuesta — auto-completado al cerrar -->
     <div class="inf-pane" id="ifp_res">
-      <div class="inf-help">El resultado puede incluir hallazgos de encuesta de clima laboral u otros mecanismos. La respuesta del denunciante al resultado es obligatoria para cerrar.</div>
-      <div class="fg">
-        <label>Resultado de encuesta de clima laboral u otras acciones (opcional)</label>
-        <textarea id="ifr_enc" placeholder="Ej: Se aplicó encuesta de clima laboral enfocada en asignación de tareas. El resultado destacó que se requiere atención en segregación de funciones y comunicación estructural...">${escapeHtml(inf.resultadoEncuesta)}</textarea>
+      <div style="background:linear-gradient(135deg,rgba(46,204,113,.08),rgba(31,111,158,.06));border:1px solid rgba(46,204,113,.3);border-radius:2px;padding:18px 20px;margin-bottom:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <div style="font-size:32px">⚡</div>
+        <div style="flex:1;min-width:200px">
+          <div style="font-weight:700;font-size:14px;color:#1a1a1a;font-family:Georgia,serif">Esta sección se completa automáticamente</div>
+          <div style="font-size:12px;color:#5a4a2c;margin-top:4px;line-height:1.5">Cuando pulses <strong>"⚖️ Cerrar con dictamen de IA"</strong>, Claude analiza todo el expediente (incluyendo encuestas de clima cargadas como evidencia y entrevistas posteriores) y llena automáticamente:<br>
+          • <strong>Resultado de encuesta de clima laboral u otras acciones</strong><br>
+          • <strong>Respuesta del denunciante al resultado</strong></div>
+        </div>
       </div>
-      <div class="fg">
-        <label>Respuesta del denunciante al resultado *</label>
-        <textarea id="ifr_resp" placeholder="Ej: Estuvo de acuerdo. Concluido.">${escapeHtml(inf.respuestaDenunciante)}</textarea>
-      </div>
+      ${inf.resultadoEncuesta || inf.respuestaDenunciante ? `
+        <div style="font-size:11px;color:#8b7355;margin-bottom:8px;font-family:Georgia,serif;font-style:italic">Vista de los datos ya capturados (auto-generados al cerrar):</div>
+        ${inf.resultadoEncuesta ? `
+          <div class="fg"><label>Resultado de encuesta / acciones</label>
+            <div style="background:#fff;border:1px solid #c5b59a;padding:10px 12px;border-radius:2px;font-size:13px;line-height:1.6;color:#1a1a1a;white-space:pre-wrap">${escapeHtml(inf.resultadoEncuesta)}</div>
+          </div>` : ''}
+        ${inf.respuestaDenunciante ? `
+          <div class="fg"><label>Respuesta del denunciante</label>
+            <div style="background:#fff;border:1px solid #c5b59a;padding:10px 12px;border-radius:2px;font-size:13px;line-height:1.6;color:#1a1a1a;white-space:pre-wrap">${escapeHtml(inf.respuestaDenunciante)}</div>
+          </div>` : ''}
+      ` : `<div class="rep-empty">Aún sin datos. Se llenarán al cerrar el caso con dictamen de IA.</div>`}
     </div>
 
     <!-- 4. Medidas preventivas -->
     <div class="inf-pane" id="ifp_med">
-      <div class="inf-help">Acciones organizacionales para prevenir que la conducta se repita. Al menos 1 es obligatoria.</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+        <div class="inf-help" style="margin:0">Acciones organizacionales para prevenir que la conducta se repita. Al menos 1 es obligatoria.</div>
+        <button class="btn-exp-secondary" style="padding:6px 12px;font-size:11px;background:linear-gradient(135deg,rgba(155,89,182,.1),rgba(122,31,31,.08))" onclick="autoFillSection('medidas')">🪄 Sugerir con IA</button>
+      </div>
       <div id="medList">${renderMedidasList(inf.medidasPreventivas)}</div>
       <button class="rep-add" onclick="addMedida()">+ Agregar medida preventiva</button>
     </div>
 
     <!-- 5. Compromisos -->
     <div class="inf-pane" id="ifp_com">
-      <div class="inf-help">Plan de remediación con responsables y fechas. Al menos 1 es obligatorio.</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+        <div class="inf-help" style="margin:0">Plan de remediación con responsables y fechas. Al menos 1 es obligatorio.</div>
+        <button class="btn-exp-secondary" style="padding:6px 12px;font-size:11px;background:linear-gradient(135deg,rgba(155,89,182,.1),rgba(122,31,31,.08))" onclick="autoFillSection('compromisos')">🪄 Sugerir con IA</button>
+      </div>
       <div id="comList">${renderCompromisosList(inf.compromisos)}</div>
       <button class="rep-add" onclick="addCompromiso()">+ Agregar compromiso</button>
     </div>
 
     <!-- 6. Seguimiento -->
     <div class="inf-pane" id="ifp_seg">
-      <div class="inf-help">Acciones futuras para verificar que las medidas funcionen (opcional pero recomendado).</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+        <div class="inf-help" style="margin:0">Acciones futuras para verificar que las medidas funcionen (opcional pero recomendado).</div>
+        <button class="btn-exp-secondary" style="padding:6px 12px;font-size:11px;background:linear-gradient(135deg,rgba(155,89,182,.1),rgba(122,31,31,.08))" onclick="autoFillSection('seguimiento')">🪄 Sugerir con IA</button>
+      </div>
       <div id="segList">${renderSeguimientosList(inf.seguimientos)}</div>
       <button class="rep-add" onclick="addSeguimiento()">+ Agregar acción de seguimiento</button>
     </div>
@@ -2021,6 +2047,7 @@ function addSeguimiento(){ STATE.informeDraft.seguimientos.push({descripcion:'',
 function delSeguimiento(i){ STATE.informeDraft.seguimientos.splice(i,1); renderInformeModal(); selectInfTab('seg'); }
 
 // — Capturar inputs del denunciante (live binding) —
+// NOTA: resultadoEncuesta y respuestaDenunciante NO se capturan aquí — se auto-llenan al cerrar el caso.
 function captureInformeDraft(){
   if(!STATE.informeDraft) return;
   const get = id => document.getElementById(id);
@@ -2028,8 +2055,6 @@ function captureInformeDraft(){
   if(get('ifd_pue')) STATE.informeDraft.denunciante.puesto = get('ifd_pue').value;
   if(get('ifd_ant')) STATE.informeDraft.denunciante.antiguedad = get('ifd_ant').value;
   if(get('ifd_ace')) STATE.informeDraft.denunciante.antecedentes = get('ifd_ace').value;
-  if(get('ifr_enc')) STATE.informeDraft.resultadoEncuesta = get('ifr_enc').value;
-  if(get('ifr_resp')) STATE.informeDraft.respuestaDenunciante = get('ifr_resp').value;
 }
 
 // ── Auto-llenar el informe con Claude leyendo todo el expediente ──────
@@ -2192,6 +2217,113 @@ async function autoLlenarInforme(){
     toast('error','Falló el auto-llenado', e.message || 'Inténtalo de nuevo');
   }
   btn.disabled = false; btn.textContent = '🪄 Auto-llenar con IA';
+}
+
+// ── Auto-llenar SOLO una sección (quirúrgico, no toca las demás) ─────
+const SECTION_PROMPTS = {
+  denunciante: `Extrae los datos del denunciante (la persona que presentó la denuncia). Busca su trayectoria en la entrevista del denunciante y en menciones de otras entrevistas.
+Si el denunciante es anónimo, deja "nombre" como "Anónima" y los demás vacíos.
+Devuelve SOLO un JSON: {"nombre":"","puesto":"","antiguedad":"","antecedentes":""}`,
+
+  denunciados: `Identifica TODAS las personas denunciadas y por cada una sus señalamientos.
+Para cada señalamiento, infiere el resultado:
+- "Aceptado" si la persona lo aceptó textualmente en su entrevista
+- "Negado" si lo negó sin contradicción de testigos
+- "Comprobado" si testimonios o evidencias lo confirman
+- "No acreditado" si no hay evidencia para sustentar ni desvirtuar
+- "" (vacío) si no hay info suficiente
+En "detalleResultado" explica brevemente qué evidencia/testimonio sustenta el resultado.
+En "accionSugerida" propone una acción de seguimiento individualizada (no disciplinaria).
+Devuelve SOLO un JSON: {"denunciados":[{"nombre":"","puesto":"","antiguedad":"","antecedentes":"","accionSugerida":"","senalamientos":[{"conducta":"","detalle":"","resultado":"","detalleResultado":""}]}]}`,
+
+  medidas: `Sugiere 3-6 medidas preventivas y de mejora organizacionales relevantes para este caso. Considera el tipo de denuncia y los hallazgos. Pueden ser: capacitaciones (NOM-035), formalización de protocolos, encuestas de clima, actualización de descriptores de puesto, supervisión, comunicación asertiva, etc. NO propongas sanciones.
+Devuelve SOLO un JSON: {"medidasPreventivas":["medida 1","medida 2","..."]}`,
+
+  compromisos: `Sugiere compromisos concretos de remediación con responsable y fecha tentativa. Si no se mencionan responsables específicos en el expediente, déjalo "" para que el equipo lo asigne. Para fechas usa formato YYYY-MM-DD.
+Devuelve SOLO un JSON: {"compromisos":[{"descripcion":"","responsable":"","fecha":""}]}`,
+
+  seguimiento: `Sugiere acciones de seguimiento futuro para verificar que las medidas funcionen. Estado por defecto: "Pendiente".
+Devuelve SOLO un JSON: {"seguimientos":[{"descripcion":"","responsable":"","estado":"Pendiente"}]}`,
+};
+
+async function autoFillSection(section){
+  const prompt = SECTION_PROMPTS[section];
+  if(!prompt){ toast('error','Sección no soportada'); return; }
+
+  const c    = STATE.currentCaso;
+  const ents = STATE.currentEntrevistas;
+  const evs  = STATE.currentEvidencias || [];
+
+  // Reunir expediente
+  let expediente = `=== EXPEDIENTE ${c.numero} ===\n`;
+  expediente += `EMPRESA: ${c.empresa}\n`;
+  expediente += `TIPO DE DENUNCIA: ${c.tipoDenuncia || 'Otro'}\n`;
+  expediente += `DENUNCIANTE: ${c.denunciante || 'Anónima'}\n`;
+  expediente += `DENUNCIADO(S): ${c.denunciado}\n\n`;
+  expediente += `=== DENUNCIA INICIAL ===\n${c.descripcion}\n\n`;
+  expediente += `=== ENTREVISTAS (${ents.length}) ===\n`;
+  for(const e of ents){
+    expediente += `\n--- ENTREVISTA E${e.numero} · ${e.entrevistado} (${e.rol}) ---\n`;
+    if(e.notasPrevias) expediente += `Notas previas: ${e.notasPrevias}\n`;
+    expediente += `Resumen: ${e.resumen || '(sin resumen)'}\n`;
+  }
+  expediente += `\n=== EVIDENCIAS DOCUMENTALES (${evs.length}) ===\n`;
+  for(const v of evs){
+    expediente += `\n--- EVIDENCIA ${v.numero} · [${v.tipo}] ${v.titulo} ---\n`;
+    expediente += `Descripción: ${v.descripcion || '(sin descripción)'}\n`;
+  }
+
+  // Mostrar feedback en el botón clickeado
+  const btnSelector = `button[onclick="autoFillSection('${section}')"]`;
+  const btn = document.querySelector(btnSelector);
+  const origText = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = '🪄 Procesando...'; }
+
+  try {
+    captureInformeDraft(); // guardar lo que esté escribiendo
+    const respuesta = await callClaude(prompt, expediente, STATE.claudeKey, 4096);
+    let txt = respuesta.trim();
+    if(txt.startsWith('```')) txt = txt.replace(/^```(?:json)?\s*/i,'').replace(/```\s*$/,'').trim();
+    const i0 = txt.indexOf('{'); const iN = txt.lastIndexOf('}');
+    if(i0 >= 0 && iN > i0) txt = txt.slice(i0, iN+1);
+    const data = JSON.parse(txt);
+
+    // Aplicar al draft según la sección
+    if(section === 'denunciante' && data.nombre !== undefined){
+      STATE.informeDraft.denunciante = {
+        nombre: data.nombre || '', puesto: data.puesto || '',
+        antiguedad: data.antiguedad || '', antecedentes: data.antecedentes || ''
+      };
+    } else if(section === 'denunciados' && Array.isArray(data.denunciados)){
+      STATE.informeDraft.denunciados = data.denunciados.map(d => ({
+        nombre: d.nombre||'', puesto: d.puesto||'', antiguedad: d.antiguedad||'',
+        antecedentes: d.antecedentes||'', accionSugerida: d.accionSugerida||'',
+        senalamientos: Array.isArray(d.senalamientos) ? d.senalamientos.map(s => ({
+          conducta: s.conducta||'', detalle: s.detalle||'',
+          resultado: s.resultado||'', detalleResultado: s.detalleResultado||''
+        })) : []
+      }));
+    } else if(section === 'medidas' && Array.isArray(data.medidasPreventivas)){
+      STATE.informeDraft.medidasPreventivas = data.medidasPreventivas.filter(m => m);
+    } else if(section === 'compromisos' && Array.isArray(data.compromisos)){
+      STATE.informeDraft.compromisos = data.compromisos.map(c => ({
+        descripcion: c.descripcion||'', responsable: c.responsable||'', fecha: c.fecha||''
+      }));
+    } else if(section === 'seguimiento' && Array.isArray(data.seguimientos)){
+      STATE.informeDraft.seguimientos = data.seguimientos.map(s => ({
+        descripcion: s.descripcion||'', responsable: s.responsable||'', estado: s.estado||'Pendiente'
+      }));
+    }
+
+    renderInformeModal();
+    // Reposicionar al tab donde estaba
+    const tabMap = { denunciante:'den', denunciados:'dnd', medidas:'med', compromisos:'com', seguimiento:'seg' };
+    if(tabMap[section]) selectInfTab(tabMap[section]);
+    toast('success','Sección actualizada','Revisa el contenido sugerido');
+  } catch(e){
+    toast('error','Falló el llenado', e.message || 'Inténtalo de nuevo');
+    if(btn){ btn.disabled = false; btn.textContent = origText; }
+  }
 }
 
 async function guardarInforme(){
@@ -2742,6 +2874,66 @@ function openCloseModal(){
   openModal('Close');
 }
 
+const PROMPT_RESULTADO = `Eres un auditor interno. Tu tarea: extraer DOS datos específicos del expediente para llenar la sección de Resultado del informe.
+
+REGLAS:
+- NO inventes información que no esté en el expediente.
+- Si no encuentras información para un campo, deja el string vacío "".
+- Tono objetivo y factual.
+
+CAMPOS A EXTRAER:
+
+1. **resultadoEncuesta**: Si entre las EVIDENCIAS hay alguna encuesta de clima laboral, estudio de NOM-035, diagnóstico organizacional o mecanismo similar realizado durante la investigación, sintetiza sus hallazgos en 2-4 oraciones (usa la descripción de la evidencia). Si no hay nada de eso, devuelve "".
+
+2. **respuestaDenunciante**: Si en las ENTREVISTAS (especialmente las posteriores al hallazgo, o donde el denunciante reaccionó al resultado) o en alguna evidencia se documenta cómo respondió el denunciante al resultado de la investigación (ej: "estuvo de acuerdo", "rechazó la conclusión", "se negó al careo"), captúralo en 1-2 oraciones. Si no hay info clara, devuelve "".
+
+Devuelve SOLO un JSON con esta estructura, sin texto antes ni después, sin markdown fences:
+
+{"resultadoEncuesta":"","respuestaDenunciante":""}`;
+
+async function _extraerResultadoParaInforme(){
+  // Llama a Claude para extraer resultadoEncuesta + respuestaDenunciante del expediente
+  const c = STATE.currentCaso;
+  const ents = STATE.currentEntrevistas;
+  const evs  = STATE.currentEvidencias || [];
+
+  let expediente = `=== EXPEDIENTE ${c.numero} ===\n`;
+  expediente += `EMPRESA: ${c.empresa}\n`;
+  expediente += `TIPO DE DENUNCIA: ${c.tipoDenuncia || 'Otro'}\n`;
+  expediente += `DENUNCIANTE: ${c.denunciante || 'Anónima'}\n`;
+  expediente += `DENUNCIADO(S): ${c.denunciado}\n\n`;
+  expediente += `=== DENUNCIA INICIAL ===\n${c.descripcion}\n\n`;
+  expediente += `=== ENTREVISTAS (${ents.length}) ===\n`;
+  for(const e of ents){
+    expediente += `\n--- ENTREVISTA E${e.numero} · ${e.entrevistado} (${e.rol}) ---\n`;
+    expediente += `Fecha: ${e.fecha}\n`;
+    if(e.notasPrevias) expediente += `Notas previas: ${e.notasPrevias}\n`;
+    expediente += `Resumen: ${e.resumen || '(sin resumen)'}\n`;
+  }
+  expediente += `\n\n=== EVIDENCIAS DOCUMENTALES (${evs.length}) ===\n`;
+  for(const v of evs){
+    expediente += `\n--- EVIDENCIA ${v.numero} · [${v.tipo}] ${v.titulo} ---\n`;
+    expediente += `Fecha: ${v.fechaRecabada}\n`;
+    expediente += `Descripción: ${v.descripcion || '(sin descripción)'}\n`;
+  }
+
+  try {
+    const respuesta = await callClaude(PROMPT_RESULTADO, expediente, STATE.claudeKey, 1024);
+    let txt = respuesta.trim();
+    if(txt.startsWith('```')) txt = txt.replace(/^```(?:json)?\s*/i,'').replace(/```\s*$/,'').trim();
+    const i0 = txt.indexOf('{'); const iN = txt.lastIndexOf('}');
+    if(i0 >= 0 && iN > i0) txt = txt.slice(i0, iN+1);
+    const data = JSON.parse(txt);
+    return {
+      resultadoEncuesta: data.resultadoEncuesta || '',
+      respuestaDenunciante: data.respuestaDenunciante || '',
+    };
+  } catch(e){
+    console.warn('No se pudo extraer Resultado:', e);
+    return { resultadoEncuesta: '', respuestaDenunciante: '' };
+  }
+}
+
 async function procesarDictamen(){
   document.getElementById('closeStep1').style.display = 'none';
   document.getElementById('closeStep2').style.display = 'block';
@@ -2750,7 +2942,23 @@ async function procesarDictamen(){
   const ents = STATE.currentEntrevistas;
   const evs  = STATE.currentEvidencias || [];
 
-  document.getElementById('closeLoadingText').textContent = 'Reuniendo expediente completo...';
+  // PASO PREVIO: extraer Resultado (encuesta + respuesta del denunciante) y guardarlo en el informe
+  document.getElementById('closeLoadingText').textContent = 'Paso 1/2 — Extrayendo resultado de la investigación...';
+  try {
+    const resInforme = await _extraerResultadoParaInforme();
+    if(resInforme.resultadoEncuesta || resInforme.respuestaDenunciante){
+      const inf = STATE.currentCaso.informeData || _emptyInforme();
+      inf.resultadoEncuesta    = resInforme.resultadoEncuesta;
+      inf.respuestaDenunciante = resInforme.respuestaDenunciante;
+      // Persistir en el caso (sin refrescar la UI ahora)
+      try {
+        await apiPost({ action:'informe_save', usuario: STATE.session.usuario, casoId: c.id, data: JSON.stringify(inf) });
+        STATE.currentCaso.informeData = inf;
+      } catch(e){ /* no bloquear el dictamen si falla */ }
+    }
+  } catch(e){ /* continuar aunque el resultado falle */ }
+
+  document.getElementById('closeLoadingText').textContent = 'Paso 2/2 — Reuniendo expediente completo...';
   let evidencia = `=== EXPEDIENTE ${c.numero} ===\n`;
   evidencia += `EMPRESA: ${c.empresa}\n`;
   evidencia += `TIPO DE DENUNCIA: ${c.tipoDenuncia || 'Otro'}\n`;
