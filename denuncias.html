@@ -108,6 +108,27 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
 /* Evidencia badges */
 .ev-tipo{padding:2px 8px;font-size:10px;font-weight:800;border-radius:10px;background:rgba(52,152,219,.15);color:var(--blue);border:1px solid rgba(52,152,219,.4);letter-spacing:.5px}
 
+/* Card Protagonistas */
+.prot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:10px}
+.prot-card{background:#0a0a0a;border:1px solid #222;border-left:4px solid #555;border-radius:8px;padding:14px;transition:.15s;position:relative}
+.prot-card:hover{border-left-color:var(--red)}
+.prot-card.denunciante{border-left-color:var(--yellow)}
+.prot-card.denunciado{border-left-color:var(--red)}
+.prot-card-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.prot-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;flex-shrink:0;letter-spacing:1px}
+.prot-card.denunciante .prot-avatar{background:linear-gradient(135deg,var(--yellow),#d4a017)}
+.prot-card.denunciado .prot-avatar{background:linear-gradient(135deg,var(--red),#a93226)}
+.prot-card .prot-name{font-weight:800;font-size:13px;color:#fff;line-height:1.2}
+.prot-card .prot-rol{font-size:9px;letter-spacing:1.5px;color:var(--gray);text-transform:uppercase;margin-top:2px}
+.prot-card.denunciante .prot-rol{color:var(--yellow)}
+.prot-card.denunciado .prot-rol{color:var(--red)}
+.prot-fields{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:11px;margin-top:8px}
+.prot-fields .label{color:var(--gray);text-transform:uppercase;letter-spacing:1px;font-size:9px}
+.prot-fields .val{color:#ddd}
+.prot-fields .val.missing{color:#7a1f1f;font-style:italic}
+.prot-card-actions{display:flex;gap:6px;margin-top:10px;border-top:1px solid #222;padding-top:8px}
+.prot-empty{padding:20px;text-align:center;color:var(--gray);font-size:13px;background:#0a0a0a;border:1px dashed #2a2a2a;border-radius:8px}
+
 /* Semáforo del informe */
 .semaforo{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:10px}
 .sem-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#0a0a0a;border:1px solid #222;border-radius:6px;font-size:12px}
@@ -666,6 +687,46 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
   </div>
 </div>
 
+<!-- ═══ MODAL: Editar Protagonista ═══ -->
+<div class="modal-bg" id="modalProtagonista">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-ttl" id="protModalTtl">Datos del protagonista</div>
+    <div class="modal-sub" id="protModalSub">Trayectoria y antecedentes</div>
+
+    <input type="hidden" id="protRol">
+    <input type="hidden" id="protIdx">
+
+    <div class="fg">
+      <label>Nombre completo *</label>
+      <input type="text" id="protNombre" placeholder="Ej: Julia Cuéllar">
+    </div>
+    <div class="fg-grid">
+      <div class="fg">
+        <label>Puesto *</label>
+        <input type="text" id="protPuesto" placeholder="Ej: Auxiliar Administrativo">
+      </div>
+      <div class="fg">
+        <label>Antigüedad *</label>
+        <input type="text" id="protAntiguedad" placeholder="Ej: 1 año, 6 meses">
+      </div>
+    </div>
+    <div class="fg">
+      <label>Antecedentes *</label>
+      <input type="text" id="protAntecedentes" placeholder="Ej: Sin antecedentes / Con amonestación previa por...">
+    </div>
+    <div class="fg" id="protAccionWrap">
+      <label>Acción sugerida (opcional, solo aplica a denunciados)</label>
+      <input type="text" id="protAccionSugerida" placeholder="Ej: Dar seguimiento trimestral durante 6 meses">
+    </div>
+
+    <div class="modal-btns">
+      <button class="btn-exp-secondary" onclick="closeModal('Protagonista')">Cancelar</button>
+      <button class="btn-exp-primary red" id="btnDelProt" onclick="borrarProtagonista()" style="display:none">Eliminar</button>
+      <button class="btn-exp-primary" onclick="guardarProtagonista()" id="btnGuardarProt">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ MODAL: Editar Informe del Caso ═══ -->
 <div class="modal-bg" id="modalInforme">
   <div class="modal" style="max-width:880px">
@@ -1141,6 +1202,9 @@ function renderDetail(){
 
     ${dictamenHtml}
 
+    <!-- Protagonistas del caso (denunciante + denunciados con datos de origen) -->
+    ${renderProtagonistasCard(c, cerrado)}
+
     <div class="card">
       <div class="card-hdr">
         <div class="card-ttl">🎤 Entrevistas (${ents.length})</div>
@@ -1348,6 +1412,187 @@ async function borrarEvidencia(id){
   const r = await apiCall({action:'evidencia_delete', usuario:STATE.session.usuario, id});
   if(r.success){ toast('success','Eliminada'); openDetail(STATE.currentCaso.id); }
   else toast('error','Error', r.error||'No se pudo borrar');
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// PROTAGONISTAS DEL CASO (denunciante + denunciados)
+// Conectado con informeData.denunciante e informeData.denunciados
+// ════════════════════════════════════════════════════════════════════════
+function _initials(nombre){
+  const palabras = String(nombre||'').trim().split(/\s+/);
+  if(!palabras.length || !palabras[0]) return '?';
+  if(palabras.length === 1) return palabras[0].slice(0,2).toUpperCase();
+  return (palabras[0][0] + palabras[palabras.length-1][0]).toUpperCase();
+}
+
+function _missingFields(p){
+  const miss = [];
+  if(!p.nombre)        miss.push('nombre');
+  if(!p.puesto)        miss.push('puesto');
+  if(!p.antiguedad)    miss.push('antigüedad');
+  if(!p.antecedentes)  miss.push('antecedentes');
+  return miss;
+}
+
+function renderProtagonistasCard(c, cerrado){
+  const inf = c.informeData || _emptyInforme();
+  const den = inf.denunciante || { nombre:'', puesto:'', antiguedad:'', antecedentes:'' };
+  const dnd = inf.denunciados || [];
+
+  const renderField = (label, val, isMissing) =>
+    `<div class="label">${label}</div><div class="val ${isMissing?'missing':''}">${escapeHtml(val || '— Falta —')}</div>`;
+
+  const renderProt = (p, rolLabel, rolClass, idx) => {
+    const miss = _missingFields(p);
+    const incomplete = miss.length > 0;
+    return `
+      <div class="prot-card ${rolClass}">
+        <div class="prot-card-head">
+          <div class="prot-avatar">${escapeHtml(_initials(p.nombre || rolLabel))}</div>
+          <div style="flex:1;min-width:0">
+            <div class="prot-name">${escapeHtml(p.nombre || '— Sin nombre —')}</div>
+            <div class="prot-rol">${rolLabel}${incomplete?' · ⚠️ datos incompletos':''}</div>
+          </div>
+        </div>
+        <div class="prot-fields">
+          ${renderField('Puesto',       p.puesto,       !p.puesto)}
+          ${renderField('Antigüedad',   p.antiguedad,   !p.antiguedad)}
+          ${renderField('Antecedentes', p.antecedentes, !p.antecedentes)}
+        </div>
+        ${!cerrado ? `<div class="prot-card-actions">
+          <button class="btn-sm btn-sm-open" style="flex:1;justify-content:center" onclick="openProtagonistaModal('${rolClass}', ${idx})">✏️ Editar</button>
+        </div>` : ''}
+      </div>`;
+  };
+
+  const cards = [];
+  cards.push(renderProt(den, 'Denunciante', 'denunciante', -1));
+  if(dnd.length){
+    dnd.forEach((d, i) => cards.push(renderProt(d, 'Denunciado', 'denunciado', i)));
+  }
+
+  return `
+    <div class="card">
+      <div class="card-hdr">
+        <div>
+          <div class="card-ttl">👥 Protagonistas del caso</div>
+          <div style="font-size:12px;color:var(--gray);margin-top:4px">Datos de origen del denunciante y los denunciados. Se sincronizan con el informe automáticamente.</div>
+        </div>
+        ${!cerrado ? `<button class="btn-primary" onclick="openProtagonistaModal('denunciado', -1)">➕ Agregar denunciado</button>` : ''}
+      </div>
+      <div class="prot-grid">${cards.join('')}</div>
+      ${!dnd.length ? `<div class="prot-empty" style="margin-top:12px">Aún no has agregado denunciados. Agrega al menos uno con sus datos completos.</div>` : ''}
+    </div>`;
+}
+
+function openProtagonistaModal(rol, idx){
+  // Preparar el draft del informe si no existe
+  if(!STATE.currentCaso.informeData) STATE.currentCaso.informeData = _emptyInforme();
+  const inf = STATE.currentCaso.informeData;
+
+  document.getElementById('protRol').value = rol;
+  document.getElementById('protIdx').value = String(idx);
+
+  let p, ttl, sub, showDel = false;
+  if(rol === 'denunciante'){
+    p = inf.denunciante || { nombre:'', puesto:'', antiguedad:'', antecedentes:'' };
+    ttl = '👤 Editar denunciante';
+    sub = 'Trayectoria de la persona que presentó la denuncia';
+    document.getElementById('protAccionWrap').style.display = 'none';
+  } else {
+    if(idx < 0){
+      // Nuevo denunciado
+      p = { nombre:'', puesto:'', antiguedad:'', antecedentes:'', accionSugerida:'', senalamientos:[{conducta:'', detalle:'', resultado:'', detalleResultado:''}] };
+      ttl = '🎯 Agregar denunciado';
+      sub = 'Trayectoria y datos de origen';
+    } else {
+      p = inf.denunciados[idx] || {};
+      ttl = '🎯 Editar denunciado';
+      sub = 'Trayectoria y datos de origen';
+      showDel = true;
+    }
+    document.getElementById('protAccionWrap').style.display = 'flex';
+  }
+
+  document.getElementById('protModalTtl').textContent = ttl;
+  document.getElementById('protModalSub').textContent = sub;
+  document.getElementById('protNombre').value        = p.nombre || '';
+  document.getElementById('protPuesto').value        = p.puesto || '';
+  document.getElementById('protAntiguedad').value    = p.antiguedad || '';
+  document.getElementById('protAntecedentes').value  = p.antecedentes || '';
+  document.getElementById('protAccionSugerida').value= p.accionSugerida || '';
+  document.getElementById('btnDelProt').style.display = showDel ? 'inline-flex' : 'none';
+
+  openModal('Protagonista');
+}
+
+async function guardarProtagonista(){
+  const rol = document.getElementById('protRol').value;
+  const idx = parseInt(document.getElementById('protIdx').value);
+  const nombre        = document.getElementById('protNombre').value.trim();
+  const puesto        = document.getElementById('protPuesto').value.trim();
+  const antiguedad    = document.getElementById('protAntiguedad').value.trim();
+  const antecedentes  = document.getElementById('protAntecedentes').value.trim();
+  const accionSugerida= document.getElementById('protAccionSugerida').value.trim();
+
+  if(!nombre){ toast('error','Falta nombre','El nombre es obligatorio'); return; }
+
+  const inf = STATE.currentCaso.informeData || _emptyInforme();
+  if(rol === 'denunciante'){
+    inf.denunciante = { nombre, puesto, antiguedad, antecedentes };
+  } else {
+    if(!Array.isArray(inf.denunciados)) inf.denunciados = [];
+    if(idx < 0){
+      inf.denunciados.push({
+        nombre, puesto, antiguedad, antecedentes, accionSugerida,
+        senalamientos: [{ conducta:'', detalle:'', resultado:'', detalleResultado:'' }]
+      });
+    } else {
+      const existing = inf.denunciados[idx] || {};
+      inf.denunciados[idx] = {
+        ...existing,
+        nombre, puesto, antiguedad, antecedentes, accionSugerida,
+        senalamientos: existing.senalamientos || [{ conducta:'', detalle:'', resultado:'', detalleResultado:'' }]
+      };
+    }
+  }
+
+  await _persistInforme(inf);
+  closeModal('Protagonista');
+}
+
+async function borrarProtagonista(){
+  const rol = document.getElementById('protRol').value;
+  const idx = parseInt(document.getElementById('protIdx').value);
+  if(rol !== 'denunciado' || idx < 0) return;
+  if(!confirm('¿Eliminar este denunciado y todos sus señalamientos del informe?')) return;
+  const inf = STATE.currentCaso.informeData || _emptyInforme();
+  inf.denunciados.splice(idx, 1);
+  await _persistInforme(inf);
+  closeModal('Protagonista');
+}
+
+// Helper compartido: persiste informe y refresca detalle del caso
+async function _persistInforme(inf){
+  const btn = document.getElementById('btnGuardarProt');
+  if(btn){ btn.disabled = true; btn.textContent = 'Guardando...'; }
+  try {
+    const r = await apiPost({
+      action: 'informe_save',
+      usuario: STATE.session.usuario,
+      casoId: STATE.currentCaso.id,
+      data: JSON.stringify(inf),
+    });
+    if(r.success){
+      toast('success','Guardado','Datos sincronizados con el informe');
+      openDetail(STATE.currentCaso.id); // refresca todo
+    } else {
+      toast('error','Error', r.error || 'No se pudo guardar');
+    }
+  } catch(e){
+    toast('error','Error de conexión','Inténtalo de nuevo');
+  }
+  if(btn){ btn.disabled = false; btn.textContent = 'Guardar'; }
 }
 
 // ════════════════════════════════════════════════════════════════════════
