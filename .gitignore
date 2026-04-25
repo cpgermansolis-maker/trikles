@@ -19,3 +19,7 @@ desktop.ini
 *.tmp
 *.bak
 *~
+
+# Formatos de referencia / plantillas locales (no van al sitio público)
+Formato*.docx
+_tmp_*/

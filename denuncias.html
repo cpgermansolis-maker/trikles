@@ -108,6 +108,49 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
 /* Evidencia badges */
 .ev-tipo{padding:2px 8px;font-size:10px;font-weight:800;border-radius:10px;background:rgba(52,152,219,.15);color:var(--blue);border:1px solid rgba(52,152,219,.4);letter-spacing:.5px}
 
+/* Semáforo del informe */
+.semaforo{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:10px}
+.sem-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#0a0a0a;border:1px solid #222;border-radius:6px;font-size:12px}
+.sem-item .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.sem-item.ok .dot{background:var(--green)}
+.sem-item.miss .dot{background:var(--red);box-shadow:0 0 6px rgba(231,76,60,.5)}
+.sem-item.warn .dot{background:#f1c40f}
+.sem-item.ok{border-color:rgba(46,204,113,.3)}
+.sem-item.miss{border-color:rgba(231,76,60,.4)}
+.sem-item.warn{border-color:rgba(241,196,15,.4)}
+.sem-label{flex:1;color:#ddd}
+.sem-detail{font-size:10px;color:var(--gray);margin-top:2px}
+
+/* Repetidor (denunciados, compromisos, etc.) en el modal */
+.rep-item{background:#fff;border:1px solid #c5b59a;border-radius:2px;padding:14px;margin-bottom:10px;position:relative}
+.rep-item-num{position:absolute;top:-10px;left:14px;background:#7a1f1f;color:#fff;padding:2px 10px;font-size:11px;font-weight:800;border-radius:2px;font-family:Georgia,serif;letter-spacing:1px}
+.rep-del{position:absolute;top:8px;right:8px;background:transparent;border:none;color:#7a1f1f;cursor:pointer;font-size:16px;font-weight:bold;width:24px;height:24px;border-radius:2px}
+.rep-del:hover{background:rgba(122,31,31,.1)}
+.rep-empty{padding:18px;text-align:center;color:#8b7355;font-style:italic;background:#ede5cf;border:1px dashed #c5b59a;border-radius:2px;font-family:Georgia,serif;font-size:13px}
+.rep-add{background:#fff;border:1px dashed #8b7355;color:#1a1a1a;padding:8px 16px;border-radius:2px;cursor:pointer;font-family:Georgia,serif;font-weight:600;font-size:12px;width:100%;margin-top:8px}
+.rep-add:hover{background:#ede5cf}
+
+/* Tabs dentro del modal de informe */
+.inf-tabs{display:flex;gap:2px;margin-bottom:18px;flex-wrap:wrap;border-bottom:2px solid #d8ccae}
+.inf-tab{background:transparent;border:none;color:#8b7355;padding:9px 14px;cursor:pointer;font-family:Georgia,serif;font-size:12px;font-weight:600;border-bottom:3px solid transparent;margin-bottom:-2px;letter-spacing:.5px}
+.inf-tab:hover{color:#1a1a1a}
+.inf-tab.active{color:#7a1f1f;border-bottom-color:#7a1f1f}
+.inf-tab .badge{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:5px;vertical-align:middle}
+.inf-tab .badge.ok{background:#2e8b57}
+.inf-tab .badge.miss{background:#7a1f1f}
+.inf-pane{display:none}
+.inf-pane.active{display:block}
+.inf-help{font-size:11px;color:#8b7355;font-style:italic;margin-bottom:10px}
+.sen-row{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-bottom:6px;align-items:end}
+.sen-row .fg{margin-bottom:0}
+@media(max-width:600px){.sen-row{grid-template-columns:1fr}}
+
+/* Modal de bloqueo de cierre */
+.bloqueo-list{background:#fff;border:1px solid #c5b59a;border-radius:2px;padding:14px;margin-bottom:14px}
+.bloqueo-item{padding:8px 0;border-bottom:1px solid #ede5cf;font-size:13px;color:#7a1f1f;font-family:Georgia,serif}
+.bloqueo-item:last-child{border-bottom:none}
+.bloqueo-item::before{content:'⚠️ ';margin-right:6px}
+
 /* Entrevista list */
 .ent-row{display:grid;grid-template-columns:36px 1fr auto;gap:12px;padding:12px;border-bottom:1px solid #1f1f1f;align-items:center}
 .ent-row:last-child{border-bottom:none}
@@ -623,6 +666,33 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
   </div>
 </div>
 
+<!-- ═══ MODAL: Editar Informe del Caso ═══ -->
+<div class="modal-bg" id="modalInforme">
+  <div class="modal" style="max-width:880px">
+    <div class="modal-ttl">Datos del informe</div>
+    <div class="modal-sub">Captura por secciones · puedes guardar y volver más tarde</div>
+    <div id="informeBody"></div>
+    <div class="modal-btns">
+      <button class="btn-exp-secondary" onclick="closeModal('Informe')">Cancelar</button>
+      <button class="btn-exp-primary" onclick="guardarInforme()" id="btnGuardarInforme">💾 Guardar datos del informe</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: Bloqueo de cierre por datos faltantes ═══ -->
+<div class="modal-bg" id="modalBloqueo">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-ttl" style="color:#7a1f1f">No se puede cerrar el caso aún</div>
+    <div class="modal-sub">Faltan elementos en el informe</div>
+    <div class="modal-txt">Para cerrar este caso con dictamen final y emitir el informe, primero debes completar los siguientes elementos del expediente:</div>
+    <div id="bloqueoList" class="bloqueo-list"></div>
+    <div class="modal-btns">
+      <button class="btn-exp-secondary" onclick="closeModal('Bloqueo')">Entendido</button>
+      <button class="btn-exp-primary" onclick="closeModal('Bloqueo'); openInformeModal()">📝 Ir a editar el informe</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ MODAL: Cerrar con dictamen ═══ -->
 <div class="modal-bg" id="modalClose">
   <div class="modal" style="max-width:720px">
@@ -1089,6 +1159,9 @@ function renderDetail(){
         </div>
       </div>` : ''}
 
+    <!-- Informe del Caso (con semáforo de completitud) -->
+    ${renderInformeCard(c, cerrado)}
+
     ${!cerrado && ents.length > 0 ? `
       <div class="card" style="border-color:var(--green);background:rgba(46,204,113,.05)">
         <div class="card-hdr">
@@ -1265,6 +1338,419 @@ async function borrarEvidencia(id){
   const r = await apiCall({action:'evidencia_delete', usuario:STATE.session.usuario, id});
   if(r.success){ toast('success','Eliminada'); openDetail(STATE.currentCaso.id); }
   else toast('error','Error', r.error||'No se pudo borrar');
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// INFORME DEL CASO — semáforo + edición + generación
+// ════════════════════════════════════════════════════════════════════════
+function _emptyInforme(){
+  return {
+    denunciante: { nombre:'', puesto:'', antiguedad:'', antecedentes:'' },
+    denunciados: [],
+    resultadoEncuesta: '',
+    respuestaDenunciante: '',
+    medidasPreventivas: [],
+    compromisos: [],
+    seguimientos: []
+  };
+}
+
+// Validador: devuelve {ok:bool, secciones:[{key,label,ok,detail}]}
+function validarInforme(inf){
+  if(!inf) inf = _emptyInforme();
+  const secciones = [];
+
+  // Denunciante
+  const d = inf.denunciante || {};
+  const denOk = !!(d.nombre && d.puesto && d.antiguedad && d.antecedentes);
+  secciones.push({
+    key:'denunciante', label:'Trayectoria del denunciante', ok:denOk,
+    detail: denOk ? 'Completo' : 'Falta: ' + ['nombre','puesto','antiguedad','antecedentes'].filter(k=>!d[k]).join(', ')
+  });
+
+  // Denunciados
+  const dn = inf.denunciados || [];
+  const dnDetalles = [];
+  let dnOk = dn.length > 0;
+  if(!dn.length) dnDetalles.push('Sin denunciados');
+  dn.forEach((x, i) => {
+    if(!x.nombre || !x.puesto || !x.antiguedad || !x.antecedentes){
+      dnOk = false;
+      dnDetalles.push((i+1) + ': falta trayectoria');
+    }
+    if(!x.senalamientos || !x.senalamientos.length){
+      dnOk = false;
+      dnDetalles.push((x.nombre||(i+1)) + ': sin señalamientos');
+    } else {
+      x.senalamientos.forEach((s, j) => {
+        if(!s.conducta || !s.resultado){
+          dnOk = false;
+          dnDetalles.push((x.nombre||(i+1)) + ' señalam. ' + (j+1) + ': falta conducta o resultado');
+        }
+      });
+    }
+  });
+  secciones.push({
+    key:'denunciados', label:'Denunciados y señalamientos', ok:dnOk,
+    detail: dnOk ? `${dn.length} denunciado${dn.length===1?'':'s'} con datos completos` : dnDetalles.join(' · ')
+  });
+
+  // Respuesta del denunciante
+  const respOk = !!(inf.respuestaDenunciante && inf.respuestaDenunciante.trim());
+  secciones.push({
+    key:'respuesta', label:'Respuesta del denunciante', ok:respOk,
+    detail: respOk ? 'Capturada' : 'Falta capturar respuesta del denunciante al resultado'
+  });
+
+  // Medidas preventivas
+  const mp = (inf.medidasPreventivas || []).filter(m => String(m||'').trim());
+  const mpOk = mp.length >= 1;
+  secciones.push({
+    key:'medidas', label:'Medidas preventivas', ok:mpOk,
+    detail: mpOk ? `${mp.length} medida${mp.length===1?'':'s'}` : 'Agrega al menos 1 medida preventiva'
+  });
+
+  // Compromisos
+  const co = (inf.compromisos || []).filter(c => c && c.descripcion && c.responsable && c.fecha);
+  const coOk = co.length >= 1;
+  secciones.push({
+    key:'compromisos', label:'Compromisos', ok:coOk,
+    detail: coOk ? `${co.length} compromiso${co.length===1?'':'s'} con responsable y fecha` : 'Agrega al menos 1 compromiso completo (descripción + responsable + fecha)'
+  });
+
+  // Seguimiento (no obligatorio para cerrar pero lo trackeamos)
+  const sg = (inf.seguimientos || []).filter(s => s && s.descripcion);
+  secciones.push({
+    key:'seguimiento', label:'Seguimiento', ok:sg.length>=1, optional:true,
+    detail: sg.length ? `${sg.length} acción${sg.length===1?'':'es'} de seguimiento` : 'Sin acciones (opcional)'
+  });
+
+  const ok = secciones.filter(s => !s.optional).every(s => s.ok);
+  return { ok, secciones };
+}
+
+function renderInformeCard(c, cerrado){
+  const inf = c.informeData;
+  const v = validarInforme(inf);
+  const completo = v.ok;
+  const titulo = completo ? '✅ Informe del Caso · Completo' : '📋 Informe del Caso · Pendiente';
+  const color = completo ? 'var(--green)' : '#f1c40f';
+  const bg    = completo ? 'rgba(46,204,113,.05)' : 'rgba(241,196,15,.05)';
+
+  return `
+    <div class="card" style="border-color:${color};background:${bg}">
+      <div class="card-hdr">
+        <div>
+          <div class="card-ttl" style="color:${color}">${titulo}</div>
+          <div style="font-size:12px;color:var(--gray);margin-top:4px">Datos estructurados del expediente que conforman el informe final.</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          ${!cerrado ? `<button class="btn-primary" style="background:linear-gradient(135deg,#7a1f1f,#a13030)" onclick="openInformeModal()">📝 Editar datos</button>` : ''}
+          ${completo ? `<button class="btn-primary" style="background:linear-gradient(135deg,#1f6f9e,#2e8bb5)" onclick="generarInformeFinal()">📋 Generar informe</button>` : ''}
+        </div>
+      </div>
+      <div class="semaforo">
+        ${v.secciones.map(s => `
+          <div class="sem-item ${s.ok?'ok':(s.optional?'warn':'miss')}">
+            <span class="dot"></span>
+            <div style="flex:1">
+              <div class="sem-label">${escapeHtml(s.label)}${s.optional?' <em style="font-size:10px;color:var(--gray)">(opcional)</em>':''}</div>
+              <div class="sem-detail">${escapeHtml(s.detail)}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+// ── Modal de edición del informe (con tabs por sección) ──────────────
+function openInformeModal(){
+  // Clonar el informe actual o iniciar uno vacío
+  STATE.informeDraft = JSON.parse(JSON.stringify(STATE.currentCaso.informeData || _emptyInforme()));
+  // Pre-rellenar nombre del denunciante con el del caso si está vacío
+  if(!STATE.informeDraft.denunciante.nombre){
+    STATE.informeDraft.denunciante.nombre = STATE.currentCaso.denunciante || '';
+  }
+  // Si no hay denunciados pero sí hay texto en el caso, sugerir uno
+  if(!STATE.informeDraft.denunciados.length && STATE.currentCaso.denunciado){
+    STATE.informeDraft.denunciados.push({
+      nombre: STATE.currentCaso.denunciado, puesto:'', antiguedad:'', antecedentes:'',
+      accionSugerida:'', senalamientos: [{ conducta: STATE.currentCaso.tipoDenuncia || '', detalle:'', resultado:'', detalleResultado:'' }]
+    });
+  }
+  renderInformeModal();
+  openModal('Informe');
+}
+
+function renderInformeModal(){
+  const inf = STATE.informeDraft;
+  const v = validarInforme(inf);
+  const tabBadge = sec => v.secciones.find(s => s.key===sec)?.ok ? '<span class="badge ok"></span>' : (v.secciones.find(s=>s.key===sec)?.optional ? '' : '<span class="badge miss"></span>');
+
+  document.getElementById('informeBody').innerHTML = `
+    <div class="inf-tabs">
+      <button class="inf-tab active" data-pane="den" onclick="selectInfTab('den')">1. Denunciante${tabBadge('denunciante')}</button>
+      <button class="inf-tab" data-pane="dnd" onclick="selectInfTab('dnd')">2. Denunciados${tabBadge('denunciados')}</button>
+      <button class="inf-tab" data-pane="res" onclick="selectInfTab('res')">3. Resultado${tabBadge('respuesta')}</button>
+      <button class="inf-tab" data-pane="med" onclick="selectInfTab('med')">4. Medidas${tabBadge('medidas')}</button>
+      <button class="inf-tab" data-pane="com" onclick="selectInfTab('com')">5. Compromisos${tabBadge('compromisos')}</button>
+      <button class="inf-tab" data-pane="seg" onclick="selectInfTab('seg')">6. Seguimiento</button>
+    </div>
+
+    <!-- 1. Denunciante -->
+    <div class="inf-pane active" id="ifp_den">
+      <div class="inf-help">Trayectoria de la persona que presentó la denuncia. Si es anónima, escribe "Anónima" en el nombre.</div>
+      <div class="fg-grid">
+        <div class="fg"><label>Nombre del denunciante</label><input type="text" id="ifd_nom" value="${escapeHtml(inf.denunciante.nombre)}" placeholder="Anónima si aplica"></div>
+        <div class="fg"><label>Puesto</label><input type="text" id="ifd_pue" value="${escapeHtml(inf.denunciante.puesto)}" placeholder="Auxiliar Administrativo"></div>
+        <div class="fg"><label>Antigüedad</label><input type="text" id="ifd_ant" value="${escapeHtml(inf.denunciante.antiguedad)}" placeholder="1 año"></div>
+        <div class="fg"><label>Antecedentes</label><input type="text" id="ifd_ace" value="${escapeHtml(inf.denunciante.antecedentes)}" placeholder="Sin antecedentes"></div>
+      </div>
+    </div>
+
+    <!-- 2. Denunciados -->
+    <div class="inf-pane" id="ifp_dnd">
+      <div class="inf-help">Cada persona denunciada con su trayectoria y los señalamientos específicos. Cada señalamiento debe tener su resultado (Comprobado / No acreditado / Aceptado / Negado / Pendiente).</div>
+      <div id="dndList">${renderDenunciadosList(inf.denunciados)}</div>
+      <button class="rep-add" onclick="addDenunciado()">+ Agregar denunciado</button>
+    </div>
+
+    <!-- 3. Resultado y respuesta -->
+    <div class="inf-pane" id="ifp_res">
+      <div class="inf-help">El resultado puede incluir hallazgos de encuesta de clima laboral u otros mecanismos. La respuesta del denunciante al resultado es obligatoria para cerrar.</div>
+      <div class="fg">
+        <label>Resultado de encuesta de clima laboral u otras acciones (opcional)</label>
+        <textarea id="ifr_enc" placeholder="Ej: Se aplicó encuesta de clima laboral enfocada en asignación de tareas. El resultado destacó que se requiere atención en segregación de funciones y comunicación estructural...">${escapeHtml(inf.resultadoEncuesta)}</textarea>
+      </div>
+      <div class="fg">
+        <label>Respuesta del denunciante al resultado *</label>
+        <textarea id="ifr_resp" placeholder="Ej: Estuvo de acuerdo. Concluido.">${escapeHtml(inf.respuestaDenunciante)}</textarea>
+      </div>
+    </div>
+
+    <!-- 4. Medidas preventivas -->
+    <div class="inf-pane" id="ifp_med">
+      <div class="inf-help">Acciones organizacionales para prevenir que la conducta se repita. Al menos 1 es obligatoria.</div>
+      <div id="medList">${renderMedidasList(inf.medidasPreventivas)}</div>
+      <button class="rep-add" onclick="addMedida()">+ Agregar medida preventiva</button>
+    </div>
+
+    <!-- 5. Compromisos -->
+    <div class="inf-pane" id="ifp_com">
+      <div class="inf-help">Plan de remediación con responsables y fechas. Al menos 1 es obligatorio.</div>
+      <div id="comList">${renderCompromisosList(inf.compromisos)}</div>
+      <button class="rep-add" onclick="addCompromiso()">+ Agregar compromiso</button>
+    </div>
+
+    <!-- 6. Seguimiento -->
+    <div class="inf-pane" id="ifp_seg">
+      <div class="inf-help">Acciones futuras para verificar que las medidas funcionen (opcional pero recomendado).</div>
+      <div id="segList">${renderSeguimientosList(inf.seguimientos)}</div>
+      <button class="rep-add" onclick="addSeguimiento()">+ Agregar acción de seguimiento</button>
+    </div>
+  `;
+}
+
+function selectInfTab(p){
+  document.querySelectorAll('.inf-tab').forEach(t => t.classList.toggle('active', t.dataset.pane===p));
+  document.querySelectorAll('.inf-pane').forEach(pn => pn.classList.toggle('active', pn.id==='ifp_'+p));
+}
+
+// — Denunciados (repetidor) —
+function renderDenunciadosList(arr){
+  if(!arr || !arr.length) return '<div class="rep-empty">Sin denunciados. Agrega al menos uno.</div>';
+  return arr.map((d, i) => `
+    <div class="rep-item">
+      <span class="rep-item-num">D${String(i+1).padStart(2,'0')}</span>
+      <button class="rep-del" onclick="delDenunciado(${i})" title="Borrar denunciado">✕</button>
+      <div class="fg-grid" style="margin-top:6px">
+        <div class="fg"><label>Nombre</label><input type="text" oninput="setDnd(${i},'nombre',this.value)" value="${escapeHtml(d.nombre)}"></div>
+        <div class="fg"><label>Puesto</label><input type="text" oninput="setDnd(${i},'puesto',this.value)" value="${escapeHtml(d.puesto)}"></div>
+        <div class="fg"><label>Antigüedad</label><input type="text" oninput="setDnd(${i},'antiguedad',this.value)" value="${escapeHtml(d.antiguedad)}" placeholder="2 meses"></div>
+        <div class="fg"><label>Antecedentes</label><input type="text" oninput="setDnd(${i},'antecedentes',this.value)" value="${escapeHtml(d.antecedentes)}" placeholder="Sin antecedentes"></div>
+      </div>
+      <div class="fg" style="margin-top:6px"><label>Señalamientos / conductas denunciadas</label></div>
+      <div id="senList_${i}">${renderSenalamientosList(d.senalamientos||[], i)}</div>
+      <button class="rep-add" onclick="addSenalamiento(${i})">+ Agregar señalamiento a ${escapeHtml(d.nombre||'este denunciado')}</button>
+      <div class="fg" style="margin-top:10px"><label>Acción sugerida para esta persona (opcional)</label>
+        <input type="text" oninput="setDnd(${i},'accionSugerida',this.value)" value="${escapeHtml(d.accionSugerida||'')}" placeholder="Ej: Dar seguimiento trimestral durante 6 meses">
+      </div>
+    </div>
+  `).join('');
+}
+function setDnd(i, key, val){ STATE.informeDraft.denunciados[i][key] = val; }
+function addDenunciado(){
+  STATE.informeDraft.denunciados.push({ nombre:'', puesto:'', antiguedad:'', antecedentes:'', accionSugerida:'', senalamientos: [{ conducta:'', detalle:'', resultado:'', detalleResultado:'' }] });
+  renderInformeModal(); selectInfTab('dnd');
+}
+function delDenunciado(i){
+  if(!confirm('¿Borrar este denunciado y sus señalamientos?')) return;
+  STATE.informeDraft.denunciados.splice(i,1);
+  renderInformeModal(); selectInfTab('dnd');
+}
+
+// — Señalamientos por denunciado —
+function renderSenalamientosList(arr, dndIdx){
+  if(!arr.length) return '<div class="rep-empty" style="margin:6px 0;font-size:11px">Sin señalamientos</div>';
+  return arr.map((s, j) => `
+    <div class="rep-item" style="background:#faf5e6;margin:6px 0;padding:10px">
+      <span class="rep-item-num" style="background:#5a4a2c;font-size:9px">S${String(j+1).padStart(2,'0')}</span>
+      <button class="rep-del" onclick="delSenalamiento(${dndIdx},${j})">✕</button>
+      <div class="sen-row" style="margin-top:6px">
+        <div class="fg"><label>Conducta señalada</label>
+          <input type="text" oninput="setSen(${dndIdx},${j},'conducta',this.value)" value="${escapeHtml(s.conducta)}" placeholder="Ej: Acoso laboral, Amenazas verbales">
+        </div>
+        <div class="fg"><label>Resultado</label>
+          <select onchange="setSen(${dndIdx},${j},'resultado',this.value)">
+            <option value="" ${s.resultado===''?'selected':''}>— Pendiente de determinar —</option>
+            <option value="Comprobado" ${s.resultado==='Comprobado'?'selected':''}>✓ Comprobado</option>
+            <option value="Aceptado" ${s.resultado==='Aceptado'?'selected':''}>✓ Aceptado por el denunciado</option>
+            <option value="No acreditado" ${s.resultado==='No acreditado'?'selected':''}>✕ No acreditado</option>
+            <option value="Negado" ${s.resultado==='Negado'?'selected':''}>✕ Negado por el denunciado</option>
+            <option value="No comprobado" ${s.resultado==='No comprobado'?'selected':''}>✕ No comprobado</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg" style="margin:0"><label>Detalle del resultado (qué evidencia/testigos sustentan o desvirtúan)</label>
+        <textarea oninput="setSen(${dndIdx},${j},'detalleResultado',this.value)" style="min-height:50px">${escapeHtml(s.detalleResultado||'')}</textarea>
+      </div>
+    </div>
+  `).join('');
+}
+function setSen(d, s, key, val){ STATE.informeDraft.denunciados[d].senalamientos[s][key] = val; }
+function addSenalamiento(d){
+  STATE.informeDraft.denunciados[d].senalamientos.push({ conducta:'', detalle:'', resultado:'', detalleResultado:'' });
+  renderInformeModal(); selectInfTab('dnd');
+}
+function delSenalamiento(d, s){
+  STATE.informeDraft.denunciados[d].senalamientos.splice(s,1);
+  renderInformeModal(); selectInfTab('dnd');
+}
+
+// — Medidas preventivas (lista de strings) —
+function renderMedidasList(arr){
+  if(!arr || !arr.length) return '<div class="rep-empty">Sin medidas. Agrega al menos una.</div>';
+  return arr.map((m, i) => `
+    <div class="rep-item">
+      <span class="rep-item-num">M${String(i+1).padStart(2,'0')}</span>
+      <button class="rep-del" onclick="delMedida(${i})">✕</button>
+      <div class="fg" style="margin:6px 0 0 0"><label>Medida</label>
+        <textarea oninput="setMedida(${i},this.value)" style="min-height:50px">${escapeHtml(m)}</textarea>
+      </div>
+    </div>
+  `).join('');
+}
+function setMedida(i, val){ STATE.informeDraft.medidasPreventivas[i] = val; }
+function addMedida(){ STATE.informeDraft.medidasPreventivas.push(''); renderInformeModal(); selectInfTab('med'); }
+function delMedida(i){ STATE.informeDraft.medidasPreventivas.splice(i,1); renderInformeModal(); selectInfTab('med'); }
+
+// — Compromisos —
+function renderCompromisosList(arr){
+  if(!arr || !arr.length) return '<div class="rep-empty">Sin compromisos. Agrega al menos uno con responsable y fecha.</div>';
+  return arr.map((c, i) => `
+    <div class="rep-item">
+      <span class="rep-item-num">C${String(i+1).padStart(2,'0')}</span>
+      <button class="rep-del" onclick="delCompromiso(${i})">✕</button>
+      <div class="fg" style="margin:6px 0 6px 0"><label>Descripción</label>
+        <textarea oninput="setCom(${i},'descripcion',this.value)" style="min-height:50px">${escapeHtml(c.descripcion||'')}</textarea>
+      </div>
+      <div class="fg-grid">
+        <div class="fg"><label>Responsable</label><input type="text" oninput="setCom(${i},'responsable',this.value)" value="${escapeHtml(c.responsable||'')}" placeholder="Nombre y puesto"></div>
+        <div class="fg"><label>Fecha límite</label><input type="date" oninput="setCom(${i},'fecha',this.value)" value="${escapeHtml(c.fecha||'')}"></div>
+      </div>
+    </div>
+  `).join('');
+}
+function setCom(i, key, val){ STATE.informeDraft.compromisos[i][key] = val; }
+function addCompromiso(){ STATE.informeDraft.compromisos.push({descripcion:'', responsable:'', fecha:''}); renderInformeModal(); selectInfTab('com'); }
+function delCompromiso(i){ STATE.informeDraft.compromisos.splice(i,1); renderInformeModal(); selectInfTab('com'); }
+
+// — Seguimiento —
+function renderSeguimientosList(arr){
+  if(!arr || !arr.length) return '<div class="rep-empty">Sin acciones de seguimiento (opcional).</div>';
+  return arr.map((s, i) => `
+    <div class="rep-item">
+      <span class="rep-item-num">F${String(i+1).padStart(2,'0')}</span>
+      <button class="rep-del" onclick="delSeguimiento(${i})">✕</button>
+      <div class="fg" style="margin:6px 0"><label>Acción</label>
+        <textarea oninput="setSeg(${i},'descripcion',this.value)" style="min-height:50px">${escapeHtml(s.descripcion||'')}</textarea>
+      </div>
+      <div class="fg-grid">
+        <div class="fg"><label>Responsable</label><input type="text" oninput="setSeg(${i},'responsable',this.value)" value="${escapeHtml(s.responsable||'')}"></div>
+        <div class="fg"><label>Estado</label>
+          <select onchange="setSeg(${i},'estado',this.value)">
+            <option value="Pendiente" ${s.estado==='Pendiente'?'selected':''}>Pendiente</option>
+            <option value="En proceso" ${s.estado==='En proceso'?'selected':''}>En proceso</option>
+            <option value="Concluido" ${s.estado==='Concluido'?'selected':''}>Concluido</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+function setSeg(i, key, val){ STATE.informeDraft.seguimientos[i][key] = val; }
+function addSeguimiento(){ STATE.informeDraft.seguimientos.push({descripcion:'', responsable:'', estado:'Pendiente'}); renderInformeModal(); selectInfTab('seg'); }
+function delSeguimiento(i){ STATE.informeDraft.seguimientos.splice(i,1); renderInformeModal(); selectInfTab('seg'); }
+
+// — Capturar inputs del denunciante (live binding) —
+function captureInformeDraft(){
+  if(!STATE.informeDraft) return;
+  const get = id => document.getElementById(id);
+  if(get('ifd_nom')) STATE.informeDraft.denunciante.nombre = get('ifd_nom').value;
+  if(get('ifd_pue')) STATE.informeDraft.denunciante.puesto = get('ifd_pue').value;
+  if(get('ifd_ant')) STATE.informeDraft.denunciante.antiguedad = get('ifd_ant').value;
+  if(get('ifd_ace')) STATE.informeDraft.denunciante.antecedentes = get('ifd_ace').value;
+  if(get('ifr_enc')) STATE.informeDraft.resultadoEncuesta = get('ifr_enc').value;
+  if(get('ifr_resp')) STATE.informeDraft.respuestaDenunciante = get('ifr_resp').value;
+}
+
+async function guardarInforme(){
+  captureInformeDraft();
+  const btn = document.getElementById('btnGuardarInforme');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  try {
+    const r = await apiPost({
+      action: 'informe_save',
+      usuario: STATE.session.usuario,
+      casoId: STATE.currentCaso.id,
+      data: JSON.stringify(STATE.informeDraft),
+    });
+    if(r.success){
+      toast('success','Informe guardado','Datos del expediente actualizados');
+      closeModal('Informe');
+      openDetail(STATE.currentCaso.id);
+    } else {
+      toast('error','Error', r.error || 'No se pudo guardar');
+      btn.disabled = false; btn.textContent = '💾 Guardar datos del informe';
+    }
+  } catch(e){
+    toast('error','Error de conexión','Inténtalo de nuevo');
+    btn.disabled = false; btn.textContent = '💾 Guardar datos del informe';
+  }
+}
+
+async function generarInformeFinal(){
+  const v = validarInforme(STATE.currentCaso.informeData);
+  if(!v.ok){
+    toast('warning','Faltan elementos','Edita los datos del informe primero');
+    return;
+  }
+  toast('info','Generando informe...','Un momento por favor');
+  try {
+    const r = await apiPost({
+      action: 'informe_generate',
+      usuario: STATE.session.usuario,
+      casoId: STATE.currentCaso.id,
+    });
+    if(r.success){
+      toast('success','Informe generado','Se guardó en la carpeta del caso');
+      if(r.docUrl) setTimeout(() => window.open(r.docUrl, '_blank'), 300);
+    } else {
+      toast('error','Error', r.error || 'No se pudo generar');
+    }
+  } catch(e){
+    toast('error','Error de conexión','Inténtalo de nuevo');
+  }
 }
 
 async function reabrirCaso(id){
@@ -1737,6 +2223,17 @@ async function guardarEvaluacion(){
 }
 
 function openCloseModal(){
+  // BLOQUEO: validar primero que el informe esté completo
+  const v = validarInforme(STATE.currentCaso.informeData);
+  if(!v.ok){
+    const faltantes = v.secciones.filter(s => !s.ok && !s.optional);
+    document.getElementById('bloqueoList').innerHTML = faltantes.map(s =>
+      `<div class="bloqueo-item"><strong>${escapeHtml(s.label)}</strong><br><span style="font-size:11px;color:#5a4a2c;font-weight:normal">${escapeHtml(s.detail)}</span></div>`
+    ).join('');
+    openModal('Bloqueo');
+    return;
+  }
+
   const c = STATE.currentCaso;
   const ents = STATE.currentEntrevistas;
   const evs  = STATE.currentEvidencias || [];
