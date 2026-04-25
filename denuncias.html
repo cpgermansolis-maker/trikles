@@ -671,6 +671,16 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
   <div class="modal" style="max-width:880px">
     <div class="modal-ttl">Datos del informe</div>
     <div class="modal-sub">Captura por secciones · puedes guardar y volver más tarde</div>
+
+    <div style="background:linear-gradient(135deg,rgba(155,89,182,.12),rgba(231,76,60,.08));border:1px solid rgba(155,89,182,.4);border-radius:2px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="font-size:24px">🪄</div>
+      <div style="flex:1;min-width:200px">
+        <div style="font-weight:700;font-size:13px;color:#1a1a1a;font-family:Georgia,serif">¿Quieres que Claude lo llene por ti?</div>
+        <div style="font-size:11px;color:#5a4a2c;margin-top:2px">Lee la denuncia, las entrevistas y las evidencias y propone un borrador completo. Tú revisas y ajustas lo que falte.</div>
+      </div>
+      <button class="btn-exp-primary" onclick="autoLlenarInforme()" id="btnAutoLlenar" style="background:linear-gradient(135deg,#7a1f1f,#9b59b6)">🪄 Auto-llenar con IA</button>
+    </div>
+
     <div id="informeBody"></div>
     <div class="modal-btns">
       <button class="btn-exp-secondary" onclick="closeModal('Informe')">Cancelar</button>
@@ -1702,6 +1712,150 @@ function captureInformeDraft(){
   if(get('ifd_ace')) STATE.informeDraft.denunciante.antecedentes = get('ifd_ace').value;
   if(get('ifr_enc')) STATE.informeDraft.resultadoEncuesta = get('ifr_enc').value;
   if(get('ifr_resp')) STATE.informeDraft.respuestaDenunciante = get('ifr_resp').value;
+}
+
+// ── Auto-llenar el informe con Claude leyendo todo el expediente ──────
+const PROMPT_AUTOFILL_INFORME = `Eres un auditor interno experto en investigaciones de denuncias laborales. Tu tarea: construir un BORRADOR del informe estructurado del caso, basándote SOLAMENTE en la información del expediente que se te proporciona (denuncia inicial + entrevistas + evidencias).
+
+REGLAS ABSOLUTAS:
+- Tono OBJETIVO y FACTUAL. Verbos: "declara", "menciona", "afirma", "se observa".
+- NO inventes información que no esté en el expediente. Si un dato no aparece, deja el campo VACÍO ("") o un array vacío [].
+- NO califiques conductas con adjetivos morales ("grave", "preocupante").
+- NO propongas sanciones disciplinarias en compromisos/medidas (sí puedes proponer capacitaciones, supervisión, protocolos, etc.).
+
+ESTRUCTURA DE SEÑALAMIENTOS:
+- Identifica cada conducta específica que el denunciante atribuye a cada denunciado.
+- Para el "resultado" de cada señalamiento, infiere de las entrevistas:
+  * "Aceptado" si el denunciado lo aceptó textualmente
+  * "Negado" si el denunciado lo negó (sin contradicción de testigos)
+  * "Comprobado" si testimonios o evidencias lo confirman objetivamente
+  * "No acreditado" si no hay evidencia para sustentar ni desvirtuar
+  * "" (vacío) si no hay suficiente información en el expediente
+- En "detalleResultado" explica brevemente qué evidencia/testimonio sustenta el resultado.
+
+MEDIDAS PREVENTIVAS Y COMPROMISOS:
+- Sugiere medidas razonables basadas en el TIPO de denuncia y los hallazgos. Pueden ser: capacitaciones (NOM-035), formalización de protocolos, supervisión, encuestas de clima, descriptores de puesto, etc.
+- Para compromisos: deja "responsable" vacío si no se menciona en el expediente — el equipo lo asignará. Lo mismo con "fecha".
+
+DEVUELVE SOLO UN JSON con esta estructura EXACTA, sin texto antes ni después, sin markdown fences, solo JSON puro:
+
+{
+  "denunciante": {
+    "nombre": "",
+    "puesto": "",
+    "antiguedad": "",
+    "antecedentes": ""
+  },
+  "denunciados": [
+    {
+      "nombre": "",
+      "puesto": "",
+      "antiguedad": "",
+      "antecedentes": "",
+      "accionSugerida": "",
+      "senalamientos": [
+        {
+          "conducta": "",
+          "detalle": "",
+          "resultado": "",
+          "detalleResultado": ""
+        }
+      ]
+    }
+  ],
+  "resultadoEncuesta": "",
+  "respuestaDenunciante": "",
+  "medidasPreventivas": [],
+  "compromisos": [
+    { "descripcion": "", "responsable": "", "fecha": "" }
+  ],
+  "seguimientos": [
+    { "descripcion": "", "responsable": "", "estado": "Pendiente" }
+  ]
+}`;
+
+async function autoLlenarInforme(){
+  const btn = document.getElementById('btnAutoLlenar');
+  if(!btn) return;
+  if(!confirm('¿Generar borrador automático del informe con IA? Reemplazará lo que tengas capturado actualmente.')) return;
+  btn.disabled = true; btn.textContent = '🪄 Leyendo el expediente...';
+
+  const c    = STATE.currentCaso;
+  const ents = STATE.currentEntrevistas;
+  const evs  = STATE.currentEvidencias || [];
+
+  // Armar expediente completo
+  let expediente = `=== EXPEDIENTE ${c.numero} ===\n`;
+  expediente += `EMPRESA: ${c.empresa}\n`;
+  expediente += `TIPO DE DENUNCIA: ${c.tipoDenuncia || 'Otro'}\n`;
+  expediente += `DENUNCIANTE: ${c.denunciante || 'Anónima'}\n`;
+  expediente += `DENUNCIADO(S) declarados: ${c.denunciado}\n`;
+  expediente += `FECHA DE APERTURA: ${c.fechaApertura}\n\n`;
+  expediente += `=== DENUNCIA INICIAL ===\n${c.descripcion}\n\n`;
+  expediente += `=== ENTREVISTAS (${ents.length}) ===\n`;
+  for(const e of ents){
+    expediente += `\n--- ENTREVISTA E${e.numero} · ${e.entrevistado} (${e.rol}) ---\n`;
+    expediente += `Fecha: ${e.fecha}\n`;
+    if(e.notasPrevias) expediente += `Notas previas: ${e.notasPrevias}\n`;
+    expediente += `Resumen: ${e.resumen || '(sin resumen)'}\n`;
+  }
+  expediente += `\n\n=== EVIDENCIAS DOCUMENTALES (${evs.length}) ===\n`;
+  if(!evs.length) expediente += '(Sin evidencias documentales.)\n';
+  for(const v of evs){
+    expediente += `\n--- EVIDENCIA ${v.numero} · [${v.tipo}] ${v.titulo} ---\n`;
+    expediente += `Descripción: ${v.descripcion || '(sin descripción)'}\n`;
+  }
+
+  try {
+    btn.textContent = '🪄 Claude redactando borrador...';
+    const respuesta = await callClaude(PROMPT_AUTOFILL_INFORME, expediente, STATE.claudeKey, 8192);
+
+    // Parsear JSON: quitar fences si los hay
+    let jsonText = respuesta.trim();
+    if(jsonText.startsWith('```')){
+      jsonText = jsonText.replace(/^```(?:json)?\s*/i,'').replace(/```\s*$/,'').trim();
+    }
+    // Si hay texto antes del { inicial, recortar
+    const i0 = jsonText.indexOf('{');
+    const iN = jsonText.lastIndexOf('}');
+    if(i0 >= 0 && iN > i0) jsonText = jsonText.slice(i0, iN+1);
+
+    let data;
+    try { data = JSON.parse(jsonText); }
+    catch(e){
+      console.error('JSON inválido:', jsonText.slice(0,500));
+      throw new Error('Claude devolvió un JSON inválido. Inténtalo de nuevo.');
+    }
+
+    // Asegurar estructura mínima
+    const empty = _emptyInforme();
+    STATE.informeDraft = {
+      denunciante: { ...empty.denunciante, ...(data.denunciante||{}) },
+      denunciados: Array.isArray(data.denunciados) ? data.denunciados.map(d => ({
+        nombre: d.nombre||'', puesto: d.puesto||'', antiguedad: d.antiguedad||'',
+        antecedentes: d.antecedentes||'', accionSugerida: d.accionSugerida||'',
+        senalamientos: Array.isArray(d.senalamientos) ? d.senalamientos.map(s => ({
+          conducta: s.conducta||'', detalle: s.detalle||'',
+          resultado: s.resultado||'', detalleResultado: s.detalleResultado||''
+        })) : []
+      })) : [],
+      resultadoEncuesta: data.resultadoEncuesta || '',
+      respuestaDenunciante: data.respuestaDenunciante || '',
+      medidasPreventivas: Array.isArray(data.medidasPreventivas) ? data.medidasPreventivas.filter(m=>m) : [],
+      compromisos: Array.isArray(data.compromisos) ? data.compromisos.map(c => ({
+        descripcion: c.descripcion||'', responsable: c.responsable||'', fecha: c.fecha||''
+      })) : [],
+      seguimientos: Array.isArray(data.seguimientos) ? data.seguimientos.map(s => ({
+        descripcion: s.descripcion||'', responsable: s.responsable||'', estado: s.estado||'Pendiente'
+      })) : [],
+    };
+
+    renderInformeModal();
+    toast('success','Borrador generado','Revisa cada tab y ajusta lo que falte');
+  } catch(e){
+    toast('error','Falló el auto-llenado', e.message || 'Inténtalo de nuevo');
+  }
+  btn.disabled = false; btn.textContent = '🪄 Auto-llenar con IA';
 }
 
 async function guardarInforme(){
