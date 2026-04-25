@@ -110,18 +110,23 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
 
 /* Card Protagonistas */
 .prot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:10px}
+.prot-section-ttl{font-size:10px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;font-weight:800;margin:14px 0 4px;padding-bottom:4px;border-bottom:1px solid #1a1a1a}
 .prot-card{background:#0a0a0a;border:1px solid #222;border-left:4px solid #555;border-radius:8px;padding:14px;transition:.15s;position:relative}
 .prot-card:hover{border-left-color:var(--red)}
 .prot-card.denunciante{border-left-color:var(--yellow)}
 .prot-card.denunciado{border-left-color:var(--red)}
+.prot-card.involucrado{border-left-color:var(--purple)}
 .prot-card-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .prot-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;flex-shrink:0;letter-spacing:1px}
 .prot-card.denunciante .prot-avatar{background:linear-gradient(135deg,var(--yellow),#d4a017)}
 .prot-card.denunciado .prot-avatar{background:linear-gradient(135deg,var(--red),#a93226)}
+.prot-card.involucrado .prot-avatar{background:linear-gradient(135deg,var(--purple),#6c3483)}
 .prot-card .prot-name{font-weight:800;font-size:13px;color:#fff;line-height:1.2}
 .prot-card .prot-rol{font-size:9px;letter-spacing:1.5px;color:var(--gray);text-transform:uppercase;margin-top:2px}
 .prot-card.denunciante .prot-rol{color:var(--yellow)}
 .prot-card.denunciado .prot-rol{color:var(--red)}
+.prot-card.involucrado .prot-rol{color:var(--purple2)}
+.prot-card .prot-relacion{font-size:11px;color:#ccc;margin-top:6px;padding:6px 8px;background:rgba(155,89,182,.08);border-left:2px solid var(--purple);border-radius:3px;line-height:1.4}
 .prot-fields{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:11px;margin-top:8px}
 .prot-fields .label{color:var(--gray);text-transform:uppercase;letter-spacing:1px;font-size:9px}
 .prot-fields .val{color:#ddd}
@@ -717,6 +722,10 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
     <div class="fg" id="protAccionWrap">
       <label>Acción sugerida (opcional, solo aplica a denunciados)</label>
       <input type="text" id="protAccionSugerida" placeholder="Ej: Dar seguimiento trimestral durante 6 meses">
+    </div>
+    <div class="fg" id="protRelacionWrap" style="display:none">
+      <label>Relación con el caso *</label>
+      <input type="text" id="protRelacion" placeholder="Ej: También fue amenazado por la denunciada / Testigo presencial / Compañero del denunciante">
     </div>
 
     <div class="modal-btns">
@@ -1438,6 +1447,7 @@ function renderProtagonistasCard(c, cerrado){
   const inf = c.informeData || _emptyInforme();
   const den = inf.denunciante || { nombre:'', puesto:'', antiguedad:'', antecedentes:'' };
   const dnd = inf.denunciados || [];
+  const inv = inf.involucrados || [];
 
   const renderField = (label, val, isMissing) =>
     `<div class="label">${label}</div><div class="val ${isMissing?'missing':''}">${escapeHtml(val || '— Falta —')}</div>`;
@@ -1459,29 +1469,42 @@ function renderProtagonistasCard(c, cerrado){
           ${renderField('Antigüedad',   p.antiguedad,   !p.antiguedad)}
           ${renderField('Antecedentes', p.antecedentes, !p.antecedentes)}
         </div>
+        ${rolClass === 'involucrado' && p.relacion ? `<div class="prot-relacion">📌 ${escapeHtml(p.relacion)}</div>` : ''}
         ${!cerrado ? `<div class="prot-card-actions">
           <button class="btn-sm btn-sm-open" style="flex:1;justify-content:center" onclick="openProtagonistaModal('${rolClass}', ${idx})">✏️ Editar</button>
         </div>` : ''}
       </div>`;
   };
 
-  const cards = [];
-  cards.push(renderProt(den, 'Denunciante', 'denunciante', -1));
-  if(dnd.length){
-    dnd.forEach((d, i) => cards.push(renderProt(d, 'Denunciado', 'denunciado', i)));
-  }
+  // Sección Denunciante (siempre 1)
+  const denSection = `<div class="prot-section-ttl">Denunciante</div>
+    <div class="prot-grid">${renderProt(den, 'Denunciante', 'denunciante', -1)}</div>`;
+
+  // Sección Denunciados
+  const dndSection = `<div class="prot-section-ttl">Denunciados (${dnd.length})</div>
+    ${dnd.length
+      ? `<div class="prot-grid">${dnd.map((d,i) => renderProt(d, 'Denunciado', 'denunciado', i)).join('')}</div>`
+      : `<div class="prot-empty">Aún no has agregado denunciados. Agrega al menos uno con sus datos completos.</div>`}
+    ${!cerrado ? `<button class="rep-add" style="background:rgba(231,76,60,.08);border:1px dashed var(--red);color:#e74c3c;font-family:'Nunito',sans-serif;font-weight:700;margin-top:8px" onclick="openProtagonistaModal('denunciado', -1)">➕ Agregar denunciado</button>` : ''}`;
+
+  // Sección Involucrados
+  const invSection = `<div class="prot-section-ttl">Involucrados / personas afectadas (${inv.length})</div>
+    ${inv.length
+      ? `<div class="prot-grid">${inv.map((p,i) => renderProt(p, 'Involucrado', 'involucrado', i)).join('')}</div>`
+      : `<div class="prot-empty">Personas mencionadas en el caso (ej: amenazadas, testigos clave) que no son denunciantes ni denunciados pero cuyos datos vale documentar. Opcional.</div>`}
+    ${!cerrado ? `<button class="rep-add" style="background:rgba(155,89,182,.08);border:1px dashed var(--purple);color:var(--purple2);font-family:'Nunito',sans-serif;font-weight:700;margin-top:8px" onclick="openProtagonistaModal('involucrado', -1)">➕ Agregar involucrado</button>` : ''}`;
 
   return `
     <div class="card">
       <div class="card-hdr">
         <div>
           <div class="card-ttl">👥 Protagonistas del caso</div>
-          <div style="font-size:12px;color:var(--gray);margin-top:4px">Datos de origen del denunciante y los denunciados. Se sincronizan con el informe automáticamente.</div>
+          <div style="font-size:12px;color:var(--gray);margin-top:4px">Datos de origen de las personas relevantes. Se sincronizan con el informe automáticamente.</div>
         </div>
-        ${!cerrado ? `<button class="btn-primary" onclick="openProtagonistaModal('denunciado', -1)">➕ Agregar denunciado</button>` : ''}
       </div>
-      <div class="prot-grid">${cards.join('')}</div>
-      ${!dnd.length ? `<div class="prot-empty" style="margin-top:12px">Aún no has agregado denunciados. Agrega al menos uno con sus datos completos.</div>` : ''}
+      ${denSection}
+      ${dndSection}
+      ${invSection}
     </div>`;
 }
 
@@ -1489,19 +1512,23 @@ function openProtagonistaModal(rol, idx){
   // Preparar el draft del informe si no existe
   if(!STATE.currentCaso.informeData) STATE.currentCaso.informeData = _emptyInforme();
   const inf = STATE.currentCaso.informeData;
+  if(!Array.isArray(inf.involucrados)) inf.involucrados = [];
 
   document.getElementById('protRol').value = rol;
   document.getElementById('protIdx').value = String(idx);
 
   let p, ttl, sub, showDel = false;
+  const wrapAccion   = document.getElementById('protAccionWrap');
+  const wrapRelacion = document.getElementById('protRelacionWrap');
+
   if(rol === 'denunciante'){
     p = inf.denunciante || { nombre:'', puesto:'', antiguedad:'', antecedentes:'' };
     ttl = '👤 Editar denunciante';
     sub = 'Trayectoria de la persona que presentó la denuncia';
-    document.getElementById('protAccionWrap').style.display = 'none';
-  } else {
+    wrapAccion.style.display   = 'none';
+    wrapRelacion.style.display = 'none';
+  } else if(rol === 'denunciado'){
     if(idx < 0){
-      // Nuevo denunciado
       p = { nombre:'', puesto:'', antiguedad:'', antecedentes:'', accionSugerida:'', senalamientos:[{conducta:'', detalle:'', resultado:'', detalleResultado:''}] };
       ttl = '🎯 Agregar denunciado';
       sub = 'Trayectoria y datos de origen';
@@ -1511,7 +1538,21 @@ function openProtagonistaModal(rol, idx){
       sub = 'Trayectoria y datos de origen';
       showDel = true;
     }
-    document.getElementById('protAccionWrap').style.display = 'flex';
+    wrapAccion.style.display   = 'flex';
+    wrapRelacion.style.display = 'none';
+  } else if(rol === 'involucrado'){
+    if(idx < 0){
+      p = { nombre:'', puesto:'', antiguedad:'', antecedentes:'', relacion:'' };
+      ttl = '🤝 Agregar involucrado';
+      sub = 'Persona afectada o relevante para el caso (no denunciante ni denunciada)';
+    } else {
+      p = inf.involucrados[idx] || {};
+      ttl = '🤝 Editar involucrado';
+      sub = 'Persona afectada o relevante para el caso';
+      showDel = true;
+    }
+    wrapAccion.style.display   = 'none';
+    wrapRelacion.style.display = 'flex';
   }
 
   document.getElementById('protModalTtl').textContent = ttl;
@@ -1521,6 +1562,7 @@ function openProtagonistaModal(rol, idx){
   document.getElementById('protAntiguedad').value    = p.antiguedad || '';
   document.getElementById('protAntecedentes').value  = p.antecedentes || '';
   document.getElementById('protAccionSugerida').value= p.accionSugerida || '';
+  document.getElementById('protRelacion').value      = p.relacion || '';
   document.getElementById('btnDelProt').style.display = showDel ? 'inline-flex' : 'none';
 
   openModal('Protagonista');
@@ -1534,13 +1576,19 @@ async function guardarProtagonista(){
   const antiguedad    = document.getElementById('protAntiguedad').value.trim();
   const antecedentes  = document.getElementById('protAntecedentes').value.trim();
   const accionSugerida= document.getElementById('protAccionSugerida').value.trim();
+  const relacion      = document.getElementById('protRelacion').value.trim();
 
   if(!nombre){ toast('error','Falta nombre','El nombre es obligatorio'); return; }
+  if(rol === 'involucrado' && !relacion){
+    toast('error','Falta relación','Indica cómo se relaciona esta persona con el caso'); return;
+  }
 
   const inf = STATE.currentCaso.informeData || _emptyInforme();
+  if(!Array.isArray(inf.involucrados)) inf.involucrados = [];
+
   if(rol === 'denunciante'){
     inf.denunciante = { nombre, puesto, antiguedad, antecedentes };
-  } else {
+  } else if(rol === 'denunciado'){
     if(!Array.isArray(inf.denunciados)) inf.denunciados = [];
     if(idx < 0){
       inf.denunciados.push({
@@ -1555,6 +1603,12 @@ async function guardarProtagonista(){
         senalamientos: existing.senalamientos || [{ conducta:'', detalle:'', resultado:'', detalleResultado:'' }]
       };
     }
+  } else if(rol === 'involucrado'){
+    if(idx < 0){
+      inf.involucrados.push({ nombre, puesto, antiguedad, antecedentes, relacion });
+    } else {
+      inf.involucrados[idx] = { nombre, puesto, antiguedad, antecedentes, relacion };
+    }
   }
 
   await _persistInforme(inf);
@@ -1564,10 +1618,18 @@ async function guardarProtagonista(){
 async function borrarProtagonista(){
   const rol = document.getElementById('protRol').value;
   const idx = parseInt(document.getElementById('protIdx').value);
-  if(rol !== 'denunciado' || idx < 0) return;
-  if(!confirm('¿Eliminar este denunciado y todos sus señalamientos del informe?')) return;
+  if(idx < 0) return;
   const inf = STATE.currentCaso.informeData || _emptyInforme();
-  inf.denunciados.splice(idx, 1);
+  if(rol === 'denunciado'){
+    if(!confirm('¿Eliminar este denunciado y todos sus señalamientos del informe?')) return;
+    inf.denunciados.splice(idx, 1);
+  } else if(rol === 'involucrado'){
+    if(!confirm('¿Eliminar este involucrado del informe?')) return;
+    if(!Array.isArray(inf.involucrados)) inf.involucrados = [];
+    inf.involucrados.splice(idx, 1);
+  } else {
+    return;
+  }
   await _persistInforme(inf);
   closeModal('Protagonista');
 }
@@ -1602,6 +1664,7 @@ function _emptyInforme(){
   return {
     denunciante: { nombre:'', puesto:'', antiguedad:'', antecedentes:'' },
     denunciados: [],
+    involucrados: [],   // personas afectadas / mencionadas con datos de origen pero NO denunciantes ni denunciadas
     resultadoEncuesta: '',
     respuestaDenunciante: '',
     medidasPreventivas: [],
@@ -1679,6 +1742,16 @@ function validarInforme(inf){
     key:'seguimiento', label:'Seguimiento', ok:sg.length>=1, optional:true,
     detail: sg.length ? `${sg.length} acción${sg.length===1?'':'es'} de seguimiento` : 'Sin acciones (opcional)'
   });
+
+  // Involucrados (opcional pero contado para visibilidad)
+  const inv = (inf.involucrados || []).filter(p => p && p.nombre);
+  if (inv.length){
+    const incompletos = inv.filter(p => !p.puesto || !p.antiguedad || !p.antecedentes).length;
+    secciones.push({
+      key:'involucrados', label:'Involucrados', ok: incompletos === 0, optional:true,
+      detail: incompletos === 0 ? `${inv.length} con datos completos` : `${inv.length} (${incompletos} con datos incompletos)`
+    });
+  }
 
   const ok = secciones.filter(s => !s.optional).every(s => s.ok);
   return { ok, secciones };
@@ -1978,6 +2051,11 @@ ESTRUCTURA DE SEÑALAMIENTOS:
   * "" (vacío) si no hay suficiente información en el expediente
 - En "detalleResultado" explica brevemente qué evidencia/testimonio sustenta el resultado.
 
+INVOLUCRADOS (personas afectadas o relevantes):
+- Identifica personas mencionadas en el expediente que NO son el denunciante ni denunciados, pero son relevantes (ej: también fueron amenazadas, son testigos materiales clave, son superiores jerárquicos referidos, son compañeros directamente impactados).
+- En "relacion" describe cómo se vincula al caso (ej: "También fue amenazada por la denunciada", "Testigo presencial del incidente del 15-mar", "Compañero del denunciante directamente afectado").
+- NO incluyas testigos de oídas o personas mencionadas tangencialmente.
+
 MEDIDAS PREVENTIVAS Y COMPROMISOS:
 - Sugiere medidas razonables basadas en el TIPO de denuncia y los hallazgos. Pueden ser: capacitaciones (NOM-035), formalización de protocolos, supervisión, encuestas de clima, descriptores de puesto, etc.
 - Para compromisos: deja "responsable" vacío si no se menciona en el expediente — el equipo lo asignará. Lo mismo con "fecha".
@@ -2006,6 +2084,15 @@ DEVUELVE SOLO UN JSON con esta estructura EXACTA, sin texto antes ni después, s
           "detalleResultado": ""
         }
       ]
+    }
+  ],
+  "involucrados": [
+    {
+      "nombre": "",
+      "puesto": "",
+      "antiguedad": "",
+      "antecedentes": "",
+      "relacion": ""
     }
   ],
   "resultadoEncuesta": "",
@@ -2083,6 +2170,10 @@ async function autoLlenarInforme(){
           conducta: s.conducta||'', detalle: s.detalle||'',
           resultado: s.resultado||'', detalleResultado: s.detalleResultado||''
         })) : []
+      })) : [],
+      involucrados: Array.isArray(data.involucrados) ? data.involucrados.map(p => ({
+        nombre: p.nombre||'', puesto: p.puesto||'', antiguedad: p.antiguedad||'',
+        antecedentes: p.antecedentes||'', relacion: p.relacion||''
       })) : [],
       resultadoEncuesta: data.resultadoEncuesta || '',
       respuestaDenunciante: data.respuestaDenunciante || '',

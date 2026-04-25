@@ -3227,6 +3227,13 @@ function informeGenerate(params){
   if (inf.denunciados){
     inf.denunciados.forEach(d => body.appendParagraph(_trayectoriaLine(d)));
   }
+  if (Array.isArray(inf.involucrados) && inf.involucrados.length){
+    inf.involucrados.forEach(p => {
+      const linea = _trayectoriaLine(p);
+      const rel   = p.relacion ? ' Relación con el caso: ' + p.relacion : '';
+      body.appendParagraph(linea + rel);
+    });
+  }
   body.appendParagraph('');
 
   // 3. Conclusión (derivada de los señalamientos)
