@@ -171,6 +171,25 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
 .sen-row .fg{margin-bottom:0}
 @media(max-width:600px){.sen-row{grid-template-columns:1fr}}
 
+/* Lock screen — clave de auditor */
+.lock-overlay{display:none;position:fixed;inset:0;background:#000;z-index:600;align-items:center;justify-content:center;padding:20px}
+.lock-overlay.open{display:flex}
+.lock-box{background:linear-gradient(135deg,#0c0c0c,#1a0808);border:1px solid var(--red);border-radius:14px;padding:36px 32px;max-width:440px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(231,76,60,.3)}
+.lock-icon{font-size:54px;margin-bottom:12px;filter:drop-shadow(0 0 20px rgba(231,76,60,.6))}
+.lock-ttl{font-size:22px;font-weight:800;color:#fff;letter-spacing:1px;margin-bottom:6px}
+.lock-sub{font-size:11px;color:var(--red);letter-spacing:3px;text-transform:uppercase;margin-bottom:18px}
+.lock-txt{font-size:13px;color:#aaa;line-height:1.6;margin-bottom:20px}
+.lock-input{width:100%;background:#0a0a0a;border:2px solid #333;color:#fff;padding:14px 16px;border-radius:10px;font-family:'Courier New',monospace;font-size:18px;text-align:center;letter-spacing:6px;outline:none;transition:.2s}
+.lock-input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(231,76,60,.2)}
+.lock-error{color:#e74c3c;font-size:12px;margin:10px 0;min-height:18px;font-weight:700}
+.lock-btns{display:flex;gap:10px;margin-top:14px}
+.lock-btn{flex:1;padding:12px 20px;border-radius:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;border:none;transition:.2s}
+.lock-btn-primary{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff}
+.lock-btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(231,76,60,.4)}
+.lock-btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.lock-btn-secondary{background:#222;color:#aaa;border:1px solid #444}
+.lock-btn-secondary:hover{background:#2a2a2a;color:#fff}
+
 /* Modal de bloqueo de cierre */
 .bloqueo-list{background:#fff;border:1px solid #c5b59a;border-radius:2px;padding:14px;margin-bottom:14px}
 .bloqueo-item{padding:8px 0;border-bottom:1px solid #ede5cf;font-size:13px;color:#7a1f1f;font-family:Georgia,serif}
@@ -692,6 +711,22 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
   </div>
 </div>
 
+<!-- ═══ LOCK SCREEN: Clave de auditor ═══ -->
+<div class="lock-overlay" id="lockOverlay">
+  <div class="lock-box">
+    <div class="lock-icon">🔐</div>
+    <div class="lock-ttl">Clave de auditor</div>
+    <div class="lock-sub">Acceso restringido</div>
+    <div class="lock-txt">Por la sensibilidad de la información, este módulo requiere una clave adicional. Pídela al SuperAdmin si no la tienes.</div>
+    <input type="password" class="lock-input" id="lockInput" placeholder="••••••" autocomplete="off" onkeydown="if(event.key==='Enter')verificarClaveLock()">
+    <div class="lock-error" id="lockError"></div>
+    <div class="lock-btns">
+      <button class="lock-btn lock-btn-secondary" onclick="logout()">Salir</button>
+      <button class="lock-btn lock-btn-primary" id="lockBtn" onclick="verificarClaveLock()">🔓 Desbloquear</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ MODAL: Editar Protagonista ═══ -->
 <div class="modal-bg" id="modalProtagonista">
   <div class="modal" style="max-width:540px">
@@ -921,7 +956,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('mNavPanel').style.display='flex';
   }
 
-  // Verificar autorización + obtener keys
+  // Verificar autorización + obtener keys + clave de auditor
   try {
     const r = await apiCall({action:'tr_getConfig', usuario:s.usuario});
     document.getElementById('initialLoader').style.display='none';
@@ -929,7 +964,24 @@ document.addEventListener('DOMContentLoaded', async () => {
       STATE.authorized = true;
       STATE.geminiKey = r.geminiKey;
       STATE.claudeKey = r.claudeKey;
-      await entrarModuloListo();
+
+      // SEGURIDAD: clave de auditor (doble barrera)
+      if(!r.auditorConfigured){
+        // Sin clave configurada: bloqueamos hasta que el SA la defina
+        document.getElementById('promo').style.display='block';
+        const cta = document.querySelector('.promo-cta');
+        if(cta) cta.innerHTML = `
+          <div class="promo-cta-ttl">⚠️ Clave de auditor no configurada</div>
+          <div class="promo-cta-sub">El SuperAdmin aún no ha definido la clave de acceso al módulo de Denuncias. Hasta que lo haga, el módulo está bloqueado para todos por seguridad.</div>`;
+        return;
+      }
+
+      // Si la sesión tiene una verificación reciente válida, entrar directo
+      if(isAuditorVerified()){
+        await entrarModuloListo();
+      } else {
+        showLockScreen();
+      }
     } else {
       document.getElementById('promo').style.display='block';
     }
@@ -937,6 +989,105 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('initialLoader').innerHTML = '<div style="color:var(--red)">❌ Error de conexión. Recarga la página.</div>';
   }
 });
+
+// ════════════════════════════════════════════════════════════════════════
+// LOCK SCREEN — Clave de auditor con timeout de 30 min de inactividad
+// ════════════════════════════════════════════════════════════════════════
+const SK_AUDITOR        = 'trk_dn_auditor_v1';
+const AUDITOR_TIMEOUT_MS = 30 * 60 * 1000; // 30 min de inactividad
+
+function isAuditorVerified(){
+  try {
+    const s = JSON.parse(sessionStorage.getItem(SK_AUDITOR) || 'null');
+    if(!s || !STATE.session || s.usuario !== STATE.session.usuario) return false;
+    const elapsed = Date.now() - (s.lastActivity || 0);
+    if(elapsed > AUDITOR_TIMEOUT_MS) return false;
+    return true;
+  } catch(e){ return false; }
+}
+function markAuditorVerified(){
+  sessionStorage.setItem(SK_AUDITOR, JSON.stringify({
+    usuario: STATE.session.usuario,
+    verifiedAt: Date.now(),
+    lastActivity: Date.now()
+  }));
+}
+function touchAuditorActivity(){
+  try {
+    const s = JSON.parse(sessionStorage.getItem(SK_AUDITOR) || 'null');
+    if(!s) return;
+    s.lastActivity = Date.now();
+    sessionStorage.setItem(SK_AUDITOR, JSON.stringify(s));
+  } catch(e){}
+}
+function clearAuditorVerification(){ sessionStorage.removeItem(SK_AUDITOR); }
+
+function showLockScreen(){
+  document.getElementById('lockOverlay').classList.add('open');
+  document.getElementById('lockError').textContent = '';
+  document.getElementById('lockInput').value = '';
+  document.getElementById('lockBtn').disabled = false;
+  document.getElementById('lockBtn').textContent = '🔓 Desbloquear';
+  // Foco al input
+  setTimeout(() => document.getElementById('lockInput').focus(), 200);
+}
+
+async function verificarClaveLock(){
+  const clave = document.getElementById('lockInput').value;
+  if(!clave){ document.getElementById('lockError').textContent = 'Ingresa la clave'; return; }
+
+  const btn = document.getElementById('lockBtn');
+  const errEl = document.getElementById('lockError');
+  btn.disabled = true; btn.textContent = '⏳ Verificando...';
+  errEl.textContent = '';
+
+  try {
+    const r = await apiPost({
+      action: 'tr_verifyAuditorKey',
+      usuario: STATE.session.usuario,
+      clave: clave,
+    });
+    if(r.success){
+      markAuditorVerified();
+      document.getElementById('lockOverlay').classList.remove('open');
+      await entrarModuloListo();
+    } else if(r.blocked){
+      const min = Math.ceil((r.blockedUntil - Date.now()) / 60000);
+      errEl.textContent = '🔒 Bloqueado. Intenta de nuevo en ' + min + ' min.';
+      btn.textContent = 'Bloqueado';
+      // Mantenemos el botón deshabilitado durante el bloqueo
+    } else {
+      errEl.textContent = r.error || 'Clave incorrecta';
+      btn.disabled = false;
+      btn.textContent = '🔓 Desbloquear';
+      document.getElementById('lockInput').value = '';
+      document.getElementById('lockInput').focus();
+    }
+  } catch(e){
+    errEl.textContent = 'Error de conexión. Inténtalo de nuevo.';
+    btn.disabled = false;
+    btn.textContent = '🔓 Desbloquear';
+  }
+}
+
+// Tracking de actividad para mantener la sesión de auditor viva
+['click','keydown','mousemove'].forEach(ev =>
+  document.addEventListener(ev, () => {
+    if(isAuditorVerified()) touchAuditorActivity();
+  }, { passive: true })
+);
+
+// Verificar inactividad cada minuto y forzar lock si pasaron 30 min
+setInterval(() => {
+  if(STATE.authorized && !isAuditorVerified() && !document.getElementById('lockOverlay').classList.contains('open')){
+    // Sesión expirada por inactividad: bloquear todo y mostrar lock
+    clearAuditorVerification();
+    document.getElementById('viewList').style.display = 'none';
+    document.getElementById('viewDetail').style.display = 'none';
+    showLockScreen();
+    toast('warning','Sesión bloqueada','30 minutos sin actividad — vuelve a ingresar la clave de auditor');
+  }
+}, 60 * 1000);
 
 async function entrarModuloListo(){
   document.getElementById('viewList').style.display='block';

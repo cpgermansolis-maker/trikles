@@ -56,10 +56,15 @@ const TIPOS_EVIDENCIA = [
 
 // ── Claves de PropertiesService para API keys del transcriptor ────────────
 const TR_KEYS = {
-  GEMINI:   'TR_GEMINI_API_KEY',
-  CLAUDE:   'TR_CLAUDE_API_KEY',
-  DRIVE_ID: 'TR_DRIVE_FOLDER_ID', // Carpeta raíz donde se guardan todas las transcripciones
+  GEMINI:        'TR_GEMINI_API_KEY',
+  CLAUDE:        'TR_CLAUDE_API_KEY',
+  DRIVE_ID:      'TR_DRIVE_FOLDER_ID',  // Carpeta raíz donde se guardan todas las transcripciones
+  AUDITOR_HASH:  'TR_AUDITOR_KEY_HASH', // SHA-256 hex de la clave de auditor (NO la clave en sí)
 };
+
+// Configuración de bloqueo por intentos fallidos a la clave de auditor
+const AUDITOR_MAX_ATTEMPTS = 5;
+const AUDITOR_BLOCK_MS     = 15 * 60 * 1000; // 15 minutos
 
 // ════════════════════════════════════════════════════════════════════════
 // PUNTO DE ENTRADA — Maneja todas las peticiones GET
@@ -115,6 +120,8 @@ function doGet(e) {
       // ── Transcripción de Audio ────────────────────────────────
       case 'tr_getConfig':       result = trGetConfig(p);              break;
       case 'tr_setKeys':         result = trSetKeys(p);                break;
+      case 'tr_setAuditorKey':   result = trSetAuditorKey(p);          break;
+      case 'tr_verifyAuditorKey':result = trVerifyAuditorKey(p);       break;
       case 'tr_requestAccess':   result = trRequestAccess(p);          break;
       case 'tr_listSolicitudes': result = trListSolicitudes(p);        break;
       case 'tr_resolveSolicitud':result = trResolveSolicitud(p);       break;
@@ -199,6 +206,8 @@ function doPost(e) {
       case 'editar_usuario':  result = editarUsuario(params); break;
       case 'tr_save':         result = trSave(params); break;
       case 'tr_setKeys':      result = trSetKeys(params); break;
+      case 'tr_setAuditorKey':    result = trSetAuditorKey(params); break;
+      case 'tr_verifyAuditorKey': result = trVerifyAuditorKey(params); break;
       case 'caso_create':     result = casoCreate(params); break;
       case 'caso_update':     result = casoUpdate(params); break;
       case 'caso_close':      result = casoClose(params); break;
@@ -2234,14 +2243,16 @@ function trGetConfig(params) {
   if (!auth.user) return { success: true, authorized: false, error: auth.error };
 
   const props = PropertiesService.getScriptProperties();
-  const geminiKey = props.getProperty(TR_KEYS.GEMINI) || '';
-  const claudeKey = props.getProperty(TR_KEYS.CLAUDE) || '';
+  const geminiKey  = props.getProperty(TR_KEYS.GEMINI) || '';
+  const claudeKey  = props.getProperty(TR_KEYS.CLAUDE) || '';
+  const auditorOk  = !!props.getProperty(TR_KEYS.AUDITOR_HASH);
 
   return {
     success: true,
     authorized: auth.ok,
     user: auth.user,
     keysConfigured: !!(geminiKey && claudeKey),
+    auditorConfigured: auditorOk,  // bool: si la clave de auditor de Denuncias ya existe
     // Las keys SOLO se exponen a usuarios autorizados
     geminiKey: auth.ok ? geminiKey : '',
     claudeKey: auth.ok ? claudeKey : '',
@@ -2258,6 +2269,108 @@ function trSetKeys(params) {
   if (params.geminiKey !== undefined) props.setProperty(TR_KEYS.GEMINI, String(params.geminiKey || '').trim());
   if (params.claudeKey !== undefined) props.setProperty(TR_KEYS.CLAUDE, String(params.claudeKey || '').trim());
   return { success: true, message: 'Keys actualizadas' };
+}
+
+// ── Helpers para clave de auditor (hash + control de bloqueo) ────────────
+function _sha256Hex(text){
+  const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(text || ''));
+  return bytes.map(b => ('0' + (b < 0 ? b + 256 : b).toString(16)).slice(-2)).join('');
+}
+function _readBlockState(usuario){
+  const raw = PropertiesService.getScriptProperties().getProperty('TR_AUDITOR_BLOCK_' + String(usuario).toLowerCase());
+  if (!raw) return { attempts: 0, blockedUntil: 0 };
+  try {
+    const obj = JSON.parse(raw);
+    return { attempts: obj.attempts || 0, blockedUntil: obj.blockedUntil || 0 };
+  } catch(e) { return { attempts: 0, blockedUntil: 0 }; }
+}
+function _writeBlockState(usuario, state){
+  PropertiesService.getScriptProperties().setProperty(
+    'TR_AUDITOR_BLOCK_' + String(usuario).toLowerCase(),
+    JSON.stringify(state)
+  );
+}
+
+// ── trSetAuditorKey: SuperAdmin define o cambia la clave de auditor
+function trSetAuditorKey(params){
+  const auth = _trCheckAuth(params.usuario);
+  if (!auth.user || auth.user.rol !== 'SUPER_ADMIN'){
+    return { success: false, error: 'Solo el SuperAdmin puede configurar la clave de auditor' };
+  }
+  const claveNueva = String(params.claveNueva || '');
+  if (claveNueva.length < 6){
+    return { success: false, error: 'La clave debe tener al menos 6 caracteres' };
+  }
+
+  const props = PropertiesService.getScriptProperties();
+  const hashActual = props.getProperty(TR_KEYS.AUDITOR_HASH);
+
+  // Si ya existe una clave configurada, requiere la actual para cambiarla
+  if (hashActual){
+    const claveActual = String(params.claveActual || '');
+    if (!claveActual){
+      return { success: false, error: 'Debes ingresar la clave actual para cambiarla' };
+    }
+    if (_sha256Hex(claveActual) !== hashActual){
+      return { success: false, error: 'La clave actual es incorrecta' };
+    }
+  }
+
+  props.setProperty(TR_KEYS.AUDITOR_HASH, _sha256Hex(claveNueva));
+  registrarAcceso(auth.user.empresa, auth.user.usuario, auth.user.rol, 'AUDITOR_KEY_SET');
+  return { success: true, message: hashActual ? 'Clave de auditor actualizada' : 'Clave de auditor configurada' };
+}
+
+// ── trVerifyAuditorKey: cualquier usuario autorizado verifica su clave
+function trVerifyAuditorKey(params){
+  const auth = _trCheckAuth(params.usuario);
+  if (!auth.user) return { success: false, error: 'Usuario no encontrado o inactivo' };
+  if (!auth.ok)   return { success: false, error: 'No tienes autorización para Denuncias' };
+
+  const usuario = auth.user.usuario;
+  const props   = PropertiesService.getScriptProperties();
+  const hashGuardado = props.getProperty(TR_KEYS.AUDITOR_HASH);
+
+  if (!hashGuardado){
+    return { success: false, notConfigured: true, error: 'La clave de auditor no está configurada. Pídele al SuperAdmin que la defina.' };
+  }
+
+  // Verificar bloqueo activo
+  const now = Date.now();
+  let state = _readBlockState(usuario);
+  if (state.blockedUntil && state.blockedUntil > now){
+    const minRest = Math.ceil((state.blockedUntil - now) / 60000);
+    return {
+      success: false, blocked: true, blockedUntil: state.blockedUntil,
+      error: 'Bloqueado por intentos fallidos. Intenta de nuevo en ' + minRest + ' minuto' + (minRest === 1 ? '' : 's') + '.'
+    };
+  }
+
+  const clave = String(params.clave || '');
+  if (_sha256Hex(clave) === hashGuardado){
+    // Éxito: resetear contador
+    _writeBlockState(usuario, { attempts: 0, blockedUntil: 0 });
+    registrarAcceso(auth.user.empresa, usuario, auth.user.rol, 'AUDITOR_KEY_OK');
+    return { success: true, message: 'Clave verificada' };
+  }
+
+  // Falla: incrementar intentos
+  state.attempts = (state.attempts || 0) + 1;
+  if (state.attempts >= AUDITOR_MAX_ATTEMPTS){
+    state.blockedUntil = now + AUDITOR_BLOCK_MS;
+    state.attempts = 0;
+    _writeBlockState(usuario, state);
+    registrarAcceso(auth.user.empresa, usuario, auth.user.rol,
+      'AUDITOR_KEY_BLOCKED (15min hasta ' + new Date(state.blockedUntil).toISOString() + ')');
+    return {
+      success: false, blocked: true, blockedUntil: state.blockedUntil,
+      error: 'Demasiados intentos fallidos. Bloqueado durante 15 minutos. Se notificó al SuperAdmin (registro en log).'
+    };
+  }
+  _writeBlockState(usuario, state);
+  registrarAcceso(auth.user.empresa, usuario, auth.user.rol, 'AUDITOR_KEY_FAIL (intento ' + state.attempts + ')');
+  const left = AUDITOR_MAX_ATTEMPTS - state.attempts;
+  return { success: false, attemptsLeft: left, error: 'Clave incorrecta. Te quedan ' + left + ' intento' + (left === 1 ? '' : 's') + '.' };
 }
 
 // ── trRequestAccess: un usuario sin permiso solicita acceso
