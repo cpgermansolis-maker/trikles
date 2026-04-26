@@ -579,6 +579,10 @@ function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&am
 document.addEventListener('DOMContentLoaded', async () => {
   const s = getS();
   if(!s){ window.location.href = 'acceso.html'; return; }
+  // SuperAdmin con empresa filtrada en el dashboard → respetarla aquí también
+  if (s.rol === 'SUPER_ADMIN' && s.empresaFiltro && s.empresaFiltro !== 'ALL') {
+    s.empresa = s.empresaFiltro;
+  }
   STATE.session = s;
   STATE.empresa = s.empresa || '';
 

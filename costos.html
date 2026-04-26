@@ -696,6 +696,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
   SESSION = getSession();
   if(!SESSION){ window.location.href='acceso.html'; return; }
 
+  // SuperAdmin con empresa filtrada en el dashboard → respetarla aquí también
+  if (SESSION.rol === 'SUPER_ADMIN' && SESSION.empresaFiltro && SESSION.empresaFiltro !== 'ALL') {
+    SESSION.empresa = SESSION.empresaFiltro;
+  }
+
   // Verificar rol
   const rol = (SESSION.rol||'').toUpperCase();
   if(rol !== 'ADMIN' && rol !== 'SUPER_ADMIN'){

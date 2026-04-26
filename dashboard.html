@@ -3917,6 +3917,11 @@ async function loadEmpresasSelector(){
         const id=e.id||e.Id||Object.values(e)[0]||nombre;
         sel.innerHTML+=`<option value="${id}">${nombre}</option>`;
       });
+      // Restaurar selección previa del SuperAdmin si la guardó
+      const _s = getS();
+      if (_s && _s.empresaFiltro) {
+        sel.value = _s.empresaFiltro;
+      }
     }
   }catch(err){
     console.warn('No se pudo cargar empresas para selector:',err);
@@ -3930,6 +3935,8 @@ async function onEmpresaChange(){
   if(s){
     s.empresaFiltro=empresa;
     sessionStorage.setItem(SK,JSON.stringify(s));
+    // También en localStorage para que sobreviva al recargar/cambiar de página
+    try{ localStorage.setItem(SK+'_remember', JSON.stringify(s)); }catch{}
   }
   const label=sel.options[sel.selectedIndex].text;
   toast('info','Cargando...',label);
@@ -3994,11 +4001,16 @@ document.addEventListener('DOMContentLoaded',()=>{
     const mn2=document.getElementById('mNavCostos');if(mn2)mn2.style.display='inline-flex';
     const mn3=document.getElementById('mNavCxC');if(mn3)mn3.style.display='inline-flex';
   }
+  // Para SuperAdmin: si previamente seleccionó una empresa específica
+  // (s.empresaFiltro), respetarla en lugar de su empresa nativa.
+  const empInicial = (s.rol === 'SUPER_ADMIN' && s.empresaFiltro && s.empresaFiltro !== 'ALL')
+                       ? s.empresaFiltro
+                       : s.empresa;
   // Aplicar branding y cargar datos desde Sheets
-  applyBranding(s.empresa);
-  cargarDatosDesdeSheets(s.empresa);
-  cargarDatosNomina(s.empresa);
-  cargarCxCDashboard(s.empresa);
+  applyBranding(empInicial);
+  cargarDatosDesdeSheets(empInicial);
+  cargarDatosNomina(empInicial);
+  cargarCxCDashboard(empInicial);
   // Captura y Corte — ADMIN, SUPER_ADMIN, ANALISTA_FIN, ANALISTA_FULL
   if(['ADMIN','SUPER_ADMIN','ANALISTA_FIN','ANALISTA_FULL'].includes(rol)){
     const bc=document.getElementById('btnCaptura');if(bc)bc.style.display='inline-flex';
