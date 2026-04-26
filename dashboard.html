@@ -17,6 +17,11 @@ function navegar(url) {
 }
 
 </script>
+<!-- ══ Sistema OAC: tokens + fuentes ══ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="oac-tokens.css">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap');
 :root{
@@ -311,16 +316,196 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   .tb-name { font-size:15px; }
 }
 
+/* ════════════════════════════════════════════════════════════════
+   ▶ FASE 2 — TOPBAR OAC (paleta navy/sky, tipografía Geist)
+   Sobrescribe todas las reglas del topbar de arriba.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* fondo general claro solo bajo el topbar (el resto del dashboard
+   conserva su fondo oscuro hasta que migremos KPIs y cards) */
+.topbar {
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 1px 0 rgba(14,42,78,.04);
+  padding: 14px 28px;
+  font-family: var(--font-sans);
+}
+.tb-left { gap: 11px; }
+.tb-logo {
+  width: 42px; height: 23px;
+  filter: none;
+}
+.tb-name {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  color: var(--ink);
+  text-transform: none;
+  line-height: 1.02;
+}
+.tb-sub {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .16em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+/* Botones de navegación */
+.btn-nav {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 8px 13px;
+  border-radius: var(--r-lg);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -.005em;
+  transition: all var(--t-fast);
+}
+.btn-nav:hover { background: var(--paper); border-color: var(--navy); color: var(--navy); }
+.btn-nav.dash {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+  font-weight: 600;
+}
+.btn-nav.dash:hover { background: var(--navy-2); border-color: var(--navy-2); color: #fff; }
+
+/* Dropdown IA */
+.nav-group-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--purple);
+  padding: 8px 13px;
+  border-radius: var(--r-lg);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+}
+.nav-group-btn:hover { background: rgba(124,91,217,.06); border-color: var(--purple); }
+.nav-group-menu {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  box-shadow: 0 12px 32px -16px rgba(14,42,78,.25);
+}
+.nav-group-menu a { color: var(--ink); font-family: var(--font-sans); font-size: 13px; font-weight: 500; }
+.nav-group-menu a.purple:hover, .nav-group-menu a.purple.current { background: rgba(124,91,217,.08); color: var(--purple); }
+.nav-group-menu a.red:hover, .nav-group-menu a.red.current { background: rgba(159,43,30,.08); color: var(--bad); }
+.nav-group-menu a .sub { color: var(--muted); font-size: 11px; font-weight: 400; }
+
+/* Botón PDF — accent OAC */
+.btn-pdf {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: var(--r-lg);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -.005em;
+}
+.btn-pdf:hover { background: #c66830; transform: none; box-shadow: 0 4px 12px -4px rgba(224,122,62,.5); }
+
+/* Pill de usuario */
+.user-pill {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  border-radius: 999px;
+  padding: 6px 14px;
+}
+.u-dot { background: var(--good); }
+
+/* Salir */
+.btn-out {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  padding: 8px 13px;
+  border-radius: var(--r-lg);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+}
+.btn-out:hover { border-color: var(--bad); color: var(--bad); }
+
+/* Ayuda */
+.btn-help {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 8px 13px;
+  border-radius: var(--r-lg);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+}
+.btn-help:hover { background: var(--paper); border-color: var(--good); color: var(--good); }
+
+/* Botón Juegos — usa accent en lugar de naranja viejo */
+.btn-nav[href="juegos.html"] {
+  background: rgba(224,122,62,.08) !important;
+  border-color: rgba(224,122,62,.35) !important;
+  color: var(--accent) !important;
+}
+.btn-nav[href="juegos.html"]:hover {
+  background: rgba(224,122,62,.15) !important;
+  border-color: var(--accent) !important;
+}
+
+/* Hamburguesa mobile — color navy */
+.hamburger span { background: var(--navy); }
+
+/* Drawer mobile sobre fondo claro */
+.mobile-nav {
+  background: rgba(255,255,255,.98);
+  backdrop-filter: blur(8px);
+}
+.mobile-nav-close { color: var(--navy); }
+.mobile-nav .btn-nav,
+.mobile-nav .btn-pdf,
+.mobile-nav .btn-out { font-family: var(--font-sans); font-weight: 500; }
+
+/* Mobile responsive del topbar OAC */
+@media (max-width: 768px) {
+  .topbar { padding: 12px 16px; }
+  .tb-name { font-size: 15px; letter-spacing: -.01em; }
+  .tb-sub  { font-size: 8px; letter-spacing: .14em; }
+  .tb-logo { width: 32px; height: 18px; }
+}
+
 </style>
 <link rel="stylesheet" href="mobile.css">
 <link rel="stylesheet" href="abc.css">
 </head>
 <body>
 
+<!-- ══════ Defs SVG — Logo OAC ══════ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="oac-mark" viewBox="0 0 400 220">
+      <g style="mix-blend-mode:multiply">
+        <circle cx="110" cy="110" r="90" fill="#9FCDE6" opacity=".95"/>
+        <polygon points="200,20 290,200 110,200" fill="#D8DDE1" opacity=".85"/>
+        <path d="M220 20 a90 90 0 0 1 0 180 L290 200 L290 20 Z" fill="#0E2A4E" opacity=".92"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
 <!-- ══════ TOPBAR ══════ -->
 <header class="topbar">
   <div class="tb-left">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='%23666'%3E🏢%3C/text%3E%3C/svg%3E" class="tb-logo" alt="OAC">
+    <svg class="tb-logo" viewBox="0 0 400 220" aria-label="OAC"><use href="#oac-mark"/></svg>
     <div><div class="tb-name"></div><div class="tb-sub"></div></div>
   </div>
   <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menú">
@@ -3617,11 +3802,19 @@ async function applyBranding(empresaId) {
       else if (el.textContent.includes('NÓMINA'))  el.textContent = '👥 CAPTURA DE NÓMINA — ' + nombre.toUpperCase();
     });
 
-    // Logo
+    // Logo — si la empresa tiene logo, reemplaza el SVG OAC por un <img>
     if (logo) {
       document.querySelectorAll('.tb-logo, .topbar-logo').forEach(el => {
-        el.src = logo;
-        el.alt = nombre;
+        if (el.tagName && el.tagName.toLowerCase() === 'svg') {
+          const img = document.createElement('img');
+          img.className = el.getAttribute('class') || '';
+          img.src = logo;
+          img.alt = nombre;
+          el.parentNode.replaceChild(img, el);
+        } else {
+          el.src = logo;
+          el.alt = nombre;
+        }
       });
     }
 
