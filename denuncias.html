@@ -361,6 +361,28 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
 }
 
 /* ════════════════════════════════════════════════════════════════
+   ▶ FASE 2 — Remap de variables legacy a paleta OAC
+   Arregla inline styles en el HTML que usan var(--red), etc.
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  --red: #9F2B1E;               /* → bad */
+  --red2: #7a1f1f;
+  --redL: rgba(159,43,30,.08);
+  --orange: #E07A3E;            /* → accent */
+  --purple: #7C5BD9;
+  --purple2: #a896e6;
+  --green: #1E7F5C;             /* → good */
+  --blue: #0E2A4E;              /* → navy */
+  --yellow: #B97A1B;            /* → warn */
+  --gray: #5A6A7E;              /* → muted */
+  --light: #5A6A7E;
+  --white: #0A1A30;             /* → ink */
+  --dark: #fff;
+  --panel: #fff;
+  --border: #E6E9EE;            /* → line */
+}
+
+/* ════════════════════════════════════════════════════════════════
    ▶ FASE 2 — Override OAC para denuncias.html
    El módulo conserva el tema rojo (gravedad de denuncias) y el
    modal-expediente Georgia serif (look formal de documento legal).

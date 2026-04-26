@@ -317,6 +317,30 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
 }
 
 /* ════════════════════════════════════════════════════════════════
+   ▶ FASE 2 — Remap de variables legacy a paleta OAC
+   Arregla inline styles en el HTML que usan var(--orange), etc.
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  --orange: #E07A3E;            /* → accent */
+  --orange2: #c66830;
+  --ora-l: rgba(224,122,62,.08);
+  --green: #1E7F5C;             /* → good */
+  --red: #9F2B1E;               /* → bad */
+  --blue: #0E2A4E;              /* → navy */
+  --yellow: #B97A1B;             /* → warn */
+  --purple: #7C5BD9;
+  --gray: #5A6A7E;              /* → muted */
+  --light: #5A6A7E;
+  --white: #0A1A30;             /* → ink */
+  --bg: #fff;
+  --bg2: #fff;
+  --card: #fff;
+  --card2: #FAFBFC;
+  --border: #E6E9EE;
+  --border2: #E6E9EE;
+}
+
+/* ════════════════════════════════════════════════════════════════
    ▶ FASE 2 — Override OAC para panel.html
    Reemplaza la apariencia oscura por el sistema navy/sky/paper.
    ═══════════════════════════════════════════════════════════════ */

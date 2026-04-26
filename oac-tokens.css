@@ -43,6 +43,30 @@
   /* ── Trans ── */
   --t-fast: .15s ease;
   --t-base: .2s ease;
+
+  /* ══════════════════════════════════════════════════════════
+     Legacy aliases — apuntan a equivalentes OAC.
+     Permite que inline styles antiguos (style="color:var(--orange)")
+     en el HTML/JS rendericen con paleta OAC sin tener que reescribirlos.
+     ══════════════════════════════════════════════════════════ */
+  --orange: #E07A3E;            /* → accent */
+  --orange2: #c66830;
+  --ora-l: rgba(224,122,62,.08);
+  --green: #1E7F5C;             /* → good */
+  --red: #9F2B1E;               /* → bad */
+  --blue: #0E2A4E;              /* → navy */
+  --yellow: #B97A1B;            /* → warn */
+  --gray: #5A6A7E;              /* → muted */
+  --light: #5A6A7E;             /* (era texto claro sobre dark) → muted */
+  --white: #0A1A30;             /* (era texto blanco sobre dark) → ink */
+  --dark: #fff;
+  --bg: #fff;
+  --bg2: #fff;
+  --card: #fff;
+  --card2: #FAFBFC;             /* → paper */
+  --border: #E6E9EE;            /* → line */
+  --border2: #E6E9EE;
+  --panel: #fff;
 }
 
 /* ══ Reset suave ══ */

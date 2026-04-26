@@ -317,6 +317,31 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 }
 
 /* ════════════════════════════════════════════════════════════════
+   ▶ FASE 2 — Remap de variables legacy a paleta OAC
+   Esto arregla cientos de inline styles en el HTML que usan
+   var(--orange), var(--green), etc. — los redirige a OAC
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  --orange: #E07A3E;            /* → accent */
+  --orange2: #c66830;
+  --ora-l: rgba(224,122,62,.08);
+  --green: #1E7F5C;             /* → good */
+  --red: #9F2B1E;               /* → bad */
+  --blue: #0E2A4E;              /* → navy */
+  --yellow: #B97A1B;            /* → warn */
+  --purple: #7C5BD9;            /* purple OAC */
+  --gray: #5A6A7E;              /* → muted */
+  --light: #5A6A7E;             /* (era texto claro) → muted */
+  --white: #0A1A30;             /* (era texto blanco) → ink */
+  --bg: #fff;
+  --bg2: #fff;
+  --card: #fff;
+  --card2: #FAFBFC;             /* → paper */
+  --border: #E6E9EE;            /* → line */
+  --border2: #E6E9EE;            /* → line */
+}
+
+/* ════════════════════════════════════════════════════════════════
    ▶ FASE 2 — TOPBAR OAC (paleta navy/sky, tipografía Geist)
    Sobrescribe todas las reglas del topbar de arriba.
    ═══════════════════════════════════════════════════════════════ */
