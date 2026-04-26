@@ -7,6 +7,11 @@
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>OAC — Panel de Control</title>
+<!-- Sistema OAC: tokens + fuentes -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="oac-tokens.css">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap');
 :root{
@@ -310,15 +315,424 @@ input[type=color]{width:44px;height:36px;border:1px solid #333;border-radius:6px
   #usuarios_tbody .td-actions{display:flex;flex-direction:column;gap:4px;}
   #usuarios_tbody .td-actions .btn-sm{font-size:10px;padding:4px 8px;white-space:nowrap;}
 }
+
+/* ════════════════════════════════════════════════════════════════
+   ▶ FASE 2 — Override OAC para panel.html
+   Reemplaza la apariencia oscura por el sistema navy/sky/paper.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Body + tipografía global */
+body{
+  background:#fff;color:var(--ink);
+  font-family:var(--font-sans);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Topbar */
+.topbar{
+  background:#fff;
+  border-bottom:1px solid var(--line);
+  box-shadow:0 1px 0 rgba(14,42,78,.04);
+  padding:14px 28px;
+}
+.tb-left{gap:11px;}
+.tb-logo{
+  width:42px;height:23px;
+  filter:none;
+}
+.tb-name{
+  font-family:var(--font-sans);
+  font-size:18px;font-weight:600;letter-spacing:-.02em;
+  color:var(--ink);text-transform:none;line-height:1.02;
+}
+.tb-sub{
+  font-family:var(--font-mono);
+  font-size:9px;letter-spacing:.16em;
+  color:var(--muted);text-transform:uppercase;margin-top:3px;
+}
+.btn-nav{
+  background:transparent;border:1px solid var(--line);color:var(--ink);
+  padding:8px 13px;border-radius:var(--r-lg);
+  font-family:var(--font-sans);font-size:13px;font-weight:500;
+  letter-spacing:-.005em;
+  transition:all var(--t-fast);
+}
+.btn-nav:hover{background:var(--paper);border-color:var(--navy);color:var(--navy);}
+.btn-nav.dash{
+  background:var(--navy);border-color:var(--navy);color:#fff;font-weight:600;
+}
+.btn-nav.dash:hover{background:var(--navy-2);border-color:var(--navy-2);color:#fff;}
+.user-pill{
+  background:var(--paper);border:1px solid var(--line);color:var(--muted);
+  font-family:var(--font-sans);font-size:12.5px;font-weight:500;
+  border-radius:999px;padding:6px 14px;
+}
+.u-dot{background:var(--good);}
+.btn-out{
+  background:transparent;border:1px solid var(--line);color:var(--muted);
+  padding:8px 13px;border-radius:var(--r-lg);
+  font-family:var(--font-sans);font-size:13px;font-weight:500;
+}
+.btn-out:hover{border-color:var(--bad);color:var(--bad);}
+.btn-help{
+  background:transparent;border:1px solid var(--line);color:var(--ink);
+  padding:8px 13px;border-radius:var(--r-lg);
+  font-family:var(--font-sans);font-size:13px;font-weight:500;
+}
+.btn-help:hover{background:var(--paper);border-color:var(--good);color:var(--good);}
+
+/* Hamburger + drawer */
+.hamburger span{background:var(--navy);}
+.mobile-nav{background:rgba(255,255,255,.98);backdrop-filter:blur(8px);}
+.mobile-nav-close{color:var(--navy);}
+.mobile-nav .btn-nav{
+  background:transparent;border:1px solid var(--line);color:var(--ink);
+  font-family:var(--font-sans);font-weight:500;
+}
+.mobile-nav .btn-out{
+  background:transparent;border:1px solid var(--line);color:var(--muted);
+  font-family:var(--font-sans);font-weight:500;
+}
+
+/* Sidebar */
+.sidebar{
+  background:var(--paper);
+  border-right:1px solid var(--line);
+}
+.sb-section{
+  font-family:var(--font-mono);
+  font-size:10px;font-weight:500;letter-spacing:.14em;
+  color:var(--muted);text-transform:uppercase;
+}
+.sb-item{
+  font-family:var(--font-sans);
+  font-size:13px;font-weight:500;color:var(--ink);
+  border-left:3px solid transparent;
+  transition:all var(--t-fast);
+}
+.sb-item:hover{color:var(--navy);background:#fff;}
+.sb-item.active{
+  color:var(--navy);
+  background:#fff;
+  border-left-color:var(--navy);
+  font-weight:600;
+}
+
+/* Content y headers */
+.content{background:#fff;}
+.pg-ttl{
+  font-family:var(--font-sans);
+  font-size:26px;font-weight:600;letter-spacing:-.02em;
+  color:var(--ink);text-transform:none;
+}
+.pg-sub{
+  font-family:var(--font-sans);
+  font-size:13.5px;font-weight:400;color:var(--muted);margin-top:4px;
+}
+
+/* Cards */
+.card{
+  background:#fff;border:1px solid var(--line);
+  border-radius:var(--r-3xl);padding:22px 24px;margin-bottom:18px;
+  box-shadow:0 1px 2px rgba(14,42,78,.04);
+}
+.card::before{
+  background:linear-gradient(90deg,var(--navy),var(--sky));
+}
+.card-ttl{
+  font-family:var(--font-sans);
+  font-size:16px;font-weight:600;letter-spacing:-.01em;
+  color:var(--ink);text-transform:none;
+  margin-bottom:16px;
+}
+
+/* Forms */
+label{
+  font-family:var(--font-mono);
+  font-size:10px;font-weight:500;letter-spacing:.14em;
+  color:var(--muted);text-transform:uppercase;
+}
+input[type=text],input[type=email],input[type=password],select,textarea{
+  background:#fff;border:1px solid var(--line);color:var(--ink);
+  padding:10px 12px;border-radius:var(--r-md);
+  font-family:var(--font-sans);font-size:13.5px;font-weight:500;
+  transition:border-color var(--t-fast),box-shadow var(--t-fast);
+}
+input:focus,select:focus,textarea:focus{
+  outline:none;border-color:var(--navy);background:#fff;
+  box-shadow:0 0 0 3px rgba(14,42,78,.08);
+}
+input::placeholder,textarea::placeholder{color:#A8B0BB;}
+select option{background:#fff;color:var(--ink);}
+
+/* Botones */
+.btn{
+  font-family:var(--font-sans);font-size:13px;font-weight:600;
+  letter-spacing:-.005em;
+  padding:11px 20px;border-radius:var(--r-md);
+}
+.btn-primary{
+  background:var(--navy);color:#fff;
+}
+.btn-primary:hover{background:var(--navy-2);transform:translateY(-1px);box-shadow:0 4px 12px -6px rgba(14,42,78,.4);}
+.btn-secondary{
+  background:transparent;border:1px solid var(--line);color:var(--ink);
+}
+.btn-secondary:hover{border-color:var(--navy);color:var(--navy);background:var(--paper);}
+.btn-danger{
+  background:rgba(159,43,30,.08);
+  border:1px solid rgba(159,43,30,.25);color:var(--bad);
+}
+.btn-danger:hover{background:rgba(159,43,30,.16);}
+.btn-success{
+  background:rgba(30,127,92,.08);
+  border:1px solid rgba(30,127,92,.25);color:var(--good);
+}
+.btn-success:hover{background:rgba(30,127,92,.16);}
+
+/* Zona de peligro */
+.danger-zone{
+  background:rgba(159,43,30,.04);
+  border:2px solid rgba(159,43,30,.3);
+  border-radius:var(--r-2xl);
+}
+.danger-zone::before{
+  background:#fff;color:var(--bad);
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;font-weight:500;
+}
+.danger-item{border-bottom:1px solid rgba(159,43,30,.12);}
+.danger-title{
+  font-family:var(--font-sans);font-weight:600;
+  font-size:14px;color:var(--ink);
+  letter-spacing:-.005em;
+}
+.danger-sub{
+  font-family:var(--font-sans);font-size:12.5px;
+  color:var(--muted);line-height:1.55;
+}
+.btn-destroy{
+  background:rgba(159,43,30,.1);
+  border:1px solid rgba(159,43,30,.35);color:var(--bad);
+  font-family:var(--font-sans);font-weight:600;
+  padding:11px 20px;border-radius:var(--r-md);
+  font-size:13px;letter-spacing:-.005em;
+}
+.btn-destroy:hover{background:rgba(159,43,30,.2);border-color:var(--bad);}
+
+/* Modal de confirmación destrucción */
+.modal-danger{background:rgba(14,42,78,.55);backdrop-filter:blur(4px);}
+.modal-danger-box{
+  background:#fff;
+  border:2px solid rgba(159,43,30,.4);
+  border-radius:var(--r-3xl);
+  box-shadow:var(--shadow-modal);
+}
+.modal-danger-title{
+  font-family:var(--font-sans);
+  font-size:20px;font-weight:600;letter-spacing:-.01em;
+  color:var(--bad);
+}
+.modal-danger-desc{
+  font-family:var(--font-sans);
+  font-size:13px;color:var(--muted);line-height:1.6;
+}
+.modal-danger-input{
+  background:#fff;border:1px solid var(--line);
+  color:var(--ink);
+  font-family:var(--font-sans);font-size:14px;
+}
+.modal-danger-input:focus{border-color:var(--bad);box-shadow:0 0 0 3px rgba(159,43,30,.08);}
+
+/* Tablas */
+th{
+  font-family:var(--font-mono);
+  font-size:10px;font-weight:500;letter-spacing:.14em;
+  color:var(--muted);text-transform:uppercase;
+  background:var(--paper);
+  border-bottom:1px solid var(--line);
+}
+td{
+  font-family:var(--font-sans);
+  font-size:13px;font-weight:500;color:var(--ink);
+  border-bottom:1px solid var(--line);
+}
+tr:hover td{background:var(--paper);}
+.badge{
+  font-family:var(--font-mono);
+  font-size:10px;font-weight:500;letter-spacing:.04em;
+  padding:3px 9px;border-radius:999px;border:1px solid;
+}
+.badge-green {background:rgba(30,127,92,.08); color:var(--good);   border-color:rgba(30,127,92,.25);}
+.badge-red   {background:rgba(159,43,30,.08); color:var(--bad);    border-color:rgba(159,43,30,.25);}
+.badge-blue  {background:rgba(14,42,78,.05);  color:var(--navy);   border-color:rgba(14,42,78,.18);}
+.badge-orange{background:rgba(224,122,62,.1); color:var(--accent); border-color:rgba(224,122,62,.3);}
+.badge-purple{background:rgba(124,91,217,.08);color:var(--purple); border-color:rgba(124,91,217,.25);}
+.badge-gray  {background:var(--paper);         color:var(--muted);  border-color:var(--line);}
+
+/* Avatar */
+.avatar{
+  background:var(--navy);
+  font-family:var(--font-sans);
+  font-size:13px;font-weight:600;
+  letter-spacing:-.01em;
+  color:#fff;
+}
+
+/* Logo preview */
+.logo-preview{
+  background:var(--paper);
+  border:2px dashed var(--line);
+  border-radius:var(--r-xl);
+}
+.logo-preview:hover{border-color:var(--navy);}
+
+/* Color picker */
+input[type=color]{
+  background:#fff;border:1px solid var(--line);
+  border-radius:var(--r-md);
+}
+
+/* Stats mini */
+.stat-mini{
+  background:#fff;border:1px solid var(--line);
+  border-radius:var(--r-xl);
+  padding:16px;box-shadow:0 1px 2px rgba(14,42,78,.04);
+}
+.stat-mini-val{
+  font-family:var(--font-sans);
+  font-size:30px;font-weight:600;letter-spacing:-.025em;
+  color:var(--navy);
+}
+.stat-mini-lbl{
+  font-family:var(--font-mono);
+  font-size:10px;font-weight:500;letter-spacing:.14em;
+  color:var(--muted);text-transform:uppercase;
+}
+
+/* Modal genérico */
+.modal-bg{background:rgba(14,42,78,.55);backdrop-filter:blur(4px);}
+.modal{
+  background:#fff;border:1px solid var(--line);
+  border-radius:var(--r-3xl);
+  box-shadow:var(--shadow-modal);
+  padding:28px;
+}
+.modal::before{background:linear-gradient(90deg,var(--navy),var(--sky));}
+.modal-ttl{
+  font-family:var(--font-sans);
+  font-size:20px;font-weight:600;letter-spacing:-.01em;
+  color:var(--ink);text-transform:none;
+}
+.modal-close{
+  color:var(--muted);
+}
+.modal-close:hover{color:var(--bad);}
+
+/* Toast */
+.toast{
+  background:#fff;border:1px solid var(--line);
+  border-radius:var(--r-xl);padding:14px 18px;
+  font-family:var(--font-sans);
+  box-shadow:var(--shadow-modal);
+}
+.t-body .t-title{
+  font-family:var(--font-sans);font-size:13px;font-weight:600;
+  color:var(--ink);letter-spacing:-.005em;
+}
+.t-body .t-msg{
+  font-family:var(--font-sans);font-size:11.5px;color:var(--muted);
+}
+.toast.success{border-left:4px solid var(--good);}
+.toast.error  {border-left:4px solid var(--bad);}
+.toast.info   {border-left:4px solid var(--navy);}
+
+/* Loading */
+.loading{font-family:var(--font-sans);color:var(--muted);font-weight:500;}
+.spinner{border:2px solid var(--line);border-top-color:var(--navy);}
+
+/* Empty state */
+.empty{font-family:var(--font-sans);color:var(--muted);}
+.empty-msg{font-weight:500;}
+
+/* Roles grid */
+.role-card{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--r-xl);
+  transition:all var(--t-fast);
+}
+.role-card:hover{border-color:var(--navy);background:#fff;}
+.role-card.selected{
+  background:#fff;border-color:var(--navy);
+  box-shadow:0 0 0 3px rgba(14,42,78,.06);
+}
+.role-name{
+  font-family:var(--font-sans);
+  font-size:14px;font-weight:600;letter-spacing:-.005em;
+  color:var(--ink);text-transform:none;
+}
+.perm-row{
+  font-family:var(--font-sans);font-size:11.5px;font-weight:400;
+}
+.perm-lbl{color:var(--ink);}
+.perm-dot.on {background:var(--good);}
+.perm-dot.off{background:var(--mist);}
+
+/* Search */
+.search-inp{
+  background:#fff;border:1px solid var(--line);color:var(--ink);
+  font-family:var(--font-sans);font-size:13px;font-weight:500;
+}
+.search-inp:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(14,42,78,.08);}
+
+/* Tooltips */
+.help-icon{
+  background:var(--paper);border:1px solid var(--line);color:var(--muted);
+}
+.help-icon:hover{background:var(--navy);border-color:var(--navy);color:#fff;}
+.help-icon .tt{
+  background:#fff;border:1px solid var(--line);color:var(--ink);
+  font-family:var(--font-sans);font-weight:400;
+  box-shadow:var(--shadow-modal);
+}
+.help-icon .tt::before{border-bottom-color:var(--line);}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:var(--paper);}
+::-webkit-scrollbar-thumb{background:var(--mist);border-radius:999px;border:2px solid var(--paper);}
+::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+
+/* Mobile responsive del topbar OAC */
+@media (max-width: 768px) {
+  .topbar{padding:12px 16px;}
+  .tb-name{font-size:15px;letter-spacing:-.01em;}
+  .tb-sub{font-size:8px;letter-spacing:.14em;}
+  .tb-logo{width:32px;height:18px;}
+}
+
 </style>
 <link rel="stylesheet" href="mobile.css">
 </head>
 <body>
 
+<!-- Defs SVG — Logo OAC -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="oac-mark" viewBox="0 0 400 220">
+      <g style="mix-blend-mode:multiply">
+        <circle cx="110" cy="110" r="90" fill="#9FCDE6" opacity=".95"/>
+        <polygon points="200,20 290,200 110,200" fill="#D8DDE1" opacity=".85"/>
+        <path d="M220 20 a90 90 0 0 1 0 180 L290 200 L290 20 Z" fill="#0E2A4E" opacity=".92"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
 <!-- ══ TOPBAR ══ -->
 <header class="topbar">
   <div class="tb-left">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='%23666'%3E🏢%3C/text%3E%3C/svg%3E" class="tb-logo" alt="OAC">
+    <svg class="tb-logo" viewBox="0 0 400 220" aria-label="OAC"><use href="#oac-mark"/></svg>
     <div><div class="tb-name"></div><div class="tb-sub">⚙️ Panel de Control</div></div>
   </div>
   <div class="tb-right">
@@ -1701,7 +2115,14 @@ async function aplicarBrandingEmpresa(empresaId) {
     // Logo
     if(logo) {
       const tbLogo = document.querySelector('.tb-logo');
-      if(tbLogo) tbLogo.src = logo;
+      if(tbLogo) {
+        if(tbLogo.tagName && tbLogo.tagName.toLowerCase() === 'svg'){
+          const img=document.createElement('img');
+          img.className=tbLogo.getAttribute('class')||'';
+          img.src=logo;img.alt=nombre||'';
+          tbLogo.parentNode.replaceChild(img,tbLogo);
+        } else { tbLogo.src=logo; }
+      }
     }
   } catch(e) { console.warn('Branding:', e); }
 }
@@ -1812,11 +2233,19 @@ async function applyBranding(empresaId) {
       else if (el.textContent.includes('NÓMINA'))  el.textContent = '👥 CAPTURA DE NÓMINA — ' + nombre.toUpperCase();
     });
 
-    // Logo
+    // Logo — soporta SVG inline OAC: lo reemplaza por <img> al vuelo
     if (logo) {
       document.querySelectorAll('.tb-logo, .topbar-logo').forEach(el => {
-        el.src = logo;
-        el.alt = nombre;
+        if (el.tagName && el.tagName.toLowerCase() === 'svg') {
+          const img = document.createElement('img');
+          img.className = el.getAttribute('class') || '';
+          img.src = logo;
+          img.alt = nombre;
+          el.parentNode.replaceChild(img, el);
+        } else {
+          el.src = logo;
+          el.alt = nombre;
+        }
       });
     }
 
