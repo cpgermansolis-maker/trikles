@@ -6,7 +6,7 @@
   const STEPS = [
     {
       letter: 'A',
-      color:  '#F5821F',
+      color:  '#E07A3E',  // accent OAC
       title:  'Parametrizar el Panel de Control',
       desc:   'Configura tu empresa, usuarios y roles. Es el fundamento: sin esto, el resto no refleja tu negocio.',
       href:   'panel.html',
@@ -14,7 +14,7 @@
     },
     {
       letter: 'B',
-      color:  '#4361ee',
+      color:  '#0E2A4E',  // navy OAC
       title:  'Capturar Costos Fijos',
       desc:   'Carga tus gastos mensuales recurrentes (renta, luz, sueldos base). Con esto, OAC calcula tu Punto de Equilibrio.',
       href:   'costos.html',
@@ -22,7 +22,7 @@
     },
     {
       letter: 'C',
-      color:  '#2ec4b6',
+      color:  '#1E7F5C',  // good OAC
       title:  'Capturar la Nómina',
       desc:   'Registra los pagos a tu personal por semana. Alimenta los reportes y la hoja financiera.',
       href:   'nomina.html',
@@ -30,7 +30,7 @@
     },
     {
       letter: 'D',
-      color:  '#f4d35e',
+      color:  '#B97A1B',  // warn OAC (ocre)
       title:  'Capturar la Hoja Financiera',
       desc:   'Todos los días capturas ventas, compras, cobros y caja. Es el corazón operativo: de aquí salen todos los números.',
       href:   'registro.html',
@@ -38,7 +38,7 @@
     },
     {
       letter: 'E',
-      color:  '#e63946',
+      color:  '#7C5BD9',  // purple OAC
       title:  'Leer el Dashboard',
       desc:   'Con los 4 pasos anteriores, ves tu negocio en tiempo real: utilidad, flujo, CxC/CxP, comparativas. Aquí decides.',
       href:   'dashboard.html',
