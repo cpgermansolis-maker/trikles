@@ -1,4 +1,4 @@
-/* abc.js — El ABC de la Gestión Trikles
+/* abc.js — El ABC de la Gestión OAC
    Inyecta un modal con los 5 pasos esenciales del sistema.
    Uso: incluir <script src="abc.js"></script> y un botón con onclick="openABC()" */
 
@@ -16,7 +16,7 @@
       letter: 'B',
       color:  '#4361ee',
       title:  'Capturar Costos Fijos',
-      desc:   'Carga tus gastos mensuales recurrentes (renta, luz, sueldos base). Con esto, Trikles calcula tu Punto de Equilibrio.',
+      desc:   'Carga tus gastos mensuales recurrentes (renta, luz, sueldos base). Con esto, OAC calcula tu Punto de Equilibrio.',
       href:   'costos.html',
       cta:    'Ir a Costos'
     },
@@ -63,9 +63,9 @@
     overlay.className = 'abc-overlay';
     overlay.id = 'abcOverlay';
     overlay.innerHTML = `
-      <div class="abc-box" role="dialog" aria-label="El ABC de la Gestión Trikles">
+      <div class="abc-box" role="dialog" aria-label="El ABC de la Gestión OAC">
         <button class="abc-close" onclick="closeABC()" aria-label="Cerrar">✕</button>
-        <div class="abc-title">🔤 EL ABC DE LA GESTIÓN TRIKLES</div>
+        <div class="abc-title">🔤 EL ABC DE LA GESTIÓN OAC</div>
         <div class="abc-sub">Los 5 pasos para sacarle el mejor provecho al sistema</div>
         <div class="abc-grid">${buildCards()}</div>
       </div>

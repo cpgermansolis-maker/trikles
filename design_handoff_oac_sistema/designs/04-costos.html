@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>OAC — Costos &amp; Punto de equilibrio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root{--navy:#0E2A4E;--navy-2:#163962;--sky:#9FCDE6;--sky-2:#C9E3F1;--mist:#DCE2E7;--ink:#0A1A30;--muted:#5A6A7E;--line:#E6E9EE;--paper:#FAFBFC;--accent:#E07A3E;--good:#1E7F5C;--warn:#B97A1B;--bad:#9F2B1E;--purple:#7C5BD9;--font-sans:'Geist',system-ui,sans-serif;--font-serif:'Instrument Serif',serif;--font-mono:'Geist Mono',monospace;}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;line-height:1.5}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer}
+  .mono{font-family:var(--font-mono)}
+  .serif{font-family:var(--font-serif);font-style:italic;font-weight:400}
+  .topbar{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
+  .tb-in{max-width:1480px;margin:0 auto;padding:11px 24px;display:flex;align-items:center;gap:24px}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo .lt{display:flex;flex-direction:column;line-height:1.02}
+  .logo .a{font-weight:600;letter-spacing:-.02em;font-size:16px}
+  .logo .b{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+  .nav{display:flex;gap:2px;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-left:18px}
+  .nav a{padding:7px 11px;color:var(--muted);border-radius:6px}
+  .nav a:hover{background:var(--paper);color:var(--ink)}
+  .nav a.on{background:var(--navy);color:#fff}
+  .tb-r{margin-left:auto;display:flex;gap:10px;align-items:center;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .tb-r .pill{padding:5px 10px;border:1px solid var(--line);border-radius:5px;display:flex;align-items:center;gap:6px}
+  .tb-r .pill i{width:6px;height:6px;border-radius:50%;background:var(--good)}
+  .tb-r .av{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+  .page-h{max-width:1480px;margin:0 auto;padding:32px 24px 0;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+  .crumb{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;gap:8px}
+  .crumb b{color:var(--ink);font-weight:500}
+  .page-h h1{font-size:34px;letter-spacing:-.02em;font-weight:500;line-height:1.05;margin:0 0 6px}
+  .page-h h1 .serif{color:var(--navy)}
+  .page-h p{font-size:13.5px;color:var(--muted);margin:0;max-width:560px}
+  .btn{padding:10px 14px;border-radius:7px;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+  .btn:hover{background:var(--paper)}
+  .btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .btn.primary:hover{background:var(--navy-2)}
+  .grid{max-width:1480px;margin:24px auto 48px;padding:0 24px;display:grid;gap:14px}
+  .row-5{grid-template-columns:repeat(5,1fr)}
+  .row-3{grid-template-columns:repeat(3,1fr)}
+  .row-2{grid-template-columns:1.4fr 1fr}
+  @media (max-width:1100px){.row-5{grid-template-columns:repeat(2,1fr)}.row-3{grid-template-columns:1fr}.row-2{grid-template-columns:1fr}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .ch h3{font-size:13.5px;font-weight:600;margin:0;letter-spacing:-.005em}
+  .ch h3 .serif{color:var(--navy);font-weight:400}
+  .ch .meta{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+  .stat .l{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+  .stat .v{font-size:28px;letter-spacing:-.02em;font-weight:500;font-family:var(--font-mono);line-height:1}
+  .stat .v.warn{color:var(--warn)}
+  .stat .v.good{color:var(--good)}
+  .stat .v.bad{color:var(--bad)}
+  .stat .d{font-size:11.5px;color:var(--muted);margin-top:6px}
+  /* P.E. gauge */
+  .pe-block{background:linear-gradient(180deg,var(--navy),#1A4378);color:#fff;border-radius:12px;padding:24px 28px}
+  .pe-block .ch h3{color:#fff}
+  .pe-block .ch h3 .serif{color:var(--sky)}
+  .pe-block .ch .meta{color:var(--sky)}
+  .pe-grid{display:grid;grid-template-columns:200px 1fr;gap:32px;align-items:center;margin-top:12px}
+  @media (max-width:780px){.pe-grid{grid-template-columns:1fr}}
+  .gauge-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .gauge{width:200px;height:200px;border-radius:50%;background:conic-gradient(#48D38B 0% 114%, rgba(255,255,255,.15) 114% 100%);display:flex;align-items:center;justify-content:center;position:relative}
+  .gauge::before{content:"";position:absolute;inset:18px;background:linear-gradient(180deg,var(--navy),#1A4378);border-radius:50%}
+  .gauge .num{position:relative;text-align:center}
+  .gauge .num .v{font-family:var(--font-serif);font-style:italic;font-size:54px;font-weight:400;line-height:1;color:#48D38B}
+  .gauge .num .l{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.18em;color:var(--sky);text-transform:uppercase;margin-top:6px}
+  .pe-steps{display:flex;flex-direction:column;gap:11px}
+  .pe-step{padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:8px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+  .pe-step .n{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.14em;color:var(--sky);text-transform:uppercase}
+  .pe-step .t{font-size:13px;color:#E9EFF6;line-height:1.4}
+  .pe-step .v{font-family:var(--font-mono);font-size:14px;color:#fff;font-weight:500}
+  /* Bar chart */
+  .barchart{height:240px;display:flex;align-items:flex-end;gap:6px;padding:10px 0 26px;position:relative;border-bottom:1px solid var(--line)}
+  .barchart .b{flex:1;background:var(--navy);border-radius:3px 3px 0 0;position:relative;min-height:4px;transition:opacity .15s}
+  .barchart .b.below{background:var(--bad)}
+  .barchart .b:hover{opacity:.85}
+  .barchart .pe-line{position:absolute;left:0;right:0;height:1px;background:var(--accent);top:38%;border-top:1px dashed var(--accent)}
+  .barchart .pe-label{position:absolute;right:0;top:33%;font-family:var(--font-mono);font-size:10px;color:var(--accent);letter-spacing:.06em;background:#fff;padding:2px 6px}
+  .legend{display:flex;gap:14px;margin-top:10px;font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .legend i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:middle}
+  /* Cost structure pie */
+  .pie-row{display:grid;grid-template-columns:160px 1fr;gap:24px;align-items:center}
+  .pie{width:160px;height:160px;border-radius:50%;background:conic-gradient(var(--navy) 0% 38%,var(--accent) 38% 60%,var(--purple) 60% 78%,var(--good) 78% 90%,var(--mist) 90% 100%);position:relative}
+  .pie::before{content:"";position:absolute;inset:34px;background:#fff;border-radius:50%}
+  .pie-legend{display:flex;flex-direction:column;gap:8px;font-size:13px}
+  .pie-legend .row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+  .pie-legend i{width:10px;height:10px;border-radius:2px}
+  .pie-legend .nm b{font-weight:500}
+  .pie-legend .v{font-family:var(--font-mono);color:var(--muted);font-size:12px}
+  /* Products table */
+  table.t{width:100%;border-collapse:collapse;font-size:13px}
+  table.t th{text-align:left;font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;font-weight:500;padding:10px 12px;border-bottom:1px solid var(--line)}
+  table.t td{padding:13px 12px;border-bottom:1px solid var(--line);color:var(--ink)}
+  table.t tr:last-child td{border-bottom:none}
+  table.t .num{font-family:var(--font-mono);text-align:right;font-variant-numeric:tabular-nums}
+  table.t .pe-bar{display:inline-flex;align-items:center;gap:8px;width:100%}
+  table.t .pe-bar .bar{flex:1;height:5px;background:var(--mist);border-radius:3px;overflow:hidden;max-width:120px}
+  table.t .pe-bar .bar i{display:block;height:100%;background:var(--good);border-radius:3px}
+  table.t .pe-bar .bar i.warn{background:var(--warn)}
+  table.t .pe-bar .bar i.bad{background:var(--bad)}
+  table.t .pct{font-family:var(--font-mono);font-size:11px;color:var(--muted)}
+  .tag{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:3px;font-weight:500;display:inline-block}
+  .tag.good{background:rgba(30,127,92,.1);color:var(--good)}
+  .tag.warn{background:rgba(185,122,27,.1);color:var(--warn)}
+  .tag.bad{background:rgba(159,43,30,.1);color:var(--bad)}
+  /* Fixed costs list */
+  .fc-list{display:flex;flex-direction:column}
+  .fc{display:grid;grid-template-columns:1fr auto auto;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center;font-size:13.5px}
+  .fc:last-child{border-bottom:none}
+  .fc .nm{color:var(--ink)}
+  .fc .nm span{display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-top:2px}
+  .fc .v{font-family:var(--font-mono);font-size:13px;color:var(--ink);font-weight:500}
+  .fc .pct{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);text-align:right;width:50px}
+  .fc.total{padding-top:14px;border-top:2px solid var(--ink);border-bottom:none;margin-top:6px}
+  .fc.total .nm{font-weight:600}
+  .fc.total .v{font-size:15px;color:var(--navy)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="tb-in">
+    <a class="logo" href="dashboard.html">
+      <svg width="40" height="22" viewBox="0 0 400 220"><g style="mix-blend-mode:multiply"><circle cx="110" cy="110" r="90" fill="#9FCDE6" opacity=".95"/><polygon points="200,20 290,200 110,200" fill="#D8DDE1" opacity=".85"/><path d="M220 20 a90 90 0 0 1 0 180 L290 200 L290 20 Z" fill="#0E2A4E" opacity=".92"/></g></svg>
+      <span class="lt"><span class="a">OAC</span><span class="b">Sistema</span></span>
+    </a>
+    <nav class="nav">
+      <a href="dashboard.html">Captura</a>
+      <a href="dashboard.html">Nómina</a>
+      <a href="dashboard.html">CxC</a>
+      <a href="#" class="on">Costos</a>
+      <a href="panel.html">Panel</a>
+      <a href="transcripcion.html">IA · Transcribir</a>
+      <a href="denuncias.html">Denuncias</a>
+    </nav>
+    <div class="tb-r"><span class="pill"><i></i>TLAXES IND.</span><span class="av">GS</span></div>
+  </div>
+</header>
+
+<div class="page-h">
+  <div>
+    <div class="crumb"><span>OAC</span><span>·</span><span>Finanzas</span><span>·</span><b>Costos</b></div>
+    <h1>Costos &amp; <span class="serif">punto de equilibrio.</span></h1>
+    <p>Costo fijo diario, P.E. por producto y % de logro. Identifica tus productos estrella y los que necesitan atención.</p>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn">📅 Abril 2026 ▾</button>
+    <button class="btn">Exportar ↓</button>
+    <button class="btn primary">+ Registrar costo</button>
+  </div>
+</div>
+
+<!-- 5 KPI -->
+<div class="grid row-5">
+  <div class="card stat"><div class="l">VENTAS PERIODO</div><div class="v">$1.84M</div><div class="d">25 días · prom $73.6K/día</div></div>
+  <div class="card stat"><div class="l">COSTO FIJO DIARIO</div><div class="v">$28.4K</div><div class="d">$710K mensual</div></div>
+  <div class="card stat"><div class="l">MARGEN BRUTO</div><div class="v good">38.2%</div><div class="d">$702K acumulado</div></div>
+  <div class="card stat"><div class="l">P.E. DIARIO</div><div class="v">$74.3K</div><div class="d">Mínimo para no perder</div></div>
+  <div class="card stat"><div class="l">% LOGRO</div><div class="v good">114%</div><div class="d">+14% sobre P.E.</div></div>
+</div>
+
+<!-- P.E. principal -->
+<div class="grid" style="grid-template-columns:1fr;margin-top:0">
+  <div class="pe-block">
+    <div class="ch">
+      <h3>Punto de equilibrio <span class="serif">explicado</span></h3>
+      <span class="meta">CÁLCULO DEL PERIODO · 1—25 ABRIL</span>
+    </div>
+    <div class="pe-grid">
+      <div class="gauge-wrap">
+        <div class="gauge"><div class="num"><div class="v">114%</div><div class="l">DE LOGRO</div></div></div>
+        <div style="font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:var(--sky);text-transform:uppercase;text-align:center">SUPERAS EL P.E.<br/>EN $10.3K DIARIOS</div>
+      </div>
+      <div class="pe-steps">
+        <div class="pe-step"><span class="n">PASO 1</span><span class="t"><b style="color:#fff">Margen</b> = Ganancia bruta ÷ Ventas</span><span class="v">38.2%</span></div>
+        <div class="pe-step"><span class="n">PASO 2</span><span class="t"><b style="color:#fff">Gastos día</b> = Costo fijo + Nómina + Operativos</span><span class="v">$28,400</span></div>
+        <div class="pe-step"><span class="n">PASO 3</span><span class="t"><b style="color:#fff">P.E. diario</b> = Gastos día ÷ Margen</span><span class="v">$74,346</span></div>
+        <div class="pe-step" style="background:rgba(72,211,139,.1);border-color:rgba(72,211,139,.3)"><span class="n" style="color:#48D38B">RESULTADO</span><span class="t"><b style="color:#fff">Ventas día promedio</b> · estás $10.3K arriba</span><span class="v" style="color:#48D38B">$73.6K • 99%*</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tendencia diaria -->
+<div class="grid row-2">
+  <div class="card">
+    <div class="ch">
+      <h3>Tendencia diaria <span class="serif">— ventas vs P.E.</span></h3>
+      <span class="meta">25 DÍAS · ABRIL</span>
+    </div>
+    <div class="barchart">
+      <div class="pe-line"></div><div class="pe-label">P.E. $74.3K</div>
+      <div class="b" style="height:62%"></div><div class="b below" style="height:30%"></div><div class="b" style="height:55%"></div><div class="b" style="height:74%"></div><div class="b" style="height:48%"></div><div class="b" style="height:82%"></div><div class="b below" style="height:34%"></div><div class="b" style="height:60%"></div><div class="b" style="height:78%"></div><div class="b" style="height:88%"></div><div class="b" style="height:65%"></div><div class="b below" style="height:36%"></div><div class="b" style="height:72%"></div><div class="b" style="height:84%"></div><div class="b" style="height:90%"></div><div class="b" style="height:68%"></div><div class="b" style="height:80%"></div><div class="b" style="height:95%"></div><div class="b" style="height:78%"></div><div class="b below" style="height:32%"></div><div class="b" style="height:70%"></div><div class="b" style="height:86%"></div><div class="b" style="height:92%"></div><div class="b" style="height:75%"></div><div class="b" style="height:82%"></div>
+    </div>
+    <div class="legend"><span><i style="background:var(--navy)"></i>DÍA RENTABLE · 21</span><span><i style="background:var(--bad)"></i>DÍA POR DEBAJO P.E. · 4</span><span><i style="background:var(--accent);height:2px;border-radius:0"></i>P.E. DIARIO</span></div>
+  </div>
+  <div class="card">
+    <div class="ch"><h3>Estructura <span class="serif">de costos</span></h3><span class="meta">% DEL TOTAL</span></div>
+    <div class="pie-row">
+      <div class="pie"></div>
+      <div class="pie-legend">
+        <div class="row"><i style="background:var(--navy)"></i><span class="nm"><b>Nómina</b></span><span class="v">38%</span></div>
+        <div class="row"><i style="background:var(--accent)"></i><span class="nm"><b>Renta &amp; servicios</b></span><span class="v">22%</span></div>
+        <div class="row"><i style="background:var(--purple)"></i><span class="nm"><b>Operativo tienda</b></span><span class="v">18%</span></div>
+        <div class="row"><i style="background:var(--good)"></i><span class="nm"><b>Gasto casa</b></span><span class="v">12%</span></div>
+        <div class="row"><i style="background:var(--mist)"></i><span class="nm"><b>Otros</b></span><span class="v">10%</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Productos + Costos fijos -->
+<div class="grid row-2">
+  <div class="card" style="padding:0">
+    <div class="ch" style="padding:18px 20px 12px;margin:0;border-bottom:1px solid var(--line)">
+      <h3>P.E. <span class="serif">por producto</span></h3>
+      <span class="meta">% LOGRO · TOP 6</span>
+    </div>
+    <table class="t">
+      <thead><tr><th>Producto</th><th class="num">VENTAS</th><th class="num">P.E.</th><th>LOGRO</th><th>ESTADO</th></tr></thead>
+      <tbody>
+        <tr><td><b>Perfiles aluminio · 4112-A</b></td><td class="num">$412K</td><td class="num">$268K</td><td><div class="pe-bar"><div class="bar"><i style="width:100%"></i></div><span class="pct">154%</span></div></td><td><span class="tag good">★ ESTRELLA</span></td></tr>
+        <tr><td><b>Rollos cable · 4280-C</b></td><td class="num">$298K</td><td class="num">$210K</td><td><div class="pe-bar"><div class="bar"><i style="width:100%"></i></div><span class="pct">142%</span></div></td><td><span class="tag good">★ ESTRELLA</span></td></tr>
+        <tr><td><b>Tornillería surtida · 5004</b></td><td class="num">$184K</td><td class="num">$162K</td><td><div class="pe-bar"><div class="bar"><i style="width:100%;background:var(--warn)" class="warn"></i></div><span class="pct">114%</span></div></td><td><span class="tag good">RENTABLE</span></td></tr>
+        <tr><td><b>Conexiones PVC · 6210</b></td><td class="num">$96K</td><td class="num">$92K</td><td><div class="pe-bar"><div class="bar"><i style="width:90%;background:var(--warn)" class="warn"></i></div><span class="pct">104%</span></div></td><td><span class="tag warn">MARGINAL</span></td></tr>
+        <tr><td><b>Soldadura básica · 7104</b></td><td class="num">$58K</td><td class="num">$72K</td><td><div class="pe-bar"><div class="bar"><i style="width:80%;background:var(--bad)" class="bad"></i></div><span class="pct">81%</span></div></td><td><span class="tag bad">REVISAR</span></td></tr>
+        <tr><td><b>Herramienta menor · 8002</b></td><td class="num">$42K</td><td class="num">$58K</td><td><div class="pe-bar"><div class="bar"><i style="width:70%;background:var(--bad)" class="bad"></i></div><span class="pct">72%</span></div></td><td><span class="tag bad">PÉRDIDA</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h3>Costos fijos <span class="serif">mensuales</span></h3><span class="meta">$710K · 100%</span></div>
+    <div class="fc-list">
+      <div class="fc"><div class="nm">Nómina ejecutiva &amp; admin<span>12 PERSONAS</span></div><div class="v">$268,400</div><div class="pct">37.8%</div></div>
+      <div class="fc"><div class="nm">Renta planta + oficinas<span>3 INMUEBLES</span></div><div class="v">$98,000</div><div class="pct">13.8%</div></div>
+      <div class="fc"><div class="nm">Servicios · luz, agua, internet<span>PROMEDIO 90 DÍAS</span></div><div class="v">$58,200</div><div class="pct">8.2%</div></div>
+      <div class="fc"><div class="nm">Seguros &amp; garantías<span>ANUAL ÷ 12</span></div><div class="v">$42,500</div><div class="pct">6.0%</div></div>
+      <div class="fc"><div class="nm">Software &amp; licencias<span>OAC + ERP + OFFICE</span></div><div class="v">$18,200</div><div class="pct">2.6%</div></div>
+      <div class="fc"><div class="nm">Mantenimiento equipo<span>PROMEDIO ANUAL</span></div><div class="v">$32,000</div><div class="pct">4.5%</div></div>
+      <div class="fc"><div class="nm">Otros gastos administrativos<span>VARIOS</span></div><div class="v">$24,700</div><div class="pct">3.5%</div></div>
+      <div class="fc"><div class="nm">Reserva contingencia<span>10% INGRESOS</span></div><div class="v">$168,000</div><div class="pct">23.6%</div></div>
+      <div class="fc total"><div class="nm">TOTAL</div><div class="v">$710,000</div><div class="pct">100%</div></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

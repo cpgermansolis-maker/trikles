@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>OAC — Sistema completo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  body{margin:0;font-family:'Geist',system-ui,sans-serif;background:#F4F6F8;color:#0A1A30}
+  .hero{padding:36px 48px 24px;background:#fff;border-bottom:1px solid #E6E9EE}
+  .hero-top{display:flex;align-items:center;gap:12px;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.16em;color:#5A6A7E;text-transform:uppercase;margin-bottom:14px}
+  .hero-top i{width:24px;height:1px;background:#0E2A4E}
+  .hero h1{font-size:34px;letter-spacing:-.02em;font-weight:500;line-height:1.06;margin:0 0 8px;max-width:760px}
+  .hero h1 em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;color:#0E2A4E}
+  .hero p{font-size:14px;color:#5A6A7E;margin:0;max-width:680px;line-height:1.55}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-top"><i></i>OAC · SISTEMA · 5 MÓDULOS · 1 PRODUCTO</div>
+  <h1>El sistema OAC, <em>todo en un lienzo.</em></h1>
+  <p>Landings, producto y compliance. Click cualquiera para abrirlo en pantalla completa o navegarlo en vivo.</p>
+</div>
+
+<div id="canvas-root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+
+<script type="text/babel">
+const { DesignCanvas, DCSection, DCArtboard } = window;
+const Frame = ({ src }) => <iframe src={src} style={{width:'100%',height:'100%',border:0}} loading="lazy" />;
+
+function App(){
+  return (
+    <DesignCanvas>
+      <DCSection id="01-landings" title="01 · Landings — Direcciones de marca">
+        <DCArtboard id="land-a" label="Landing A · Producto SaaS (definitiva)" width={1280} height={900}><Frame src="OAC Landing.html"/></DCArtboard>
+        <DCArtboard id="land-b" label="Landing B · Geométrico bento" width={1280} height={900}><Frame src="OAC Landing B.html"/></DCArtboard>
+        <DCArtboard id="land-c" label="Landing C · Corporativa moderna" width={1280} height={900}><Frame src="OAC Landing C.html"/></DCArtboard>
+      </DCSection>
+
+      <DCSection id="02-acceso" title="02 · Acceso — Multi-empresa SaaS">
+        <DCArtboard id="acceso" label="Login · tabs / SSO / preview en vivo" width={1280} height={820}><Frame src="acceso.html"/></DCArtboard>
+      </DCSection>
+
+      <DCSection id="03-producto" title="03 · Producto — Dashboard, Costos &amp; Holding">
+        <DCArtboard id="dash" label="Dashboard · Financiero / Nómina / Flujo / Reserva / Bancos" width={1480} height={1100}><Frame src="dashboard.html"/></DCArtboard>
+        <DCArtboard id="costos" label="Costos · P.E. con gauge + productos + costos fijos" width={1480} height={1500}><Frame src="costos.html"/></DCArtboard>
+        <DCArtboard id="panel" label="Panel · Holding multi-empresa + roles + bitácora" width={1480} height={1500}><Frame src="panel.html"/></DCArtboard>
+      </DCSection>
+
+      <DCSection id="04-ia" title="04 · IA — Diferenciales del producto">
+        <DCArtboard id="den" label="Denuncias · dictamen IA + razonamiento auditable" width={1480} height={1200}><Frame src="denuncias.html"/></DCArtboard>
+        <DCArtboard id="trans" label="Transcripción · minuta + decisiones + pendientes" width={1480} height={1200}><Frame src="transcripcion.html"/></DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('canvas-root')).render(<App/>);
+</script>
+
+</body>
+</html>

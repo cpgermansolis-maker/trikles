@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Trikles — Trivia Financiera</title>
+<title>OAC — Trivia Financiera</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="stylesheet" href="mobile.css">
@@ -218,7 +218,7 @@ function toggleMenu(){ document.getElementById('mobileNav').classList.toggle('op
 
 const SESSION = getS();
 if (!SESSION) location.href = 'acceso.html';
-else document.getElementById('topbar-name').textContent = (SESSION.empresa || 'TRIKLES').replace(/_/g,' ').toUpperCase();
+else document.getElementById('topbar-name').textContent = (SESSION.empresa || 'OAC').replace(/_/g,' ').toUpperCase();
 
 const API = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
 function jsonp(params, timeout=10000){
@@ -350,17 +350,17 @@ const QUESTIONS = [
   },
   {
     cat:'Costos vs Gastos',
-    q:'En Trikles, los gastos fijos mensuales se configuran en:',
+    q:'En OAC, los gastos fijos mensuales se configuran en:',
     o:['La captura financiera diaria','El módulo de Costos','El panel de control','La nómina'],
     a:1,
-    exp:'El módulo de Costos es donde registras renta, luz, internet, etc. Desde ahí Trikles calcula tu P.E. automáticamente.'
+    exp:'El módulo de Costos es donde registras renta, luz, internet, etc. Desde ahí OAC calcula tu P.E. automáticamente.'
   },
   {
     cat:'Costos vs Gastos',
     q:'Si ya registraste la luz en los costos fijos y LUEGO la pagas en efectivo, debes:',
     o:['Registrarla de nuevo como gasto del día','NO registrarla como gasto — ya está contemplada','Dividirla entre dos','Ignorar el pago'],
     a:1,
-    exp:'Si la duplicas, Trikles contará la luz dos veces y tu P.E. se inflará artificialmente. Solo tómala de la Reserva.'
+    exp:'Si la duplicas, OAC contará la luz dos veces y tu P.E. se inflará artificialmente. Solo tómala de la Reserva.'
   },
 
   // ═══ CxC y CxP (6) ═══
@@ -424,7 +424,7 @@ const QUESTIONS = [
   },
   {
     cat:'Flujo de Efectivo',
-    q:'En Trikles, al cierre del día DEBES:',
+    q:'En OAC, al cierre del día DEBES:',
     o:['Contar físicamente el efectivo','Rezar para que cuadre','Solo confiar en el sistema','Reportar al jefe sin contar'],
     a:0,
     exp:'El conteo físico + comparación con el sistema es la única forma de detectar errores o faltantes a tiempo.'
@@ -489,10 +489,10 @@ const QUESTIONS = [
   },
   {
     cat:'Reserva',
-    q:'En Trikles, la reserva se captura en:',
+    q:'En OAC, la reserva se captura en:',
     o:['El dashboard','El campo "Reserva del Día" en la captura financiera','El panel admin','No existe campo'],
     a:1,
-    exp:'Cada día en la captura, el campo "Reserva del Día" indica cuánto apartas. Trikles lleva el acumulado y lo muestra en su módulo.'
+    exp:'Cada día en la captura, el campo "Reserva del Día" indica cuánto apartas. OAC lleva el acumulado y lo muestra en su módulo.'
   },
 ];
 

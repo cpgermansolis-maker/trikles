@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>OAC — Denuncias · Dictamen IA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --navy:#0E2A4E;--navy-2:#163962;--sky:#9FCDE6;--sky-2:#C9E3F1;
+    --mist:#DCE2E7;--ink:#0A1A30;--muted:#5A6A7E;--line:#E6E9EE;--paper:#FAFBFC;
+    --accent:#E07A3E;--good:#1E7F5C;--warn:#B97A1B;--bad:#9F2B1E;--purple:#7C5BD9;
+    --font-sans:'Geist',system-ui,sans-serif;
+    --font-serif:'Instrument Serif',serif;
+    --font-mono:'Geist Mono',monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;line-height:1.5}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer}
+  .mono{font-family:var(--font-mono)}
+  .serif{font-family:var(--font-serif);font-style:italic;font-weight:400}
+
+  /* TOPBAR (matches dashboard) */
+  .topbar{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
+  .tb-in{max-width:1480px;margin:0 auto;padding:11px 24px;display:flex;align-items:center;gap:24px}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo .lt{display:flex;flex-direction:column;line-height:1.02}
+  .logo .a{font-weight:600;letter-spacing:-.02em;font-size:16px}
+  .logo .b{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+  .nav{display:flex;gap:2px;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-left:18px}
+  .nav a{padding:7px 11px;color:var(--muted);border-radius:6px}
+  .nav a:hover{background:var(--paper);color:var(--ink)}
+  .nav a.on{background:var(--navy);color:#fff}
+  .tb-r{margin-left:auto;display:flex;gap:10px;align-items:center;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .tb-r .pill{padding:5px 10px;border:1px solid var(--line);border-radius:5px;display:flex;align-items:center;gap:6px}
+  .tb-r .pill i{width:6px;height:6px;border-radius:50%;background:var(--good)}
+  .tb-r .av{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+
+  /* PAGE HEADER */
+  .page-h{max-width:1480px;margin:0 auto;padding:32px 24px 0;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+  .page-h .l h1{font-size:34px;letter-spacing:-.02em;font-weight:500;line-height:1.05;margin:0 0 6px}
+  .page-h .l h1 .serif{color:var(--navy)}
+  .page-h .l p{font-size:13.5px;color:var(--muted);margin:0;max-width:520px}
+  .page-h .crumb{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;gap:8px}
+  .page-h .crumb b{color:var(--ink);font-weight:500}
+  .page-h .r{display:flex;gap:8px;align-items:center}
+  .btn{padding:10px 14px;border-radius:7px;font-size:13px;font-weight:500;letter-spacing:-.005em;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;color:var(--ink);transition:all .15s}
+  .btn:hover{background:var(--paper)}
+  .btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .btn.primary:hover{background:var(--navy-2)}
+
+  /* STATS BAR */
+  .stats{max-width:1480px;margin:24px auto 0;padding:0 24px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  @media (max-width:980px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+  .stat .l{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .stat .l i{width:7px;height:7px;border-radius:50%}
+  .stat .v{font-size:28px;letter-spacing:-.02em;font-weight:500;line-height:1;font-family:var(--font-mono)}
+  .stat .v.warn{color:var(--warn)}
+  .stat .v.bad{color:var(--bad)}
+  .stat .v.good{color:var(--good)}
+  .stat .d{font-size:11.5px;color:var(--muted);margin-top:6px}
+
+  /* MAIN GRID */
+  .main{max-width:1480px;margin:24px auto 48px;padding:0 24px;display:grid;grid-template-columns:380px 1fr;gap:18px}
+  @media (max-width:1100px){.main{grid-template-columns:1fr}}
+
+  /* LEFT — INBOX */
+  .inbox{background:#fff;border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;height:fit-content;max-height:calc(100vh - 200px);position:sticky;top:80px;overflow:hidden}
+  .ibx-h{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .ibx-h h3{font-size:14px;font-weight:600;letter-spacing:-.005em;margin:0}
+  .ibx-h .count{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+  .ibx-filter{display:flex;gap:0;padding:10px 14px;border-bottom:1px solid var(--line);font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;background:var(--paper)}
+  .ibx-filter button{background:none;border:none;padding:6px 10px;border-radius:5px;color:var(--muted);transition:all .15s}
+  .ibx-filter button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(14,42,78,.08)}
+  .ibx-search{padding:10px 14px;border-bottom:1px solid var(--line)}
+  .ibx-search input{width:100%;border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-family:inherit;font-size:13px;outline:none}
+  .ibx-search input:focus{border-color:var(--navy)}
+  .ibx-list{overflow-y:auto;flex:1}
+  .ibx-item{padding:14px 18px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .15s;display:flex;flex-direction:column;gap:6px;border-left:3px solid transparent}
+  .ibx-item:hover{background:var(--paper)}
+  .ibx-item.active{background:var(--paper);border-left-color:var(--navy)}
+  .ibx-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .ibx-id{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .ibx-time{font-family:var(--font-mono);font-size:10px;color:var(--muted)}
+  .ibx-title{font-size:13.5px;font-weight:500;letter-spacing:-.005em;color:var(--ink);line-height:1.3}
+  .ibx-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .tag{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:3px;font-weight:500}
+  .tag.cat{background:var(--sky-2);color:var(--navy)}
+  .tag.risk-high{background:rgba(159,43,30,.1);color:var(--bad)}
+  .tag.risk-med{background:rgba(185,122,27,.1);color:var(--warn)}
+  .tag.risk-low{background:rgba(30,127,92,.1);color:var(--good)}
+  .tag.status-new{background:var(--navy);color:#fff}
+  .tag.status-rev{background:#EBE3FA;color:var(--purple)}
+  .tag.status-cls{background:var(--paper);color:var(--muted);border:1px solid var(--line)}
+
+  /* RIGHT — DETAIL */
+  .detail{display:flex;flex-direction:column;gap:14px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+
+  /* Detail header */
+  .dh{padding:24px 28px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .dh .l{flex:1;min-width:280px}
+  .dh-id{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;display:flex;gap:10px;align-items:center;margin-bottom:8px}
+  .dh-id b{color:var(--ink);font-weight:500;letter-spacing:.1em}
+  .dh h2{font-size:24px;letter-spacing:-.018em;font-weight:500;line-height:1.18;margin:0 0 12px}
+  .dh-tags{display:flex;gap:6px;flex-wrap:wrap}
+  .dh .r{display:flex;gap:8px;align-items:flex-start}
+
+  /* AI dictamen — STAR */
+  .dictamen{margin:0;padding:0;background:linear-gradient(180deg,var(--navy),#1A4378);color:#fff;border-radius:0}
+  .dic-h{padding:18px 28px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.1);gap:14px;flex-wrap:wrap}
+  .dic-h .label{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.16em;color:var(--sky);text-transform:uppercase}
+  .dic-h .label .sparkle{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.12);border-radius:5px}
+  .dic-h .meta{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:#9FCDE6;text-transform:uppercase;display:flex;gap:14px}
+  .dic-body{padding:24px 28px}
+  .dic-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:28px;margin-bottom:22px}
+  @media (max-width:780px){.dic-grid{grid-template-columns:1fr}}
+  .dic-summary{font-family:var(--font-serif);font-style:italic;font-size:22px;line-height:1.32;letter-spacing:-.005em;color:#fff;margin:0 0 14px}
+  .dic-rationale{font-size:13.5px;line-height:1.55;color:#C9D5E4;margin:0}
+  .dic-side{display:flex;flex-direction:column;gap:10px}
+  .dic-metric{padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:8px}
+  .dic-metric .l{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.12em;color:#9FCDE6;text-transform:uppercase;display:flex;justify-content:space-between;margin-bottom:6px}
+  .dic-metric .v{font-size:18px;font-weight:500;letter-spacing:-.012em;color:#fff;font-family:var(--font-mono)}
+  .dic-metric .v.bad{color:#F2B5AB}
+  .dic-metric .bar{height:5px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;margin-top:7px}
+  .dic-metric .bar i{display:block;height:100%;border-radius:3px}
+  .bar.bad i{background:#E8826F}
+  .bar.med i{background:var(--accent)}
+  .bar.good i{background:#48D38B}
+
+  /* Recommended actions */
+  .recs{padding-top:18px;border-top:1px solid rgba(255,255,255,.1)}
+  .recs-h{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:#9FCDE6;text-transform:uppercase;margin-bottom:12px}
+  .rec-list{display:flex;flex-direction:column;gap:8px}
+  .rec{display:flex;gap:11px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px}
+  .rec .n{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:#9FCDE6;flex-shrink:0;padding-top:1px}
+  .rec .t{flex:1;font-size:13px;color:#E9EFF6;line-height:1.45}
+  .rec .t b{color:#fff;font-weight:500}
+  .rec-cta{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+  .btn-on-dark{background:#fff;color:var(--navy);border:none;padding:10px 14px;border-radius:7px;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:7px}
+  .btn-on-dark:hover{background:var(--sky-2)}
+  .btn-on-dark.ghost{background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.18)}
+  .btn-on-dark.ghost:hover{background:rgba(255,255,255,.1)}
+
+  /* Disclaimer */
+  .dic-foot{padding:13px 28px;background:rgba(0,0,0,.18);font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;color:#9FCDE6;text-transform:uppercase;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .dic-foot a{color:#fff;text-decoration:underline;text-decoration-style:dotted}
+
+  /* Tabs section */
+  .tabs-card{padding:0}
+  .tabs-bar{display:flex;border-bottom:1px solid var(--line);font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:var(--paper);overflow-x:auto}
+  .tabs-bar button{background:none;border:none;padding:14px 18px;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+  .tabs-bar button.on{color:var(--ink);border-bottom-color:var(--navy);background:#fff}
+  .tabs-bar button:hover:not(.on){color:var(--ink)}
+  .tab-panel{padding:24px 28px;display:none}
+  .tab-panel.on{display:block}
+
+  /* Original report */
+  .meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:18px;background:var(--paper);border:1px solid var(--line);border-radius:10px;margin-bottom:20px}
+  @media (max-width:780px){.meta-grid{grid-template-columns:repeat(2,1fr)}}
+  .meta-grid .l{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+  .meta-grid .v{font-size:14px;font-weight:500;color:var(--ink)}
+  .anon-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;background:var(--paper);border:1px solid var(--line);border-radius:5px;font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .anon-pill svg{color:var(--good)}
+
+  .narrative{font-size:14.5px;line-height:1.65;color:var(--ink);max-width:680px}
+  .narrative h4{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin:24px 0 8px;font-weight:500}
+  .narrative p{margin:0 0 12px}
+  .narrative blockquote{border-left:3px solid var(--navy);padding:8px 16px;margin:14px 0;background:var(--paper);font-family:var(--font-serif);font-style:italic;font-size:16px;line-height:1.5;color:var(--ink)}
+
+  .attachments{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+  .att{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+  .att .ic{width:32px;height:32px;border-radius:6px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--navy)}
+  .att .nm{flex:1}
+  .att .nm b{display:block;font-size:13px;font-weight:500;color:var(--ink)}
+  .att .nm span{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:2px;display:block}
+  .att-action{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:var(--navy);text-transform:uppercase;font-weight:500}
+
+  /* Timeline */
+  .timeline{position:relative;padding-left:24px}
+  .timeline::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:1px;background:var(--line)}
+  .tl-event{position:relative;padding:0 0 20px;display:grid;grid-template-columns:1fr;gap:4px}
+  .tl-event::before{content:"";position:absolute;left:-22px;top:6px;width:13px;height:13px;border-radius:50%;background:#fff;border:2px solid var(--navy)}
+  .tl-event.ai::before{border-color:var(--purple);background:var(--purple)}
+  .tl-event.user::before{border-color:var(--good);background:var(--good)}
+  .tl-event.sys::before{border-color:var(--mist);background:var(--mist)}
+  .tl-time{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .tl-actor{font-size:13px;font-weight:500;color:var(--ink)}
+  .tl-actor span{color:var(--muted);font-weight:400}
+  .tl-msg{font-size:13px;color:var(--muted);line-height:1.55;margin-top:3px}
+  .tl-msg b{color:var(--ink);font-weight:500}
+
+  /* Comments composer */
+  .composer{padding:16px;background:var(--paper);border:1px solid var(--line);border-radius:10px;margin-top:16px}
+  .composer textarea{width:100%;border:1px solid var(--line);border-radius:7px;padding:11px 13px;font-family:inherit;font-size:13.5px;outline:none;resize:vertical;min-height:80px;background:#fff}
+  .composer textarea:focus{border-color:var(--navy)}
+  .composer-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px;flex-wrap:wrap}
+  .composer-row .vis{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:6px}
+
+  /* Reasoning chain (transparency) */
+  .chain{display:flex;flex-direction:column;gap:8px}
+  .chain-step{padding:14px 16px;border:1px solid var(--line);border-radius:9px;background:#fff;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+  .chain-step .n{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+  .chain-step .t{font-size:13.5px;color:var(--ink)}
+  .chain-step .t b{font-weight:500}
+  .chain-step .o{font-family:var(--font-mono);font-size:11.5px;color:var(--navy);font-weight:500}
+  .chain-step.ok{border-color:rgba(30,127,92,.3);background:rgba(30,127,92,.04)}
+  .chain-step.ok .o{color:var(--good)}
+  .chain-step.warn{border-color:rgba(185,122,27,.3);background:rgba(185,122,27,.05)}
+  .chain-step.warn .o{color:var(--warn)}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="tb-in">
+    <a class="logo" href="dashboard.html">
+      <svg width="40" height="22" viewBox="0 0 400 220" aria-hidden="true">
+        <g style="mix-blend-mode:multiply">
+          <circle cx="110" cy="110" r="90" fill="#9FCDE6" opacity=".95"/>
+          <polygon points="200,20 290,200 110,200" fill="#D8DDE1" opacity=".85"/>
+          <path d="M220 20 a90 90 0 0 1 0 180 L290 200 L290 20 Z" fill="#0E2A4E" opacity=".92"/>
+        </g>
+      </svg>
+      <span class="lt"><span class="a">OAC</span><span class="b">Sistema</span></span>
+    </a>
+    <nav class="nav">
+      <a href="dashboard.html">Captura</a>
+      <a href="dashboard.html">Nómina</a>
+      <a href="dashboard.html">CxC</a>
+      <a href="dashboard.html">Costos</a>
+      <a href="dashboard.html">Panel</a>
+      <a href="#">IA · Transcribir</a>
+      <a href="#" class="on">Denuncias</a>
+    </nav>
+    <div class="tb-r">
+      <span class="pill"><i></i>TLAXES IND.</span>
+      <span class="av">GS</span>
+    </div>
+  </div>
+</header>
+
+<!-- PAGE HEADER -->
+<div class="page-h">
+  <div class="l">
+    <div class="crumb"><span>OAC</span><span>·</span><span>Compliance</span><span>·</span><b>Denuncias</b></div>
+    <h1>Denuncias <span class="serif">con dictamen IA.</span></h1>
+    <p>Recepción anónima, análisis preliminar automatizado y trazabilidad completa. Cumple NOM-035 y reformas anticorrupción.</p>
+  </div>
+  <div class="r">
+    <button class="btn">Exportar reporte ↓</button>
+    <button class="btn primary">+ Configurar canal</button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat"><div class="l">RECIBIDAS · ABRIL<i style="background:var(--navy)"></i></div><div class="v">14</div><div class="d">+3 vs. mes anterior</div></div>
+  <div class="stat"><div class="l">SIN DICTAMINAR<i style="background:var(--accent)"></i></div><div class="v warn">2</div><div class="d">Promedio: 4 min IA</div></div>
+  <div class="stat"><div class="l">RIESGO ALTO<i style="background:var(--bad)"></i></div><div class="v bad">3</div><div class="d">Acción inmediata</div></div>
+  <div class="stat"><div class="l">RESUELTAS<i style="background:var(--good)"></i></div><div class="v good">9</div><div class="d">Tiempo medio: 11 días</div></div>
+  <div class="stat"><div class="l">CUMPLIMIENTO<i style="background:var(--good)"></i></div><div class="v good">98%</div><div class="d">Plazo legal NOM-035</div></div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- LEFT INBOX -->
+  <aside class="inbox">
+    <div class="ibx-h">
+      <h3>Bandeja</h3>
+      <span class="count">14 ACTIVAS</span>
+    </div>
+    <div class="ibx-filter">
+      <button class="on">Todas (14)</button>
+      <button>Sin leer (5)</button>
+      <button>Alto (3)</button>
+    </div>
+    <div class="ibx-search">
+      <input type="text" placeholder="Buscar por ID, categoría, palabra clave…"/>
+    </div>
+    <div class="ibx-list">
+
+      <div class="ibx-item active">
+        <div class="ibx-row">
+          <span class="ibx-id">#DEN-2026-0142</span>
+          <span class="ibx-time">HACE 32 MIN</span>
+        </div>
+        <div class="ibx-title">Presunta manipulación de inventario en almacén central, área nocturna.</div>
+        <div class="ibx-meta">
+          <span class="tag cat">FRAUDE INTERNO</span>
+          <span class="tag risk-high">RIESGO ALTO</span>
+          <span class="tag status-new">NUEVO</span>
+        </div>
+      </div>
+
+      <div class="ibx-item">
+        <div class="ibx-row">
+          <span class="ibx-id">#DEN-2026-0141</span>
+          <span class="ibx-time">HOY · 10:14</span>
+        </div>
+        <div class="ibx-title">Comentarios despectivos reiterados de supervisor en línea de producción 3.</div>
+        <div class="ibx-meta">
+          <span class="tag cat">HOSTIGAMIENTO</span>
+          <span class="tag risk-med">RIESGO MEDIO</span>
+          <span class="tag status-rev">EN REVISIÓN</span>
+        </div>
+      </div>
+
+      <div class="ibx-item">
+        <div class="ibx-row">
+          <span class="ibx-id">#DEN-2026-0140</span>
+          <span class="ibx-time">AYER</span>
+        </div>
+        <div class="ibx-title">Posible conflicto de interés en proceso de licitación con proveedor de empaques.</div>
+        <div class="ibx-meta">
+          <span class="tag cat">ÉTICA</span>
+          <span class="tag risk-high">RIESGO ALTO</span>
+          <span class="tag status-rev">EN REVISIÓN</span>
+        </div>
+      </div>
+
+      <div class="ibx-item">
+        <div class="ibx-row">
+          <span class="ibx-id">#DEN-2026-0139</span>
+          <span class="ibx-time">22 ABR</span>
+        </div>
+        <div class="ibx-title">Falta de equipo de protección en taller de soldadura.</div>
+        <div class="ibx-meta">
+          <span class="tag cat">SEG. LABORAL</span>
+          <span class="tag risk-med">RIESGO MEDIO</span>
+          <span class="tag status-cls">RESUELTA</span>
+        </div>
+      </div>
+
+      <div class="ibx-item">
+        <div class="ibx-row">
+          <span class="ibx-id">#DEN-2026-0138</span>
+          <span class="ibx-time">21 ABR</span>
+        </div>
+        <div class="ibx-title">Discrepancia en horas pagadas vs. horas trabajadas en nómina semanal.</div>
+        <div class="ibx-meta">
+          <span class="tag cat">NÓMINA</span>
+          <span class="tag risk-low">RIESGO BAJO</span>
+          <span class="tag status-cls">RESUELTA</span>
+        </div>
+      </div>
+
+      <div class="ibx-item">
+        <div class="ibx-row">
+          <span class="ibx-id">#DEN-2026-0137</span>
+          <span class="ibx-time">18 ABR</span>
+        </div>
+        <div class="ibx-title">Solicitud de información sobre política de vacaciones (no es denuncia).</div>
+        <div class="ibx-meta">
+          <span class="tag cat">CONSULTA</span>
+          <span class="tag risk-low">N/A</span>
+          <span class="tag status-cls">CERRADA</span>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- RIGHT DETAIL -->
+  <section class="detail">
+
+    <!-- HEADER CARD -->
+    <div class="card">
+      <div class="dh">
+        <div class="l">
+          <div class="dh-id">
+            <b>#DEN-2026-0142</b>
+            <span>· RECIBIDA 25 ABR · 14:32</span>
+          </div>
+          <h2>Presunta manipulación de inventario en almacén central durante turno nocturno.</h2>
+          <div class="dh-tags">
+            <span class="tag cat">FRAUDE INTERNO</span>
+            <span class="tag risk-high">RIESGO ALTO</span>
+            <span class="tag status-new">NUEVO · SIN ASIGNAR</span>
+            <span class="anon-pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>ANÓNIMA</span>
+          </div>
+        </div>
+        <div class="r">
+          <button class="btn">Asignar →</button>
+          <button class="btn primary">Aceptar &amp; abrir caso</button>
+        </div>
+      </div>
+
+      <!-- ⭐ AI DICTAMEN -->
+      <div class="dictamen">
+        <div class="dic-h">
+          <div class="label">
+            <span class="sparkle">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.5 6.5L20 10l-6.5 1.5L12 18l-1.5-6.5L4 10l6.5-1.5L12 2z"/></svg>
+            </span>
+            DICTAMEN PRELIMINAR · GENERADO POR IA
+          </div>
+          <div class="meta">
+            <span>MODELO · CLAUDE SONNET 4.5</span>
+            <span>·</span>
+            <span>3 MIN 42 SEG</span>
+            <span>·</span>
+            <span>CONFIANZA · 87%</span>
+          </div>
+        </div>
+
+        <div class="dic-body">
+          <div class="dic-grid">
+            <div>
+              <p class="dic-summary">"La denuncia describe un patrón consistente con sustracción interna durante turnos nocturnos sin supervisión. Los detalles del modus operandi y referencias específicas a productos y montos sugieren conocimiento operativo directo del denunciante."</p>
+              <p class="dic-rationale">El relato menciona <b style="color:#fff">tres episodios concretos</b> entre el 8 y el 22 de abril, con productos identificables (SKU 4112-A y 4280-C), montos estimados (~$84,000 MXN) y un modo de operación reproducible. Coincide con discrepancias detectadas en el reporte de inventario del 23 de abril y se clasifica conforme al Art. 222 del Código Penal Federal y la NOM-035 (factor de riesgo psicosocial).</p>
+            </div>
+            <div class="dic-side">
+              <div class="dic-metric">
+                <div class="l"><span>NIVEL DE RIESGO</span><span style="color:#F2B5AB">ALTO</span></div>
+                <div class="v bad">82/100</div>
+                <div class="bar bad"><i style="width:82%"></i></div>
+              </div>
+              <div class="dic-metric">
+                <div class="l"><span>VEROSIMILITUD</span><span>ALTA</span></div>
+                <div class="v">87%</div>
+                <div class="bar good"><i style="width:87%"></i></div>
+              </div>
+              <div class="dic-metric">
+                <div class="l"><span>URGENCIA</span><span>72 H</span></div>
+                <div class="v" style="color:var(--accent)">Media</div>
+                <div class="bar med"><i style="width:60%"></i></div>
+              </div>
+              <div class="dic-metric">
+                <div class="l"><span>NORMATIVAS APLICABLES</span></div>
+                <div class="v" style="font-size:13px">CPF Art. 222 · NOM-035 · LFT Art. 47</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recommended next actions -->
+          <div class="recs">
+            <div class="recs-h">— Acciones recomendadas</div>
+            <div class="rec-list">
+              <div class="rec">
+                <span class="n">01</span>
+                <div class="t"><b>Asignar al Comité de Ética</b> en las próximas 24 h. Integrar con representante de RH y de Auditoría Interna.</div>
+              </div>
+              <div class="rec">
+                <span class="n">02</span>
+                <div class="t"><b>Solicitar al departamento de Almacén</b> el reporte de movimientos del SKU 4112-A y 4280-C entre el 1 y 25 de abril, incluyendo bitácora de accesos al sistema en horario nocturno (22:00—06:00).</div>
+              </div>
+              <div class="rec">
+                <span class="n">03</span>
+                <div class="t"><b>Revisar cámaras de seguridad</b> del almacén central correspondientes a las fechas señaladas. Conservar respaldo antes de que expire el periodo de retención (14 días).</div>
+              </div>
+              <div class="rec">
+                <span class="n">04</span>
+                <div class="t"><b>Mantener confidencialidad estricta</b> y proteger al denunciante. La identidad permanece anónima en el sistema. No notificar al área de Almacén hasta concluir la fase de verificación.</div>
+              </div>
+            </div>
+            <div class="rec-cta">
+              <button class="btn-on-dark">Aceptar dictamen &amp; iniciar caso →</button>
+              <button class="btn-on-dark ghost">Editar antes de aceptar</button>
+              <button class="btn-on-dark ghost">Solicitar segundo análisis IA</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dic-foot">
+          <span>EL DICTAMEN ES PRELIMINAR · LA DECISIÓN FINAL CORRESPONDE AL COMITÉ HUMANO</span>
+          <a href="#">Ver razonamiento paso a paso →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS CARD -->
+    <div class="card tabs-card">
+      <div class="tabs-bar">
+        <button class="on" onclick="switchTab(this,'orig')">Reporte original</button>
+        <button onclick="switchTab(this,'reasoning')">Razonamiento IA</button>
+        <button onclick="switchTab(this,'timeline')">Timeline &amp; bitácora</button>
+        <button onclick="switchTab(this,'comments')">Comité (3)</button>
+      </div>
+
+      <!-- ORIGINAL REPORT -->
+      <div class="tab-panel on" id="t-orig">
+
+        <div class="meta-grid">
+          <div><div class="l">RECIBIDA</div><div class="v">25 abr 2026 · 14:32</div></div>
+          <div><div class="l">CANAL</div><div class="v">Web · denuncias.tlaxes.mx</div></div>
+          <div><div class="l">EMPRESA</div><div class="v">Tlaxes Industrial S.A.</div></div>
+          <div><div class="l">IDIOMA / IP</div><div class="v">ES-MX · Anonimizada</div></div>
+        </div>
+
+        <div class="narrative">
+          <h4>— Categoría seleccionada por el denunciante</h4>
+          <p style="margin-bottom:18px"><b>Fraude o sustracción de bienes de la empresa</b></p>
+
+          <h4>— Relato</h4>
+          <p>Soy empleado de la empresa hace más de 4 años. He observado durante las últimas semanas un patrón inusual en el almacén central durante el turno nocturno (22:00—06:00). En al menos tres ocasiones (8, 16 y 22 de abril), después de que el supervisor de turno se retira a las 04:00, salen vehículos de la empresa con cargas que no aparecen en las salidas registradas del día siguiente.</p>
+
+          <blockquote>"Los productos son específicamente del SKU 4112-A (perfiles de aluminio) y 4280-C (rollos de cable). El monto que estimo, basado en lo que he visto cargar, está alrededor de los $84,000 pesos por episodio."</blockquote>
+
+          <p>El conductor en al menos dos ocasiones fue la misma persona, aunque no quiero dar su nombre por seguridad. He preferido no comentarlo internamente porque no estoy seguro de quién más pueda estar involucrado, y temo represalias si esto llegara a la persona equivocada.</p>
+
+          <p>Adjunto fotografías que tomé desde el estacionamiento durante el último episodio. Las he ofuscado para no comprometer mi identidad.</p>
+
+          <h4>— ¿Cómo le gustaría dar seguimiento?</h4>
+          <p>Prefiero <b>permanecer anónimo</b>. Me gustaría que la empresa investigue antes de que se vuelva más grande. Estoy dispuesto a responder preguntas adicionales por este mismo canal si las hubiera.</p>
+        </div>
+
+        <div class="attachments">
+          <div class="att">
+            <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+            <div class="nm"><b>evidencia-22-abr-01.jpg</b><span>1.4 MB · IMAGEN · METADATA REMOVIDA</span></div>
+            <span class="att-action">VER →</span>
+          </div>
+          <div class="att">
+            <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+            <div class="nm"><b>evidencia-22-abr-02.jpg</b><span>1.1 MB · IMAGEN · METADATA REMOVIDA</span></div>
+            <span class="att-action">VER →</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI REASONING -->
+      <div class="tab-panel" id="t-reasoning">
+        <div style="margin-bottom:20px">
+          <h4 style="font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin:0 0 6px;font-weight:500">— Cadena de razonamiento del modelo</h4>
+          <p style="font-size:13.5px;color:var(--muted);margin:0;line-height:1.55;max-width:620px">Cada paso es auditable. La IA solo genera dictamen preliminar — el comité humano valida y decide.</p>
+        </div>
+
+        <div class="chain">
+          <div class="chain-step ok">
+            <span class="n">01</span>
+            <div class="t"><b>Clasificación de categoría</b> — Coincide con FRAUDE INTERNO según taxonomía OAC y Código Penal Federal Art. 222.</div>
+            <span class="o">✓ MATCH</span>
+          </div>
+          <div class="chain-step ok">
+            <span class="n">02</span>
+            <div class="t"><b>Detección de anonimato</b> — No se detectaron datos personales identificables (PII). Texto limpio de nombres, IDs, ubicaciones específicas.</div>
+            <span class="o">✓ LIMPIO</span>
+          </div>
+          <div class="chain-step warn">
+            <span class="n">03</span>
+            <div class="t"><b>Análisis de verosimilitud</b> — Detalle operativo alto (SKUs, fechas, montos), patrón consistente, lenguaje no exagerado. Riesgo bajo de denuncia falsa.</div>
+            <span class="o">87%</span>
+          </div>
+          <div class="chain-step ok">
+            <span class="n">04</span>
+            <div class="t"><b>Cruce con datos del sistema</b> — Detectada discrepancia de inventario del 23 abr en módulo de Costos por $79,400. Coincide con denuncia.</div>
+            <span class="o">✓ CORRELACIÓN</span>
+          </div>
+          <div class="chain-step warn">
+            <span class="n">05</span>
+            <div class="t"><b>Evaluación de riesgo</b> — Combinación de monto + recurrencia + impacto operativo escala el riesgo a ALTO. Activa protocolo de 72 h.</div>
+            <span class="o">82/100</span>
+          </div>
+          <div class="chain-step ok">
+            <span class="n">06</span>
+            <div class="t"><b>Sugerencia de acciones</b> — Generadas con base en playbook NOM-035 + protocolo interno de fraude.</div>
+            <span class="o">4 ACCIONES</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIMELINE -->
+      <div class="tab-panel" id="t-timeline">
+        <div class="timeline">
+          <div class="tl-event sys">
+            <div class="tl-time">25 ABR · 14:32:08</div>
+            <div class="tl-actor">Sistema <span>· canal denuncias.tlaxes.mx</span></div>
+            <div class="tl-msg">Denuncia recibida. Hash anónimo asignado: <b>#DEN-2026-0142</b>. PII removida automáticamente.</div>
+          </div>
+          <div class="tl-event ai">
+            <div class="tl-time">25 ABR · 14:32:14</div>
+            <div class="tl-actor">IA · Claude Sonnet 4.5 <span>· dictamen preliminar</span></div>
+            <div class="tl-msg">Dictamen generado en 3:42 min. Riesgo: <b>ALTO</b>. Verosimilitud: <b>87%</b>. 4 acciones sugeridas.</div>
+          </div>
+          <div class="tl-event sys">
+            <div class="tl-time">25 ABR · 14:36:01</div>
+            <div class="tl-actor">Sistema <span>· notificación</span></div>
+            <div class="tl-msg">Notificación enviada al Comité de Ética: <b>g.solis</b>, <b>m.hernandez</b>, <b>l.aguilar</b>.</div>
+          </div>
+          <div class="tl-event">
+            <div class="tl-time">25 ABR · 15:04:22</div>
+            <div class="tl-actor">G. Solís <span>· Director Compliance</span></div>
+            <div class="tl-msg">Caso visualizado por primera vez. Sin acciones aún.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMMENTS -->
+      <div class="tab-panel" id="t-comments">
+        <div class="timeline">
+          <div class="tl-event user">
+            <div class="tl-time">HOY · 15:08</div>
+            <div class="tl-actor">M. Hernández <span>· Auditoría Interna</span></div>
+            <div class="tl-msg">Confirmo discrepancia en inventario del 23 abr. Pediré reporte de bitácora de accesos al sistema en horario nocturno hoy mismo.</div>
+          </div>
+          <div class="tl-event user">
+            <div class="tl-time">HOY · 15:14</div>
+            <div class="tl-actor">L. Aguilar <span>· RH</span></div>
+            <div class="tl-msg">De acuerdo con el dictamen. Sugiero NO notificar a área de Almacén hasta tener evidencia técnica del módulo de Costos.</div>
+          </div>
+          <div class="tl-event user">
+            <div class="tl-time">HOY · 15:21</div>
+            <div class="tl-actor">G. Solís <span>· Director Compliance</span></div>
+            <div class="tl-msg">Acepto el dictamen. Procedemos con las 4 acciones sugeridas. Asignaré responsables hoy.</div>
+          </div>
+        </div>
+
+        <div class="composer">
+          <textarea placeholder="Comentario interno del comité (no visible para el denunciante)…"></textarea>
+          <div class="composer-row">
+            <span class="vis">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              VISIBILIDAD: COMITÉ DE ÉTICA · 3 PERSONAS
+            </span>
+            <button class="btn primary">Publicar comentario →</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<script>
+function switchTab(btn, key){
+  document.querySelectorAll('.tabs-bar button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('t-'+key).classList.add('on');
+}
+</script>
+</body>
+</html>

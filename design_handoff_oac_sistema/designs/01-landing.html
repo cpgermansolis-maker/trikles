@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>OAC — Gestión empresarial todo-en-uno</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --navy:#0E2A4E;--navy-2:#163962;--sky:#9FCDE6;--sky-2:#C9E3F1;
+    --mist:#DCE2E7;--ink:#0A1A30;--muted:#5A6A7E;--line:#E6E9EE;--paper:#FAFBFC;
+    --accent:#E07A3E;--good:#1E7F5C;--warn:#B97A1B;--bad:#9F2B1E;
+    --font-sans:'Geist',system-ui,sans-serif;
+    --font-serif:'Instrument Serif',serif;--font-mono:'Geist Mono',monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#fff;color:var(--ink);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;line-height:1.55}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:none}
+  .mono{font-family:var(--font-mono)}
+  .serif{font-family:var(--font-serif);font-style:italic;font-weight:400}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+
+  /* NAV */
+  nav.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav-in{max-width:1280px;margin:0 auto;padding:14px 32px;display:flex;align-items:center;gap:32px}
+  .logo{display:flex;align-items:center;gap:11px}
+  .logo .lt{display:flex;flex-direction:column;line-height:1.02}
+  .logo .a{font-weight:600;letter-spacing:-.02em;font-size:18px}
+  .logo .b{font-family:var(--font-mono);font-size:9px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+  .nav-links{display:flex;gap:24px;font-size:13.5px;color:var(--muted)}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-cta{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .btn{padding:9px 16px;border-radius:7px;font-size:13.5px;font-weight:500;letter-spacing:-.005em;display:inline-flex;align-items:center;gap:7px;transition:all .15s}
+  .btn.ghost{color:var(--ink)}
+  .btn.ghost:hover{background:var(--paper)}
+  .btn.primary{background:var(--navy);color:#fff}
+  .btn.primary:hover{background:var(--navy-2)}
+  .btn.lg{padding:14px 22px;font-size:15px;border-radius:8px}
+
+  /* HERO */
+  .hero{padding:80px 0 60px;position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;top:-200px;right:-200px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(159,205,230,.4),transparent 65%);pointer-events:none}
+  .hero-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:center;position:relative;z-index:2}
+  @media (max-width:1000px){.hero-grid{grid-template-columns:1fr;gap:48px}}
+  .eyebrow{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.18em;color:var(--navy);text-transform:uppercase;margin-bottom:24px;display:inline-flex;align-items:center;gap:10px;padding:6px 12px;border:1px solid var(--mist);border-radius:99px;background:#fff}
+  .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px rgba(30,127,92,.18)}
+  h1.hero-h{font-size:64px;letter-spacing:-.028em;font-weight:500;line-height:1.04;margin:0 0 20px;color:var(--ink)}
+  h1.hero-h .em{font-family:var(--font-serif);font-style:italic;font-weight:400;color:var(--navy)}
+  .hero-p{font-size:18px;color:var(--muted);max-width:540px;line-height:1.5;margin:0 0 32px}
+  .hero-p b{color:var(--ink);font-weight:500}
+  .hero-cta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:36px}
+  .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;padding-top:28px;border-top:1px solid var(--line);max-width:540px}
+  .hero-stat .v{font-size:28px;letter-spacing:-.02em;font-weight:500;line-height:1;color:var(--navy)}
+  .hero-stat .v .em{font-family:var(--font-serif);font-style:italic;font-weight:400}
+  .hero-stat .l{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-top:6px}
+
+  /* Hero mockup */
+  .hero-mock{background:linear-gradient(135deg,var(--navy),#1A4378);border-radius:14px;padding:18px;box-shadow:0 40px 80px -30px rgba(14,42,78,.35);position:relative;overflow:hidden}
+  .hero-mock::after{content:"";position:absolute;right:-100px;top:-100px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(159,205,230,.3),transparent 60%);pointer-events:none}
+  .hm-bar{display:flex;gap:5px;margin-bottom:14px;position:relative;z-index:2}
+  .hm-bar i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.2)}
+  .hm-screen{background:#fff;border-radius:9px;overflow:hidden;position:relative;z-index:2}
+  .hm-top{padding:11px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .hm-top b{color:var(--navy)}
+  .hm-body{padding:18px}
+  .hm-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .hm-kpi{background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:10px}
+  .hm-kpi .l{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .hm-kpi .v{font-size:18px;font-weight:500;letter-spacing:-.015em;margin-top:3px}
+  .hm-kpi .v.up{color:var(--good)}
+  .hm-chart{aspect-ratio:2.6/1;background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:12px;position:relative;overflow:hidden}
+  .hm-chart svg{width:100%;height:100%}
+
+  /* TRUST STRIP */
+  .trust{padding:40px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--paper)}
+  .trust-in{display:flex;align-items:center;gap:48px;flex-wrap:wrap;justify-content:center}
+  .trust-l{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+  .trust-logos{display:flex;gap:36px;flex-wrap:wrap;align-items:center;font-family:var(--font-serif);font-style:italic;font-size:22px;color:var(--muted)}
+  .trust-logos span{opacity:.55}
+
+  /* MODULES */
+  section{padding:96px 0}
+  .sec-head{margin-bottom:56px;max-width:760px}
+  .sec-eye{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.16em;color:var(--navy);text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+  .sec-eye::before{content:"";width:24px;height:1px;background:var(--navy)}
+  .sec-h{font-size:42px;letter-spacing:-.022em;font-weight:500;line-height:1.08;margin:0 0 16px;color:var(--ink)}
+  .sec-h .em{font-family:var(--font-serif);font-style:italic;font-weight:400;color:var(--navy)}
+  .sec-p{font-size:17px;color:var(--muted);line-height:1.55;margin:0;max-width:580px}
+
+  .modules{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+  @media (max-width:900px){.modules{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:600px){.modules{grid-template-columns:1fr}}
+  .mod{padding:32px 28px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);position:relative;background:#fff;transition:background .15s}
+  .mod:hover{background:var(--paper)}
+  .mod:nth-child(3n){border-right:none}
+  @media (max-width:900px){.mod:nth-child(3n){border-right:1px solid var(--line)}.mod:nth-child(2n){border-right:none}}
+  @media (max-width:600px){.mod{border-right:none!important}}
+  .mod.star{background:linear-gradient(180deg,var(--navy),#1A4378);color:#fff}
+  .mod.star:hover{background:linear-gradient(180deg,#163962,var(--navy))}
+  .mod-num{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .mod.star .mod-num{color:var(--sky)}
+  .mod-num .pill{padding:3px 8px;border-radius:4px;background:var(--accent);color:#fff;font-weight:500;letter-spacing:.08em}
+  .mod-icon{width:44px;height:44px;border-radius:10px;background:var(--sky-2);display:flex;align-items:center;justify-content:center;color:var(--navy);margin-bottom:18px}
+  .mod.star .mod-icon{background:rgba(255,255,255,.14);color:#fff}
+  .mod h3{font-size:19px;font-weight:500;letter-spacing:-.012em;margin:0 0 8px;line-height:1.2}
+  .mod h3 .em{font-family:var(--font-serif);font-style:italic;font-weight:400;color:var(--navy)}
+  .mod.star h3 .em{color:var(--sky)}
+  .mod p{font-size:13.5px;color:var(--muted);line-height:1.55;margin:0 0 16px}
+  .mod.star p{color:#B8C4D2}
+  .mod-tags{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+  .mod-tags span{background:var(--paper);border:1px solid var(--line);padding:3px 7px;border-radius:4px;color:var(--muted)}
+  .mod.star .mod-tags span{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14);color:var(--sky)}
+
+  /* COMPARE */
+  .compare{background:var(--paper);border-radius:14px;border:1px solid var(--line);overflow:hidden}
+  .cmp-head{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;background:#fff;border-bottom:1px solid var(--line)}
+  .cmp-head > div{padding:18px 16px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+  .cmp-head .you{background:var(--navy);color:#fff}
+  .cmp-head .you b{font-family:var(--font-sans);font-size:14px;font-weight:600;letter-spacing:-.005em;display:block;margin-bottom:2px;text-transform:none;color:#fff}
+  .cmp-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;border-bottom:1px solid var(--line);font-size:13.5px}
+  .cmp-row:last-child{border-bottom:none}
+  .cmp-row > div{padding:14px 16px;display:flex;align-items:center;justify-content:center}
+  .cmp-row > div:first-child{justify-content:flex-start;color:var(--ink);font-weight:500}
+  .cmp-row .you{background:#fff;color:var(--navy);font-weight:600}
+  .cmp-yes{color:var(--good);font-size:18px}
+  .cmp-no{color:var(--mist);font-size:18px}
+  .cmp-partial{color:var(--warn);font-family:var(--font-mono);font-size:11px}
+  @media (max-width:900px){
+    .cmp-head, .cmp-row{grid-template-columns:1.4fr repeat(4,1fr);font-size:12px}
+    .cmp-head > div, .cmp-row > div{padding:10px 8px}
+  }
+
+  /* PRICING */
+  .pricing{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media (max-width:1000px){.pricing{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:580px){.pricing{grid-template-columns:1fr}}
+  .price{background:#fff;border:1px solid var(--line);border-radius:12px;padding:28px 24px;display:flex;flex-direction:column;gap:14px;position:relative;transition:all .2s}
+  .price:hover{border-color:var(--navy);transform:translateY(-3px);box-shadow:0 18px 40px -20px rgba(14,42,78,.18)}
+  .price.featured{background:linear-gradient(180deg,var(--navy),#1A4378);color:#fff;border-color:var(--navy);box-shadow:0 30px 60px -25px rgba(14,42,78,.4)}
+  .price.featured .p-tag{position:absolute;top:-12px;left:24px;background:var(--accent);color:#fff;padding:5px 10px;border-radius:5px;font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:500}
+  .p-name{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:500}
+  .p-name i{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+  .p-desc{font-size:12.5px;color:var(--muted);line-height:1.5;min-height:36px}
+  .price.featured .p-desc{color:#B8C4D2}
+  .p-price{display:flex;align-items:baseline;gap:6px;border-top:1px solid var(--line);padding-top:18px;margin-top:6px}
+  .price.featured .p-price{border-top-color:rgba(255,255,255,.18)}
+  .p-price .from{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .price.featured .p-price .from{color:var(--sky)}
+  .p-price .num{font-family:var(--font-serif);font-style:italic;font-size:38px;line-height:1;letter-spacing:-.02em;color:var(--navy);font-weight:400}
+  .price.featured .p-price .num{color:#fff}
+  .p-price .unit{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+  .price.featured .p-price .unit{color:var(--sky)}
+  .p-feats{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:9px;font-size:13px}
+  .p-feats li{display:flex;align-items:flex-start;gap:8px;line-height:1.4}
+  .p-feats li svg{flex-shrink:0;margin-top:3px;stroke:var(--good)}
+  .price.featured .p-feats li svg{stroke:var(--sky)}
+  .p-feats .neg{color:var(--muted);text-decoration:line-through}
+  .p-feats .neg svg{stroke:var(--muted);text-decoration:none}
+  .p-cta{margin-top:auto;padding:11px 16px;border-radius:7px;font-size:13.5px;font-weight:500;text-align:center;background:var(--paper);color:var(--ink);border:1px solid var(--line)}
+  .p-cta:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .price.featured .p-cta{background:#fff;color:var(--navy);border-color:#fff}
+  .price.featured .p-cta:hover{background:var(--sky)}
+
+  .price-foot{margin-top:32px;padding:20px 24px;background:var(--paper);border:1px solid var(--line);border-radius:10px;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+  .price-foot b{color:var(--ink);font-weight:500}
+
+  /* HOW IT WORKS */
+  .how{background:var(--navy);color:#fff;border-radius:18px;padding:64px;position:relative;overflow:hidden}
+  .how::before{content:"";position:absolute;top:-150px;right:-150px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(159,205,230,.18),transparent 65%)}
+  @media (max-width:700px){.how{padding:40px 28px}}
+  .how .sec-eye{color:var(--sky)}
+  .how .sec-eye::before{background:var(--sky)}
+  .how .sec-h{color:#fff}
+  .how .sec-h .em{color:var(--sky)}
+  .how .sec-p{color:#B8C4D2}
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:48px;position:relative;z-index:2}
+  @media (max-width:900px){.steps{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:500px){.steps{grid-template-columns:1fr}}
+  .step{padding:24px;border:1px solid rgba(255,255,255,.14);border-radius:10px;background:rgba(255,255,255,.04)}
+  .step-n{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--sky);margin-bottom:14px}
+  .step h4{font-size:18px;font-weight:500;letter-spacing:-.012em;margin:0 0 8px;line-height:1.2}
+  .step h4 .em{color:var(--sky)}
+  .step p{font-size:13.5px;color:#B8C4D2;line-height:1.5;margin:0}
+
+  /* FAQ */
+  .faq{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media (max-width:800px){.faq{grid-template-columns:1fr}}
+  .faq details{background:#fff;border:1px solid var(--line);border-radius:10px;padding:0;overflow:hidden;transition:border-color .15s}
+  .faq details[open]{border-color:var(--navy)}
+  .faq summary{padding:18px 22px;cursor:pointer;font-size:15px;font-weight:500;letter-spacing:-.005em;display:flex;justify-content:space-between;align-items:center;gap:14px;list-style:none;color:var(--ink)}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";font-family:var(--font-mono);font-size:20px;color:var(--muted);transition:transform .2s}
+  .faq details[open] summary::after{transform:rotate(45deg)}
+  .faq details > div{padding:0 22px 20px;font-size:14px;color:var(--muted);line-height:1.55}
+
+  /* FINAL CTA */
+  .final{text-align:center;padding:120px 0 100px}
+  .final h2{font-size:68px;letter-spacing:-.028em;font-weight:500;line-height:1.04;margin:0 0 18px;color:var(--ink)}
+  .final h2 .em{font-family:var(--font-serif);font-style:italic;font-weight:400;color:var(--navy)}
+  .final p{font-size:18px;color:var(--muted);max-width:560px;margin:0 auto 32px}
+  .final-cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .final-meta{margin-top:36px;font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+  footer{border-top:1px solid var(--line);padding:48px 0 32px;background:var(--paper)}
+  .ft-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:32px;margin-bottom:32px}
+  @media (max-width:800px){.ft-grid{grid-template-columns:1fr 1fr}}
+  .ft-h{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink);text-transform:uppercase;margin-bottom:16px;font-weight:600}
+  .ft-list{display:flex;flex-direction:column;gap:10px;font-size:13.5px;color:var(--muted)}
+  .ft-list a:hover{color:var(--ink)}
+  .ft-bot{display:flex;justify-content:space-between;padding-top:24px;border-top:1px solid var(--line);font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;flex-wrap:wrap;gap:10px}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="top">
+  <div class="nav-in">
+    <a class="logo" href="#">
+      <svg width="42" height="23" viewBox="0 0 400 220" aria-hidden="true">
+        <g style="mix-blend-mode:multiply">
+          <circle cx="110" cy="110" r="90" fill="#9FCDE6" opacity=".95"/>
+          <polygon points="200,20 290,200 110,200" fill="#D8DDE1" opacity=".85"/>
+          <path d="M220 20 a90 90 0 0 1 0 180 L290 200 L290 20 Z" fill="#0E2A4E" opacity=".92"/>
+        </g>
+      </svg>
+      <span class="lt"><span class="a">OAC</span><span class="b">Organización de apoyo</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="#modulos">Módulos</a>
+      <a href="#comparar">Comparar</a>
+      <a href="#precios">Precios</a>
+      <a href="#proceso">Cómo funciona</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a class="btn ghost" href="acceso.html">Iniciar sesión</a>
+      <a class="btn primary" href="#precios">Agendar demo</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" data-screen-label="04 Landing · Hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Software + acompañamiento · Hecho en México</span>
+      <h1 class="hero-h">Toda tu PYME, <span class="em">en un solo tablero.</span></h1>
+      <p class="hero-p">OAC integra <b>finanzas, nómina, costos, CxC/CxP, transcripción de juntas con IA</b> y <b>denuncias internas con dictamen automatizado</b>. Cumple NOM-035, cierra el ciclo de compliance y ve el negocio completo en tiempo real.</p>
+      <div class="hero-cta">
+        <a class="btn primary lg" href="#precios">Agendar demo · 30 min
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+        <a class="btn ghost lg" href="#modulos" style="border:1px solid var(--line)">Ver módulos</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="v">7 <span class="em">módulos</span></div><div class="l">Todo en uno</div></div>
+        <div class="hero-stat"><div class="v"><span class="em">−40%</span></div><div class="l">vs. 3 herramientas</div></div>
+        <div class="hero-stat"><div class="v">NOM-035</div><div class="l">Compliance listo</div></div>
+      </div>
+    </div>
+
+    <!-- mockup -->
+    <div class="hero-mock" aria-hidden="true">
+      <div class="hm-bar"><i></i><i></i><i></i></div>
+      <div class="hm-screen">
+        <div class="hm-top">
+          <span><b>OAC</b> · DASHBOARD</span>
+          <span>1—25 ABR · TLAXES IND.</span>
+        </div>
+        <div class="hm-body">
+          <div class="hm-kpis">
+            <div class="hm-kpi"><div class="l">VENTAS</div><div class="v">$1.84M</div></div>
+            <div class="hm-kpi"><div class="l">MARGEN</div><div class="v up">38.2%</div></div>
+            <div class="hm-kpi"><div class="l">P.E. LOGRO</div><div class="v up">114%</div></div>
+          </div>
+          <div class="hm-chart">
+            <svg viewBox="0 0 300 100" preserveAspectRatio="none">
+              <defs><linearGradient id="g" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#E07A3E" stop-opacity=".25"/><stop offset="1" stop-color="#E07A3E" stop-opacity="0"/></linearGradient></defs>
+              <line x1="0" y1="55" x2="300" y2="55" stroke="#0E2A4E" stroke-dasharray="4,4" stroke-width="1"/>
+              <path d="M0,80 L25,72 L50,75 L75,55 L100,60 L125,40 L150,48 L175,30 L200,38 L225,22 L250,32 L275,18 L300,25 L300,100 L0,100 Z" fill="url(#g)"/>
+              <polyline points="0,80 25,72 50,75 75,55 100,60 125,40 150,48 175,30 200,38 225,22 250,32 275,18 300,25" fill="none" stroke="#E07A3E" stroke-width="2"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- TRUST -->
+<section class="trust" style="padding:32px 0">
+  <div class="wrap trust-in">
+    <span class="trust-l">Diseñado para PYMES, holdings y despachos</span>
+    <div class="trust-logos">
+      <span>Tlaxes Industrial</span>
+      <span>Solis &amp; Asoc.</span>
+      <span>Grupo Hernández</span>
+      <span>+ 12 empresas</span>
+    </div>
+  </div>
+</section>
+
+<!-- MODULES -->
+<section id="modulos" data-screen-label="04 Landing · Módulos">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-eye">01 · Módulos</div>
+      <h2 class="sec-h">Siete módulos. <span class="em">Una sola fuente de verdad.</span></h2>
+      <p class="sec-p">Lo que antes te costaba pagar Contpaqi + Tress + Otter + EthicsPoint, ahora vive en una plataforma — con multi-empresa nativo y todo conectado.</p>
+    </div>
+    <div class="modules">
+      <div class="mod">
+        <div class="mod-num"><span>01</span><span>FINANZAS</span></div>
+        <div class="mod-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-7"/></svg></div>
+        <h3>Dashboard <span class="em">financiero</span></h3>
+        <p>Ventas, ganancia, utilidad, P.E., flujo y comparativas. Todo el período con un click.</p>
+        <div class="mod-tags"><span>P.E. Diario</span><span>Multi-empresa</span><span>Tendencias</span></div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-num"><span>02</span><span>NÓMINA</span></div>
+        <div class="mod-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg></div>
+        <h3>Nómina &amp; <span class="em">comisiones</span></h3>
+        <p>Pagos semanales, descuentos, comisiones, comparativa nómina vs ventas y ranking.</p>
+        <div class="mod-tags"><span>Semanal/Mensual</span><span>% sobre ventas</span></div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-num"><span>03</span><span>COSTOS</span></div>
+        <div class="mod-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+        <h3>Costos &amp; <span class="em">punto de equilibrio</span></h3>
+        <p>Costo fijo diario, P.E. por producto, % de logro y tendencia de productos estrella.</p>
+        <div class="mod-tags"><span>Fijos/Variables</span><span>Logro %</span></div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-num"><span>04</span><span>CXC / CXP</span></div>
+        <div class="mod-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+        <h3>Cuentas por <span class="em">cobrar y pagar</span></h3>
+        <p>Estado de cuenta, antigüedad de saldos, alertas de cobro y reserva contra deuda.</p>
+        <div class="mod-tags"><span>Reserva</span><span>Crédito</span><span>Pagos</span></div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-num"><span>05</span><span>BANCOS</span></div>
+        <div class="mod-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-7h6v7"/></svg></div>
+        <h3>Bancos &amp; <span class="em">conciliación</span></h3>
+        <p>Saldos por cuenta, conciliación contra movimientos del sistema, diferencias claras.</p>
+        <div class="mod-tags"><span>Múltiples cuentas</span><span>Conciliación</span></div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-num"><span>06</span><span>IA · TRANSCRIPCIÓN</span></div>
+        <div class="mod-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3"/></svg></div>
+        <h3>Transcripción de <span class="em">juntas</span></h3>
+        <p>Sube audio, OAC genera minuta, decisiones, pendientes y responsables. Sustituye Otter/Fireflies.</p>
+        <div class="mod-tags"><span>Claude + Gemini</span><span>Minuta auto</span></div>
+      </div>
+
+      <!-- ⭐ Star module: Denuncias -->
+      <div class="mod star" style="grid-column:span 2">
+        <div class="mod-num"><span>07 · DESTACADO</span><span class="pill">Único en MX</span></div>
+        <div class="mod-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <h3 style="font-size:24px">Denuncias internas <span class="em">con dictamen IA</span></h3>
+        <p style="font-size:14.5px;max-width:560px">Canal anónimo, recepción, clasificación, <b style="color:#fff">dictamen automatizado</b> y trazabilidad. EthicsPoint y Whispli reciben — OAC <b style="color:#fff">cierra el ciclo</b>. Cumple NOM-035 y reformas anticorrupción.</p>
+        <div class="mod-tags">
+          <span>NOM-035</span><span>Dictamen IA</span><span>Anonimato</span><span>Trazabilidad</span><span>Audit log</span>
+        </div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-num"><span>08</span><span>PANEL</span></div>
+        <div class="mod-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        <h3>Multi-empresa <span class="em">&amp; roles</span></h3>
+        <p>Hasta 5 empresas, usuarios ilimitados, roles granulares y bitácora consolidada.</p>
+        <div class="mod-tags"><span>Roles</span><span>Holdings</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section id="comparar" style="padding-top:0" data-screen-label="04 Landing · Comparación">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-eye">02 · Comparativa</div>
+      <h2 class="sec-h">Lo que antes <span class="em">eran 4 sistemas.</span></h2>
+      <p class="sec-p">Hoy tu equipo paga Contpaqi para finanzas, Tress para nómina, Otter para juntas y EthicsPoint para denuncias. OAC reemplaza los cuatro — y agrega lo que ninguno tiene.</p>
+    </div>
+
+    <div class="compare">
+      <div class="cmp-head">
+        <div>Capacidad</div>
+        <div class="you"><b>OAC</b>Todo-en-uno</div>
+        <div>Contpaqi / Aspel</div>
+        <div>Tress / Otter</div>
+        <div>EthicsPoint</div>
+      </div>
+      <div class="cmp-row"><div>Dashboard financiero en vivo</div><div class="you">●</div><div class="cmp-yes">✓</div><div class="cmp-no">—</div><div class="cmp-no">—</div></div>
+      <div class="cmp-row"><div>Nómina y comisiones</div><div class="you">●</div><div class="cmp-partial">PARCIAL</div><div class="cmp-yes">✓</div><div class="cmp-no">—</div></div>
+      <div class="cmp-row"><div>Punto de equilibrio diario</div><div class="you">●</div><div class="cmp-no">—</div><div class="cmp-no">—</div><div class="cmp-no">—</div></div>
+      <div class="cmp-row"><div>Transcripción de juntas con IA</div><div class="you">●</div><div class="cmp-no">—</div><div class="cmp-yes">✓</div><div class="cmp-no">—</div></div>
+      <div class="cmp-row"><div>Recepción de denuncias</div><div class="you">●</div><div class="cmp-no">—</div><div class="cmp-no">—</div><div class="cmp-yes">✓</div></div>
+      <div class="cmp-row"><div><b>Dictamen IA de denuncias</b></div><div class="you">●</div><div class="cmp-no">—</div><div class="cmp-no">—</div><div class="cmp-no">—</div></div>
+      <div class="cmp-row"><div>Multi-empresa nativo</div><div class="you">●</div><div class="cmp-partial">CON ADD-ON</div><div class="cmp-no">—</div><div class="cmp-no">—</div></div>
+      <div class="cmp-row"><div>Implementación &amp; soporte MX</div><div class="you">●</div><div class="cmp-yes">✓</div><div class="cmp-partial">PARCIAL</div><div class="cmp-no">—</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="precios" style="background:var(--paper)" data-screen-label="04 Landing · Pricing">
+  <div class="wrap">
+    <div class="sec-head" style="text-align:center;margin-left:auto;margin-right:auto">
+      <div class="sec-eye" style="justify-content:center">03 · Precios</div>
+      <h2 class="sec-h">Empieza chico. <span class="em">Crece sin cambiar de sistema.</span></h2>
+      <p class="sec-p" style="margin-left:auto;margin-right:auto">Renta mensual en pesos mexicanos. Sin contrato anual. Cambia de tier cuando quieras.</p>
+    </div>
+
+    <div class="pricing">
+      <div class="price">
+        <div class="p-name"><i style="background:var(--good)"></i>Starter</div>
+        <div class="p-desc">1 empresa, hasta 5 usuarios. Ideal para arrancar tu gestión sin IA.</div>
+        <div class="p-price"><span class="from">DESDE</span><span class="num">$1,800</span><span class="unit">/MES MXN</span></div>
+        <ul class="p-feats">
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Dashboard financiero</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Nómina + Costos + CxC/CxP</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 1 empresa · 5 usuarios</li>
+          <li class="neg"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Sin módulos de IA</li>
+        </ul>
+        <a class="p-cta" href="#contacto">Empezar</a>
+      </div>
+
+      <div class="price featured">
+        <span class="p-tag">★ Más vendido</span>
+        <div class="p-name"><i style="background:var(--sky)"></i>Professional</div>
+        <div class="p-desc">Usuarios ilimitados + transcripción de juntas con IA.</div>
+        <div class="p-price"><span class="from">DESDE</span><span class="num">$4,500</span><span class="unit">/MES MXN</span></div>
+        <ul class="p-feats">
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Todo de Starter</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Usuarios ilimitados</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Transcripción IA · 10h/mes</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Soporte prioritario</li>
+        </ul>
+        <a class="p-cta" href="#contacto">Agendar demo</a>
+      </div>
+
+      <div class="price">
+        <div class="p-name"><i style="background:#7C5BD9"></i>Business</div>
+        <div class="p-desc">Compliance completo: denuncias con dictamen IA + transcripción ilimitada.</div>
+        <div class="p-price"><span class="from">DESDE</span><span class="num">$8,500</span><span class="unit">/MES MXN</span></div>
+        <ul class="p-feats">
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Todo de Professional</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Denuncias con dictamen IA</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Transcripción ilimitada</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> NOM-035 ready</li>
+        </ul>
+        <a class="p-cta" href="#contacto">Hablar con ventas</a>
+      </div>
+
+      <div class="price">
+        <div class="p-name"><i style="background:var(--bad)"></i>Enterprise</div>
+        <div class="p-desc">Holdings: hasta 5 empresas, todos los módulos, SLA y soporte dedicado.</div>
+        <div class="p-price"><span class="from">DESDE</span><span class="num">$18,000</span><span class="unit">/MES MXN</span></div>
+        <ul class="p-feats">
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Hasta 5 empresas</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> SLA contractual</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Soporte dedicado</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Integraciones a medida</li>
+        </ul>
+        <a class="p-cta" href="#contacto">Cotizar</a>
+      </div>
+    </div>
+
+    <div class="price-foot">
+      <div><b>Implementación incluida</b> · onboarding 21 días · capacitación de equipo · sin costos ocultos.</div>
+      <a class="btn primary" href="#contacto">Comparar tiers a detalle →</a>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="proceso" data-screen-label="04 Landing · Proceso">
+  <div class="wrap">
+    <div class="how">
+      <div class="sec-head" style="margin-bottom:0">
+        <div class="sec-eye">04 · Proceso</div>
+        <h2 class="sec-h">De cero a operando, <span class="em">en 21 días.</span></h2>
+        <p class="sec-p">No es solo software. Es software + un consultor financiero que te acompaña hasta que tu equipo lo domine.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">DÍAS 1—5</div>
+          <h4>Diagnóstico <span class="em">inicial</span></h4>
+          <p>Levantamos catálogo de cuentas, fuentes de datos y procesos actuales. Identificamos huecos.</p>
+        </div>
+        <div class="step">
+          <div class="step-n">DÍAS 6—12</div>
+          <h4>Configuración <span class="em">a medida</span></h4>
+          <p>Cargamos tus empresas, usuarios, productos, costos fijos y conectamos bancos.</p>
+        </div>
+        <div class="step">
+          <div class="step-n">DÍAS 13—18</div>
+          <h4>Capacitación <span class="em">del equipo</span></h4>
+          <p>Sesiones grabadas + manuales + 2 talleres en vivo para finanzas, nómina y compliance.</p>
+        </div>
+        <div class="step">
+          <div class="step-n">DÍAS 19—21</div>
+          <h4>Go-live <span class="em">y handoff</span></h4>
+          <p>Operas solo con métricas en vivo. Soporte en línea + revisión a 30, 60 y 90 días.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="background:var(--paper)" data-screen-label="04 Landing · FAQ">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-eye">05 · Preguntas</div>
+      <h2 class="sec-h">Lo que <span class="em">siempre nos preguntan.</span></h2>
+    </div>
+    <div class="faq">
+      <details open>
+        <summary>¿OAC sustituye a Contpaqi o Aspel?</summary>
+        <div>Para gestión y tablero gerencial: sí. Para emisión de CFDI y contabilidad fiscal: complementa, no sustituye. Conectamos las dos cosas para que veas el negocio completo.</div>
+      </details>
+      <details>
+        <summary>¿Cómo funciona el dictamen IA de denuncias?</summary>
+        <div>Recibimos la denuncia anónima, la clasificamos por tipo, evaluamos riesgo y emitimos un dictamen preliminar con base en la NOM-035 y reformas anticorrupción. El comité humano decide al final — la IA acelera el análisis.</div>
+      </details>
+      <details>
+        <summary>¿Necesito tener todo digital ya?</summary>
+        <div>No. En el onboarding migramos lo que tengas — incluso Excel y papel. La gracia es justamente partir de donde estás y ordenar.</div>
+      </details>
+      <details>
+        <summary>¿Qué pasa si tengo más de 5 empresas?</summary>
+        <div>Plan Enterprise extendido. Cotizamos cuántas empresas, usuarios y módulos necesitas. SLA y soporte dedicado.</div>
+      </details>
+      <details>
+        <summary>¿La información está segura?</summary>
+        <div>Hosting en Google Workspace con bitácora completa, roles granulares y encripción en tránsito y reposo. Cumple controles para compliance corporativo en MX.</div>
+      </details>
+      <details>
+        <summary>¿Puedo cancelar cuando quiera?</summary>
+        <div>Sí. Renta mensual sin penalización. Te entregamos un export completo de tus datos en 5 días hábiles.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section id="contacto" class="final" data-screen-label="04 Landing · CTA final">
+  <div class="wrap">
+    <h2>Tu negocio merece <span class="em">una cabina de mando.</span></h2>
+    <p>30 minutos. Te mostramos OAC con tus números, no con datos demo. Sin compromiso.</p>
+    <div class="final-cta">
+      <a class="btn primary lg" href="mailto:gerloxsolis@gmail.com?subject=Demo%20OAC">Agendar demo →</a>
+      <a class="btn ghost lg" href="https://wa.me/5212464115513" style="border:1px solid var(--line)">WhatsApp directo</a>
+    </div>
+    <div class="final-meta">
+      <span>GERLOXSOLIS@GMAIL.COM</span>
+      <span>·</span>
+      <span>+52 1 246 411 5513</span>
+      <span>·</span>
+      <span>CDMX · TLAXCALA</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="ft-grid">
+      <div>
+        <div class="logo" style="margin-bottom:14px">
+          <svg width="40" height="22" viewBox="0 0 400 220" aria-hidden="true">
+            <g style="mix-blend-mode:multiply">
+              <circle cx="110" cy="110" r="90" fill="#9FCDE6" opacity=".95"/>
+              <polygon points="200,20 290,200 110,200" fill="#D8DDE1" opacity=".85"/>
+              <path d="M220 20 a90 90 0 0 1 0 180 L290 200 L290 20 Z" fill="#0E2A4E" opacity=".92"/>
+            </g>
+          </svg>
+          <span class="lt"><span class="a">OAC</span><span class="b">Organización de apoyo</span></span>
+        </div>
+        <p style="font-size:13px;color:var(--muted);max-width:300px;line-height:1.55">Software de gestión + acompañamiento. Más allá de las expectativas, más allá de los límites.</p>
+      </div>
+      <div>
+        <div class="ft-h">Producto</div>
+        <div class="ft-list">
+          <a href="#modulos">Módulos</a>
+          <a href="#precios">Precios</a>
+          <a href="#proceso">Proceso</a>
+          <a href="acceso.html">Iniciar sesión</a>
+        </div>
+      </div>
+      <div>
+        <div class="ft-h">Legal</div>
+        <div class="ft-list">
+          <a href="#">Términos</a>
+          <a href="#">Privacidad</a>
+          <a href="#">NOM-035</a>
+          <a href="#">Compliance</a>
+        </div>
+      </div>
+      <div>
+        <div class="ft-h">Contacto</div>
+        <div class="ft-list">
+          <a href="mailto:gerloxsolis@gmail.com">gerloxsolis@gmail.com</a>
+          <a href="https://wa.me/5212464115513">+52 1 246 411 5513</a>
+          <a href="#">CDMX · Tlaxcala</a>
+        </div>
+      </div>
+    </div>
+    <div class="ft-bot">
+      <span>© 2026 OAC · ORGANIZACIÓN DE APOYO</span>
+      <span>MÁS ALLÁ DE LAS EXPECTATIVAS · MÁS ALLÁ DE LOS LÍMITES</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

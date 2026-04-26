@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>OAC — Transcripción IA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --navy:#0E2A4E;--navy-2:#163962;--sky:#9FCDE6;--sky-2:#C9E3F1;
+    --mist:#DCE2E7;--ink:#0A1A30;--muted:#5A6A7E;--line:#E6E9EE;--paper:#FAFBFC;
+    --accent:#E07A3E;--good:#1E7F5C;--warn:#B97A1B;--bad:#9F2B1E;--purple:#7C5BD9;
+    --font-sans:'Geist',system-ui,sans-serif;
+    --font-serif:'Instrument Serif',serif;
+    --font-mono:'Geist Mono',monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;line-height:1.5}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer}
+  .mono{font-family:var(--font-mono)}
+  .serif{font-family:var(--font-serif);font-style:italic;font-weight:400}
+
+  /* TOPBAR */
+  .topbar{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
+  .tb-in{max-width:1480px;margin:0 auto;padding:11px 24px;display:flex;align-items:center;gap:24px}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo .lt{display:flex;flex-direction:column;line-height:1.02}
+  .logo .a{font-weight:600;letter-spacing:-.02em;font-size:16px}
+  .logo .b{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+  .nav{display:flex;gap:2px;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-left:18px}
+  .nav a{padding:7px 11px;color:var(--muted);border-radius:6px}
+  .nav a:hover{background:var(--paper);color:var(--ink)}
+  .nav a.on{background:var(--navy);color:#fff}
+  .tb-r{margin-left:auto;display:flex;gap:10px;align-items:center;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .tb-r .pill{padding:5px 10px;border:1px solid var(--line);border-radius:5px;display:flex;align-items:center;gap:6px}
+  .tb-r .pill i{width:6px;height:6px;border-radius:50%;background:var(--good)}
+  .tb-r .av{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+
+  /* PAGE H */
+  .page-h{max-width:1480px;margin:0 auto;padding:32px 24px 0;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+  .page-h h1{font-size:34px;letter-spacing:-.02em;font-weight:500;line-height:1.05;margin:0 0 6px}
+  .page-h h1 .serif{color:var(--navy)}
+  .page-h p{font-size:13.5px;color:var(--muted);margin:0;max-width:560px}
+  .crumb{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;gap:8px}
+  .crumb b{color:var(--ink);font-weight:500}
+  .btn{padding:10px 14px;border-radius:7px;font-size:13px;font-weight:500;letter-spacing:-.005em;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;color:var(--ink);transition:all .15s}
+  .btn:hover{background:var(--paper)}
+  .btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .btn.primary:hover{background:var(--navy-2)}
+  .btn.accent{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  /* USAGE STRIP */
+  .usage{max-width:1480px;margin:24px auto 0;padding:0 24px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+  @media (max-width:900px){.usage{grid-template-columns:repeat(2,1fr)}}
+  .ucard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:14px}
+  .ucard .l{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+  .ucard .v{font-family:var(--font-mono);font-size:22px;letter-spacing:-.015em;font-weight:500;line-height:1}
+  .ucard .v.warn{color:var(--warn)}
+  .ucard .ic{width:36px;height:36px;border-radius:8px;background:var(--sky-2);color:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+  /* MAIN */
+  .main{max-width:1480px;margin:24px auto 48px;padding:0 24px;display:grid;grid-template-columns:340px 1fr;gap:18px}
+  @media (max-width:1100px){.main{grid-template-columns:1fr}}
+
+  /* LEFT — meeting list */
+  .list{background:#fff;border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;overflow:hidden;height:fit-content;position:sticky;top:80px;max-height:calc(100vh - 200px)}
+  .list-h{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .list-h h3{font-size:14px;font-weight:600;margin:0}
+  .list-h .count{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+
+  .upload{padding:14px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#FFF,#FAFBFC)}
+  .upload-zone{border:1.5px dashed var(--line);border-radius:9px;padding:18px;text-align:center;cursor:pointer;transition:all .15s;background:var(--paper)}
+  .upload-zone:hover{border-color:var(--navy);background:#fff}
+  .upload-zone .ic{width:36px;height:36px;border-radius:8px;background:var(--navy);color:#fff;display:inline-flex;align-items:center;justify-content:center;margin-bottom:9px}
+  .upload-zone .t{font-size:13px;font-weight:500;color:var(--ink);letter-spacing:-.005em}
+  .upload-zone .h{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+
+  .filter-bar{display:flex;gap:0;padding:10px 14px;border-bottom:1px solid var(--line);font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;background:var(--paper)}
+  .filter-bar button{background:none;border:none;padding:6px 10px;border-radius:5px;color:var(--muted)}
+  .filter-bar button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(14,42,78,.08)}
+
+  .ml{overflow-y:auto;flex:1}
+  .mi{padding:14px 18px;border-bottom:1px solid var(--line);cursor:pointer;display:flex;flex-direction:column;gap:6px;border-left:3px solid transparent;transition:background .15s}
+  .mi:hover{background:var(--paper)}
+  .mi.active{background:var(--paper);border-left-color:var(--navy)}
+  .mi-row{display:flex;justify-content:space-between;gap:8px;align-items:center}
+  .mi-date{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .mi-dur{font-family:var(--font-mono);font-size:10px;color:var(--muted)}
+  .mi-title{font-size:13.5px;font-weight:500;color:var(--ink);line-height:1.3;letter-spacing:-.005em}
+  .mi-meta{display:flex;gap:6px;flex-wrap:wrap}
+  .tag{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:3px;font-weight:500}
+  .tag.ok{background:rgba(30,127,92,.1);color:var(--good)}
+  .tag.proc{background:rgba(124,91,217,.1);color:var(--purple)}
+  .tag.cat{background:var(--sky-2);color:var(--navy)}
+  .tag.warn{background:rgba(185,122,27,.1);color:var(--warn)}
+
+  /* RIGHT */
+  .detail{display:flex;flex-direction:column;gap:14px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+
+  /* Detail header */
+  .dh{padding:24px 28px;border-bottom:1px solid var(--line)}
+  .dh-row{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+  .dh-l{flex:1;min-width:280px}
+  .dh-id{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:6px;display:flex;gap:10px;align-items:center}
+  .dh-id b{color:var(--ink);font-weight:500}
+  .dh h2{font-size:24px;letter-spacing:-.018em;font-weight:500;line-height:1.18;margin:0 0 12px}
+  .dh-meta{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:var(--muted)}
+  .dh-meta b{color:var(--ink);font-weight:500}
+  .dh-cta{display:flex;gap:8px;flex-wrap:wrap}
+
+  /* Player */
+  .player{padding:14px 28px;border-bottom:1px solid var(--line);background:var(--paper);display:flex;align-items:center;gap:14px}
+  .play{width:40px;height:40px;border-radius:50%;background:var(--navy);color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+  .play:hover{background:var(--navy-2)}
+  .progress{flex:1;height:5px;background:var(--mist);border-radius:3px;overflow:hidden;position:relative;cursor:pointer}
+  .progress i{display:block;height:100%;background:var(--accent);width:34%;border-radius:3px}
+  .progress::after{content:"";position:absolute;left:34%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--accent);box-shadow:0 1px 4px rgba(14,42,78,.2)}
+  .time{font-family:var(--font-mono);font-size:11.5px;color:var(--muted)}
+  .time b{color:var(--ink)}
+  .speakers{display:flex;align-items:center;gap:6px}
+  .sp{width:24px;height:24px;border-radius:50%;border:2px solid #fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;color:#fff;letter-spacing:-.01em;font-family:var(--font-mono)}
+  .sp:not(:first-child){margin-left:-7px}
+
+  /* Tabs */
+  .tabs-bar{display:flex;border-bottom:1px solid var(--line);font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:var(--paper);overflow-x:auto}
+  .tabs-bar button{background:none;border:none;padding:14px 18px;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:7px}
+  .tabs-bar button.on{color:var(--ink);border-bottom-color:var(--navy);background:#fff}
+  .tabs-bar button .b{font-family:var(--font-sans);font-size:10px;font-weight:500;padding:1px 6px;border-radius:99px;background:var(--mist);color:var(--ink);letter-spacing:.04em}
+  .tabs-bar button.on .b{background:var(--navy);color:#fff}
+  .tab-panel{padding:28px;display:none}
+  .tab-panel.on{display:block}
+
+  /* AI Summary section */
+  .ai-block{background:linear-gradient(180deg,var(--navy),#1A4378);color:#fff;border-radius:10px;padding:24px 26px;margin-bottom:24px}
+  .ai-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+  .ai-label{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.16em;color:var(--sky);text-transform:uppercase;display:flex;align-items:center;gap:9px}
+  .ai-label .sp{width:20px;height:20px;border:none;background:rgba(255,255,255,.12);border-radius:5px;display:inline-flex;align-items:center;justify-content:center;color:#fff}
+  .ai-meta{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:#9FCDE6;text-transform:uppercase}
+  .ai-summary{font-family:var(--font-serif);font-style:italic;font-size:24px;line-height:1.32;letter-spacing:-.005em;color:#fff;margin:0 0 14px;max-width:760px}
+  .ai-detail{font-size:13.5px;color:#C9D5E4;line-height:1.6;margin:0;max-width:780px}
+  .ai-detail b{color:#fff;font-weight:500}
+
+  /* Sections */
+  .sec{margin-bottom:24px}
+  .sec-h{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin:0 0 14px;display:flex;align-items:center;gap:10px}
+  .sec-h::before{content:"";width:18px;height:1px;background:var(--ink)}
+
+  /* Decisions */
+  .decisions{display:flex;flex-direction:column;gap:9px}
+  .dec{padding:14px 16px;border:1px solid var(--line);border-radius:9px;display:flex;gap:13px;align-items:flex-start;background:#fff}
+  .dec .ic{width:28px;height:28px;border-radius:6px;background:var(--sky-2);color:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:-.02em}
+  .dec .t{flex:1;font-size:14px;color:var(--ink);line-height:1.5}
+  .dec .t b{font-weight:500}
+  .dec .ts{font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;flex-shrink:0;padding-top:5px}
+
+  /* Action items */
+  .actions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+  .act{padding:14px 16px;border:1px solid var(--line);border-radius:9px;background:#fff;display:flex;flex-direction:column;gap:9px}
+  .act-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .act .own{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted)}
+  .act .own .av{width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:600;font-family:var(--font-mono)}
+  .act .own b{color:var(--ink);font-weight:500}
+  .act .due{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;padding:3px 7px;border-radius:4px;background:var(--paper);border:1px solid var(--line)}
+  .act .due.urgent{background:rgba(159,43,30,.08);color:var(--bad);border-color:rgba(159,43,30,.2)}
+  .act .due.soon{background:rgba(185,122,27,.08);color:var(--warn);border-color:rgba(185,122,27,.2)}
+  .act .t{font-size:13.5px;color:var(--ink);line-height:1.45}
+  .act-foot{display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;padding-top:8px;border-top:1px solid var(--line)}
+  .act-foot a{color:var(--navy);font-weight:500}
+
+  /* Topics */
+  .topics{display:flex;flex-direction:column;gap:6px}
+  .topic{display:grid;grid-template-columns:auto 1fr auto;gap:14px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:#fff;align-items:center}
+  .topic .pct{font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;color:var(--muted);width:60px}
+  .topic .pct b{color:var(--navy);font-weight:500}
+  .topic .nm{font-size:13.5px;color:var(--ink)}
+  .topic .nm b{font-weight:500}
+  .topic .bar{width:160px;height:5px;background:var(--mist);border-radius:3px;overflow:hidden}
+  .topic .bar i{display:block;height:100%;background:var(--navy);border-radius:3px}
+
+  /* Transcript */
+  .transcript{display:flex;flex-direction:column;gap:14px;max-width:780px}
+  .turn{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:flex-start;padding:8px 0;border-radius:8px}
+  .turn:hover{background:var(--paper)}
+  .turn-av{width:34px;height:34px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;letter-spacing:-.02em;flex-shrink:0}
+  .turn-h{display:flex;align-items:center;gap:10px;margin-bottom:4px;flex-wrap:wrap}
+  .turn-name{font-size:13.5px;font-weight:500;color:var(--ink)}
+  .turn-time{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);letter-spacing:.04em}
+  .turn-time:hover{color:var(--navy);cursor:pointer}
+  .turn-text{font-size:14px;line-height:1.6;color:var(--ink);margin:0}
+  .turn-text mark{background:rgba(224,122,62,.18);padding:1px 3px;border-radius:3px;color:var(--ink)}
+  .turn-text .ai-tag{display:inline-flex;align-items:center;gap:4px;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;color:var(--purple);text-transform:uppercase;font-weight:500;padding:2px 6px;background:rgba(124,91,217,.08);border-radius:4px;margin-left:6px;vertical-align:middle}
+
+  /* Search bar in transcript tab */
+  .ts-search{padding:12px 0 18px;border-bottom:1px solid var(--line);margin-bottom:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .ts-search input{flex:1;min-width:200px;border:1px solid var(--line);border-radius:7px;padding:10px 14px;font-family:inherit;font-size:14px;outline:none;background:#fff}
+  .ts-search input:focus{border-color:var(--navy)}
+  .ts-search .filter{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;display:flex;gap:6px;align-items:center}
+
+  /* Insights tab */
+  .insights-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:780px){.insights-grid{grid-template-columns:1fr}}
+  .ins-card{padding:18px 20px;border:1px solid var(--line);border-radius:10px;background:#fff}
+  .ins-card h4{font-size:14px;font-weight:600;margin:0 0 4px;letter-spacing:-.005em}
+  .ins-card h4 .serif{color:var(--navy);font-weight:400}
+  .ins-card .sub{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:14px}
+  .talk-time{display:flex;flex-direction:column;gap:9px}
+  .tt{display:grid;grid-template-columns:90px 1fr 50px;gap:12px;align-items:center;font-size:13px}
+  .tt .nm{color:var(--ink)}
+  .tt .bar{height:7px;background:var(--mist);border-radius:4px;overflow:hidden}
+  .tt .bar i{display:block;height:100%;border-radius:4px}
+  .tt .pct{font-family:var(--font-mono);font-size:11.5px;color:var(--muted);text-align:right}
+
+  .sentiment{display:flex;align-items:center;gap:14px}
+  .sentiment .gauge{width:90px;height:90px;border-radius:50%;background:conic-gradient(var(--good) 0% 68%, var(--mist) 68% 100%);display:flex;align-items:center;justify-content:center;position:relative}
+  .sentiment .gauge::before{content:"";position:absolute;inset:9px;background:#fff;border-radius:50%}
+  .sentiment .gauge span{position:relative;font-family:var(--font-mono);font-size:18px;font-weight:500;color:var(--good)}
+  .sentiment .lbl{flex:1}
+  .sentiment .lbl b{font-size:14px;color:var(--ink)}
+  .sentiment .lbl span{font-size:12.5px;color:var(--muted);display:block;margin-top:4px;line-height:1.5}
+
+  .integ{display:flex;flex-direction:column;gap:8px}
+  .integ-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:7px;font-size:13px}
+  .integ-row .nm{flex:1;color:var(--ink);font-weight:500}
+  .integ-row .nm span{display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;font-weight:400;margin-top:2px}
+  .integ-row .st{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--good);text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="tb-in">
+    <a class="logo" href="dashboard.html">
+      <svg width="40" height="22" viewBox="0 0 400 220" aria-hidden="true">
+        <g style="mix-blend-mode:multiply">
+          <circle cx="110" cy="110" r="90" fill="#9FCDE6" opacity=".95"/>
+          <polygon points="200,20 290,200 110,200" fill="#D8DDE1" opacity=".85"/>
+          <path d="M220 20 a90 90 0 0 1 0 180 L290 200 L290 20 Z" fill="#0E2A4E" opacity=".92"/>
+        </g>
+      </svg>
+      <span class="lt"><span class="a">OAC</span><span class="b">Sistema</span></span>
+    </a>
+    <nav class="nav">
+      <a href="dashboard.html">Captura</a>
+      <a href="dashboard.html">Nómina</a>
+      <a href="dashboard.html">CxC</a>
+      <a href="dashboard.html">Costos</a>
+      <a href="dashboard.html">Panel</a>
+      <a href="#" class="on">IA · Transcribir</a>
+      <a href="denuncias.html">Denuncias</a>
+    </nav>
+    <div class="tb-r">
+      <span class="pill"><i></i>TLAXES IND.</span>
+      <span class="av">GS</span>
+    </div>
+  </div>
+</header>
+
+<!-- PAGE H -->
+<div class="page-h">
+  <div>
+    <div class="crumb"><span>OAC</span><span>·</span><span>IA</span><span>·</span><b>Transcripción de juntas</b></div>
+    <h1>Transcripción <span class="serif">con minuta IA.</span></h1>
+    <p>Sube el audio de tu junta y OAC genera transcripción por hablante, minuta ejecutiva, decisiones y pendientes asignados — listo para enviar al equipo.</p>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn">Cómo funciona ↗</button>
+    <button class="btn primary">+ Subir audio</button>
+  </div>
+</div>
+
+<!-- USAGE -->
+<div class="usage">
+  <div class="ucard">
+    <div>
+      <div class="l">USADO ESTE MES</div>
+      <div class="v">7.4 <span style="font-size:13px;color:var(--muted);font-weight:400"> / 10 H</span></div>
+    </div>
+    <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+  </div>
+  <div class="ucard">
+    <div>
+      <div class="l">JUNTAS ESTE MES</div>
+      <div class="v">14</div>
+    </div>
+    <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+  </div>
+  <div class="ucard">
+    <div>
+      <div class="l">PENDIENTES GENERADOS</div>
+      <div class="v">42</div>
+    </div>
+    <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+  </div>
+  <div class="ucard">
+    <div>
+      <div class="l">TIEMPO AHORRADO</div>
+      <div class="v" style="color:var(--good)">~9 H</div>
+    </div>
+    <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- LEFT — meeting list -->
+  <aside class="list">
+    <div class="list-h">
+      <h3>Juntas recientes</h3>
+      <span class="count">14 · ABRIL</span>
+    </div>
+
+    <div class="upload">
+      <div class="upload-zone">
+        <div class="ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="t">Arrastra audio o video aquí</div>
+        <div class="h">.MP3 .M4A .WAV .MP4 · HASTA 4 H</div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <button class="on">Todas (14)</button>
+      <button>Procesando (1)</button>
+      <button>Mías (8)</button>
+    </div>
+
+    <div class="ml">
+
+      <div class="mi active">
+        <div class="mi-row">
+          <span class="mi-date">HOY · 11:30</span>
+          <span class="mi-dur">52 MIN</span>
+        </div>
+        <div class="mi-title">Comité directivo Q2 — Plan de inversión almacén central</div>
+        <div class="mi-meta">
+          <span class="tag cat">DIRECCIÓN</span>
+          <span class="tag ok">● MINUTA LISTA</span>
+        </div>
+      </div>
+
+      <div class="mi">
+        <div class="mi-row">
+          <span class="mi-date">HOY · 09:00</span>
+          <span class="mi-dur">38 MIN</span>
+        </div>
+        <div class="mi-title">1:1 G. Solís + L. Aguilar — Política de bonos H1</div>
+        <div class="mi-meta">
+          <span class="tag cat">RH</span>
+          <span class="tag proc">⟳ TRANSCRIBIENDO · 78%</span>
+        </div>
+      </div>
+
+      <div class="mi">
+        <div class="mi-row">
+          <span class="mi-date">AYER</span>
+          <span class="mi-dur">1 H 12 MIN</span>
+        </div>
+        <div class="mi-title">Cierre mensual abril — Revisión de P&amp;L con M. Hernández</div>
+        <div class="mi-meta">
+          <span class="tag cat">FINANZAS</span>
+          <span class="tag ok">● MINUTA LISTA</span>
+        </div>
+      </div>
+
+      <div class="mi">
+        <div class="mi-row">
+          <span class="mi-date">23 ABR</span>
+          <span class="mi-dur">42 MIN</span>
+        </div>
+        <div class="mi-title">Reunión con proveedor Termotec — Negociación renovación</div>
+        <div class="mi-meta">
+          <span class="tag cat">PROVEEDORES</span>
+          <span class="tag ok">● MINUTA LISTA</span>
+        </div>
+      </div>
+
+      <div class="mi">
+        <div class="mi-row">
+          <span class="mi-date">22 ABR</span>
+          <span class="mi-dur">28 MIN</span>
+        </div>
+        <div class="mi-title">Revisión semanal de almacén con J. Pérez</div>
+        <div class="mi-meta">
+          <span class="tag cat">OPERACIÓN</span>
+          <span class="tag ok">● MINUTA LISTA</span>
+        </div>
+      </div>
+
+      <div class="mi">
+        <div class="mi-row">
+          <span class="mi-date">19 ABR</span>
+          <span class="mi-dur">1 H 4 MIN</span>
+        </div>
+        <div class="mi-title">Junta de Comité de Ética — Caso DEN-0140</div>
+        <div class="mi-meta">
+          <span class="tag cat">COMPLIANCE</span>
+          <span class="tag warn">🔒 CONFIDENCIAL</span>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- RIGHT — detail -->
+  <section class="detail">
+
+    <div class="card">
+      <!-- Header -->
+      <div class="dh">
+        <div class="dh-row">
+          <div class="dh-l">
+            <div class="dh-id"><b>JNT-2026-0428-CD</b><span>· 28 ABR · 11:30—12:22</span></div>
+            <h2>Comité directivo Q2 <span class="serif">— Plan de inversión almacén central.</span></h2>
+            <div class="dh-meta">
+              <span><b>52 min</b></span>
+              <span>·</span>
+              <span>4 hablantes</span>
+              <span>·</span>
+              <span>1,847 turnos</span>
+              <span>·</span>
+              <span>FUENTE · GOOGLE MEET</span>
+            </div>
+          </div>
+          <div class="dh-cta">
+            <button class="btn">Compartir →</button>
+            <button class="btn">Exportar ↓</button>
+            <button class="btn primary">Enviar minuta a equipo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Player -->
+      <div class="player">
+        <button class="play" aria-label="Reproducir">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+        <span class="time"><b>17:42</b> / 52:08</span>
+        <div class="progress" aria-label="Progreso"><i></i></div>
+        <span class="time mono">1.0×</span>
+        <div class="speakers">
+          <span class="sp" style="background:var(--navy)" title="G. Solís">GS</span>
+          <span class="sp" style="background:var(--accent)" title="M. Hernández">MH</span>
+          <span class="sp" style="background:var(--purple)" title="L. Aguilar">LA</span>
+          <span class="sp" style="background:var(--good)" title="J. Pérez">JP</span>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs-bar">
+        <button class="on" onclick="switchTab(this,'min')">Minuta IA <span class="b">★</span></button>
+        <button onclick="switchTab(this,'tx')">Transcripción <span class="b">1,847</span></button>
+        <button onclick="switchTab(this,'in')">Insights</button>
+        <button onclick="switchTab(this,'sh')">Compartir</button>
+      </div>
+
+      <!-- MINUTA -->
+      <div class="tab-panel on" id="t-min">
+
+        <div class="ai-block">
+          <div class="ai-h">
+            <span class="ai-label">
+              <span class="sp"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.5 6.5L20 10l-6.5 1.5L12 18l-1.5-6.5L4 10l6.5-1.5L12 2z"/></svg></span>
+              MINUTA EJECUTIVA · GENERADA POR IA
+            </span>
+            <span class="ai-meta">CLAUDE SONNET 4.5 · 18 SEG · 7 DECISIONES · 9 PENDIENTES</span>
+          </div>
+          <p class="ai-summary">"El comité aprueba la inversión de $2.8M para el reacondicionamiento del almacén central, con ejecución en dos fases iniciando el 15 de mayo. Se posterga la decisión sobre apertura de sucursal Puebla hasta tener el cierre fiscal de abril."</p>
+          <p class="ai-detail">La sesión se centró en <b>tres temas principales</b>: reacondicionamiento del almacén central (32% del tiempo), apertura de Puebla (24%) y revisión del flujo de efectivo de Q1 (19%). Hubo consenso fuerte alrededor de la inversión en almacén; tensión moderada sobre la velocidad de expansión geográfica. M. Hernández presentó proyecciones financieras que el comité acordó revisar en sesión extraordinaria el 6 de mayo.</p>
+        </div>
+
+        <!-- DECISIONS -->
+        <div class="sec">
+          <div class="sec-h">— Decisiones tomadas (7)</div>
+          <div class="decisions">
+            <div class="dec">
+              <span class="ic">D1</span>
+              <div class="t"><b>Aprobar inversión de $2.8M MXN</b> para reacondicionamiento de almacén central. Ejecución en dos fases. Responsable de ejecución: J. Pérez.</div>
+              <span class="ts">11:48</span>
+            </div>
+            <div class="dec">
+              <span class="ic">D2</span>
+              <div class="t"><b>Posponer decisión sobre Puebla</b> hasta sesión extraordinaria del 6 de mayo, después de tener el cierre fiscal de abril completo.</div>
+              <span class="ts">12:04</span>
+            </div>
+            <div class="dec">
+              <span class="ic">D3</span>
+              <div class="t"><b>Cambiar política de pago a proveedores</b> de 30 a 45 días para los TOP 5 proveedores, con consentimiento de cada uno antes del 15 de mayo.</div>
+              <span class="ts">12:09</span>
+            </div>
+            <div class="dec">
+              <span class="ic">D4</span>
+              <div class="t"><b>Mantener congelado el plan de bonos H1</b> hasta que se libere el reporte de utilidad neta de mayo.</div>
+              <span class="ts">12:14</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTION ITEMS -->
+        <div class="sec">
+          <div class="sec-h">— Pendientes asignados (9)</div>
+          <div class="actions-grid">
+            <div class="act">
+              <div class="act-h">
+                <div class="own"><span class="av">JP</span><b>J. Pérez</b></div>
+                <span class="due urgent">VENCE 02 MAY</span>
+              </div>
+              <div class="t">Cotizar 3 contratistas para reacondicionamiento de almacén central — fase 1.</div>
+              <div class="act-foot"><span>11:51</span><a href="#">Ver en transcripción →</a></div>
+            </div>
+            <div class="act">
+              <div class="act-h">
+                <div class="own"><span class="av" style="background:var(--accent)">MH</span><b>M. Hernández</b></div>
+                <span class="due soon">VENCE 05 MAY</span>
+              </div>
+              <div class="t">Preparar cierre fiscal de abril completo + proyección de flujo de efectivo a 90 días para sesión del 6 de mayo.</div>
+              <div class="act-foot"><span>12:05</span><a href="#">Ver en transcripción →</a></div>
+            </div>
+            <div class="act">
+              <div class="act-h">
+                <div class="own"><span class="av" style="background:var(--purple)">LA</span><b>L. Aguilar</b></div>
+                <span class="due soon">VENCE 10 MAY</span>
+              </div>
+              <div class="t">Negociar extensión de pago a 45 días con TOP 5 proveedores. Documentar en módulo CxP.</div>
+              <div class="act-foot"><span>12:10</span><a href="#">Ver en transcripción →</a></div>
+            </div>
+            <div class="act">
+              <div class="act-h">
+                <div class="own"><span class="av">GS</span><b>G. Solís</b></div>
+                <span class="due">VENCE 15 MAY</span>
+              </div>
+              <div class="t">Convocar formalmente a sesión extraordinaria del 6 de mayo. Compartir agenda 48h antes.</div>
+              <div class="act-foot"><span>12:12</span><a href="#">Ver en transcripción →</a></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TOPICS -->
+        <div class="sec">
+          <div class="sec-h">— Distribución por tema</div>
+          <div class="topics">
+            <div class="topic">
+              <span class="pct"><b>32%</b> · 17m</span>
+              <span class="nm"><b>Reacondicionamiento de almacén central</b> — fases, presupuesto, contratistas</span>
+              <div class="bar"><i style="width:32%;background:var(--navy)"></i></div>
+            </div>
+            <div class="topic">
+              <span class="pct"><b>24%</b> · 12m</span>
+              <span class="nm"><b>Apertura sucursal Puebla</b> — análisis, riesgos, postergación</span>
+              <div class="bar"><i style="width:24%;background:var(--accent)"></i></div>
+            </div>
+            <div class="topic">
+              <span class="pct"><b>19%</b> · 10m</span>
+              <span class="nm"><b>Revisión flujo de efectivo Q1</b> — desempeño, tendencias</span>
+              <div class="bar"><i style="width:19%;background:var(--purple)"></i></div>
+            </div>
+            <div class="topic">
+              <span class="pct"><b>14%</b> · 7m</span>
+              <span class="nm"><b>Política de proveedores</b> — extensión a 45 días</span>
+              <div class="bar"><i style="width:14%;background:var(--good)"></i></div>
+            </div>
+            <div class="topic">
+              <span class="pct"><b>11%</b> · 6m</span>
+              <span class="nm"><b>Otros</b> — bonos, varios, cierre</span>
+              <div class="bar"><i style="width:11%;background:var(--mist)"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRANSCRIPCIÓN -->
+      <div class="tab-panel" id="t-tx">
+        <div class="ts-search">
+          <input type="text" placeholder="Buscar en transcripción…  ej. 'almacén' · 'inversión' · 'puebla'"/>
+          <span class="filter">FILTRAR ·
+            <button class="btn" style="padding:5px 9px;font-size:11px">TODOS LOS HABLANTES ▾</button>
+          </span>
+        </div>
+
+        <div class="transcript">
+          <div class="turn">
+            <span class="turn-av" style="background:var(--navy)">GS</span>
+            <div>
+              <div class="turn-h"><span class="turn-name">G. Solís</span><span class="turn-time">11:30:14</span></div>
+              <p class="turn-text">Buenos días a todos. El primer punto de la agenda es la propuesta de inversión para el almacén central. Mauricio, antes de empezar, ¿podrías presentar el resumen financiero?</p>
+            </div>
+          </div>
+
+          <div class="turn">
+            <span class="turn-av" style="background:var(--accent)">MH</span>
+            <div>
+              <div class="turn-h"><span class="turn-name">M. Hernández</span><span class="turn-time">11:30:42</span></div>
+              <p class="turn-text">Claro. La inversión total estimada es de <mark>2.8 millones de pesos</mark> distribuidos en dos fases. La fase uno corresponde a la rehabilitación estructural por 1.6 millones, y la fase dos al sistema de racks automatizados por 1.2 millones. <span class="ai-tag">★ DECISIÓN D1</span></p>
+            </div>
+          </div>
+
+          <div class="turn">
+            <span class="turn-av" style="background:var(--good)">JP</span>
+            <div>
+              <div class="turn-h"><span class="turn-name">J. Pérez</span><span class="turn-time">11:31:28</span></div>
+              <p class="turn-text">Si me permiten, quisiera enfatizar que la fase uno es urgente. El piso del almacén tiene daños estructurales que ya identificó protección civil en su última visita. No podemos posponer esto más allá del segundo trimestre.</p>
+            </div>
+          </div>
+
+          <div class="turn">
+            <span class="turn-av" style="background:var(--navy)">GS</span>
+            <div>
+              <div class="turn-h"><span class="turn-name">G. Solís</span><span class="turn-time">11:32:05</span></div>
+              <p class="turn-text">¿Tenemos cotizaciones formales ya, o estamos sobre estimaciones?</p>
+            </div>
+          </div>
+
+          <div class="turn">
+            <span class="turn-av" style="background:var(--good)">JP</span>
+            <div>
+              <div class="turn-h"><span class="turn-name">J. Pérez</span><span class="turn-time">11:32:18</span></div>
+              <p class="turn-text">Tenemos una cotización formal de Constructora Vega y dos referencias preliminares. <mark>Me comprometo a cerrar tres cotizaciones formales antes del 2 de mayo</mark>. <span class="ai-tag">★ PENDIENTE 1</span></p>
+            </div>
+          </div>
+
+          <div class="turn">
+            <span class="turn-av" style="background:var(--purple)">LA</span>
+            <div>
+              <div class="turn-h"><span class="turn-name">L. Aguilar</span><span class="turn-time">11:33:02</span></div>
+              <p class="turn-text">Antes de aprobar, ¿estamos seguros de que no afecta el flujo de efectivo del Q3? Recordemos que también está pendiente la decisión sobre Puebla.</p>
+            </div>
+          </div>
+
+          <div class="turn">
+            <span class="turn-av" style="background:var(--accent)">MH</span>
+            <div>
+              <div class="turn-h"><span class="turn-name">M. Hernández</span><span class="turn-time">11:33:44</span></div>
+              <p class="turn-text">Esa es una pregunta importante. La proyección actual asume que ambos proyectos avanzan en paralelo y no soporta los dos. Por eso mi recomendación es <mark>postergar Puebla hasta tener el cierre de abril completo</mark>. <span class="ai-tag">★ DECISIÓN D2</span></p>
+            </div>
+          </div>
+
+          <div class="turn">
+            <span class="turn-av" style="background:var(--navy)">GS</span>
+            <div>
+              <div class="turn-h"><span class="turn-name">G. Solís</span><span class="turn-time">11:34:28</span></div>
+              <p class="turn-text">De acuerdo. Propongo entonces aprobar la inversión del almacén ahora y reservar Puebla para una sesión extraordinaria. ¿Hay objeciones?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INSIGHTS -->
+      <div class="tab-panel" id="t-in">
+        <div class="insights-grid">
+          <div class="ins-card">
+            <h4>Tiempo <span class="serif">por hablante</span></h4>
+            <div class="sub">— Distribución de participación</div>
+            <div class="talk-time">
+              <div class="tt"><span class="nm">G. Solís</span><div class="bar"><i style="width:34%;background:var(--navy)"></i></div><span class="pct">34%</span></div>
+              <div class="tt"><span class="nm">M. Hernández</span><div class="bar"><i style="width:28%;background:var(--accent)"></i></div><span class="pct">28%</span></div>
+              <div class="tt"><span class="nm">L. Aguilar</span><div class="bar"><i style="width:22%;background:var(--purple)"></i></div><span class="pct">22%</span></div>
+              <div class="tt"><span class="nm">J. Pérez</span><div class="bar"><i style="width:16%;background:var(--good)"></i></div><span class="pct">16%</span></div>
+            </div>
+          </div>
+
+          <div class="ins-card">
+            <h4>Tono <span class="serif">general</span></h4>
+            <div class="sub">— Análisis de sentimiento</div>
+            <div class="sentiment">
+              <div class="gauge"><span>+68</span></div>
+              <div class="lbl">
+                <b>Constructivo / colaborativo</b>
+                <span>Tensión leve durante el debate sobre Puebla. Cierre con consenso amplio en los 4 acuerdos clave.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ins-card" style="grid-column:span 2">
+            <h4>Integraciones <span class="serif">activas</span></h4>
+            <div class="sub">— Sincronización automática</div>
+            <div class="integ">
+              <div class="integ-row"><span class="nm">Google Calendar<span>JUNTAS DETECTADAS · MEET URLS</span></span><span class="st">● CONECTADO</span></div>
+              <div class="integ-row"><span class="nm">Google Drive<span>AUDIOS GUARDADOS · 14 ESTE MES</span></span><span class="st">● CONECTADO</span></div>
+              <div class="integ-row"><span class="nm">OAC · Pendientes<span>9 TAREAS CREADAS DE ESTA JUNTA</span></span><span class="st">● ACTIVO</span></div>
+              <div class="integ-row"><span class="nm">OAC · Compliance<span>JUNTAS DEL COMITÉ DE ÉTICA · CIFRADAS</span></span><span class="st">● ACTIVO</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPARTIR -->
+      <div class="tab-panel" id="t-sh">
+        <p style="font-size:14px;color:var(--muted);margin:0 0 18px;max-width:580px">Configura quién recibe la minuta y los pendientes asignados. Los pendientes se sincronizan automáticamente al panel de cada responsable.</p>
+        <div style="display:flex;flex-direction:column;gap:9px;max-width:560px">
+          <div class="integ-row"><span class="nm">G. Solís<span>g.solis@tlaxes.mx</span></span><span class="st">● MINUTA + 2 PENDIENTES</span></div>
+          <div class="integ-row"><span class="nm">M. Hernández<span>m.hernandez@tlaxes.mx</span></span><span class="st">● MINUTA + 3 PENDIENTES</span></div>
+          <div class="integ-row"><span class="nm">L. Aguilar<span>l.aguilar@tlaxes.mx</span></span><span class="st">● MINUTA + 2 PENDIENTES</span></div>
+          <div class="integ-row"><span class="nm">J. Pérez<span>j.perez@tlaxes.mx</span></span><span class="st">● MINUTA + 2 PENDIENTES</span></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:18px">
+          <button class="btn">+ Agregar destinatario</button>
+          <button class="btn primary">Enviar ahora →</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<script>
+function switchTab(btn, key){
+  document.querySelectorAll('.tabs-bar button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('t-'+key).classList.add('on');
+}
+</script>
+</body>
+</html>
