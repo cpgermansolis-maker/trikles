@@ -803,6 +803,141 @@ select.sel:focus {
   .kpi-exp-panel { width: calc(100vw - 32px) !important; left: 0 !important; right: auto !important; }
 }
 
+/* ════════════════════════════════════════════════════════════════
+   ▶ FASE 2 — Paso 4: Cards de gráficas + fondo body OAC
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Body — fondo blanco con tipografía Geist */
+body {
+  background: #fff;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Container principal */
+.main {
+  padding: 22px 28px 32px;
+  max-width: 1800px;
+  margin: 0 auto;
+  background: #fff;
+}
+
+/* Card de gráfica */
+.cc {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-3xl);
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 2px rgba(14,42,78,.04);
+  scroll-margin-top: 90px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow var(--t-fast), border-color var(--t-fast);
+}
+.cc:hover {
+  border-color: var(--mist);
+  box-shadow: var(--shadow-card-hover);
+}
+.cc::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--navy) 0%, var(--sky) 100%);
+}
+
+/* Header de la card */
+.cc-hdr {
+  margin-bottom: 16px;
+  gap: 12px;
+}
+.cc-ttl {
+  font-family: var(--font-sans);
+  font-size: 15.5px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  color: var(--ink);
+  text-transform: none;
+  line-height: 1.25;
+}
+.cc-sub {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 4px;
+  letter-spacing: 0;
+}
+
+/* Badges del header */
+.cc-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: rgba(14,42,78,.05);
+  border: 1px solid rgba(14,42,78,.15);
+  color: var(--navy);
+  white-space: nowrap;
+}
+.cc-badge.g { background: rgba(30,127,92,.08);  border-color: rgba(30,127,92,.25);  color: var(--good); }
+.cc-badge.b { background: rgba(14,42,78,.05);   border-color: rgba(14,42,78,.18);   color: var(--navy); }
+.cc-badge.r { background: rgba(159,43,30,.08);  border-color: rgba(159,43,30,.25);  color: var(--bad); }
+
+/* Grids de columnas */
+.g2, .g3, .g12 { gap: 16px; margin-bottom: 16px; }
+
+/* Stats list (filas dentro de algunas cards) */
+.slist { gap: 8px; }
+.srow {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 11px 14px;
+}
+.srow-l {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: 0;
+}
+.srow-v {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: -.005em;
+  color: var(--ink);
+}
+
+/* Headers de sección dentro del main (.shdr) */
+.shdr {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 10px 0 14px;
+  gap: 12px;
+}
+.shdr::after {
+  background: linear-gradient(90deg, var(--line), transparent);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .main { padding: 14px 12px 24px; }
+  .cc { padding: 16px 16px; border-radius: var(--r-2xl); }
+  .cc-ttl { font-size: 14.5px; }
+  .g2, .g3, .g12 { grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px; }
+}
+
 </style>
 <link rel="stylesheet" href="mobile.css">
 <link rel="stylesheet" href="abc.css">
