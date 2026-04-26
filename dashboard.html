@@ -483,6 +483,157 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   .tb-logo { width: 32px; height: 18px; }
 }
 
+/* ════════════════════════════════════════════════════════════════
+   ▶ FASE 2 — Paso 2: TABS + FILTROS OAC
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Pestañas de módulo (Financiero / Nómina / Flujo / Reserva / Bancos) */
+.mod-tabs {
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 28px;
+  gap: 6px;
+  font-family: var(--font-sans);
+}
+.mtab {
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  padding: 9px 18px;
+  border-radius: var(--r-lg);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -.005em;
+  transition: all var(--t-fast);
+}
+.mtab:hover:not(.active) {
+  border-color: var(--navy);
+  color: var(--navy);
+  background: #fff;
+}
+.mtab.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 12px -6px rgba(14,42,78,.4);
+}
+.mtab-link { display: inline-flex; align-items: center; }
+
+/* Barra de filtros de fecha */
+.filter-bar {
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  padding: 12px 28px;
+  gap: 12px;
+  font-family: var(--font-sans);
+}
+.fl {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.filter-btns { gap: 6px; }
+.fb {
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 6px 12px;
+  border-radius: var(--r-md);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -.005em;
+  transition: all var(--t-fast);
+}
+.fb:hover {
+  background: var(--paper);
+  border-color: var(--navy);
+  color: var(--navy);
+}
+.fb.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Inputs de fecha */
+input[type=date] {
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 6px 10px;
+  border-radius: var(--r-md);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--t-fast);
+}
+input[type=date]:focus {
+  outline: none;
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(14,42,78,.08);
+}
+.dr { gap: 8px; }
+.dr > span { color: var(--muted); }
+
+/* Botón Aplicar */
+.btn-apply {
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  padding: 7px 14px;
+  border-radius: var(--r-md);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -.005em;
+  transition: background var(--t-fast);
+}
+.btn-apply:hover { background: var(--navy-2); }
+
+/* Info de filtro (a la derecha) */
+.filter-info {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: var(--good);
+}
+
+/* Selects (año, empresa) */
+select.sel {
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 6px 10px;
+  border-radius: var(--r-md);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--t-fast);
+}
+select.sel:focus {
+  outline: none;
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(14,42,78,.08);
+}
+
+/* Mobile filtros */
+@media (max-width: 768px) {
+  .mod-tabs { padding: 10px 12px; gap: 4px; }
+  .mtab { padding: 7px 14px; font-size: 12.5px; }
+  .filter-bar { padding: 10px 12px; gap: 8px; }
+  .fb { padding: 5px 10px; font-size: 11.5px; }
+}
+
 </style>
 <link rel="stylesheet" href="mobile.css">
 <link rel="stylesheet" href="abc.css">
