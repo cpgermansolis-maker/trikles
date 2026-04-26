@@ -23,7 +23,7 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
 /* TOPBAR */
 .topbar{background:linear-gradient(135deg,#080808,#161616);border-bottom:3px solid var(--red);display:flex;align-items:center;justify-content:space-between;padding:12px 28px;position:sticky;top:0;z-index:300}
 .topbar-left{display:flex;align-items:center;gap:14px}
-.topbar-logo{height:44px}
+.topbar-logo{height:44px;width:auto;max-width:130px;object-fit:contain;}
 .topbar-name{font-size:22px;letter-spacing:4px;color:var(--red);font-weight:800}
 .topbar-sub{font-size:10px;color:var(--gray);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
 .topbar-right{display:flex;align-items:center;gap:10px}
@@ -353,7 +353,7 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
   .topbar-right > .btn-nav,.topbar-right > .btn-out{display:none}
   .topbar{padding:10px 14px}
   .topbar-name{font-size:15px;letter-spacing:2px}
-  .topbar-logo{height:32px}
+  .topbar-logo{height:34px;max-width:90px;}
   .main{padding:16px 12px}
   .ent-row{grid-template-columns:30px 1fr;gap:10px}
   .ent-act{grid-column:2;justify-content:flex-start}
@@ -403,7 +403,7 @@ body{
   box-shadow:0 1px 0 rgba(14,42,78,.04);
   padding:14px 28px;
 }
-.topbar-logo{width:42px;height:23px;filter:none;}
+.topbar-logo{height:44px;width:auto;max-width:130px;object-fit:contain;filter:none;}
 .topbar-name{
   font-family:var(--font-sans);
   font-size:18px;font-weight:600;letter-spacing:-.02em;
@@ -808,7 +808,7 @@ body{
   .topbar{padding:12px 14px;}
   .topbar-name{font-size:15px;letter-spacing:-.01em;}
   .topbar-sub{font-size:8px;letter-spacing:.14em;}
-  .topbar-logo{width:32px;height:18px;}
+  .topbar-logo{height:34px;max-width:90px;}
 }
 </style>
 <link rel="stylesheet" href="mobile.css">
