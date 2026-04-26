@@ -355,9 +355,12 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   padding: 14px 28px;
   font-family: var(--font-sans);
 }
-.tb-left { gap: 11px; }
+.tb-left { gap: 14px; }
 .tb-logo {
-  width: 42px; height: 23px;
+  height: 44px;
+  width: auto;
+  max-width: 130px;
+  object-fit: contain;
   filter: none;
 }
 .tb-name {
@@ -505,7 +508,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   .topbar { padding: 12px 16px; }
   .tb-name { font-size: 15px; letter-spacing: -.01em; }
   .tb-sub  { font-size: 8px; letter-spacing: .14em; }
-  .tb-logo { width: 32px; height: 18px; }
+  .tb-logo { height: 34px; max-width: 90px; }
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -1868,7 +1871,7 @@ body {
 </div><!-- /main -->
 
 <!-- Panel flotante KPI (único, se reutiliza para todos) -->
-<div id="kpiFloatPanel" style="display:none;position:fixed;background:#1a1a2e;border:1px solid rgba(245,130,31,.4);border-radius:12px;padding:16px;width:280px;font-size:13px;line-height:1.7;color:#ccc;z-index:999999;box-shadow:0 12px 40px rgba(0,0,0,.9)">
+<div id="kpiFloatPanel" style="display:none;position:fixed;background:#fff;border:1px solid #E6E9EE;border-radius:14px;padding:16px 18px;width:300px;font-family:'Geist',system-ui,sans-serif;font-size:12.5px;line-height:1.6;color:#0A1A30;z-index:999999;box-shadow:0 20px 60px -20px rgba(14,42,78,.4)">
   <div id="kpiFloatContent"></div>
 </div>
 
