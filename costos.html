@@ -713,6 +713,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
   if(topEmp) topEmp.textContent = SESSION.empresa || 'OAC';
   document.getElementById('ui_empresa_sub').textContent = SESSION.empresa + ' — configuración de gastos recurrentes para el cálculo del P.E.';
 
+  // Cargar nombre + logo real de la empresa
+  applyEmpresaBranding(SESSION.empresa);
+
   const hoy = new Date();
   MES_ACTIVO  = hoy.getMonth() + 1;
   ANIO_ACTIVO = hoy.getFullYear();
@@ -1072,6 +1075,33 @@ function renderHistorial() {
 function toggleMenu(){
   document.getElementById('mobileNav').classList.toggle('open');
   document.getElementById('hamburgerBtn').classList.toggle('open');
+}
+
+// ── Branding por empresa: nombre completo + logo ──
+async function applyEmpresaBranding(empresaId){
+  if(!empresaId) return;
+  try{
+    const r = await jsonp({action:'getEmpresas'});
+    if(!r || !r.success || !r.data) return;
+    const emp = r.data.find(e => (e.id||'').toLowerCase() === empresaId.toLowerCase());
+    if(!emp) return;
+    const nombre = emp.nombre || empresaId;
+    const tb = document.getElementById('topbar_empresa');
+    if(tb) tb.textContent = nombre;
+    const sub = document.getElementById('ui_empresa_sub');
+    if(sub) sub.textContent = nombre + ' — configuración de gastos recurrentes para el cálculo del P.E.';
+    if(emp.logo){
+      const logoEl = document.getElementById('topbar-logo');
+      if(logoEl && logoEl.tagName && logoEl.tagName.toLowerCase() === 'svg'){
+        const img = document.createElement('img');
+        img.id = 'topbar-logo';
+        img.className = logoEl.getAttribute('class') || '';
+        img.src = emp.logo;
+        img.alt = nombre;
+        logoEl.parentNode.replaceChild(img, logoEl);
+      }
+    }
+  }catch(e){console.warn('branding costos:', e);}
 }
 
 </script>

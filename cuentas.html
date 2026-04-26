@@ -1021,8 +1021,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     const mn=document.getElementById('mNavNomina');if(mn)mn.style.display='inline-flex';
   }
 
+  // Cargar nombre + logo real de la empresa
+  applyEmpresaBranding(SESSION.empresa);
+
   await Promise.all([cargarClientes(), cargarOtros()]);
 });
+
+// ── Branding por empresa: nombre completo + logo ──
+async function applyEmpresaBranding(empresaId){
+  if(!empresaId) return;
+  try{
+    const r = await jsonp({action:'getEmpresas'});
+    if(!r || !r.success || !r.data) return;
+    const emp = r.data.find(e => (e.id||'').toLowerCase() === empresaId.toLowerCase());
+    if(!emp) return;
+    const nombre = emp.nombre || empresaId;
+    // Nombre completo en topbar
+    const tb = document.getElementById('topbar-empresa');
+    if(tb) tb.textContent = nombre;
+    // Logo: si la empresa tiene logo, reemplaza el SVG OAC por <img>
+    if(emp.logo){
+      const logoEl = document.querySelector('.topbar-svg-logo');
+      if(logoEl && logoEl.tagName && logoEl.tagName.toLowerCase() === 'svg'){
+        const img = document.createElement('img');
+        img.className = logoEl.getAttribute('class') || '';
+        img.src = emp.logo;
+        img.alt = nombre;
+        logoEl.parentNode.replaceChild(img, logoEl);
+      }
+    }
+  }catch(e){console.warn('branding cuentas:', e);}
+}
 
 function toggleMenu(){
   document.getElementById('mobileNav').classList.toggle('open');
