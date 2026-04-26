@@ -1,37 +1,40 @@
 /* abc.css — El ABC de la Gestión OAC
-   Modal educativo con 5 pasos. Compartido por dashboard.html y registro.html */
+   Modal educativo con 5 pasos. Compartido por dashboard.html y registro.html
+   Migrado al sistema OAC (navy/sky/paper) — 2026-04-26 */
 
 /* ── Botón disparador ── */
 .btn-abc {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  background: linear-gradient(135deg, #F5821F 0%, #ff9a44 100%);
+  gap: 8px;
+  background: var(--navy, #0E2A4E);
   color: #fff;
   border: none;
-  padding: 12px 22px;
-  border-radius: 10px;
-  font-family: 'Bebas Neue', 'Rajdhani', sans-serif;
-  font-size: 16px;
-  letter-spacing: 2px;
-  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 7px;
+  font-family: var(--font-sans, 'Geist', system-ui, sans-serif);
+  font-size: 13px;
+  letter-spacing: -.005em;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(245,130,31,.35);
-  transition: transform .15s, box-shadow .15s;
+  box-shadow: 0 4px 14px -6px rgba(14,42,78,.4);
+  transition: background .15s ease, transform .15s ease, box-shadow .15s ease;
   text-decoration: none;
 }
 .btn-abc:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(245,130,31,.5);
+  background: #163962;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px -6px rgba(14,42,78,.5);
 }
-.btn-abc .abc-ico { font-size: 18px; }
+.btn-abc .abc-ico { font-size: 15px; }
 
 /* ── Overlay ── */
 .abc-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.85);
+  background: rgba(14,42,78,.55);
+  backdrop-filter: blur(4px);
   z-index: 9000;
   align-items: center;
   justify-content: center;
@@ -42,49 +45,66 @@
 
 /* ── Caja del modal ── */
 .abc-box {
-  background: #1a1a2e;
-  border: 1px solid rgba(245,130,31,.4);
-  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #E6E9EE;
+  border-radius: 14px;
   max-width: 960px;
   width: 100%;
-  padding: 30px 28px 24px;
+  padding: 32px 28px 26px;
   max-height: 92vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 20px 60px rgba(0,0,0,.6);
+  box-shadow: 0 20px 60px -20px rgba(14,42,78,.4);
+}
+.abc-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  background: linear-gradient(90deg, #0E2A4E 0%, #9FCDE6 100%);
 }
 
 .abc-close {
   position: absolute;
   top: 14px;
   right: 14px;
-  width: 36px;
-  height: 36px;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.12);
-  color: #e0e0e0;
-  font-size: 18px;
+  width: 32px;
+  height: 32px;
+  background: #FAFBFC;
+  border: 1px solid #E6E9EE;
+  color: #5A6A7E;
+  font-size: 14px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: .15s;
+  transition: .15s ease;
 }
-.abc-close:hover { background: rgba(255,255,255,.12); color: #fff; }
+.abc-close:hover { background: #0E2A4E; border-color: #0E2A4E; color: #fff; }
 
 .abc-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 30px;
-  letter-spacing: 4px;
-  color: #F5821F;
+  font-family: var(--font-sans, 'Geist', system-ui, sans-serif);
+  font-size: 24px;
+  letter-spacing: -.02em;
+  font-weight: 600;
+  color: #0A1A30;
   text-align: center;
   margin-bottom: 6px;
-  line-height: 1.1;
+  line-height: 1.15;
+}
+.abc-title em {
+  font-family: var(--font-serif, 'Instrument Serif', Georgia, serif);
+  font-style: italic;
+  font-weight: 400;
+  color: #0E2A4E;
 }
 .abc-sub {
+  font-family: var(--font-sans, 'Geist', system-ui, sans-serif);
   font-size: 13px;
-  color: #888;
+  color: #5A6A7E;
   text-align: center;
   margin-bottom: 26px;
 }
@@ -97,59 +117,73 @@
 }
 
 .abc-card {
-  background: #12121f;
-  border: 1px solid rgba(255,255,255,.06);
-  border-left: 4px solid var(--abc-col, #F5821F);
+  background: #FAFBFC;
+  border: 1px solid #E6E9EE;
+  border-left: 4px solid var(--abc-col, #0E2A4E);
   border-radius: 12px;
-  padding: 18px 20px;
+  padding: 20px 22px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  transition: transform .15s, border-color .15s;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
 }
-.abc-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.12); border-left-color: var(--abc-col); }
+.abc-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -16px rgba(14,42,78,.18);
+  background: #fff;
+}
 
 .abc-letter {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 56px;
+  font-family: var(--font-sans, 'Geist', system-ui, sans-serif);
+  font-size: 44px;
   line-height: 1;
-  color: var(--abc-col, #F5821F);
-  text-shadow: 0 0 20px color-mix(in srgb, var(--abc-col) 40%, transparent);
+  font-weight: 600;
+  letter-spacing: -.04em;
+  color: var(--abc-col, #0E2A4E);
 }
 .abc-step-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 17px;
-  letter-spacing: 1px;
-  color: #e0e0e0;
-  line-height: 1.15;
+  font-family: var(--font-sans, 'Geist', system-ui, sans-serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -.005em;
+  color: #0A1A30;
+  line-height: 1.25;
 }
 .abc-step-desc {
+  font-family: var(--font-sans, 'Geist', system-ui, sans-serif);
   font-size: 13px;
-  line-height: 1.6;
-  color: #aaa;
+  line-height: 1.55;
+  color: #5A6A7E;
   flex: 1;
 }
 .abc-step-btn {
   margin-top: 4px;
-  background: rgba(245,130,31,.12);
-  border: 1px solid rgba(245,130,31,.4);
-  color: #F5821F;
+  background: #fff;
+  border: 1px solid #E6E9EE;
+  color: #0A1A30;
   padding: 9px 14px;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 12px;
-  letter-spacing: .5px;
+  border-radius: 6px;
+  font-family: var(--font-sans, 'Geist', system-ui, sans-serif);
+  font-weight: 500;
+  font-size: 12.5px;
+  letter-spacing: -.005em;
   text-decoration: none;
   text-align: center;
-  transition: .15s;
+  transition: .15s ease;
 }
-.abc-step-btn:hover { background: rgba(245,130,31,.25); }
+.abc-step-btn:hover {
+  background: var(--abc-col, #0E2A4E);
+  border-color: var(--abc-col, #0E2A4E);
+  color: #fff;
+}
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .abc-box { padding: 22px 18px; max-height: 95vh; }
-  .abc-title { font-size: 22px; letter-spacing: 2px; }
+  .abc-box { padding: 24px 20px; max-height: 95vh; }
+  .abc-title { font-size: 20px; }
+  .abc-sub { font-size: 12px; margin-bottom: 20px; }
   .abc-grid { grid-template-columns: 1fr; }
-  .btn-abc { padding: 10px 16px; font-size: 14px; letter-spacing: 1px; }
-  .btn-abc .abc-ico { font-size: 16px; }
+  .abc-letter { font-size: 38px; }
+  .btn-abc { padding: 9px 14px; font-size: 12.5px; }
+  .btn-abc .abc-ico { font-size: 14px; }
 }
