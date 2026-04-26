@@ -20,6 +20,18 @@ if (localStorage.getItem('nomina_version') !== _v) {
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="oac-tokens.css">
 <style>
+/* Remap de legacy CSS vars usados en inline styles del HTML/JS */
+:root {
+  --orange: #E07A3E;            /* → accent (overridable por branding) */
+  --orange2: rgba(224,122,62,.8);
+  --green: #1E7F5C;             /* → good */
+  --red: #9F2B1E;               /* → bad */
+  --blue: #0E2A4E;              /* → navy */
+  --yellow: #B97A1B;            /* → warn */
+  --gray: #5A6A7E;              /* → muted */
+  --light: #5A6A7E;
+  --border: #E6E9EE;            /* → line */
+}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{
   font-family:var(--font-sans);
