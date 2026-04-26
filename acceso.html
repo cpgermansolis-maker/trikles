@@ -353,23 +353,11 @@
   <div class="login-right">
     <div class="login-card-oac">
 
-      <div class="session-banner" id="sessionBanner">
-        <span id="sessionText">Sesión activa</span>
-        <button onclick="cerrarSesion()">✕ Cerrar sesión</button>
-      </div>
-
       <div class="form-eye">Acceso</div>
       <h2 class="form-h">Inicia sesión <span class="em">en OAC</span></h2>
       <p class="form-sub">Usa tu usuario asignado por tu administrador.</p>
 
       <div class="err-msg" id="errMsg"></div>
-
-      <div class="field-grp">
-        <label for="empresaSelect">Empresa</label>
-        <select id="empresaSelect">
-          <option value="">— Selecciona empresa —</option>
-        </select>
-      </div>
 
       <div class="field-grp">
         <label for="inputUser">Usuario</label>
@@ -644,12 +632,11 @@ document.getElementById('btnLogin').addEventListener('click', function(e) {
 });
 
 // ══════════════════════════════════════════════════════════
-// INIT
+// INIT — Siempre arrancar limpio: borra cualquier sesión previa
 // ══════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  checkExistingSession();
+  clearSession();
   document.getElementById('inputUser').focus();
-  cargarEmpresas();
 });
 
 // Navegación con cache-busting automático
