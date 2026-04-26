@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Trikles — Juegos</title>
+<title>OAC — Juegos</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="stylesheet" href="mobile.css">
@@ -139,7 +139,7 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--light);m
 <main class="game-main">
   <a href="juegos.html" class="btn-back-inline">← Volver a Juegos</a>
   <div class="game-title-box">
-    <div class="game-title">🎮 TETRIS TRIKLES</div>
+    <div class="game-title">🎮 TETRIS OAC</div>
     <div class="game-sub">Completa líneas y desbloquea gráficas de tu negocio</div>
   </div>
 
@@ -208,7 +208,7 @@ function toggleMenu(){ document.getElementById('mobileNav').classList.toggle('op
 const SESSION = getS();
 if (!SESSION) { location.href = 'acceso.html'; }
 
-document.getElementById('topbar-name').textContent = (SESSION?.empresa || 'TRIKLES').replace(/_/g,' ').toUpperCase();
+document.getElementById('topbar-name').textContent = (SESSION?.empresa || 'OAC').replace(/_/g,' ').toUpperCase();
 
 const API = 'https://script.google.com/macros/s/AKfycbzPY1Wz75vD38aK6NMMDG6HdMAUWcpg9SGGUTOm2AvoA7LWZuw3iRlhnC4MmlcGRBg9Hw/exec';
 function jsonp(params, timeout=10000){

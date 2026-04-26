@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>OAC — Arquitectura financiera para PYMES</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="description" content="OAC — Arquitectura financiera para PYMES. Tres formas, una decisión: el tablero que tu negocio necesita para crecer sobre números reales."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --navy:#0E2A4E;
+    --navy-2:#163962;
+    --navy-3:#1F4C7F;
+    --sky:#9FCDE6;
+    --sky-2:#C9E3F1;
+    --mist:#DCE2E7;
+    --ink:#0A1A30;
+    --muted:#5A6A7E;
+    --line:#E6E9EE;
+    --line-2:#F0F2F5;
+    --paper:#FAFBFC;
+    --white:#FFFFFF;
+    --success:#2DAA69;
+
+    --font-sans:'Geist',system-ui,-apple-system,sans-serif;
+    --font-serif:'Instrument Serif',Georgia,serif;
+    --font-mono:'Geist Mono',ui-monospace,monospace;
+
+    --ease:cubic-bezier(.2,.8,.2,1);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;font-feature-settings:"ss01","cv11";line-height:1.5}
+  .mono{font-family:var(--font-mono)}
+  .serif{font-family:var(--font-serif);font-style:italic;font-weight:400;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  button{font-family:var(--font-sans);cursor:pointer;border:none;background:none;color:inherit}
+
+  .container{max-width:1320px;margin:0 auto;padding:0 48px}
+  @media (max-width:900px){.container{padding:0 20px}}
+
+  /* ===== Header ===== */
+  .hdr{padding:20px 0;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+  .hdr-in{display:flex;justify-content:space-between;align-items:center;gap:24px}
+  .logo{display:flex;align-items:center;gap:12px}
+  .logo .lt{line-height:1.02;display:flex;flex-direction:column}
+  .logo .lt .a{font-weight:600;letter-spacing:-.02em;font-size:17px;color:var(--ink);display:block}
+  .logo .lt .b{font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-top:3px;display:block}
+  nav.main{display:flex;gap:28px;font-size:13px}
+  nav.main a{color:var(--ink);opacity:.8;transition:opacity .2s}
+  nav.main a:hover{opacity:1}
+  .btn-cta{background:var(--ink);color:#fff;padding:10px 14px;border-radius:4px;font-family:var(--font-mono);font-size:12px;letter-spacing:.04em;cursor:pointer;transition:background .2s}
+  .btn-cta:hover{background:var(--navy)}
+  .burger{display:none;width:40px;height:40px;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:4px}
+  @media (max-width:900px){nav.main,.btn-cta-hdr{display:none}.burger{display:flex}}
+
+  /* ===== Hero Grid (Bento) ===== */
+  .bento{display:grid;grid-template-columns:repeat(12,1fr);grid-auto-rows:110px;gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
+  .cell{background:#fff;position:relative;overflow:hidden}
+  .cell-label{position:absolute;top:20px;left:20px;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+  .cell-caption{position:absolute;bottom:20px;left:20px;right:20px;font-size:13px;line-height:1.35}
+
+  .b-title{grid-column:1 / span 8;grid-row:1 / span 4;padding:44px 44px 36px;display:flex;flex-direction:column;justify-content:space-between}
+  .b-title .kicker{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;display:flex;gap:14px}
+  .b-title .kicker span + span{padding-left:14px;border-left:1px solid var(--line)}
+  .b-title h1{font-size:clamp(42px,6.4vw,88px);line-height:.92;letter-spacing:-.04em;font-weight:500;margin:0}
+  .b-title h1 .s{color:var(--navy)}
+
+  .b-circle{grid-column:9 / span 4;grid-row:1 / span 2;background:var(--sky);color:var(--navy)}
+  .b-circle .shape{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+  .b-circle .shape div{width:75%;aspect-ratio:1;border-radius:50%;background:var(--sky-2);opacity:.65;transition:transform .6s var(--ease)}
+  .b-circle:hover .shape div{transform:scale(1.05)}
+
+  .b-triangle{grid-column:9 / span 4;grid-row:3 / span 2;background:var(--mist);color:var(--ink)}
+  .b-triangle svg{position:absolute;inset:0;width:100%;height:100%}
+
+  .b-desc{grid-column:1 / span 5;grid-row:5 / span 2;padding:32px 44px;display:flex;flex-direction:column;justify-content:center;gap:18px}
+  .b-desc p{font-size:17px;line-height:1.55;color:var(--muted);margin:0;max-width:460px}
+  .b-desc .go{font-size:13px;color:var(--navy);font-weight:500;display:inline-flex;gap:6px;align-items:center}
+
+  .b-d{grid-column:6 / span 3;grid-row:5 / span 2;background:var(--navy);color:#fff}
+  .b-d .shape{position:absolute;right:-80px;top:50%;transform:translateY(-50%);width:270px;height:270px;border-radius:270px 0 0 270px;background:var(--navy-2);transition:transform .6s var(--ease)}
+  .b-d:hover .shape{transform:translateY(-50%) translateX(-8px)}
+
+  .b-cta{grid-column:9 / span 4;grid-row:5 / span 2;background:var(--ink);color:#fff;padding:30px 26px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;transition:background .2s;text-decoration:none}
+  .b-cta:hover{background:#000}
+  .b-cta .kind{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--sky)}
+  .b-cta .hdl{font-size:26px;letter-spacing:-.02em;line-height:1.08;font-weight:500;margin-top:auto}
+  .b-cta .av{font-family:var(--font-mono);font-size:11px;color:var(--sky);margin-top:10px;letter-spacing:.12em}
+
+  @media (max-width:1100px){
+    .bento{grid-auto-rows:90px}
+    .b-title{grid-column:1/-1;grid-row:1/span 5;padding:32px 28px}
+    .b-circle,.b-triangle{grid-column:auto;grid-row:auto}
+    .b-circle{grid-column:1/span 6;grid-row:6/span 2}
+    .b-triangle{grid-column:7/span 6;grid-row:6/span 2}
+    .b-desc{grid-column:1/-1;grid-row:8/span 2;padding:28px}
+    .b-d{grid-column:1/span 6;grid-row:10/span 2}
+    .b-cta{grid-column:7/span 6;grid-row:10/span 2;padding:22px}
+    .b-cta .hdl{font-size:20px}
+  }
+  @media (max-width:640px){
+    .bento{display:flex;flex-direction:column;grid-auto-rows:auto;gap:1px}
+    .cell{min-height:200px}
+    .b-title{padding:28px 22px 24px;min-height:auto}
+    .b-title h1{font-size:44px}
+  }
+
+  /* ===== Principles ===== */
+  .sec{padding:90px 0}
+  .principles{display:grid;grid-template-columns:repeat(4,1fr);gap:40px}
+  .principle{border-top:1px solid var(--ink);padding-top:24px}
+  .principle .n{font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:.12em;margin-bottom:14px}
+  .principle h3{font-size:22px;font-weight:500;letter-spacing:-.015em;margin:0 0 12px;line-height:1.15}
+  .principle p{font-size:14px;color:var(--muted);line-height:1.55;margin:0}
+  @media (max-width:900px){.principles{grid-template-columns:repeat(2,1fr);gap:28px}}
+  @media (max-width:560px){.principles{grid-template-columns:1fr}}
+
+  /* ===== Services with numbers ===== */
+  .svc-section{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .svc-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:48px;flex-wrap:wrap;gap:20px}
+  .svc-head h2{font-size:clamp(36px,4.6vw,56px);font-weight:500;letter-spacing:-.03em;margin:14px 0 0;line-height:1}
+  .svc-head .m{font-family:var(--font-mono);font-size:12px;color:var(--muted);letter-spacing:.14em}
+  .svc-table{border:1px solid var(--line)}
+  .svc-row{display:grid;grid-template-columns:80px 1fr 1.6fr 120px;gap:40px;padding:32px 28px;border-bottom:1px solid var(--line);align-items:center;cursor:pointer;transition:background .2s;position:relative}
+  .svc-row:last-child{border-bottom:none}
+  .svc-row:hover{background:var(--paper)}
+  .svc-row .num{font-family:var(--font-mono);font-size:12px;color:var(--muted);letter-spacing:.1em}
+  .svc-row h3{font-size:26px;font-weight:500;letter-spacing:-.018em;margin:0;line-height:1.1}
+  .svc-row p{font-size:14px;color:var(--muted);line-height:1.55;margin:0}
+  .svc-row .arr{justify-self:end;color:var(--navy);opacity:.4;transition:opacity .2s, transform .2s}
+  .svc-row:hover .arr{opacity:1;transform:translateX(4px)}
+  @media (max-width:900px){
+    .svc-row{grid-template-columns:1fr;gap:10px;padding:24px 20px}
+    .svc-row .arr{display:none}
+  }
+
+  /* ===== Método timeline ===== */
+  .timeline{background:var(--paper);border-bottom:1px solid var(--line);border-top:1px solid var(--line)}
+  .tl-head h2{font-size:clamp(36px,4.6vw,56px);font-weight:500;letter-spacing:-.03em;margin:14px 0 12px;line-height:1}
+  .tl-head p{color:var(--muted);font-size:15px;max-width:540px;margin:0 0 48px}
+  .tl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+  .tl-card{background:#fff;padding:32px 28px;display:flex;flex-direction:column;gap:14px;min-height:340px;position:relative}
+  .tl-card .day{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;padding-right:78px}
+  .tl-card h3{font-size:28px;font-weight:500;letter-spacing:-.02em;margin:0;line-height:1.05}
+  .tl-card p{font-size:14px;color:var(--muted);line-height:1.55;margin:0}
+  .tl-card ul{list-style:none;padding:0;margin:0;font-size:13px;display:flex;flex-direction:column;gap:6px;color:var(--ink)}
+  .tl-card ul li{display:flex;gap:8px;align-items:flex-start}
+  .tl-card ul li::before{content:"→";color:var(--navy)}
+  .tl-card .chip{position:absolute;top:28px;right:24px;font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;padding:3px 8px;border-radius:30px;background:var(--paper);color:var(--muted);border:1px solid var(--line)}
+  .tl-card.active{background:var(--navy);color:#fff}
+  .tl-card.active h3{color:#fff}
+  .tl-card.active p{color:rgba(255,255,255,.7)}
+  .tl-card.active ul{color:#fff}
+  .tl-card.active ul li::before{color:var(--sky)}
+  .tl-card.active .day{color:var(--sky)}
+  .tl-card.active .chip{background:rgba(255,255,255,.1);color:var(--sky);border-color:rgba(255,255,255,.15)}
+  @media (max-width:900px){.tl-grid{grid-template-columns:1fr}.tl-card{min-height:auto}}
+
+  /* ===== Casos / Cases ===== */
+  .cases{background:#fff}
+  .cases-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:32px;flex-wrap:wrap;gap:20px}
+  .cases-head h2{font-size:clamp(36px,4.6vw,56px);font-weight:500;letter-spacing:-.03em;margin:0;line-height:1}
+  .case-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .case{padding:24px;aspect-ratio:1/1.12;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;position:relative;overflow:hidden;transition:transform .3s var(--ease)}
+  .case:hover{transform:translateY(-3px)}
+  .case .top{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;opacity:.7}
+  .case .body{position:relative}
+  .case .client{font-size:13px;opacity:.75;margin-bottom:6px}
+  .case .what{font-size:22px;font-weight:500;letter-spacing:-.01em;line-height:1.1;margin:0 0 10px}
+  .case .kpi{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;opacity:.85}
+  .case .mark-bg{position:absolute;right:-50px;bottom:-50px;opacity:.2;pointer-events:none}
+  .case-1{background:var(--sky-2);color:var(--ink)}
+  .case-2{background:var(--mist);color:var(--ink)}
+  .case-3{background:var(--navy);color:#fff}
+  .case-3 .mark-bg{opacity:.13}
+  @media (max-width:900px){.case-grid{grid-template-columns:1fr}.case{aspect-ratio:auto;min-height:260px}}
+
+  /* ===== Pricing Compact ===== */
+  .pricing{background:var(--paper);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+  .price-card{background:#fff;padding:32px 28px;display:flex;flex-direction:column;gap:16px;transition:background .2s}
+  .price-card:hover{background:var(--paper)}
+  .price-card.feat{background:var(--navy);color:#fff}
+  .price-card.feat:hover{background:var(--navy-2)}
+  .price-card .k{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+  .price-card.feat .k{color:var(--sky)}
+  .price-card h3{font-size:22px;font-weight:500;letter-spacing:-.015em;margin:0}
+  .price-card .amt{font-size:36px;letter-spacing:-.025em;font-weight:500;line-height:1}
+  .price-card .amt small{font-size:13px;color:var(--muted);font-weight:400}
+  .price-card.feat .amt small{color:var(--sky)}
+  .price-card .d{font-size:14px;color:var(--muted);line-height:1.5;margin:0}
+  .price-card.feat .d{color:rgba(255,255,255,.75)}
+  .price-card ul{list-style:none;padding:0;margin:4px 0 0;display:flex;flex-direction:column;gap:8px;font-size:13px}
+  .price-card ul li{display:flex;gap:8px}
+  .price-card ul li::before{content:"◦";color:var(--navy)}
+  .price-card.feat ul li::before{color:var(--sky)}
+  .price-btn{margin-top:auto;padding:12px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;text-align:center;transition:all .2s;color:var(--ink)}
+  .price-btn:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .price-card.feat .price-btn{border-color:var(--sky);color:#fff}
+  .price-card.feat .price-btn:hover{background:#fff;color:var(--navy);border-color:#fff}
+  @media (max-width:900px){.price-grid{grid-template-columns:1fr}}
+
+  /* ===== Contact strip ===== */
+  .contact{background:var(--ink);color:#fff;padding:80px 0}
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+  .contact h2{font-size:clamp(32px,4vw,52px);font-weight:500;letter-spacing:-.03em;margin:0;line-height:1.02}
+  .contact h2 .s{color:var(--sky)}
+  .contact .lines{display:flex;flex-direction:column;gap:16px}
+  .contact-line{display:flex;gap:16px;align-items:center;padding:18px 20px;border:1px solid #1E3455;border-radius:6px;transition:border-color .2s, background .2s}
+  .contact-line:hover{border-color:var(--sky);background:rgba(159,205,230,.05)}
+  .contact-line .icon{width:36px;height:36px;border-radius:50%;background:rgba(159,205,230,.15);display:flex;align-items:center;justify-content:center;color:var(--sky);flex-shrink:0}
+  .contact-line .cl-k{font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;color:var(--sky);text-transform:uppercase}
+  .contact-line .cl-v{font-size:16px;color:#fff;margin-top:2px;font-weight:500}
+  @media (max-width:900px){.contact-grid{grid-template-columns:1fr;gap:30px}}
+
+  /* ===== Footer ===== */
+  footer{background:var(--ink);color:#8FA0B5;padding:40px 0 36px;border-top:1px solid #1E3455}
+  .foot-in{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+  .foot-in .mono{font-size:11px;letter-spacing:.14em}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .7s var(--ease), transform .7s var(--ease)}
+  .reveal.in{opacity:1;transform:none}
+
+  ::selection{background:var(--navy);color:#fff}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="container hdr-in">
+    <a href="#" class="logo" aria-label="OAC">
+      <svg width="44" height="24" viewBox="0 0 400 220" aria-hidden="true">
+        <g style="mix-blend-mode:multiply">
+          <circle cx="110" cy="110" r="90" fill="#9FCDE6" opacity=".95"/>
+          <polygon points="200,20 290,200 110,200" fill="#D8DDE1" opacity=".85"/>
+          <path d="M220 20 a90 90 0 0 1 0 180 L290 200 L290 20 Z" fill="#0E2A4E" opacity=".92"/>
+        </g>
+      </svg>
+      <span class="lt"><span class="a">OAC</span><span class="b">Organización de Apoyo</span></span>
+    </a>
+    <nav class="main">
+      <a href="#servicios">Servicios</a>
+      <a href="#metodo">Método</a>
+      <a href="#casos">Casos</a>
+      <a href="#tarifas">Tarifas</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <a class="btn-cta btn-cta-hdr" href="#contacto">AGENDAR →</a>
+    <button class="burger" aria-label="Menú"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M2 5h14M2 9h14M2 13h14" stroke="#0A1A30" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+  </div>
+</header>
+
+<!-- Bento hero -->
+<section class="bento">
+  <div class="cell b-title reveal">
+    <div class="kicker">
+      <span>OAC · EST. 2024</span>
+      <span>CDMX / TLAXCALA</span>
+      <span>Q2 2026</span>
+    </div>
+    <h1>
+      Arquitectura<br/>financiera para <span class="s serif">PYMES</span>.
+    </h1>
+  </div>
+
+  <div class="cell b-circle reveal">
+    <div class="shape"><div></div></div>
+    <div class="cell-label" style="color:var(--navy)">01 / CÍRCULO</div>
+    <div class="cell-caption" style="color:var(--navy);max-width:200px"><b style="font-weight:500">El negocio al centro.</b> Decisiones sobre tu operación real — no sobre plantillas.</div>
+  </div>
+
+  <div class="cell b-triangle reveal">
+    <svg viewBox="0 0 400 220" aria-hidden="true">
+      <polygon points="200,30 340,190 60,190" fill="#5A6A7E" opacity=".28"/>
+    </svg>
+    <div class="cell-label" style="color:var(--ink)">02 / TRIÁNGULO</div>
+    <div class="cell-caption" style="color:var(--ink);max-width:200px"><b style="font-weight:500">Estructura que sostiene.</b> Arquitectura contable y tablero que te acompañan todo el año.</div>
+  </div>
+
+  <div class="cell b-desc reveal">
+    <p>Asesoría presencial y a distancia para armar el tablero financiero de tu negocio. Diagnosticamos, construimos y te dejamos operando en <b style="color:var(--ink);font-weight:500">21 días</b>.</p>
+    <a class="go" href="#servicios">Conoce nuestros servicios →</a>
+  </div>
+
+  <div class="cell b-d reveal">
+    <div class="shape"></div>
+    <div class="cell-label" style="color:var(--sky)">03 / FORMA D</div>
+    <div class="cell-caption" style="color:#fff;max-width:150px"><b style="font-weight:500">La decisión, cerrada.</b> Números que permiten actuar.</div>
+  </div>
+
+  <a href="#contacto" class="cell b-cta reveal">
+    <div>
+      <div class="kind">DIAGNÓSTICO · GRATIS</div>
+    </div>
+    <div>
+      <div class="hdl">Agendar 45 min<br/>con el equipo →</div>
+      <div class="av">DISPONIBLE ESTA SEMANA</div>
+    </div>
+  </a>
+</section>
+
+<!-- Principles -->
+<section class="sec">
+  <div class="container">
+    <div class="principles">
+      <div class="principle reveal">
+        <div class="n">01</div>
+        <h3>Precio PYME</h3>
+        <p>Tarifas accesibles porque el costo no puede ser el filtro para crecer con orden financiero.</p>
+      </div>
+      <div class="principle reveal">
+        <div class="n">02</div>
+        <h3>Ejecución premium</h3>
+        <p>Cada tablero pasa por el mismo control de calidad que cobraríamos a un corporativo.</p>
+      </div>
+      <div class="principle reveal">
+        <div class="n">03</div>
+        <h3>Presencial y a distancia</h3>
+        <p>Vamos contigo al piso cuando hace falta. Y remotos cuando basta con una sesión corta.</p>
+      </div>
+      <div class="principle reveal">
+        <div class="n">04</div>
+        <h3>Documentación viva</h3>
+        <p>Te entregamos un tablero operable — no un PDF de 80 páginas que nadie abre dos veces.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Services -->
+<section class="svc-section sec" id="servicios">
+  <div class="container">
+    <div class="svc-head">
+      <div>
+        <div class="mono" style="font-size:12px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase">Servicios</div>
+        <h2>Qué <span class="serif">hacemos</span></h2>
+      </div>
+      <div class="m">04 DISCIPLINAS · 1 TABLERO</div>
+    </div>
+    <div class="svc-table">
+      <div class="svc-row reveal">
+        <div class="num">/ 01</div>
+        <h3>Arquitectura financiera</h3>
+        <p>Diseñamos la estructura contable y financiera que tu negocio necesita: catálogo de cuentas, centros de costo, reportes base y política mínima de registro.</p>
+        <svg class="arr" width="20" height="20" viewBox="0 0 20 20"><path d="M4 10h12m0 0l-5-5m5 5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="svc-row reveal">
+        <div class="num">/ 02</div>
+        <h3>KPIs financieros</h3>
+        <p>Definimos los 5–8 indicadores que mueven tu negocio. Tablero semanal con lectura clara, alertas y contexto del período anterior.</p>
+        <svg class="arr" width="20" height="20" viewBox="0 0 20 20"><path d="M4 10h12m0 0l-5-5m5 5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="svc-row reveal">
+        <div class="num">/ 03</div>
+        <h3>Control de costos y gastos</h3>
+        <p>Mapeamos, clasificamos y auditamos cada peso. Identificamos fugas, duplicidades y oportunidades concretas de renegociación.</p>
+        <svg class="arr" width="20" height="20" viewBox="0 0 20 20"><path d="M4 10h12m0 0l-5-5m5 5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="svc-row reveal">
+        <div class="num">/ 04</div>
+        <h3>Punto de equilibrio real</h3>
+        <p>Calculamos tu umbral real — fijos, variables, estacionalidad y mezcla de producto. Cuánto tienes que vender para dejar de perder.</p>
+        <svg class="arr" width="20" height="20" viewBox="0 0 20 20"><path d="M4 10h12m0 0l-5-5m5 5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Método -->
+<section class="timeline sec" id="metodo">
+  <div class="container">
+    <div class="tl-head">
+      <div class="mono" style="font-size:12px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase">Método</div>
+      <h2>21 días. Tres <span class="serif">fases</span>.</h2>
+      <p>Un proceso calibrado para PYMES. Sin reuniones eternas. Hacemos, enseñamos y te lo dejamos operando.</p>
+    </div>
+    <div class="tl-grid">
+      <div class="tl-card reveal">
+        <div class="chip">FASE 01</div>
+        <div class="day">Día 1—5 · Diagnóstico</div>
+        <h3>Entender antes de construir</h3>
+        <p>Entrevistas con operación y dirección. Revisión de los últimos 3 meses. Árbol de hipótesis priorizado.</p>
+        <ul>
+          <li>Entrevistas estructuradas</li>
+          <li>Revisión contable</li>
+          <li>Árbol de hipótesis</li>
+        </ul>
+      </div>
+      <div class="tl-card active reveal">
+        <div class="chip">FASE 02</div>
+        <div class="day">Día 6—18 · Construcción</div>
+        <h3>Armar el tablero</h3>
+        <p>Arquitectura, KPIs, auditoría de costos, punto de equilibrio. Iteración semanal con tu equipo.</p>
+        <ul>
+          <li>Tablero v1 y v2</li>
+          <li>KPIs calibrados</li>
+          <li>Auditoría de costos</li>
+          <li>Break-even real</li>
+        </ul>
+      </div>
+      <div class="tl-card reveal">
+        <div class="chip">FASE 03</div>
+        <div class="day">Día 19—21 · Operación</div>
+        <h3>Entregar operando</h3>
+        <p>Capacitación presencial o remota. Manual corto de lectura semanal. Primer reporte ejecutivo juntos.</p>
+        <ul>
+          <li>Capacitación al equipo</li>
+          <li>Manual operativo</li>
+          <li>Primer reporte</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Casos -->
+<section class="cases sec" id="casos">
+  <div class="container">
+    <div class="cases-head">
+      <h2>Trabajo <span class="serif">reciente</span></h2>
+      <div class="mono" style="font-size:12px;color:var(--muted);letter-spacing:.12em">2025 · 3 CASOS DESTACADOS</div>
+    </div>
+    <div class="case-grid">
+      <article class="case case-1 reveal">
+        <div class="top"><span>RETAIL</span><span>01</span></div>
+        <div class="mark-bg">
+          <svg width="280" height="154" viewBox="0 0 400 220" aria-hidden="true">
+            <g style="mix-blend-mode:multiply">
+              <circle cx="110" cy="110" r="90" fill="#9FCDE6"/>
+              <polygon points="200,20 290,200 110,200" fill="#D8DDE1"/>
+              <path d="M220 20 a90 90 0 0 1 0 180 L290 200 L290 20 Z" fill="#0E2A4E"/>
+            </g>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="client">Panadería La Fortuna</div>
+          <h3 class="what">Tablero financiero + KPIs</h3>
+          <div class="kpi">BREAK-EVEN EN 17 DÍAS · +18% MARGEN</div>
+        </div>
+      </article>
+      <article class="case case-2 reveal">
+        <div class="top"><span>SALUD</span><span>02</span></div>
+        <div class="mark-bg">
+          <svg width="280" height="154" viewBox="0 0 400 220" aria-hidden="true">
+            <g style="mix-blend-mode:multiply">
+              <circle cx="110" cy="110" r="90" fill="#9FCDE6"/>
+              <polygon points="200,20 290,200 110,200" fill="#D8DDE1"/>
+              <path d="M220 20 a90 90 0 0 1 0 180 L290 200 L290 20 Z" fill="#0E2A4E"/>
+            </g>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="client">Clínica Valdés</div>
+          <h3 class="what">Control de costos operativos</h3>
+          <div class="kpi">-12% GASTO FIJO · 6 FUGAS IDENTIFICADAS</div>
+        </div>
+      </article>
+      <article class="case case-3 reveal">
+        <div class="top" style="color:var(--sky)"><span>INDUSTRIA</span><span>03</span></div>
+        <div class="mark-bg">
+          <svg width="280" height="154" viewBox="0 0 400 220" aria-hidden="true">
+            <circle cx="110" cy="110" r="90" fill="#fff"/>
+            <polygon points="200,20 290,200 110,200" fill="#fff"/>
+            <path d="M220 20 a90 90 0 0 1 0 180 L290 200 L290 20 Z" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="client" style="color:var(--sky)">Ferretera del Valle</div>
+          <h3 class="what" style="color:#fff">Punto de equilibrio real</h3>
+          <div class="kpi" style="color:var(--sky)">3 LÍNEAS REBALANCEADAS · 2.4× ROI</div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Tarifas -->
+<section class="pricing sec" id="tarifas">
+  <div class="container">
+    <div class="svc-head">
+      <div>
+        <div class="mono" style="font-size:12px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase">Tarifas</div>
+        <h2>Precios <span class="serif">transparentes</span></h2>
+      </div>
+      <div class="m" style="font-family:var(--font-mono);font-size:12px;color:var(--muted);letter-spacing:.14em">3 PLANES · DIAGNÓSTICO GRATIS</div>
+    </div>
+    <div class="price-grid">
+      <div class="price-card reveal">
+        <div class="k">Diagnóstico</div>
+        <h3>Mapeo inicial</h3>
+        <div class="amt">Gratis</div>
+        <p class="d">45 minutos. Salimos con un plan concreto — contratemos o no.</p>
+        <ul>
+          <li>Entrevista estructurada</li>
+          <li>Revisión de 3 meses</li>
+          <li>Árbol de hipótesis</li>
+          <li>Propuesta de alcance</li>
+        </ul>
+        <a class="price-btn" href="#contacto">AGENDAR →</a>
+      </div>
+      <div class="price-card feat reveal">
+        <div class="k">Más elegido · 21 días</div>
+        <h3>Tablero completo</h3>
+        <div class="amt">$28,500 <small>MXN · pago único</small></div>
+        <p class="d">Arquitectura, KPIs, control de costos y punto de equilibrio — todo operando.</p>
+        <ul>
+          <li>4 disciplinas financieras</li>
+          <li>Tablero en vivo</li>
+          <li>Capacitación del equipo</li>
+          <li>30 días de soporte</li>
+        </ul>
+        <a class="price-btn" href="#contacto">EMPEZAR →</a>
+      </div>
+      <div class="price-card reveal">
+        <div class="k">Mensual · mín. 3 meses</div>
+        <h3>Acompañamiento</h3>
+        <div class="amt">$6,900 <small>MXN / mes</small></div>
+        <p class="d">Revisión semanal con OAC después de entregar el tablero. Iteramos y empujamos.</p>
+        <ul>
+          <li>Sesión semanal 60 min</li>
+          <li>Actualización del tablero</li>
+          <li>Alertas operativas</li>
+          <li>Reporte ejecutivo mensual</li>
+        </ul>
+        <a class="price-btn" href="#contacto">AGENDAR →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contacto -->
+<section class="contact" id="contacto">
+  <div class="container contact-grid">
+    <div class="reveal">
+      <div class="mono" style="font-size:12px;letter-spacing:.14em;color:var(--sky);text-transform:uppercase;margin-bottom:18px">Contacto</div>
+      <h2>Empecemos con un <span class="s serif">diagnóstico</span>.</h2>
+      <p style="color:rgba(255,255,255,.7);margin-top:18px;font-size:16px;line-height:1.55;max-width:440px">45 minutos, sin compromiso. Elige el canal que te acomode — respondemos en menos de 24 horas.</p>
+    </div>
+    <div class="lines reveal">
+      <a class="contact-line" href="mailto:gerloxsolis@gmail.com?subject=Diagn%C3%B3stico%20OAC">
+        <span class="icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 6l8 6 8-6"/></svg>
+        </span>
+        <div><div class="cl-k">Correo</div><div class="cl-v">gerloxsolis@gmail.com</div></div>
+      </a>
+      <a class="contact-line" href="https://wa.me/5212464115513?text=Hola%2C%20me%20interesa%20agendar%20un%20diagn%C3%B3stico%20con%20OAC" target="_blank" rel="noopener">
+        <span class="icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.65-2.05-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.8.37-.27.3-1.05 1.03-1.05 2.5 0 1.47 1.07 2.9 1.22 3.1.15.2 2.11 3.22 5.11 4.52.71.31 1.27.49 1.7.63.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.42.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35zM12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.5A10 10 0 1012 2z"/></svg>
+        </span>
+        <div><div class="cl-k">WhatsApp</div><div class="cl-v">+52 1 246 411 5513</div></div>
+      </a>
+      <a class="contact-line" href="acceso.html">
+        <span class="icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        </span>
+        <div><div class="cl-k">Portal clientes</div><div class="cl-v">Acceder a mi proyecto →</div></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container foot-in">
+    <a href="#" class="logo">
+      <svg width="36" height="20" viewBox="0 0 400 220" aria-hidden="true">
+        <circle cx="110" cy="110" r="90" fill="#fff" opacity=".92"/>
+        <polygon points="200,20 290,200 110,200" fill="#fff" opacity=".75"/>
+        <path d="M220 20 a90 90 0 0 1 0 180 L290 200 L290 20 Z" fill="#fff" opacity=".55"/>
+      </svg>
+      <span class="lt"><span class="a" style="color:#fff">OAC</span><span class="b">© 2026 · CDMX</span></span>
+    </a>
+    <span class="mono">MÁS ALLÁ DE LAS EXPECTATIVAS · MÁS ALLÁ DE LOS LÍMITES</span>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+  },{threshold:.1, rootMargin:'0px 0px -4% 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

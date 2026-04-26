@@ -439,7 +439,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   document.getElementById('ui_usuario').textContent = SESSION.nombre || SESSION.usuario;
   const topEmp = document.getElementById('topbar_empresa');
-  if(topEmp) topEmp.textContent = SESSION.empresa || 'TRIKLES';
+  if(topEmp) topEmp.textContent = SESSION.empresa || 'OAC';
   document.getElementById('ui_empresa_sub').textContent = SESSION.empresa + ' — configuración de gastos recurrentes para el cálculo del P.E.';
 
   const hoy = new Date();

@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>OAC — Dashboard Ejecutivo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --navy:#0E2A4E;--navy-2:#163962;--sky:#9FCDE6;--sky-2:#C9E3F1;
+    --mist:#DCE2E7;--ink:#0A1A30;--muted:#5A6A7E;--line:#E6E9EE;--paper:#FAFBFC;
+    --good:#1E7F5C;--good-bg:#E5F4ED;--warn:#B97A1B;--warn-bg:#FFF1DF;
+    --bad:#9F2B1E;--bad-bg:#FCEBE9;
+    --accent:#E07A3E; /* naranja datos (matchea tu mock anterior) */
+    --font-sans:'Geist',system-ui,sans-serif;
+    --font-serif:'Instrument Serif',serif;--font-mono:'Geist Mono',monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;font-size:14px}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit}
+  .mono{font-family:var(--font-mono)}
+  .serif{font-family:var(--font-serif);font-style:italic}
+
+  /* ========== TOPBAR ========== */
+  .topbar{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+  .topbar-inner{max-width:1480px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;gap:24px}
+  .brand{display:flex;align-items:center;gap:11px;flex-shrink:0}
+  .brand .lt{display:flex;flex-direction:column;line-height:1.02}
+  .brand .a{font-weight:600;letter-spacing:-.02em;font-size:18px}
+  .brand .b{font-family:var(--font-mono);font-size:9px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+
+  .mainnav{display:flex;gap:2px;flex:1;flex-wrap:wrap}
+  .mainnav a{display:flex;align-items:center;gap:7px;padding:8px 12px;font-size:13px;color:var(--ink);border-radius:6px;font-weight:500;letter-spacing:-.005em}
+  .mainnav a:hover{background:var(--paper)}
+  .mainnav a.active{background:var(--navy);color:#fff}
+  .mainnav svg{width:14px;height:14px;stroke-width:1.7}
+
+  .top-tools{display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .ai-btn{background:linear-gradient(135deg,var(--navy),#1A4378);color:#fff;border:none;padding:8px 12px;border-radius:6px;font-size:12.5px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px}
+  .icon-btn{width:34px;height:34px;border-radius:6px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted)}
+  .icon-btn:hover{border-color:var(--navy);color:var(--navy)}
+  .exit{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;padding:6px 10px;border-radius:6px;cursor:pointer}
+  .exit:hover{color:var(--bad);background:var(--bad-bg)}
+
+  /* ========== FILTERS BAR ========== */
+  .filters{background:#fff;border-bottom:1px solid var(--line)}
+  .filters-inner{max-width:1480px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .filt-group{display:flex;align-items:center;gap:10px}
+  .filt-label{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+  .chips{display:flex;gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:3px}
+  .chip{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;padding:6px 11px;border-radius:5px;color:var(--muted);cursor:pointer;text-transform:uppercase;border:none;background:transparent}
+  .chip.active{background:var(--navy);color:#fff}
+  .chip:hover:not(.active){color:var(--ink)}
+  .date-range{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12px;color:var(--ink)}
+  .date-range input{border:1px solid var(--line);background:#fff;padding:6px 9px;border-radius:5px;font-family:var(--font-mono);font-size:12px;color:var(--ink);width:130px}
+  .date-range .arrow{color:var(--muted)}
+  .select{border:1px solid var(--line);background:#fff;padding:7px 11px;border-radius:6px;font-family:var(--font-sans);font-size:13px;color:var(--ink);cursor:pointer;min-width:200px}
+  .apply-btn{background:var(--navy);color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;letter-spacing:-.005em;margin-left:auto}
+  .apply-btn:hover{background:var(--navy-2)}
+
+  /* ========== TABS ========== */
+  .tabs-strip{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:65px;z-index:15}
+  .tabs-inner{max-width:1480px;margin:0 auto;padding:0 28px;display:flex;gap:2px;overflow-x:auto}
+  .tab{padding:14px 18px;font-size:13.5px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;gap:8px;letter-spacing:-.005em;white-space:nowrap;background:none;border-top:0;border-left:0;border-right:0}
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--navy);border-bottom-color:var(--navy)}
+  .tab svg{width:14px;height:14px;stroke-width:1.7}
+
+  /* ========== BODY ========== */
+  .body{max-width:1480px;margin:0 auto;padding:28px}
+
+  .page-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px;flex-wrap:wrap;gap:16px}
+  .page-head h1{font-family:var(--font-serif);font-style:italic;font-size:42px;letter-spacing:-.015em;font-weight:400;line-height:1;margin:0;color:var(--navy)}
+  .page-head .sub{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-top:8px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .page-head .sub b{color:var(--ink);font-weight:500}
+  .head-acts{display:flex;gap:8px}
+  .pdf-btn{background:#fff;border:1px solid var(--line);padding:8px 14px;border-radius:6px;font-size:12.5px;font-weight:500;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:6px}
+  .pdf-btn:hover{border-color:var(--navy);color:var(--navy)}
+
+  /* ========== ABC GUIDE ========== */
+  .abc{background:linear-gradient(135deg,var(--navy) 0%, #1A4378 100%);color:#fff;border-radius:12px;padding:22px 26px;margin-bottom:28px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;position:relative;overflow:hidden}
+  .abc::after{content:"";position:absolute;right:-50px;top:-50px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(159,205,230,.18),transparent 65%)}
+  .abc-eye{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;color:var(--sky);text-transform:uppercase;position:relative;z-index:2}
+  .abc-h{font-family:var(--font-serif);font-style:italic;font-size:24px;font-weight:400;letter-spacing:-.015em;margin:0;flex:1;min-width:200px;position:relative;z-index:2}
+  .abc-h b{font-family:var(--font-sans);font-style:normal;font-weight:500;color:var(--sky)}
+  .abc-actions{display:flex;gap:8px;position:relative;z-index:2;flex-wrap:wrap}
+  .abc-pill{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);color:#fff;padding:7px 12px;border-radius:6px;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:6px;font-weight:500;letter-spacing:-.005em}
+  .abc-pill:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.32)}
+
+  /* ========== KPIs grid ========== */
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+  @media (max-width:1200px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+  @media (max-width:850px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:550px){.kpi-grid{grid-template-columns:1fr}}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px 20px;position:relative;display:flex;flex-direction:column;gap:6px;cursor:default;transition:border-color .15s}
+  .kpi:hover{border-color:var(--mist)}
+  .kpi.hl{background:linear-gradient(180deg,#FAFCFE,#fff);border-color:#D4E5F1}
+  .kpi-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .kpi-icon{width:32px;height:32px;border-radius:7px;background:var(--sky-2);display:flex;align-items:center;justify-content:center;color:var(--navy);font-size:14px}
+  .kpi.hl .kpi-icon{background:var(--navy);color:#fff}
+  .help{width:18px;height:18px;border-radius:50%;background:var(--paper);border:1px solid var(--line);color:var(--muted);font-size:10px;display:flex;align-items:center;justify-content:center;cursor:help;font-weight:600}
+  .help:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .kpi-lab{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:6px}
+  .kpi-val{font-size:28px;letter-spacing:-.02em;font-weight:500;line-height:1.05;margin-top:2px;color:var(--ink)}
+  .kpi-val small{font-size:13px;color:var(--muted);font-weight:400;margin-left:3px;letter-spacing:0}
+  .kpi-val .em{font-family:var(--font-serif);font-style:italic;color:var(--muted);font-weight:400}
+  .kpi-foot{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);margin-top:auto;padding-top:6px;display:flex;align-items:center;gap:5px}
+  .kpi-foot.up{color:var(--good)}
+  .kpi-foot.down{color:var(--warn)}
+  .kpi-link{font-family:var(--font-mono);font-size:10.5px;color:var(--navy);font-weight:500;letter-spacing:.06em;margin-top:2px}
+  .kpi-link:hover{text-decoration:underline}
+
+  /* ========== Section header ========== */
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin:36px 0 18px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+  .sec-num{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--muted)}
+  .sec-h{font-size:18px;font-weight:500;letter-spacing:-.012em;margin:0;color:var(--ink)}
+  .sec-h .em{font-family:var(--font-serif);font-style:italic;font-weight:400;color:var(--navy);margin-left:6px}
+  .sec-desc{margin-left:auto;font-size:12px;color:var(--muted);max-width:380px;text-align:right}
+
+  /* ========== Cards ========== */
+  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:22px}
+  .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+  .card-h{font-size:15px;font-weight:500;letter-spacing:-.01em;margin:0;display:flex;align-items:center;gap:8px}
+  .card-sub{font-size:12px;color:var(--muted);margin:4px 0 0;line-height:1.45}
+  .card-foot{font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:.06em;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+
+  .grid-2{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;margin-bottom:18px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:18px}
+  .grid-2-eq{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+  @media (max-width:1100px){.grid-2,.grid-3,.grid-2-eq{grid-template-columns:1fr}}
+
+  /* ========== P.E. table ========== */
+  .pe-table{display:flex;flex-direction:column}
+  .pe-row{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;padding:11px 0;border-top:1px solid var(--line);font-size:13.5px}
+  .pe-row:first-child{border-top:none}
+  .pe-row.tot{border-top:2px solid var(--navy);font-weight:600;color:var(--navy);padding-top:14px;margin-top:4px}
+  .pe-row.profit{color:var(--good);font-weight:600}
+  .pe-row .v{font-family:var(--font-mono);font-size:13px;text-align:right;color:var(--ink)}
+  .pe-row .pct{font-family:var(--font-mono);font-size:11.5px;color:var(--muted);text-align:right;min-width:48px}
+  .pe-row.tot .v, .pe-row.profit .v{color:inherit}
+
+  .pe-summary{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:18px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+  .pe-stat{flex:1;min-width:120px}
+  .pe-stat .l{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+  .pe-stat .v{font-size:24px;letter-spacing:-.02em;font-weight:500;color:var(--ink);margin-top:4px}
+  .pe-stat .v.em{font-family:var(--font-serif);font-style:italic;font-weight:400;color:var(--navy)}
+
+  /* ========== Charts (placeholders SVG) ========== */
+  .chart{width:100%;aspect-ratio:16/9;background:var(--paper);border:1px dashed var(--mist);border-radius:8px;position:relative;overflow:hidden}
+  .chart-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);gap:8px;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;pointer-events:none}
+  .chart-empty svg{opacity:.5}
+  .chart svg.live{position:absolute;inset:0;width:100%;height:100%}
+
+  .legend{display:flex;gap:14px;font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;flex-wrap:wrap;margin-top:10px}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+  /* ========== Bitácora ========== */
+  .biteh{display:flex;align-items:center;gap:10px}
+  .bit-loading{padding:48px 24px;text-align:center;color:var(--muted);font-family:var(--font-mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;border:1px dashed var(--mist);border-radius:8px;background:var(--paper)}
+
+  /* ========== Resumen tabla ========== */
+  .res-table{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  @media (max-width:600px){.res-table{grid-template-columns:1fr}}
+  .res-cell{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .res-cell:nth-child(odd){border-right:1px solid var(--line)}
+  @media (max-width:600px){.res-cell:nth-child(odd){border-right:none}}
+  .res-cell .l{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .res-cell .v{font-family:var(--font-mono);font-size:13.5px;color:var(--ink);font-weight:500}
+  .res-cell.tot{background:var(--navy);color:#fff}
+  .res-cell.tot .l{color:var(--sky)}
+  .res-cell.tot .v{color:#fff}
+
+  /* Estado de cuenta */
+  .stmt-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:14px}
+  .stmt-stat{padding:14px 16px;text-align:center;border-right:1px solid var(--line)}
+  .stmt-stat:last-child{border-right:none}
+  .stmt-stat .l{font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+  .stmt-stat .v{font-family:var(--font-mono);font-size:18px;font-weight:500;color:var(--ink);margin-top:6px}
+  .stmt-stat.in .v{color:var(--good)}
+  .stmt-stat.out .v{color:var(--bad)}
+
+  table.stmt{width:100%;border-collapse:collapse;font-size:13px}
+  table.stmt thead th{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--paper)}
+  table.stmt thead th:nth-child(n+3){text-align:right}
+  table.stmt tbody td{padding:11px 12px;border-bottom:1px solid var(--line);color:var(--ink)}
+  table.stmt tbody td:nth-child(n+3){text-align:right;font-family:var(--font-mono)}
+  table.stmt tbody tr:hover{background:var(--paper)}
+  table.stmt tbody tr.empty td{padding:32px;text-align:center;color:var(--muted);font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+
+  /* tooltip-ish */
+  [data-tip]{position:relative}
+  [data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-family:var(--font-sans);font-size:11.5px;font-weight:400;letter-spacing:0;padding:7px 10px;border-radius:6px;white-space:normal;width:240px;z-index:30;line-height:1.4;text-transform:none;box-shadow:0 8px 24px -8px rgba(14,42,78,.4);text-align:left;pointer-events:none}
+
+  footer{margin-top:48px;padding-top:24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;flex-wrap:wrap;gap:8px}
+
+  /* Tab content visibility */
+  .tab-pane{display:none}
+  .tab-pane.active{display:block}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar" data-screen-label="03 Dashboard · Topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <svg width="40" height="22" viewBox="0 0 400 220" aria-hidden="true">
+        <g style="mix-blend-mode:multiply">
+          <circle cx="110" cy="110" r="90" fill="#9FCDE6" opacity=".95"/>
+          <polygon points="200,20 290,200 110,200" fill="#D8DDE1" opacity=".85"/>
+          <path d="M220 20 a90 90 0 0 1 0 180 L290 200 L290 20 Z" fill="#0E2A4E" opacity=".92"/>
+        </g>
+      </svg>
+      <span class="lt"><span class="a">OAC</span><span class="b">Dashboard ejecutivo</span></span>
+    </div>
+
+    <nav class="mainnav">
+      <a class="active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Resumen</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Captura</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>Nómina</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>CxC</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Costos</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Panel</a>
+    </nav>
+
+    <div class="top-tools">
+      <button class="ai-btn" title="Asistente IA"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v1H7a4 4 0 0 0-4 4v3a4 4 0 0 0 4 4h.5l1 4h7l1-4H17a4 4 0 0 0 4-4v-3a4 4 0 0 0-4-4h-2V5a3 3 0 0 0-3-3z"/><path d="M9 13h.01M15 13h.01"/></svg> IA <span style="font-size:9px">▾</span></button>
+      <button class="icon-btn" title="Exportar PDF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></button>
+      <button class="icon-btn" title="Ayuda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg></button>
+      <button class="exit">Salir ✕</button>
+    </div>
+  </div>
+</header>
+
+<!-- FILTERS -->
+<div class="filters">
+  <div class="filters-inner">
+    <div class="filt-group">
+      <span class="filt-label">📅 Rango</span>
+      <div class="chips">
+        <button class="chip">Hoy</button>
+        <button class="chip">7d</button>
+        <button class="chip active">Este mes</button>
+        <button class="chip">3m</button>
+        <button class="chip">Año</button>
+        <button class="chip">Todo</button>
+      </div>
+    </div>
+    <div class="filt-group">
+      <div class="date-range">
+        <input type="date" value="2026-04-01"/>
+        <span class="arrow">→</span>
+        <input type="date" value="2026-04-25"/>
+      </div>
+    </div>
+    <div class="filt-group">
+      <span class="filt-label">🏢 Empresa</span>
+      <select class="select">
+        <option>Todas las empresas</option>
+        <option>Tlaxes Industrial</option>
+        <option>Solis Distribución</option>
+      </select>
+    </div>
+    <button class="apply-btn">Aplicar</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<nav class="tabs-strip" data-screen-label="03 Dashboard · Tabs">
+  <div class="tabs-inner">
+    <button class="tab active" data-tab="fin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-7"/></svg>Financiero</button>
+    <button class="tab" data-tab="nom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/></svg>Nómina</button>
+    <button class="tab" data-tab="flu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M5 9l7-7 7 7M5 15l7 7 7-7"/></svg>Flujo de Efectivo</button>
+    <button class="tab" data-tab="res"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M22 11H2M6 15h4"/></svg>Reserva &amp; CxP</button>
+    <button class="tab" data-tab="ban"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-7h6v7"/></svg>Bancos</button>
+  </div>
+</nav>
+
+<main class="body">
+
+  <div class="page-head">
+    <div>
+      <h1>Resumen <span style="font-style:normal;font-family:var(--font-sans);color:var(--ink);font-size:34px;font-weight:500;letter-spacing:-.02em">ejecutivo.</span></h1>
+      <div class="sub"><b>Tlaxes Industrial</b> · <span>1—25 abril 2026</span> · <span>actualizado <b>hace 4 min</b></span></div>
+    </div>
+    <div class="head-acts">
+      <button class="pdf-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg> Exportar PDF</button>
+      <button class="pdf-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Descargar Excel</button>
+    </div>
+  </div>
+
+  <!-- ABC guide strip -->
+  <section class="abc">
+    <div class="abc-eye">📚 EL ABC DE LA GESTIÓN</div>
+    <h3 class="abc-h">Aprende a leer tus números — <b>5 lecciones cortas</b> para entender qué te dice cada métrica.</h3>
+    <div class="abc-actions">
+      <button class="abc-pill">📊 Financiero</button>
+      <button class="abc-pill">👥 Nómina</button>
+      <button class="abc-pill">💵 Flujo</button>
+      <button class="abc-pill">🏦 Reserva &amp; CxP</button>
+      <button class="abc-pill">🏦 Bancos →</button>
+    </div>
+  </section>
+
+  <!-- ===== TAB: FINANCIERO ===== -->
+  <section class="tab-pane active" data-pane="fin">
+
+    <!-- KPI Grid: 8 KPIs financieros -->
+    <div class="kpi-grid">
+      <div class="kpi hl">
+        <div class="kpi-head">
+          <div class="kpi-icon">💰</div>
+          <span class="help" data-tip="Ventas totales del período: efectivo + tarjeta + crédito.">?</span>
+        </div>
+        <div class="kpi-lab">VENTAS</div>
+        <div class="kpi-val"><span class="em">—</span></div>
+        <div class="kpi-foot">DEL PERÍODO · EFECTIVO + TARJETA + CRÉDITO</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-head">
+          <div class="kpi-icon">📈</div>
+          <span class="help" data-tip="Ventas − Costo de mercancía. Margen = Ganancia ÷ Ventas.">?</span>
+        </div>
+        <div class="kpi-lab">GANANCIA BRUTA</div>
+        <div class="kpi-val"><span class="em">—</span></div>
+        <div class="kpi-foot">MARGEN BRUTO · % SOBRE VENTAS</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-head">
+          <div class="kpi-icon">✨</div>
+          <span class="help" data-tip="Ganancia Bruta − Gastos Operativos − Costos Fijos. Margen neto = Utilidad ÷ Ventas.">?</span>
+        </div>
+        <div class="kpi-lab">UTILIDAD NETA</div>
+        <div class="kpi-val"><span class="em">—</span></div>
+        <div class="kpi-foot">% MARGEN NETO</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-head">
+          <div class="kpi-icon">📤</div>
+          <span class="help" data-tip="Sueldos + Gasolina + Luz + Internet + Reserva. No incluye costos fijos ni costo de mercancía.">?</span>
+        </div>
+        <div class="kpi-lab">TOTAL GASTOS</div>
+        <div class="kpi-val"><span class="em">—</span></div>
+        <div class="kpi-foot">GASTOS OPERATIVOS DEL PERÍODO</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-head">
+          <div class="kpi-icon">🏢</div>
+          <span class="help" data-tip="Costo fijo diario × días del período.">?</span>
+        </div>
+        <div class="kpi-lab">COSTOS FIJOS</div>
+        <div class="kpi-val"><span class="em">—</span></div>
+        <a class="kpi-link" href="#">VER DETALLE EN COSTOS →</a>
+      </div>
+
+      <div class="kpi hl">
+        <div class="kpi-head">
+          <div class="kpi-icon">⚖️</div>
+          <span class="help" data-tip="Punto de Equilibrio: ventas mínimas para cubrir todos los costos del día. P.E. = Gastos día ÷ Margen.">?</span>
+        </div>
+        <div class="kpi-lab">P.E. DEL DÍA</div>
+        <div class="kpi-val"><span class="em">—</span></div>
+        <div class="kpi-foot">% DE LOGRO: <b>—</b></div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-head">
+          <div class="kpi-icon">💳</div>
+          <span class="help" data-tip="Ventas a crédito − Cobros + Otros conceptos.">?</span>
+        </div>
+        <div class="kpi-lab">CXC</div>
+        <div class="kpi-val"><span class="em">—</span></div>
+        <a class="kpi-link" href="#">VER DETALLE EN CXC →</a>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-head">
+          <div class="kpi-icon">📦</div>
+          <span class="help" data-tip="Compras externas − Pagos realizados en el período. Solo refleja compras a crédito del rango.">?</span>
+        </div>
+        <div class="kpi-lab">CXP</div>
+        <div class="kpi-val"><span class="em">—</span></div>
+        <div class="kpi-foot">POR PAGAR</div>
+      </div>
+    </div>
+
+    <!-- P.E. + tendencia -->
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2 class="sec-h">Punto de equilibrio <span class="em">y tendencia diaria</span></h2>
+      <p class="sec-desc">Mínimo de ventas para cubrir costos del día. Verde sobre el P.E. = ganancia.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h3 class="card-h">📈 Tendencia diaria — Ventas vs P.E. <span class="help" data-tip="Línea naranja = ventas diarias. Línea punteada = Punto de Equilibrio. Sobre la punteada = ganancia; abajo = pérdida.">?</span></h3>
+            <p class="card-sub">Línea naranja = ventas · Línea punteada = Punto de Equilibrio</p>
+          </div>
+        </div>
+        <div class="chart">
+          <svg class="live" viewBox="0 0 600 240" preserveAspectRatio="none">
+            <defs>
+              <pattern id="g1" width="60" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 60 0 L 0 0 0 40" fill="none" stroke="#E6E9EE" stroke-width="1"/>
+              </pattern>
+            </defs>
+            <rect width="600" height="240" fill="url(#g1)"/>
+            <line x1="0" y1="140" x2="600" y2="140" stroke="#0E2A4E" stroke-width="1.5" stroke-dasharray="6,5"/>
+            <text x="8" y="135" font-family="Geist Mono" font-size="10" fill="#0E2A4E" letter-spacing="1.2">P.E.</text>
+            <polyline points="0,170 40,150 80,160 120,120 160,135 200,90 240,110 280,75 320,95 360,60 400,80 440,55 480,90 520,40 560,70 600,50" fill="none" stroke="#E07A3E" stroke-width="2.2"/>
+            <g fill="#E07A3E">
+              <circle cx="200" cy="90" r="3"/><circle cx="280" cy="75" r="3"/><circle cx="360" cy="60" r="3"/><circle cx="440" cy="55" r="3"/><circle cx="520" cy="40" r="3"/>
+            </g>
+          </svg>
+          <div class="chart-empty" style="display:none">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#5A6A7E" stroke-width="1.5"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-7"/></svg>
+            Esperando datos
+          </div>
+        </div>
+        <div class="legend">
+          <span><i style="background:#E07A3E"></i>Ventas diarias</span>
+          <span><i style="background:#0E2A4E"></i>Punto de equilibrio</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h3 class="card-h">⚖️ Punto de equilibrio <span class="help" data-tip="Mínimo de ventas para cubrir todos los costos. % de logro = Ventas ÷ P.E.">?</span></h3>
+            <p class="card-sub">Totales del período seleccionado</p>
+          </div>
+        </div>
+
+        <div class="pe-summary">
+          <div class="pe-stat">
+            <div class="l">% de logro</div>
+            <div class="v em">—</div>
+          </div>
+          <div class="pe-stat" style="text-align:right">
+            <div class="l">P.E. del período</div>
+            <div class="v">$—</div>
+          </div>
+        </div>
+
+        <div class="pe-table">
+          <div class="pe-row"><span>Ventas del día</span><span class="v">—</span><span class="pct">100%</span></div>
+          <div class="pe-row"><span>Costo de mercancía</span><span class="v">—</span><span class="pct">—</span></div>
+          <div class="pe-row tot"><span>Ganancia bruta</span><span class="v">—</span><span class="pct">—</span></div>
+          <div class="pe-row"><span>Costos fijos</span><span class="v">—</span><span class="pct">—</span></div>
+          <div class="pe-row"><span>Gastos tienda</span><span class="v">—</span><span class="pct">—</span></div>
+          <div class="pe-row"><span>Gastos casa</span><span class="v">—</span><span class="pct">—</span></div>
+          <div class="pe-row"><span>Nómina</span><span class="v">—</span><span class="pct">—</span></div>
+          <div class="pe-row tot"><span>Total gastos</span><span class="v">—</span><span class="pct">—</span></div>
+          <div class="pe-row profit"><span>Utilidad neta</span><span class="v">—</span><span class="pct">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ganancias acumuladas + productos -->
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2 class="sec-h">Ganancias acumuladas <span class="em">y productos</span></h2>
+      <p class="sec-desc">Mejores meses y productos estrella en el rango seleccionado.</p>
+    </div>
+
+    <div class="grid-2-eq">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h3 class="card-h">📊 Ganancias acumuladas por mes <span class="help" data-tip="Ganancia bruta acumulada de cada mes. Barras altas = meses más rentables.">?</span></h3>
+            <p class="card-sub">Agrupado mensualmente en el rango seleccionado</p>
+          </div>
+        </div>
+        <div class="chart">
+          <svg class="live" viewBox="0 0 600 240" preserveAspectRatio="none">
+            <line x1="0" y1="220" x2="600" y2="220" stroke="#E6E9EE"/>
+            <g>
+              <rect x="40" y="170" width="40" height="50" fill="#9FCDE6"/>
+              <rect x="100" y="140" width="40" height="80" fill="#9FCDE6"/>
+              <rect x="160" y="110" width="40" height="110" fill="#0E2A4E"/>
+              <rect x="220" y="90" width="40" height="130" fill="#0E2A4E"/>
+              <rect x="280" y="70" width="40" height="150" fill="#0E2A4E"/>
+              <rect x="340" y="100" width="40" height="120" fill="#9FCDE6"/>
+              <rect x="400" y="80" width="40" height="140" fill="#0E2A4E"/>
+              <rect x="460" y="60" width="40" height="160" fill="#0E2A4E"/>
+              <rect x="520" y="120" width="40" height="100" fill="#9FCDE6"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h3 class="card-h">🛒 Ganancias por producto <span class="help" data-tip="Producto estrella vs los que necesitan atención. Top 4 en el rango.">?</span></h3>
+            <p class="card-sub">4 principales productos en el rango</p>
+          </div>
+        </div>
+        <div class="chart">
+          <svg class="live" viewBox="0 0 600 240" preserveAspectRatio="none">
+            <g font-family="Geist Mono" font-size="11" fill="#5A6A7E" letter-spacing="1">
+              <text x="14" y="46">PRODUCTO A</text>
+              <text x="14" y="106">PRODUCTO B</text>
+              <text x="14" y="166">PRODUCTO C</text>
+              <text x="14" y="226">PRODUCTO D</text>
+            </g>
+            <g>
+              <rect x="140" y="30" width="380" height="22" fill="#0E2A4E"/>
+              <rect x="140" y="90" width="290" height="22" fill="#163962"/>
+              <rect x="140" y="150" width="200" height="22" fill="#9FCDE6"/>
+              <rect x="140" y="210" width="120" height="22" fill="#C9E3F1"/>
+            </g>
+            <g font-family="Geist Mono" font-size="11" fill="#0A1A30" text-anchor="end">
+              <text x="580" y="46">—</text><text x="580" y="106">—</text><text x="580" y="166">—</text><text x="580" y="226">—</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparativas mensuales -->
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <h2 class="sec-h">Comparativas <span class="em">mensuales</span></h2>
+      <p class="sec-desc">Mes actual vs anterior — día a día y acumulado.</p>
+    </div>
+
+    <div class="grid-2-eq">
+      <div class="card">
+        <div class="card-head"><div>
+          <h3 class="card-h">📅 Ganancias por día — Mes actual vs anterior <span class="help" data-tip="Compara día a día. Si el mes actual es más alto, estás mejorando.">?</span></h3>
+          <p class="card-sub">Comparativa día a día · Naranja = mes actual · Azul = mes anterior</p>
+        </div></div>
+        <div class="chart">
+          <svg class="live" viewBox="0 0 600 240" preserveAspectRatio="none">
+            <line x1="0" y1="220" x2="600" y2="220" stroke="#E6E9EE"/>
+            <g>
+              <rect x="20" y="160" width="14" height="60" fill="#9FCDE6"/><rect x="36" y="140" width="14" height="80" fill="#E07A3E"/>
+              <rect x="60" y="170" width="14" height="50" fill="#9FCDE6"/><rect x="76" y="130" width="14" height="90" fill="#E07A3E"/>
+              <rect x="100" y="120" width="14" height="100" fill="#9FCDE6"/><rect x="116" y="100" width="14" height="120" fill="#E07A3E"/>
+              <rect x="140" y="150" width="14" height="70" fill="#9FCDE6"/><rect x="156" y="130" width="14" height="90" fill="#E07A3E"/>
+              <rect x="180" y="110" width="14" height="110" fill="#9FCDE6"/><rect x="196" y="80" width="14" height="140" fill="#E07A3E"/>
+              <rect x="220" y="140" width="14" height="80" fill="#9FCDE6"/><rect x="236" y="120" width="14" height="100" fill="#E07A3E"/>
+              <rect x="260" y="160" width="14" height="60" fill="#9FCDE6"/><rect x="276" y="100" width="14" height="120" fill="#E07A3E"/>
+              <rect x="300" y="120" width="14" height="100" fill="#9FCDE6"/><rect x="316" y="90" width="14" height="130" fill="#E07A3E"/>
+              <rect x="340" y="100" width="14" height="120" fill="#9FCDE6"/><rect x="356" y="70" width="14" height="150" fill="#E07A3E"/>
+              <rect x="380" y="130" width="14" height="90" fill="#9FCDE6"/><rect x="396" y="110" width="14" height="110" fill="#E07A3E"/>
+              <rect x="420" y="150" width="14" height="70" fill="#9FCDE6"/><rect x="436" y="120" width="14" height="100" fill="#E07A3E"/>
+              <rect x="460" y="80" width="14" height="140" fill="#9FCDE6"/><rect x="476" y="60" width="14" height="160" fill="#E07A3E"/>
+              <rect x="500" y="100" width="14" height="120" fill="#9FCDE6"/><rect x="516" y="80" width="14" height="140" fill="#E07A3E"/>
+              <rect x="540" y="120" width="14" height="100" fill="#9FCDE6"/><rect x="556" y="100" width="14" height="120" fill="#E07A3E"/>
+            </g>
+          </svg>
+        </div>
+        <div class="legend"><span><i style="background:#E07A3E"></i>Mes actual</span><span><i style="background:#9FCDE6"></i>Mes anterior</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div>
+          <h3 class="card-h">📉 Ganancias acumuladas — Mes actual vs anterior <span class="help" data-tip="Cómo se acumula la ganancia a lo largo del mes. Línea actual arriba = mejor que el mes pasado.">?</span></h3>
+          <p class="card-sub">Acumulado progresivo · Diferencia y % al final</p>
+        </div></div>
+        <div class="chart">
+          <svg class="live" viewBox="0 0 600 240" preserveAspectRatio="none">
+            <polyline points="0,220 60,200 120,180 180,150 240,130 300,110 360,90 420,70 480,55 540,45 600,30" fill="none" stroke="#E07A3E" stroke-width="2.5"/>
+            <polyline points="0,220 60,210 120,195 180,170 240,150 300,135 360,120 420,105 480,95 540,85 600,75" fill="none" stroke="#9FCDE6" stroke-width="2.5"/>
+            <line x1="0" y1="220" x2="600" y2="220" stroke="#E6E9EE"/>
+          </svg>
+        </div>
+        <div class="legend"><span><i style="background:#E07A3E"></i>Mes actual</span><span><i style="background:#9FCDE6"></i>Mes anterior</span></div>
+      </div>
+    </div>
+
+    <!-- Análisis semanal y anual -->
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <h2 class="sec-h">Análisis <span class="em">semanal y anual</span></h2>
+      <p class="sec-desc">Detecta semanas pico, quincenas y crecimiento year-over-year.</p>
+    </div>
+
+    <div class="grid-2-eq">
+      <div class="card">
+        <div class="card-head"><div>
+          <h3 class="card-h">📅 Ganancias por semana del año <span class="help" data-tip="Identifica semanas pico (vacaciones, quincenas) y semanas bajas para planificar inventario y personal.">?</span></h3>
+          <p class="card-sub">Acumulado semanal · Selecciona el año</p>
+        </div></div>
+        <div class="chart">
+          <svg class="live" viewBox="0 0 600 240" preserveAspectRatio="none">
+            <line x1="0" y1="220" x2="600" y2="220" stroke="#E6E9EE"/>
+            <g fill="#0E2A4E">
+              <rect x="6" y="180" width="9" height="40"/><rect x="18" y="170" width="9" height="50"/><rect x="30" y="160" width="9" height="60"/><rect x="42" y="150" width="9" height="70"/>
+              <rect x="54" y="140" width="9" height="80"/><rect x="66" y="120" width="9" height="100"/><rect x="78" y="130" width="9" height="90"/><rect x="90" y="100" width="9" height="120"/>
+              <rect x="102" y="90" width="9" height="130"/><rect x="114" y="110" width="9" height="110"/><rect x="126" y="80" width="9" height="140"/><rect x="138" y="70" width="9" height="150"/>
+              <rect x="150" y="100" width="9" height="120"/><rect x="162" y="60" width="9" height="160"/><rect x="174" y="50" width="9" height="170"/><rect x="186" y="80" width="9" height="140"/>
+              <rect x="198" y="40" width="9" height="180"/><rect x="210" y="60" width="9" height="160"/><rect x="222" y="80" width="9" height="140"/><rect x="234" y="70" width="9" height="150"/>
+              <rect x="246" y="90" width="9" height="130"/><rect x="258" y="110" width="9" height="110"/><rect x="270" y="100" width="9" height="120"/><rect x="282" y="80" width="9" height="140"/>
+              <rect x="294" y="60" width="9" height="160"/><rect x="306" y="40" width="9" height="180"/><rect x="318" y="50" width="9" height="170"/><rect x="330" y="70" width="9" height="150"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div>
+          <h3 class="card-h">📆 Ganancia por mes — Año actual vs anterior <span class="help" data-tip="Si las barras del año actual son más altas, el negocio crece. Caída sostenida = atención urgente.">?</span></h3>
+          <p class="card-sub">Comparativa anual en una misma gráfica</p>
+        </div></div>
+        <div class="chart">
+          <svg class="live" viewBox="0 0 600 240" preserveAspectRatio="none">
+            <line x1="0" y1="220" x2="600" y2="220" stroke="#E6E9EE"/>
+            <g>
+              <rect x="20" y="160" width="18" height="60" fill="#9FCDE6"/><rect x="40" y="120" width="18" height="100" fill="#0E2A4E"/>
+              <rect x="80" y="170" width="18" height="50" fill="#9FCDE6"/><rect x="100" y="130" width="18" height="90" fill="#0E2A4E"/>
+              <rect x="140" y="150" width="18" height="70" fill="#9FCDE6"/><rect x="160" y="100" width="18" height="120" fill="#0E2A4E"/>
+              <rect x="200" y="130" width="18" height="90" fill="#9FCDE6"/><rect x="220" y="80" width="18" height="140" fill="#0E2A4E"/>
+              <rect x="260" y="110" width="18" height="110" fill="#9FCDE6"/><rect x="280" y="60" width="18" height="160" fill="#0E2A4E"/>
+              <rect x="320" y="140" width="18" height="80" fill="#9FCDE6"/><rect x="340" y="90" width="18" height="130" fill="#0E2A4E"/>
+              <rect x="380" y="100" width="18" height="120" fill="#9FCDE6"/><rect x="400" y="50" width="18" height="170" fill="#0E2A4E"/>
+              <rect x="440" y="120" width="18" height="100" fill="#9FCDE6"/><rect x="460" y="70" width="18" height="150" fill="#0E2A4E"/>
+              <rect x="500" y="150" width="18" height="70" fill="#9FCDE6"/><rect x="520" y="100" width="18" height="120" fill="#0E2A4E"/>
+            </g>
+          </svg>
+        </div>
+        <div class="legend"><span><i style="background:#0E2A4E"></i>Año actual</span><span><i style="background:#9FCDE6"></i>Año anterior</span></div>
+      </div>
+    </div>
+
+    <!-- Tendencias semanales -->
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <h2 class="sec-h">Tendencias <span class="em">semanales</span></h2>
+      <p class="sec-desc">Lun—Dom · semana actual vs anterior y P&amp;L diario del mes.</p>
+    </div>
+
+    <div class="grid-2-eq">
+      <div class="card">
+        <div class="card-head"><div>
+          <h3 class="card-h">🗓 Ganancias por día — Semana actual vs anterior <span class="help" data-tip="Detecta si un día específico (lunes, fin de semana) está mejorando o empeorando.">?</span></h3>
+          <p class="card-sub">Lun–Dom · Naranja = semana actual · Azul = semana anterior</p>
+        </div></div>
+        <div class="chart">
+          <svg class="live" viewBox="0 0 600 240" preserveAspectRatio="none">
+            <line x1="0" y1="220" x2="600" y2="220" stroke="#E6E9EE"/>
+            <g font-family="Geist Mono" font-size="11" fill="#5A6A7E" text-anchor="middle" letter-spacing="1">
+              <text x="60" y="235">LUN</text><text x="140" y="235">MAR</text><text x="220" y="235">MIÉ</text><text x="300" y="235">JUE</text><text x="380" y="235">VIE</text><text x="460" y="235">SÁB</text><text x="540" y="235">DOM</text>
+            </g>
+            <g>
+              <rect x="40" y="160" width="18" height="55" fill="#9FCDE6"/><rect x="60" y="140" width="18" height="75" fill="#E07A3E"/>
+              <rect x="120" y="150" width="18" height="65" fill="#9FCDE6"/><rect x="140" y="120" width="18" height="95" fill="#E07A3E"/>
+              <rect x="200" y="130" width="18" height="85" fill="#9FCDE6"/><rect x="220" y="100" width="18" height="115" fill="#E07A3E"/>
+              <rect x="280" y="120" width="18" height="95" fill="#9FCDE6"/><rect x="300" y="80" width="18" height="135" fill="#E07A3E"/>
+              <rect x="360" y="100" width="18" height="115" fill="#9FCDE6"/><rect x="380" y="60" width="18" height="155" fill="#E07A3E"/>
+              <rect x="440" y="60" width="18" height="155" fill="#9FCDE6"/><rect x="460" y="40" width="18" height="175" fill="#E07A3E"/>
+              <rect x="520" y="140" width="18" height="75" fill="#9FCDE6"/><rect x="540" y="110" width="18" height="105" fill="#E07A3E"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div>
+          <h3 class="card-h">📉 Ganancias y pérdidas por día — Mes actual <span class="help" data-tip="Verde = ganancia (sobre P.E.). Rojo = pérdida. Más verde = mejor gestión.">?</span></h3>
+          <p class="card-sub">Verde = ganancia · Rojo = pérdida · Línea = tendencia</p>
+        </div></div>
+        <div class="chart">
+          <svg class="live" viewBox="0 0 600 240" preserveAspectRatio="none">
+            <line x1="0" y1="120" x2="600" y2="120" stroke="#E6E9EE"/>
+            <g>
+              <rect x="20" y="80" width="14" height="40" fill="#1E7F5C"/><rect x="40" y="120" width="14" height="30" fill="#9F2B1E"/>
+              <rect x="60" y="60" width="14" height="60" fill="#1E7F5C"/><rect x="80" y="90" width="14" height="30" fill="#1E7F5C"/>
+              <rect x="100" y="120" width="14" height="35" fill="#9F2B1E"/><rect x="120" y="50" width="14" height="70" fill="#1E7F5C"/>
+              <rect x="140" y="70" width="14" height="50" fill="#1E7F5C"/><rect x="160" y="120" width="14" height="20" fill="#9F2B1E"/>
+              <rect x="180" y="40" width="14" height="80" fill="#1E7F5C"/><rect x="200" y="65" width="14" height="55" fill="#1E7F5C"/>
+              <rect x="220" y="120" width="14" height="40" fill="#9F2B1E"/><rect x="240" y="55" width="14" height="65" fill="#1E7F5C"/>
+              <rect x="260" y="35" width="14" height="85" fill="#1E7F5C"/><rect x="280" y="80" width="14" height="40" fill="#1E7F5C"/>
+              <rect x="300" y="120" width="14" height="25" fill="#9F2B1E"/><rect x="320" y="45" width="14" height="75" fill="#1E7F5C"/>
+              <rect x="340" y="60" width="14" height="60" fill="#1E7F5C"/><rect x="360" y="90" width="14" height="30" fill="#1E7F5C"/>
+              <rect x="380" y="120" width="14" height="35" fill="#9F2B1E"/><rect x="400" y="40" width="14" height="80" fill="#1E7F5C"/>
+              <rect x="420" y="55" width="14" height="65" fill="#1E7F5C"/><rect x="440" y="75" width="14" height="45" fill="#1E7F5C"/>
+              <rect x="460" y="120" width="14" height="20" fill="#9F2B1E"/><rect x="480" y="50" width="14" height="70" fill="#1E7F5C"/>
+              <rect x="500" y="30" width="14" height="90" fill="#1E7F5C"/><rect x="520" y="65" width="14" height="55" fill="#1E7F5C"/>
+            </g>
+            <polyline points="0,100 60,80 120,70 180,60 240,55 300,60 360,55 420,50 480,45 540,40 600,42" fill="none" stroke="#0E2A4E" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="legend"><span><i style="background:#1E7F5C"></i>Ganancia</span><span><i style="background:#9F2B1E"></i>Pérdida</span><span><i style="background:#0E2A4E"></i>Tendencia</span></div>
+      </div>
+    </div>
+
+    <!-- Flujo de efectivo overview -->
+    <div class="sec-head">
+      <span class="sec-num">06</span>
+      <h2 class="sec-h">Flujo de efectivo <span class="em">· ingresos y egresos</span></h2>
+      <p class="sec-desc">Movimiento real del dinero. Positivo = entra más de lo que sale.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-head"><div>
+          <h3 class="card-h">💵 Flujo de efectivo <span class="help" data-tip="Entradas (cobros, ventas en efectivo) vs salidas (gastos, compras, retiros).">?</span></h3>
+          <p class="card-sub">Efectivo en caja vs sistema</p>
+        </div></div>
+        <div class="chart" style="aspect-ratio:1.4/1">
+          <svg class="live" viewBox="0 0 400 280" preserveAspectRatio="none">
+            <g fill="none" stroke="#E6E9EE"><line x1="0" y1="60" x2="400" y2="60"/><line x1="0" y1="120" x2="400" y2="120"/><line x1="0" y1="180" x2="400" y2="180"/></g>
+            <rect x="40" y="80" width="40" height="160" fill="#1E7F5C"/>
+            <rect x="100" y="120" width="40" height="120" fill="#9F2B1E"/>
+            <rect x="180" y="60" width="40" height="180" fill="#0E2A4E"/>
+            <rect x="240" y="70" width="40" height="170" fill="#9FCDE6"/>
+            <rect x="320" y="180" width="40" height="60" fill="#E07A3E"/>
+          </svg>
+        </div>
+        <div class="legend"><span><i style="background:#1E7F5C"></i>Ingresos</span><span><i style="background:#9F2B1E"></i>Egresos</span><span><i style="background:#0E2A4E"></i>Esperado</span><span><i style="background:#9FCDE6"></i>Caja</span><span><i style="background:#E07A3E"></i>Diferencia</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div>
+          <h3 class="card-h">⬇️ Ingresos por tipo <span class="help" data-tip="De dónde vino el efectivo: ventas en efectivo, cobros de créditos pasados y anticipos.">?</span></h3>
+          <p class="card-sub">Vta efectivo · Cobranza · Anticipos</p>
+        </div></div>
+        <div class="chart" style="aspect-ratio:1.4/1">
+          <svg class="live" viewBox="0 0 400 280" preserveAspectRatio="xMidYMid meet">
+            <circle cx="200" cy="140" r="90" fill="none" stroke="#E6E9EE" stroke-width="36"/>
+            <circle cx="200" cy="140" r="90" fill="none" stroke="#0E2A4E" stroke-width="36" stroke-dasharray="280 565" transform="rotate(-90 200 140)"/>
+            <circle cx="200" cy="140" r="90" fill="none" stroke="#9FCDE6" stroke-width="36" stroke-dasharray="170 565" stroke-dashoffset="-280" transform="rotate(-90 200 140)"/>
+            <circle cx="200" cy="140" r="90" fill="none" stroke="#E07A3E" stroke-width="36" stroke-dasharray="115 565" stroke-dashoffset="-450" transform="rotate(-90 200 140)"/>
+            <text x="200" y="135" font-family="Instrument Serif" font-size="32" fill="#0E2A4E" text-anchor="middle" font-style="italic">total</text>
+            <text x="200" y="160" font-family="Geist Mono" font-size="12" fill="#5A6A7E" text-anchor="middle" letter-spacing="2">EFECTIVO</text>
+          </svg>
+        </div>
+        <div class="legend"><span><i style="background:#0E2A4E"></i>Vta efectivo</span><span><i style="background:#9FCDE6"></i>Cobranza</span><span><i style="background:#E07A3E"></i>Anticipos</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div>
+          <h3 class="card-h">⬆️ Egresos por tipo <span class="help" data-tip="Compras, gastos tienda/casa, pago compras, nómina, retiro, reserva. El rubro más grande es donde buscar eficiencias primero.">?</span></h3>
+          <p class="card-sub">7 categorías · busca el más grande</p>
+        </div></div>
+        <div class="chart" style="aspect-ratio:1.4/1">
+          <svg class="live" viewBox="0 0 400 280" preserveAspectRatio="xMidYMid meet">
+            <circle cx="200" cy="140" r="90" fill="none" stroke="#E6E9EE" stroke-width="36"/>
+            <circle cx="200" cy="140" r="90" fill="none" stroke="#9F2B1E" stroke-width="36" stroke-dasharray="200 565" transform="rotate(-90 200 140)"/>
+            <circle cx="200" cy="140" r="90" fill="none" stroke="#0E2A4E" stroke-width="36" stroke-dasharray="120 565" stroke-dashoffset="-200" transform="rotate(-90 200 140)"/>
+            <circle cx="200" cy="140" r="90" fill="none" stroke="#9FCDE6" stroke-width="36" stroke-dasharray="90 565" stroke-dashoffset="-320" transform="rotate(-90 200 140)"/>
+            <circle cx="200" cy="140" r="90" fill="none" stroke="#E07A3E" stroke-width="36" stroke-dasharray="60 565" stroke-dashoffset="-410" transform="rotate(-90 200 140)"/>
+            <circle cx="200" cy="140" r="90" fill="none" stroke="#B97A1B" stroke-width="36" stroke-dasharray="40 565" stroke-dashoffset="-470" transform="rotate(-90 200 140)"/>
+            <circle cx="200" cy="140" r="90" fill="none" stroke="#5A6A7E" stroke-width="36" stroke-dasharray="55 565" stroke-dashoffset="-510" transform="rotate(-90 200 140)"/>
+            <text x="200" y="135" font-family="Instrument Serif" font-size="32" fill="#9F2B1E" text-anchor="middle" font-style="italic">salida</text>
+            <text x="200" y="160" font-family="Geist Mono" font-size="12" fill="#5A6A7E" text-anchor="middle" letter-spacing="2">EFECTIVO</text>
+          </svg>
+        </div>
+        <div class="legend"><span><i style="background:#9F2B1E"></i>Compras</span><span><i style="background:#0E2A4E"></i>Tienda</span><span><i style="background:#9FCDE6"></i>Casa</span><span><i style="background:#E07A3E"></i>Pago compras</span><span><i style="background:#B97A1B"></i>Nómina</span><span><i style="background:#5A6A7E"></i>Reserva</span></div>
+      </div>
+    </div>
+
+    <!-- Composición de ventas -->
+    <div class="grid-2-eq">
+      <div class="card">
+        <div class="card-head"><div>
+          <h3 class="card-h">💳 Composición de ventas <span class="help" data-tip="Qué porcentaje de tus ventas alimenta el flujo en efectivo vs queda pendiente por cobrar.">?</span></h3>
+          <p class="card-sub">Efectivo · Tarjeta · Crédito</p>
+        </div></div>
+        <div class="chart" style="aspect-ratio:2/1">
+          <svg class="live" viewBox="0 0 600 220" preserveAspectRatio="none">
+            <rect x="40" y="60" width="220" height="48" fill="#0E2A4E"/>
+            <rect x="260" y="60" width="180" height="48" fill="#9FCDE6"/>
+            <rect x="440" y="60" width="120" height="48" fill="#E07A3E"/>
+            <g font-family="Geist Mono" font-size="11" fill="#fff" letter-spacing="1.5">
+              <text x="60" y="90">EFECTIVO 38%</text>
+            </g>
+            <g font-family="Geist Mono" font-size="11" fill="#0E2A4E" letter-spacing="1.5">
+              <text x="280" y="90">TARJETA 31%</text>
+            </g>
+            <g font-family="Geist Mono" font-size="11" fill="#fff" letter-spacing="1.5">
+              <text x="455" y="90">CRÉDITO 21%</text>
+            </g>
+            <text x="40" y="160" font-family="Instrument Serif" font-style="italic" font-size="28" fill="#0E2A4E">Total — $—</text>
+            <text x="40" y="190" font-family="Geist Mono" font-size="11" fill="#5A6A7E" letter-spacing="1.5">PERIODO 1—25 ABR · COMPARA CONTRA EL MES ANTERIOR</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head biteh">
+          <div>
+            <h3 class="card-h">📝 Bitácora — observaciones del período</h3>
+            <p class="card-sub">Notas del consultor · alertas automáticas · pendientes</p>
+          </div>
+          <button class="pdf-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Nueva nota</button>
+        </div>
+        <div class="bit-loading">CARGANDO OBSERVACIONES…</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===== TAB: NÓMINA ===== -->
+  <section class="tab-pane" data-pane="nom">
+    <div class="kpi-grid">
+      <div class="kpi hl"><div class="kpi-head"><div class="kpi-icon">💰</div></div><div class="kpi-lab">TOTAL NÓMINA</div><div class="kpi-val"><span class="em">—</span></div><div class="kpi-foot">DEL PERÍODO</div></div>
+      <div class="kpi"><div class="kpi-head"><div class="kpi-icon">👥</div></div><div class="kpi-lab">EMPLEADOS</div><div class="kpi-val"><span class="em">—</span></div><div class="kpi-foot">PAGADOS EN EL PERÍODO</div></div>
+      <div class="kpi"><div class="kpi-head"><div class="kpi-icon">🏆</div></div><div class="kpi-lab">PAGO MÁS ALTO</div><div class="kpi-val"><span class="em">—</span></div><div class="kpi-foot">EMPLEADO DESTACADO</div></div>
+      <div class="kpi"><div class="kpi-head"><div class="kpi-icon">✂️</div></div><div class="kpi-lab">TOTAL DESCUENTOS</div><div class="kpi-val"><span class="em">—</span></div><div class="kpi-foot">DEL PERÍODO</div></div>
+      <div class="kpi"><div class="kpi-head"><div class="kpi-icon">🎯</div></div><div class="kpi-lab">COMISIONES</div><div class="kpi-val"><span class="em">—</span></div><div class="kpi-foot">DEL PERÍODO</div></div>
+      <div class="kpi"><div class="kpi-head"><div class="kpi-icon">📊</div></div><div class="kpi-lab">PROMEDIO</div><div class="kpi-val"><span class="em">—</span></div><div class="kpi-foot">POR EMPLEADO</div></div>
+    </div>
+
+    <div class="sec-head"><span class="sec-num">01</span><h2 class="sec-h">Análisis de <span class="em">nómina</span></h2></div>
+
+    <div class="grid-2-eq">
+      <div class="card">
+        <div class="card-head"><div><h3 class="card-h">💼 Pagos semanales por trabajador <span class="help" data-tip="Cuánto se pagó a cada empleado por semana. Detecta variaciones inusuales.">?</span></h3><p class="card-sub">Distribución semanal de sueldos en el período</p></div></div>
+        <div class="chart"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3 class="card-h">📊 Total nómina por mes <span class="help" data-tip="Si la nómina crece más rápido que las ventas, hay un problema de productividad.">?</span></h3><p class="card-sub">Evolución del gasto en sueldos mes a mes</p></div></div>
+        <div class="chart"></div>
+      </div>
+    </div>
+
+    <div class="grid-2-eq">
+      <div class="card">
+        <div class="card-head"><div><h3 class="card-h">⚖️ Sueldos vs gastos operativos <span class="help" data-tip="La nómina no debería superar el 30—35% de las ventas en la mayoría de negocios.">?</span></h3><p class="card-sub">Sueldo · Gasolina · Luz · Internet · Reserva</p></div></div>
+        <div class="chart"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3 class="card-h">📋 Resumen de gastos <span class="help" data-tip="Todos tus gastos categorizados. Identifica dónde reducir costos.">?</span></h3><p class="card-sub">En el período seleccionado</p></div></div>
+        <div class="res-table">
+          <div class="res-cell"><span class="l">TOTAL SUELDOS</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">TOTAL GASOLINA</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">TOTAL LUZ</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">TOTAL INTERNET</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">TOTAL RESERVA</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">% SOBRE VENTAS</span><span class="v">—</span></div>
+          <div class="res-cell tot" style="grid-column:1/-1;border-right:none"><span class="l">TOTAL GASTOS</span><span class="v">—</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TAB: FLUJO ===== -->
+  <section class="tab-pane" data-pane="flu">
+    <div class="sec-head"><span class="sec-num">01</span><h2 class="sec-h">Flujo de <span class="em">efectivo</span></h2><p class="sec-desc">Comparativa de ingresos vs egresos. Esperado − Caja = diferencia.</p></div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><div>
+          <h3 class="card-h">📊 Resumen de flujo <span class="help" data-tip="Efectivo Esperado = Ingresos − Egresos. Efectivo en Caja = dinero contado físicamente. Diferencia = Caja − Esperado (positivo = sobra, negativo = falta).">?</span></h3>
+          <p class="card-sub">Ingresos · Egresos · Efectivo Esperado · Caja · Diferencia</p>
+        </div></div>
+        <div class="chart"></div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-h" style="margin-bottom:16px">📋 Detalle del período</h3>
+        <div class="res-table">
+          <div class="res-cell"><span class="l">💰 SALDO INICIAL</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">💵 VTAS EFECTIVO</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">📥 COBROS</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">🤝 ANTICIPOS</span><span class="v">—</span></div>
+          <div class="res-cell tot"><span class="l">TOTAL INGRESOS</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">🛒 COMPRAS</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">🏪 GASTO TIENDA</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">🏠 GASTO CASA</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">💳 PAGO COMPRAS</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">👥 NÓMINA EFVO</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">💸 RETIRO EFVO</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">🏦 RESERVA</span><span class="v">—</span></div>
+          <div class="res-cell tot"><span class="l">TOTAL EGRESOS</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">EFVO ESPERADO</span><span class="v">—</span></div>
+          <div class="res-cell"><span class="l">EFVO EN CAJA</span><span class="v">—</span></div>
+          <div class="res-cell tot" style="grid-column:1/-1;border-right:none"><span class="l">DIFERENCIA</span><span class="v">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2-eq">
+      <div class="card">
+        <div class="card-head"><div><h3 class="card-h">💚 Ingresos de efectivo <span class="help" data-tip="Composición del efectivo que entró.">?</span></h3><p class="card-sub">Composición del efectivo que entró</p></div></div>
+        <div class="chart"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3 class="card-h">❤️ Egresos de efectivo <span class="help" data-tip="Composición del efectivo que salió.">?</span></h3><p class="card-sub">Composición del efectivo que salió</p></div></div>
+        <div class="chart"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TAB: RESERVA & CxP ===== -->
+  <section class="tab-pane" data-pane="res">
+    <div class="sec-head"><span class="sec-num">01</span><h2 class="sec-h">Reserva &amp; <span class="em">Cuentas por Pagar</span></h2><p class="sec-desc">Saldo de reserva, deuda con proveedores y movimientos.</p></div>
+
+    <div class="grid-2-eq">
+      <div class="card">
+        <div class="card-head"><div><h3 class="card-h">🏦 Evolución del saldo de reserva <span class="help" data-tip="Pendiente positiva = construyes colchón. Negativa = lo consumes.">?</span></h3><p class="card-sub">Saldo acumulado a lo largo del período</p></div></div>
+        <div class="chart"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3 class="card-h">📦 Evolución del saldo de CxP <span class="help" data-tip="Saldo creciente = más endeudado. Decreciente = pagas más de lo que compras a crédito.">?</span></h3><p class="card-sub">Saldo acumulado pendiente de pagar</p></div></div>
+        <div class="chart"></div>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-head"><div><h3 class="card-h">🔄 Movimientos de reserva <span class="help" data-tip="Cuánto se apartó (verde) vs cuánto se gastó (rojo). Verde ≥ rojo, idealmente.">?</span></h3><p class="card-sub">Entradas vs Salidas por período</p></div></div>
+        <div class="chart" style="aspect-ratio:1.3/1"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3 class="card-h">💸 Salidas de reserva por concepto <span class="help" data-tip="En qué se está usando la reserva. Si una rebanada es muy grande, revisa si justifica tocar la reserva.">?</span></h3><p class="card-sub">Pago compras · Nómina · Otros</p></div></div>
+        <div class="chart" style="aspect-ratio:1.3/1"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3 class="card-h">📊 Movimientos de CxP <span class="help" data-tip="Compras a crédito (rojo) vs pagos (verde). Si las compras superan los pagos constantemente, tu deuda crece.">?</span></h3><p class="card-sub">Compras a crédito vs Pagos</p></div></div>
+        <div class="chart" style="aspect-ratio:1.3/1"></div>
+      </div>
+    </div>
+
+    <!-- Estados de cuenta -->
+    <div class="sec-head"><span class="sec-num">02</span><h2 class="sec-h">Estados de cuenta <span class="em">detallados</span></h2></div>
+
+    <div class="grid-2-eq">
+      <div class="card">
+        <div class="card-head"><div>
+          <h3 class="card-h">🏦 Estado de cuenta — Reserva <span class="help" data-tip="Reserva = caja de ahorro interna. Entradas = lo apartado. Salidas = pagos a crédito, nómina o gastos.">?</span></h3>
+          <p class="card-sub">Entradas · Salidas · Saldo disponible</p>
+        </div></div>
+        <div class="stmt-stats">
+          <div class="stmt-stat in"><div class="l">ENTRADAS</div><div class="v">—</div></div>
+          <div class="stmt-stat out"><div class="l">SALIDAS</div><div class="v">—</div></div>
+          <div class="stmt-stat"><div class="l">SALDO</div><div class="v">—</div></div>
+        </div>
+        <table class="stmt">
+          <thead><tr><th>FECHA</th><th>CONCEPTO</th><th>ENTRADA</th><th>SALIDA</th><th>SALDO</th></tr></thead>
+          <tbody><tr class="empty"><td colspan="5">SIN MOVIMIENTOS EN EL RANGO SELECCIONADO</td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div>
+          <h3 class="card-h">📦 Estado de cuenta — CxP <span class="help" data-tip="CxP = compras a crédito. Cargos = compras del período. Abonos = pagos. Saldo = pendiente de pagar.">?</span></h3>
+          <p class="card-sub">Compras a crédito · Pagos · Saldo pendiente</p>
+        </div></div>
+        <div class="stmt-stats">
+          <div class="stmt-stat out"><div class="l">COMPRAS CRÉDITO</div><div class="v">—</div></div>
+          <div class="stmt-stat in"><div class="l">PAGOS</div><div class="v">—</div></div>
+          <div class="stmt-stat"><div class="l">PENDIENTE</div><div class="v">—</div></div>
+        </div>
+        <table class="stmt">
+          <thead><tr><th>FECHA</th><th>CONCEPTO</th><th>CARGO</th><th>ABONO</th><th>SALDO</th></tr></thead>
+          <tbody><tr class="empty"><td colspan="5">SIN MOVIMIENTOS EN EL RANGO SELECCIONADO</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TAB: BANCOS (placeholder estructural) ===== -->
+  <section class="tab-pane" data-pane="ban">
+    <div class="sec-head"><span class="sec-num">01</span><h2 class="sec-h">Saldos <span class="em">bancarios</span></h2><p class="sec-desc">Conciliación de cuentas y movimientos por banco.</p></div>
+    <div class="card" style="padding:48px;text-align:center;color:var(--muted)">
+      <div style="font-family:var(--font-serif);font-style:italic;font-size:30px;color:var(--navy);margin-bottom:8px">Bancos</div>
+      <p style="font-size:14px;max-width:480px;margin:0 auto;line-height:1.55">Vista detallada de cuentas, conciliación y movimientos. Conecta tus bancos para ver saldos en vivo.</p>
+      <button class="apply-btn" style="margin:18px auto 0">Conectar banco</button>
+    </div>
+  </section>
+
+  <footer>
+    <span>OAC · TLAXES INDUSTRIAL</span>
+    <span>SOPORTE · GERLOXSOLIS@GMAIL.COM · +52 1 246 411 5513</span>
+  </footer>
+
+</main>
+
+<script>
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      const pane = document.querySelector('[data-pane="' + t.dataset.tab + '"]');
+      if (pane) pane.classList.add('active');
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    });
+  });
+
+  // Chips (rango)
+  document.querySelectorAll('.chips').forEach(group => {
+    group.querySelectorAll('.chip').forEach(c => {
+      c.addEventListener('click', () => {
+        group.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+        c.classList.add('active');
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

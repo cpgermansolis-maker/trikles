@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>TRIKLES — 🔒 Denuncias Internas</title>
+<title>OAC — 🔒 Denuncias Internas</title>
 <style>
 :root{
   --red:#e74c3c; --red2:#c0392b; --redL:rgba(231,76,60,.12);
@@ -362,9 +362,9 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
 <!-- TOPBAR -->
 <header class="topbar">
   <div class="topbar-left">
-    <img class="topbar-logo" src="https://drive.google.com/thumbnail?id=1V0WQV5mzAmKg7TYpQSl4V_vCd4D2jVX7&sz=w200" alt="Trikles" onerror="this.style.display='none'">
+    <img class="topbar-logo" src="https://drive.google.com/thumbnail?id=1V0WQV5mzAmKg7TYpQSl4V_vCd4D2jVX7&sz=w200" alt="OAC" onerror="this.style.display='none'">
     <div>
-      <div class="topbar-name" id="tbName">TRIKLES</div>
+      <div class="topbar-name" id="tbName">OAC</div>
       <div class="topbar-sub">🔒 DENUNCIAS INTERNAS</div>
     </div>
   </div>
@@ -950,7 +950,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if(!s){ window.location.href='acceso.html'; return; }
   STATE.session = s;
   const tbName = document.getElementById('tbName');
-  if(tbName) tbName.textContent = (s.empresa || 'TRIKLES').replace(/_/g,' ');
+  if(tbName) tbName.textContent = (s.empresa || 'OAC').replace(/_/g,' ');
   if(s.rol === 'SUPER_ADMIN' || s.rol === 'ADMIN'){
     document.getElementById('lnkPanel').style.display='inline-flex';
     document.getElementById('mNavPanel').style.display='flex';

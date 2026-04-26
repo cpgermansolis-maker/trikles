@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>TRIKLES — 🎙️ Transcripción de Audio</title>
+<title>OAC — 🎙️ Transcripción de Audio</title>
 <style>
 :root{
   --orange:#F5821F; --orange2:#c96a10;
@@ -202,9 +202,9 @@ body{background:var(--dark);color:var(--white);font-family:'Nunito',-apple-syste
 <!-- TOPBAR -->
 <header class="topbar">
   <div class="topbar-left">
-    <img class="topbar-logo" src="https://drive.google.com/thumbnail?id=1V0WQV5mzAmKg7TYpQSl4V_vCd4D2jVX7&sz=w200" alt="Trikles" onerror="this.style.display='none'">
+    <img class="topbar-logo" src="https://drive.google.com/thumbnail?id=1V0WQV5mzAmKg7TYpQSl4V_vCd4D2jVX7&sz=w200" alt="OAC" onerror="this.style.display='none'">
     <div>
-      <div class="topbar-name" id="tbName">TRIKLES</div>
+      <div class="topbar-name" id="tbName">OAC</div>
       <div class="topbar-sub">🎙️ TRANSCRIPCIÓN DE AUDIO</div>
     </div>
   </div>
@@ -559,7 +559,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Mostrar nombre de empresa en topbar
   const tbName = document.getElementById('tbName');
-  if(tbName) tbName.textContent = (s.empresa || 'TRIKLES').replace(/_/g, ' ');
+  if(tbName) tbName.textContent = (s.empresa || 'OAC').replace(/_/g, ' ');
 
   // Panel solo para SUPER_ADMIN / ADMIN
   if(s.rol === 'SUPER_ADMIN' || s.rol === 'ADMIN'){
@@ -1217,7 +1217,7 @@ function copiarMinuta(){
   );
 }
 function descargarMinuta(){
-  const txt = `TRIKLES — ${STATE.tipo === 'DENUNCIA' ? 'DENUNCIA INTERNA' : 'MINUTA DE JUNTA'}\n` +
+  const txt = `OAC — ${STATE.tipo === 'DENUNCIA' ? 'DENUNCIA INTERNA' : 'MINUTA DE JUNTA'}\n` +
               `Fecha: ${new Date().toLocaleString('es-MX')}\n` +
               `Empresa: ${STATE.empresa || STATE.session.empresa}\n` +
               `Capturado por: ${STATE.session.nombre}\n\n` +

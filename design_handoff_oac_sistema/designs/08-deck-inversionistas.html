@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>OAC — Deck</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="deck-stage.js"></script>
+<style>
+  :root{--navy:#0E2A4E;--navy-2:#163962;--sky:#9FCDE6;--sky-2:#C9E3F1;--mist:#DCE2E7;--ink:#0A1A30;--muted:#5A6A7E;--line:#E6E9EE;--paper:#FAFBFC;--accent:#E07A3E;--good:#1E7F5C;--warn:#B97A1B;--bad:#9F2B1E;--purple:#7C5BD9;--font-sans:'Geist',system-ui,sans-serif;--font-serif:'Instrument Serif',serif;--font-mono:'Geist Mono',monospace;}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#000;font-family:var(--font-sans);color:var(--ink);-webkit-font-smoothing:antialiased}
+  deck-stage > section{background:var(--paper);overflow:hidden;position:relative}
+  .serif{font-family:var(--font-serif);font-style:italic;font-weight:400}
+  .mono{font-family:var(--font-mono)}
+  .slide{width:100%;height:100%;padding:80px 96px;display:flex;flex-direction:column;position:relative}
+  .stamp{position:absolute;top:36px;left:96px;display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:13px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
+  .stamp i{width:24px;height:1px;background:var(--ink)}
+  .stamp.lt{color:var(--sky)}
+  .stamp.lt i{background:var(--sky)}
+  .pn{position:absolute;bottom:36px;right:96px;font-family:var(--font-mono);font-size:13px;letter-spacing:.16em;color:var(--muted)}
+  .pn.lt{color:var(--sky)}
+  .ft{position:absolute;bottom:36px;left:96px;font-family:var(--font-mono);font-size:12px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+  .ft.lt{color:var(--sky)}
+  h1.t,h2.t{margin:0;letter-spacing:-.022em;font-weight:500;line-height:1.02}
+  h1.t{font-size:124px}
+  h2.t{font-size:78px}
+  h3.t{font-size:48px;letter-spacing:-.018em;font-weight:500;line-height:1.06;margin:0}
+  p.lead{font-size:24px;color:var(--muted);line-height:1.5;max-width:1100px;margin:24px 0 0;font-weight:300}
+  /* Logo */
+  .logo{display:flex;align-items:center;gap:18px}
+  .logo .lt{display:flex;flex-direction:column}
+  .logo .a{font-size:30px;font-weight:600;letter-spacing:-.018em;line-height:1}
+  .logo .b{font-family:var(--font-mono);font-size:11px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-top:6px}
+  .logo.lt .a{color:#fff}
+  .logo.lt .b{color:var(--sky)}
+
+  /* SLIDE 1 — TITLE */
+  .s-title{background:linear-gradient(180deg,var(--navy) 0%,#1A4378 100%);color:#fff;padding:0;display:grid;grid-template-columns:1.2fr 1fr;gap:0}
+  .s-title .L{padding:96px 80px 80px 96px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid rgba(255,255,255,.1)}
+  .s-title .R{padding:96px 80px 80px 80px;display:flex;flex-direction:column;justify-content:space-between;background:rgba(255,255,255,.03)}
+  .s-title h1{font-size:96px;letter-spacing:-.024em;font-weight:500;line-height:.98;margin:0}
+  .s-title h1 .serif{color:var(--sky)}
+  .s-title .sub{font-size:18px;color:var(--sky);font-family:var(--font-mono);letter-spacing:.16em;text-transform:uppercase;margin-top:24px}
+  .s-title .meta{font-family:var(--font-mono);font-size:13px;letter-spacing:.18em;color:rgba(255,255,255,.5);text-transform:uppercase;display:flex;flex-direction:column;gap:8px}
+  .s-title .meta b{color:#fff;font-weight:500;letter-spacing:.05em;text-transform:none;font-family:var(--font-sans);font-size:16px}
+  .s-title .R-stat{margin-top:auto}
+  .s-title .R-stat .v{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:148px;color:var(--sky);line-height:.92;letter-spacing:-.02em}
+  .s-title .R-stat .l{font-family:var(--font-mono);font-size:13px;letter-spacing:.18em;color:rgba(255,255,255,.6);text-transform:uppercase;margin-top:18px;max-width:340px;line-height:1.5}
+
+  /* SLIDE 2 — PROBLEMA */
+  .s-prob{display:grid;grid-template-rows:auto 1fr;gap:48px}
+  .prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:stretch}
+  .prob{background:#fff;border:1px solid var(--line);border-radius:14px;padding:32px;display:flex;flex-direction:column;gap:18px}
+  .prob .n{font-family:var(--font-mono);font-size:13px;letter-spacing:.16em;color:var(--accent);text-transform:uppercase}
+  .prob h4{font-size:30px;font-weight:500;letter-spacing:-.018em;line-height:1.1;margin:0;color:var(--ink)}
+  .prob h4 .serif{color:var(--navy)}
+  .prob p{font-size:16px;color:var(--muted);line-height:1.55;margin:0}
+  .prob .stat{margin-top:auto;padding-top:20px;border-top:1px solid var(--line);font-family:var(--font-mono)}
+  .prob .stat .v{font-size:32px;font-weight:500;color:var(--bad);letter-spacing:-.018em}
+  .prob .stat .l{font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-top:4px}
+
+  /* SLIDE 3 — SOLUCION */
+  .s-sol{background:linear-gradient(180deg,var(--navy),#1A4378);color:#fff;display:grid;grid-template-rows:auto 1fr;gap:48px}
+  .s-sol h2.t{color:#fff}
+  .s-sol h2.t .serif{color:var(--sky)}
+  .s-sol .lead{color:rgba(255,255,255,.7)}
+  .pill-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .pill-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:28px;display:flex;flex-direction:column;gap:14px}
+  .pill-card .ic{width:42px;height:42px;border-radius:10px;background:var(--sky);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600}
+  .pill-card h5{font-size:20px;font-weight:500;letter-spacing:-.012em;margin:0;color:#fff}
+  .pill-card p{font-size:14px;color:rgba(255,255,255,.65);line-height:1.5;margin:0}
+
+  /* SLIDE 4 — DIFERENCIAL */
+  .s-diff{display:grid;grid-template-columns:1fr 1.4fr;gap:64px;align-items:center}
+  .s-diff .L h2.t{font-size:64px}
+  .s-diff .L .lead{margin-top:32px;font-size:20px}
+  .compare{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .compare table{width:100%;border-collapse:collapse;font-size:16px}
+  .compare th{text-align:left;font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;font-weight:500;padding:18px 22px;border-bottom:1px solid var(--line);background:var(--paper)}
+  .compare th.us{color:var(--navy);background:var(--sky-2)}
+  .compare td{padding:18px 22px;border-bottom:1px solid var(--line);color:var(--ink)}
+  .compare tr:last-child td{border-bottom:none}
+  .compare td.us{background:rgba(159,205,230,.18);font-weight:500}
+  .compare td.ck{font-size:18px;text-align:center}
+  .compare td.ck.on{color:var(--good)}
+  .compare td.ck.off{color:var(--bad)}
+  .compare td.ck.partial{color:var(--warn);font-size:11px;font-family:var(--font-mono)}
+
+  /* SLIDE 5 — MERCADO */
+  .market{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:start}
+  .market-stats{display:flex;flex-direction:column;gap:12px}
+  .ms{display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:baseline;padding:28px 32px;background:#fff;border:1px solid var(--line);border-radius:14px}
+  .ms .v{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:84px;color:var(--navy);line-height:.9;letter-spacing:-.02em}
+  .ms .l b{display:block;font-size:18px;font-weight:500;letter-spacing:-.005em;color:var(--ink);margin-bottom:6px}
+  .ms .l span{font-size:14px;color:var(--muted);line-height:1.5;display:block}
+  .market .R h3.t{font-size:38px}
+  .funnel{margin-top:32px;display:flex;flex-direction:column;gap:8px}
+  .fn{display:grid;grid-template-columns:1fr auto;align-items:center;padding:18px 24px;background:#fff;border:1px solid var(--line);border-radius:10px;font-size:16px}
+  .fn .nm b{font-weight:500}
+  .fn .nm span{display:block;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:2px}
+  .fn .v{font-family:var(--font-mono);font-size:20px;font-weight:500;color:var(--navy)}
+
+  /* SLIDE 6 — PRODUCTO (mosaic) */
+  .s-prod{display:grid;grid-template-rows:auto 1fr;gap:36px}
+  .prod-mosaic{display:grid;grid-template-columns:1.4fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:14px}
+  .pm{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative}
+  .pm .lbl{position:absolute;top:18px;left:20px;display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;background:rgba(255,255,255,.92);padding:6px 12px;border-radius:6px;backdrop-filter:blur(6px);z-index:5;border:1px solid var(--line)}
+  .pm .lbl b{color:var(--navy);font-weight:600}
+  .pm iframe{width:100%;height:100%;border:0;pointer-events:none}
+  .pm.big{grid-row:span 2}
+  .pm.big iframe{transform:scale(.55);transform-origin:0 0;width:182%;height:182%}
+  .pm.s iframe{transform:scale(.36);transform-origin:0 0;width:278%;height:278%}
+
+  /* SLIDE 7 — PRICING */
+  .s-pricing{display:grid;grid-template-rows:auto 1fr;gap:32px}
+  .pr-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .pr{background:#fff;border:1px solid var(--line);border-radius:14px;padding:32px;display:flex;flex-direction:column;gap:18px;position:relative}
+  .pr.featured{background:var(--navy);color:#fff;border-color:var(--navy);transform:scale(1.03)}
+  .pr.featured .nm,.pr.featured .price,.pr.featured ul li{color:#fff}
+  .pr.featured .desc{color:var(--sky)}
+  .pr.featured .badge{position:absolute;top:-12px;left:24px;background:var(--accent);color:#fff;padding:4px 12px;border-radius:5px;font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:500}
+  .pr .nm{font-family:var(--font-mono);font-size:13px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;font-weight:500}
+  .pr .price{font-size:38px;font-weight:500;letter-spacing:-.02em;line-height:1;color:var(--ink)}
+  .pr .price small{font-family:var(--font-mono);font-size:13px;font-weight:400;color:var(--muted);letter-spacing:0;display:block;margin-top:6px}
+  .pr.featured .price small{color:var(--sky)}
+  .pr .desc{font-size:14px;color:var(--muted);line-height:1.5;margin:0}
+  .pr ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--ink);border-top:1px solid var(--line);padding-top:18px}
+  .pr.featured ul{border-color:rgba(255,255,255,.15)}
+  .pr ul li{display:flex;gap:10px;align-items:flex-start;line-height:1.4}
+  .pr ul li::before{content:"✓";color:var(--good);font-weight:600;flex-shrink:0}
+  .pr.featured ul li::before{color:var(--sky)}
+
+  /* SLIDE 8 — TRACCIÓN */
+  .s-trac{background:linear-gradient(180deg,var(--navy),#1A4378);color:#fff}
+  .s-trac h2.t,.s-trac h3.t{color:#fff}
+  .s-trac h2.t .serif,.s-trac h3.t .serif{color:var(--sky)}
+  .s-trac .lead{color:rgba(255,255,255,.7)}
+  .trac-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:48px}
+  .tr{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:28px}
+  .tr .l{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--sky);text-transform:uppercase;margin-bottom:12px}
+  .tr .v{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:78px;color:#fff;line-height:.9;letter-spacing:-.02em}
+  .tr .d{font-size:13px;color:rgba(255,255,255,.6);margin-top:12px;line-height:1.45}
+  .proj-row{margin-top:48px;display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:24px;align-items:center}
+  .proj{padding:24px 28px}
+  .proj .l{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--sky);text-transform:uppercase;margin-bottom:8px}
+  .proj .v{font-family:var(--font-mono);font-size:32px;font-weight:500;color:#fff;letter-spacing:-.012em}
+  .proj .d{font-size:13px;color:rgba(255,255,255,.55);margin-top:6px}
+  .proj-arrow{font-family:var(--font-mono);font-size:24px;color:var(--sky);font-weight:300}
+
+  /* SLIDE 9 — EQUIPO */
+  .team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:48px}
+  .tm{background:#fff;border:1px solid var(--line);border-radius:14px;padding:32px;display:flex;flex-direction:column;gap:16px}
+  .tm-h{display:flex;align-items:center;gap:18px}
+  .tm-av{width:64px;height:64px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:500;font-size:20px;letter-spacing:-.01em;flex-shrink:0}
+  .tm-info b{display:block;font-size:18px;font-weight:500;letter-spacing:-.005em;color:var(--ink)}
+  .tm-info span{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-top:4px;display:block}
+  .tm p{font-size:14px;color:var(--muted);line-height:1.55;margin:0}
+  .tm .cred{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:14px}
+  .tm .cred span{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--ink);text-transform:uppercase}
+
+  /* SLIDE 10 — ASK / CTA */
+  .s-ask{background:linear-gradient(180deg,var(--navy),#1A4378);color:#fff;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+  .s-ask h1.t{color:#fff;font-size:108px}
+  .s-ask h1.t .serif{color:var(--sky)}
+  .s-ask .lead{color:rgba(255,255,255,.75);margin-top:32px;font-size:24px}
+  .ask-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.16);border-radius:18px;padding:48px}
+  .ask-card .l{font-family:var(--font-mono);font-size:13px;letter-spacing:.18em;color:var(--sky);text-transform:uppercase;margin-bottom:20px}
+  .ask-card .v{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:108px;color:#fff;line-height:.92;letter-spacing:-.02em}
+  .ask-card .v small{font-family:var(--font-mono);font-style:normal;font-size:24px;color:var(--sky);letter-spacing:.04em;display:block;margin-top:12px}
+  .ask-uses{margin-top:32px;display:flex;flex-direction:column;gap:14px;border-top:1px solid rgba(255,255,255,.12);padding-top:32px}
+  .ask-use{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;font-size:16px;color:#fff}
+  .ask-use .pct{font-family:var(--font-mono);font-size:13px;color:var(--sky);letter-spacing:.08em}
+  .ask-use .nm b{font-weight:500;display:block}
+  .ask-use .nm span{font-size:13px;color:rgba(255,255,255,.5);display:block;margin-top:2px}
+  .ask-cta{margin-top:48px;display:flex;gap:16px}
+  .ask-btn{padding:18px 32px;border-radius:10px;font-size:18px;font-weight:500;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff}
+  .ask-btn.pri{background:var(--sky);color:var(--navy);border-color:var(--sky)}
+</style>
+</head>
+<body>
+<deck-stage>
+
+<!-- 01 TITLE -->
+<section data-screen-label="01 Title">
+  <div class="s-title">
+    <div class="L">
+      <div class="logo lt">
+        <svg width="56" height="32" viewBox="0 0 400 220"><g style="mix-blend-mode:multiply"><circle cx="110" cy="110" r="90" fill="#9FCDE6" opacity=".95"/><polygon points="200,20 290,200 110,200" fill="#D8DDE1" opacity=".85"/><path d="M220 20 a90 90 0 0 1 0 180 L290 200 L290 20 Z" fill="#fff" opacity=".92"/></g></svg>
+        <span class="lt"><span class="a">OAC</span><span class="b">Sistema</span></span>
+      </div>
+      <div>
+        <h1>El sistema operativo<br/><span class="serif">de tu empresa.</span></h1>
+        <div class="sub">— Software + acompañamiento contable</div>
+      </div>
+      <div class="meta">
+        <span>PRESENTACIÓN INVERSIONISTAS · CLIENTES</span>
+        <b>Abril 2026 · Tlaxcala, México</b>
+      </div>
+    </div>
+    <div class="R">
+      <div style="font-family:var(--font-mono);font-size:13px;letter-spacing:.18em;color:rgba(255,255,255,.5);text-transform:uppercase">— OPORTUNIDAD</div>
+      <div class="R-stat">
+        <div class="v">$4.8B</div>
+        <div class="l">PYMES MEXICANAS GASTAN AL AÑO EN ERPs FRAGMENTADOS QUE NO ENTIENDEN.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 PROBLEMA -->
+<section data-screen-label="02 Problema">
+  <div class="slide s-prob">
+    <div class="stamp"><i></i>01 · EL PROBLEMA</div>
+    <div>
+      <h2 class="t">Las PYMES gastan caro <span class="serif">y mal.</span></h2>
+      <p class="lead">El dueño no ve lo que pasa, los sistemas no se hablan, y el contador entrega información tres semanas tarde.</p>
+    </div>
+    <div class="prob-grid">
+      <div class="prob">
+        <span class="n">— 01</span>
+        <h4>Stack <span class="serif">fragmentado</span></h4>
+        <p>Contpaqi para fiscal, Aspel para nómina, Excel para flujo, EthicsPoint para denuncias. 5 proveedores, 5 facturas, 0 visibilidad cruzada.</p>
+        <div class="stat"><div class="v">$8K–22K</div><div class="l">MENSUALES SOLO EN LICENCIAS</div></div>
+      </div>
+      <div class="prob">
+        <span class="n">— 02</span>
+        <h4>Información <span class="serif">tardía</span></h4>
+        <p>El dueño se entera del flujo de caja cuando el contador cierra el mes — entre 15 y 25 días después de los hechos. Las decisiones se toman a ciegas.</p>
+        <div class="stat"><div class="v">21 días</div><div class="l">PROMEDIO DE RETRASO</div></div>
+      </div>
+      <div class="prob">
+        <span class="n">— 03</span>
+        <h4>Compliance <span class="serif">sin doliente</span></h4>
+        <p>NOM-035 obliga canal de denuncias, pero las pymes no saben gestionarlo. Resultado: o no lo tienen, o las denuncias se acumulan sin investigar.</p>
+        <div class="stat"><div class="v">73%</div><div class="l">DE PYMES INCUMPLEN NOM-035</div></div>
+      </div>
+    </div>
+    <div class="ft">FUENTE: ENCUESTA INEGI PYMES 2025 · OAC RESEARCH</div>
+    <div class="pn">02 / 10</div>
+  </div>
+</section>
+
+<!-- 03 SOLUCION -->
+<section data-screen-label="03 Solución">
+  <div class="slide s-sol">
+    <div class="stamp lt"><i></i>02 · LA SOLUCIÓN</div>
+    <div>
+      <h2 class="t">Una sola plataforma, <span class="serif">acompañamiento incluido.</span></h2>
+      <p class="lead">OAC reemplaza tu stack contable, automatiza compliance con IA y te entrega un controller virtual sin contratar uno.</p>
+    </div>
+    <div class="pill-grid">
+      <div class="pill-card"><div class="ic">📊</div><h5>Financiero</h5><p>Captura, conciliación bancaria, P.E. en tiempo real, reservas y proyección de flujo.</p></div>
+      <div class="pill-card"><div class="ic">👥</div><h5>Nómina &amp; RH</h5><p>Cálculo IMSS, comisiones, asistencia y vacaciones. Multi-empresa nativo.</p></div>
+      <div class="pill-card"><div class="ic">🎙️</div><h5>IA · Transcripción</h5><p>Sube el audio de cualquier junta, OAC genera minuta, decisiones y pendientes asignados.</p></div>
+      <div class="pill-card"><div class="ic">🔒</div><h5>IA · Denuncias</h5><p>Canal NOM-035 con dictamen IA y razonamiento auditable. El módulo estrella.</p></div>
+    </div>
+    <div class="ft lt">7 MÓDULOS · 1 LOGIN · 1 FACTURA</div>
+    <div class="pn lt">03 / 10</div>
+  </div>
+</section>
+
+<!-- 04 DIFERENCIAL -->
+<section data-screen-label="04 Diferencial">
+  <div class="slide s-diff">
+    <div class="stamp"><i></i>03 · POR QUÉ OAC</div>
+    <div class="L">
+      <h2 class="t">No competimos contra Contpaqi. <span class="serif">Lo reemplazamos.</span></h2>
+      <p class="lead">Software + consultoría humana + IA aplicada a compliance. Nadie más cierra el ciclo completo a este precio.</p>
+    </div>
+    <div class="compare">
+      <table>
+        <thead><tr><th></th><th>CONTPAQI</th><th>ASPEL</th><th>ETHICSPOINT</th><th class="us">OAC</th></tr></thead>
+        <tbody>
+          <tr><td>Financiero / Captura</td><td class="ck on">●</td><td class="ck on">●</td><td class="ck off">○</td><td class="ck on us">●</td></tr>
+          <tr><td>Nómina + IMSS</td><td class="ck on">●</td><td class="ck on">●</td><td class="ck off">○</td><td class="ck on us">●</td></tr>
+          <tr><td>P.E. / Costos en vivo</td><td class="ck off">○</td><td class="ck off">○</td><td class="ck off">○</td><td class="ck on us">●</td></tr>
+          <tr><td>Multi-empresa nativo</td><td class="ck partial">EXTRA</td><td class="ck partial">EXTRA</td><td class="ck off">○</td><td class="ck on us">●</td></tr>
+          <tr><td>Denuncias NOM-035 + IA</td><td class="ck off">○</td><td class="ck off">○</td><td class="ck on">●</td><td class="ck on us">●</td></tr>
+          <tr><td>Transcripción IA juntas</td><td class="ck off">○</td><td class="ck off">○</td><td class="ck off">○</td><td class="ck on us">●</td></tr>
+          <tr><td>Acompañamiento humano</td><td class="ck off">○</td><td class="ck off">○</td><td class="ck off">○</td><td class="ck on us">●</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ft">DICTAMEN IA + RAZONAMIENTO AUDITABLE = NUESTRO MOAT</div>
+    <div class="pn">04 / 10</div>
+  </div>
+</section>
+
+<!-- 05 MERCADO -->
+<section data-screen-label="05 Mercado">
+  <div class="slide">
+    <div class="stamp"><i></i>04 · MERCADO</div>
+    <h2 class="t" style="margin-bottom:48px">El mercado <span class="serif">que vamos a tomar.</span></h2>
+    <div class="market">
+      <div class="market-stats">
+        <div class="ms"><div class="v">4.9M</div><div class="l"><b>PYMES en México</b><span>Establecimientos formales con &lt;250 empleados (INEGI 2024)</span></div></div>
+        <div class="ms"><div class="v">$48B</div><div class="l"><b>TAM estimado</b><span>Software contable + nómina + compliance · 4.9M × $9.7K/año</span></div></div>
+        <div class="ms"><div class="v">$2.4B</div><div class="l"><b>SAM 5 años</b><span>PYMES medianas (50–250 empl.) que pueden pagar tier Pro o Business</span></div></div>
+      </div>
+      <div class="R">
+        <h3 class="t">Beachhead: <span class="serif">empresas familiares</span> con 30–150 empleados, holdings industriales y constructoras del centro y bajío.</h3>
+        <div class="funnel">
+          <div class="fn"><div class="nm"><b>Tlaxcala + Puebla</b><span>BEACHHEAD INICIAL</span></div><div class="v">~14K</div></div>
+          <div class="fn"><div class="nm"><b>Centro de México</b><span>EXPANSIÓN AÑO 2</span></div><div class="v">~210K</div></div>
+          <div class="fn"><div class="nm"><b>Nacional</b><span>HORIZONTE 5 AÑOS</span></div><div class="v">~890K</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="ft">FUENTE: INEGI DENUE 2024 · OAC SIZING</div>
+    <div class="pn">05 / 10</div>
+  </div>
+</section>
+
+<!-- 06 PRODUCTO -->
+<section data-screen-label="06 Producto">
+  <div class="slide s-prod">
+    <div class="stamp"><i></i>05 · EL PRODUCTO</div>
+    <div>
+      <h2 class="t">Esto ya <span class="serif">existe.</span></h2>
+      <p class="lead">5 módulos en producción, 4 empresas activas, dictámenes IA generados a diario.</p>
+    </div>
+    <div class="prod-mosaic">
+      <div class="pm big"><div class="lbl"><b>DASHBOARD</b> · Holding consolidado</div><iframe src="dashboard.html"></iframe></div>
+      <div class="pm s"><div class="lbl"><b>COSTOS</b> · P.E.</div><iframe src="costos.html"></iframe></div>
+      <div class="pm s"><div class="lbl"><b>DENUNCIAS</b> · Dictamen IA</div><iframe src="denuncias.html"></iframe></div>
+      <div class="pm s"><div class="lbl"><b>PANEL</b> · Multi-empresa</div><iframe src="panel.html"></iframe></div>
+      <div class="pm s"><div class="lbl"><b>TRANSCRIPCIÓN</b> · Minuta IA</div><iframe src="transcripcion.html"></iframe></div>
+    </div>
+    <div class="pn">06 / 10</div>
+  </div>
+</section>
+
+<!-- 07 PRICING -->
+<section data-screen-label="07 Pricing">
+  <div class="slide s-pricing">
+    <div class="stamp"><i></i>06 · PRICING</div>
+    <div>
+      <h2 class="t">Cuatro tiers, <span class="serif">un solo producto.</span></h2>
+      <p class="lead">Pricing transparente en MXN/mes. Sin contratos anuales forzados. Sin costos ocultos por usuario adicional.</p>
+    </div>
+    <div class="pr-grid">
+      <div class="pr">
+        <div class="nm">— STARTER</div>
+        <div class="price">$2,500<small>MXN / mes</small></div>
+        <p class="desc">Una empresa. Hasta 5 usuarios. Para PYMEs que arrancan.</p>
+        <ul><li>Financiero + CxC/CxP</li><li>Nómina hasta 15 empl.</li><li>1 conciliación bancaria</li><li>Soporte por chat</li></ul>
+      </div>
+      <div class="pr">
+        <div class="nm">— PROFESSIONAL</div>
+        <div class="price">$6,500<small>MXN / mes</small></div>
+        <p class="desc">2 empresas. Hasta 12 usuarios. Para holdings pequeños.</p>
+        <ul><li>Todo Starter +</li><li>Costos / P.E. en vivo</li><li>Multi-empresa</li><li>Transcripción IA · 20h/mes</li></ul>
+      </div>
+      <div class="pr featured">
+        <span class="badge">★ Más vendido</span>
+        <div class="nm">— BUSINESS</div>
+        <div class="price">$12,000<small>MXN / mes</small></div>
+        <p class="desc">Hasta 5 empresas. Usuarios ilimitados. Compliance IA.</p>
+        <ul><li>Todo Professional +</li><li>Denuncias · dictamen IA</li><li>Transcripción ilimitada</li><li>Controller dedicado 8h/mes</li></ul>
+      </div>
+      <div class="pr">
+        <div class="nm">— ENTERPRISE</div>
+        <div class="price">$30,000<small>MXN / mes desde</small></div>
+        <p class="desc">Empresas ilimitadas. SSO. SLA dedicado.</p>
+        <ul><li>Todo Business +</li><li>Empresas ilimitadas</li><li>API + integraciones</li><li>Controller in-house</li></ul>
+      </div>
+    </div>
+    <div class="ft">LTV PROMEDIO: $1.4M MXN A 5 AÑOS · CAC: $42K</div>
+    <div class="pn">07 / 10</div>
+  </div>
+</section>
+
+<!-- 08 TRACCION -->
+<section data-screen-label="08 Tracción">
+  <div class="slide s-trac">
+    <div class="stamp lt"><i></i>07 · TRACCIÓN &amp; PROYECCIÓN</div>
+    <div style="padding:0 0 24px">
+      <h2 class="t">Donde estamos. <span class="serif">A dónde vamos.</span></h2>
+    </div>
+    <div class="trac-grid">
+      <div class="tr"><div class="l">CLIENTES ACTIVOS</div><div class="v">12</div><div class="d">9 PYMES + Holding Tlaxes (4 empresas)</div></div>
+      <div class="tr"><div class="l">MRR ACTUAL</div><div class="v">$94K</div><div class="d">MXN · cierre marzo 2026</div></div>
+      <div class="tr"><div class="l">CRECIMIENTO MoM</div><div class="v">+22%</div><div class="d">Promedio últimos 6 meses</div></div>
+      <div class="tr"><div class="l">CHURN</div><div class="v">0%</div><div class="d">Cero cancelaciones desde lanzamiento</div></div>
+    </div>
+    <div class="proj-row">
+      <div class="proj"><div class="l">HOY · ABR 2026</div><div class="v">$94K MRR</div><div class="d">12 clientes · MXN</div></div>
+      <div class="proj-arrow">→</div>
+      <div class="proj"><div class="l">DIC 2026 · META</div><div class="v">$420K MRR</div><div class="d">45 clientes · post-ronda</div></div>
+      <div class="proj-arrow">→</div>
+      <div class="proj"><div class="l">DIC 2028 · VISIÓN</div><div class="v">$3.2M MRR</div><div class="d">280 clientes · serie A</div></div>
+    </div>
+    <div class="pn lt">08 / 10</div>
+  </div>
+</section>
+
+<!-- 09 EQUIPO -->
+<section data-screen-label="09 Equipo">
+  <div class="slide">
+    <div class="stamp"><i></i>08 · EQUIPO</div>
+    <h2 class="t">Operadores <span class="serif">que han vivido el problema.</span></h2>
+    <div class="team-grid">
+      <div class="tm">
+        <div class="tm-h">
+          <div class="tm-av" style="background:var(--navy)">GS</div>
+          <div class="tm-info"><b>Germán Solís</b><span>FOUNDER · CEO</span></div>
+        </div>
+        <p>15 años llevando la contabilidad de holdings familiares en Tlaxcala. La frustración de los Excel y stacks fragmentados es la chispa de OAC.</p>
+        <div class="cred"><span>EX-CFO HOLDING TLAXES</span><span>CONTADOR PÚBLICO · UATX</span></div>
+      </div>
+      <div class="tm">
+        <div class="tm-h">
+          <div class="tm-av" style="background:var(--accent)">MH</div>
+          <div class="tm-info"><b>Mauricio Hernández</b><span>CO-FOUNDER · CTO</span></div>
+        </div>
+        <p>Construyó la primera versión de TRIKLES en 11 meses. Especialista en sistemas distribuidos y aplicación de LLMs a flujos de compliance.</p>
+        <div class="cred"><span>EX-INDIE · LATAM</span><span>ING. SISTEMAS · BUAP</span></div>
+      </div>
+      <div class="tm">
+        <div class="tm-h">
+          <div class="tm-av" style="background:var(--purple)">LA</div>
+          <div class="tm-info"><b>Lucía Aguilar</b><span>HEAD OF SUCCESS</span></div>
+        </div>
+        <p>20 años en RH industrial. Diseña el modelo de acompañamiento humano que convierte el software en un producto consultivo.</p>
+        <div class="cred"><span>EX-RH GRUPO INDUSTRIAL</span><span>PSICOLOGÍA · UATX</span></div>
+      </div>
+    </div>
+    <div class="ft">+ 4 INGENIEROS · 2 CONTROLLERS · 1 LEGAL</div>
+    <div class="pn">09 / 10</div>
+  </div>
+</section>
+
+<!-- 10 ASK -->
+<section data-screen-label="10 Ask">
+  <div class="slide s-ask">
+    <div>
+      <div class="stamp lt"><i></i>09 · ASK</div>
+      <h1 class="t">Estamos <span class="serif">levantando.</span></h1>
+      <p class="lead">Pre-seed para llegar a $420K MRR en 18 meses, validar enterprise y abrir Bajío.</p>
+      <div class="ask-cta">
+        <button class="ask-btn pri">Agenda una reunión →</button>
+        <button class="ask-btn">Pide el deck data room</button>
+      </div>
+    </div>
+    <div class="ask-card">
+      <div class="l">— RONDA PRE-SEED</div>
+      <div class="v">$8M<small>MXN · 18 MESES DE RUNWAY</small></div>
+      <div class="ask-uses">
+        <div class="ask-use"><span class="pct">45%</span><div class="nm"><b>Producto &amp; IA</b><span>3 ingenieros + cómputo LLM</span></div></div>
+        <div class="ask-use"><span class="pct">30%</span><div class="nm"><b>Go-to-market</b><span>Sales + marketing Bajío</span></div></div>
+        <div class="ask-use"><span class="pct">15%</span><div class="nm"><b>Acompañamiento</b><span>Controllers + RH success</span></div></div>
+        <div class="ask-use"><span class="pct">10%</span><div class="nm"><b>Operación</b><span>Legal + finanzas + admin</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</deck-stage>
+</body>
+</html>

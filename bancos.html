@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Trikles — Estado de Cuenta Bancario</title>
+<title>OAC — Estado de Cuenta Bancario</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="stylesheet" href="mobile.css">
@@ -387,7 +387,7 @@ if (!SESSION) location.href = 'acceso.html';
 // Empresa activa: para SuperAdmin usa empresaFiltro si existe; resto usa su empresa fija
 const ACTIVE_EMPRESA = (SESSION && SESSION.empresaFiltro && SESSION.empresaFiltro !== 'ALL')
   ? SESSION.empresaFiltro
-  : (SESSION && SESSION.empresa) || 'TRIKLES';
+  : (SESSION && SESSION.empresa) || 'OAC';
 
 // Pintado inicial del nombre (se refina al cargar branding de la empresa)
 if (SESSION) document.getElementById('topbar-name').textContent = ACTIVE_EMPRESA.replace(/_/g,' ').toUpperCase();

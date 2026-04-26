@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>OAC — Panel multi-empresa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root{--navy:#0E2A4E;--navy-2:#163962;--sky:#9FCDE6;--sky-2:#C9E3F1;--mist:#DCE2E7;--ink:#0A1A30;--muted:#5A6A7E;--line:#E6E9EE;--paper:#FAFBFC;--accent:#E07A3E;--good:#1E7F5C;--warn:#B97A1B;--bad:#9F2B1E;--purple:#7C5BD9;--font-sans:'Geist',system-ui,sans-serif;--font-serif:'Instrument Serif',serif;--font-mono:'Geist Mono',monospace;}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;line-height:1.5}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer}
+  .mono{font-family:var(--font-mono)}
+  .serif{font-family:var(--font-serif);font-style:italic;font-weight:400}
+  .topbar{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
+  .tb-in{max-width:1480px;margin:0 auto;padding:11px 24px;display:flex;align-items:center;gap:24px}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo .lt{display:flex;flex-direction:column;line-height:1.02}
+  .logo .a{font-weight:600;letter-spacing:-.02em;font-size:16px}
+  .logo .b{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+  .nav{display:flex;gap:2px;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-left:18px}
+  .nav a{padding:7px 11px;color:var(--muted);border-radius:6px}
+  .nav a:hover{background:var(--paper);color:var(--ink)}
+  .nav a.on{background:var(--navy);color:#fff}
+  .tb-r{margin-left:auto;display:flex;gap:10px;align-items:center;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .tb-r .pill{padding:5px 10px;border:1px solid var(--line);border-radius:5px;display:flex;align-items:center;gap:6px}
+  .tb-r .pill i{width:6px;height:6px;border-radius:50%;background:var(--good)}
+  .tb-r .av{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+  .page-h{max-width:1480px;margin:0 auto;padding:32px 24px 0;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+  .crumb{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;gap:8px}
+  .crumb b{color:var(--ink);font-weight:500}
+  .page-h h1{font-size:34px;letter-spacing:-.02em;font-weight:500;line-height:1.05;margin:0 0 6px}
+  .page-h h1 .serif{color:var(--navy)}
+  .page-h p{font-size:13.5px;color:var(--muted);margin:0;max-width:600px}
+  .btn{padding:10px 14px;border-radius:7px;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+  .btn:hover{background:var(--paper)}
+  .btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .grid{max-width:1480px;margin:24px auto 48px;padding:0 24px;display:grid;gap:14px}
+  .row-4{grid-template-columns:repeat(4,1fr)}
+  .row-2{grid-template-columns:1fr 1fr}
+  @media (max-width:1100px){.row-4{grid-template-columns:repeat(2,1fr)}.row-2{grid-template-columns:1fr}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px}
+  .card-pad{padding:20px 22px}
+  .ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .ch h3{font-size:14px;font-weight:600;margin:0;letter-spacing:-.005em}
+  .ch h3 .serif{color:var(--navy);font-weight:400}
+  .ch .meta{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+  /* Consolidado hero */
+  .conso{background:linear-gradient(180deg,var(--navy),#1A4378);color:#fff;border-radius:14px;padding:28px 30px;display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:24px;align-items:center}
+  @media (max-width:980px){.conso{grid-template-columns:1fr 1fr}}
+  .conso .l{font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;color:var(--sky);text-transform:uppercase;margin-bottom:8px}
+  .conso .v{font-family:var(--font-mono);font-size:34px;letter-spacing:-.018em;font-weight:500;line-height:1}
+  .conso .d{font-size:12px;color:#9FCDE6;margin-top:6px;font-family:var(--font-mono);letter-spacing:.06em}
+  .conso .d.up{color:#48D38B}
+  .conso .title{font-size:14px;font-family:var(--font-mono);letter-spacing:.16em;color:var(--sky);text-transform:uppercase;margin-bottom:8px}
+  .conso .h{font-size:30px;font-weight:500;letter-spacing:-.018em;line-height:1.08;color:#fff}
+  .conso .h .serif{color:var(--sky)}
+  /* Companies grid */
+  .companies{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media (max-width:900px){.companies{grid-template-columns:1fr}}
+  .co{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;transition:all .15s;cursor:pointer}
+  .co:hover{border-color:var(--navy);box-shadow:0 12px 28px -16px rgba(14,42,78,.18)}
+  .co-h{display:flex;align-items:center;gap:14px}
+  .co-ic{width:44px;height:44px;border-radius:10px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;letter-spacing:-.02em;flex-shrink:0}
+  .co-info{flex:1;min-width:0}
+  .co-info b{display:block;font-size:15px;font-weight:500;letter-spacing:-.005em;color:var(--ink)}
+  .co-info span{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:3px;display:block}
+  .co-tier{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;padding:3px 7px;border-radius:4px;font-weight:500}
+  .co-tier.bus{background:var(--sky-2);color:var(--navy)}
+  .co-tier.pro{background:#EBE3FA;color:var(--purple)}
+  .co-tier.start{background:rgba(30,127,92,.1);color:var(--good)}
+  .co-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .co-kpi{padding:9px 11px;background:var(--paper);border:1px solid var(--line);border-radius:7px}
+  .co-kpi .l{font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
+  .co-kpi .v{font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:-.012em}
+  .co-kpi .v.up{color:var(--good)}
+  .co-kpi .v.warn{color:var(--warn)}
+  .co-kpi .v.bad{color:var(--bad)}
+  .co-foot{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--line);font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .co-foot a{color:var(--navy);font-weight:500}
+  .co-status{display:inline-flex;align-items:center;gap:6px}
+  .co-status i{width:6px;height:6px;border-radius:50%}
+  /* Comparativa table */
+  table.t{width:100%;border-collapse:collapse;font-size:13px}
+  table.t th{text-align:left;font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;font-weight:500;padding:10px 12px;border-bottom:1px solid var(--line)}
+  table.t td{padding:13px 12px;border-bottom:1px solid var(--line);color:var(--ink)}
+  table.t tr:last-child td{border-bottom:none}
+  table.t tr.total td{font-weight:600;background:var(--paper);border-top:2px solid var(--ink);border-bottom:none}
+  table.t .num{font-family:var(--font-mono);text-align:right;font-variant-numeric:tabular-nums}
+  table.t .num.good{color:var(--good)}
+  table.t .num.bad{color:var(--bad)}
+  /* Roles & users */
+  .ru{display:flex;flex-direction:column}
+  .ur{display:grid;grid-template-columns:auto 1fr auto auto;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center;font-size:13px}
+  .ur:last-child{border-bottom:none}
+  .ur-av{width:32px;height:32px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;font-family:var(--font-mono);letter-spacing:-.01em}
+  .ur-info b{font-weight:500;color:var(--ink)}
+  .ur-info span{display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;color:var(--muted);text-transform:lowercase;margin-top:1px}
+  .ur-role{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:4px;font-weight:500}
+  .role.admin{background:var(--navy);color:#fff}
+  .role.manager{background:var(--sky-2);color:var(--navy)}
+  .role.viewer{background:var(--paper);color:var(--muted);border:1px solid var(--line)}
+  .role.editor{background:rgba(124,91,217,.1);color:var(--purple)}
+  .ur-cos{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);letter-spacing:.06em}
+  /* Modules matrix */
+  .matrix{width:100%;border-collapse:collapse;font-size:12.5px}
+  .matrix th{text-align:left;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;font-weight:500;padding:10px 8px;border-bottom:1px solid var(--line)}
+  .matrix th.co{text-align:center;color:var(--ink)}
+  .matrix td{padding:11px 8px;border-bottom:1px solid var(--line)}
+  .matrix tr:last-child td{border-bottom:none}
+  .matrix .mod-nm{font-weight:500;color:var(--ink)}
+  .matrix .ck{text-align:center;font-size:16px}
+  .matrix .ck.on{color:var(--good)}
+  .matrix .ck.off{color:var(--mist)}
+  .matrix .ck.partial{color:var(--warn);font-size:11px;font-family:var(--font-mono)}
+  /* Bitácora */
+  .bit{display:flex;flex-direction:column}
+  .be{display:grid;grid-template-columns:auto 1fr auto;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:flex-start;font-size:13px}
+  .be:last-child{border-bottom:none}
+  .be-ic{width:24px;height:24px;border-radius:6px;background:var(--paper);border:1px solid var(--line);color:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .be-ic.warn{background:rgba(185,122,27,.08);color:var(--warn);border-color:rgba(185,122,27,.2)}
+  .be-ic.good{background:rgba(30,127,92,.08);color:var(--good);border-color:rgba(30,127,92,.2)}
+  .be .t b{color:var(--ink);font-weight:500}
+  .be .t span{color:var(--muted)}
+  .be-time{font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;flex-shrink:0;padding-top:4px}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="tb-in">
+    <a class="logo" href="dashboard.html">
+      <svg width="40" height="22" viewBox="0 0 400 220"><g style="mix-blend-mode:multiply"><circle cx="110" cy="110" r="90" fill="#9FCDE6" opacity=".95"/><polygon points="200,20 290,200 110,200" fill="#D8DDE1" opacity=".85"/><path d="M220 20 a90 90 0 0 1 0 180 L290 200 L290 20 Z" fill="#0E2A4E" opacity=".92"/></g></svg>
+      <span class="lt"><span class="a">OAC</span><span class="b">Sistema</span></span>
+    </a>
+    <nav class="nav">
+      <a href="dashboard.html">Captura</a>
+      <a href="dashboard.html">Nómina</a>
+      <a href="dashboard.html">CxC</a>
+      <a href="costos.html">Costos</a>
+      <a href="#" class="on">Panel</a>
+      <a href="transcripcion.html">IA · Transcribir</a>
+      <a href="denuncias.html">Denuncias</a>
+    </nav>
+    <div class="tb-r"><span class="pill"><i></i>HOLDING TLAXES</span><span class="av">GS</span></div>
+  </div>
+</header>
+
+<div class="page-h">
+  <div>
+    <div class="crumb"><span>OAC</span><span>·</span><span>Holding Tlaxes</span><span>·</span><b>Panel multi-empresa</b></div>
+    <h1>Panel <span class="serif">multi-empresa.</span></h1>
+    <p>4 empresas activas · 23 usuarios · 7 módulos. Vista consolidada del holding y administración granular por entidad.</p>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn">📅 Abril 2026 ▾</button>
+    <button class="btn">Exportar consolidado ↓</button>
+    <button class="btn primary">+ Agregar empresa</button>
+  </div>
+</div>
+
+<!-- CONSOLIDADO -->
+<div class="grid" style="grid-template-columns:1fr">
+  <div class="conso">
+    <div>
+      <div class="title">— CONSOLIDADO HOLDING</div>
+      <div class="h">4 empresas, <span class="serif">una sola lectura.</span></div>
+    </div>
+    <div><div class="l">VENTAS TOTALES</div><div class="v">$3.42M</div><div class="d up">+12% vs MAR</div></div>
+    <div><div class="l">UTILIDAD NETA</div><div class="v">$684K</div><div class="d up">+18% vs MAR</div></div>
+    <div><div class="l">P.E. PROMEDIO</div><div class="v">108%</div><div class="d up">+6 pts vs MAR</div></div>
+  </div>
+</div>
+
+<!-- COMPANIES -->
+<div class="grid" style="grid-template-columns:1fr">
+  <div>
+    <div style="font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px"><span style="width:18px;height:1px;background:var(--ink)"></span>EMPRESAS DEL HOLDING</div>
+    <div class="companies">
+      <div class="co">
+        <div class="co-h">
+          <div class="co-ic">TI</div>
+          <div class="co-info"><b>Tlaxes Industrial S.A.</b><span>EMPRESA PRINCIPAL · 12 USUARIOS · MAY 2024</span></div>
+          <span class="co-tier bus">Business</span>
+        </div>
+        <div class="co-kpis">
+          <div class="co-kpi"><div class="l">VENTAS</div><div class="v">$1.84M</div></div>
+          <div class="co-kpi"><div class="l">MARGEN</div><div class="v up">38.2%</div></div>
+          <div class="co-kpi"><div class="l">P.E.</div><div class="v up">114%</div></div>
+        </div>
+        <div class="co-foot"><span class="co-status"><i style="background:var(--good)"></i>OPERATIVO</span><a href="dashboard.html">Abrir →</a></div>
+      </div>
+
+      <div class="co">
+        <div class="co-h">
+          <div class="co-ic" style="background:#7C5BD9">DT</div>
+          <div class="co-info"><b>Distribuidora Tlaxes S.A.</b><span>SUBSIDIARIA · 4 USUARIOS · OCT 2024</span></div>
+          <span class="co-tier pro">Pro</span>
+        </div>
+        <div class="co-kpis">
+          <div class="co-kpi"><div class="l">VENTAS</div><div class="v">$842K</div></div>
+          <div class="co-kpi"><div class="l">MARGEN</div><div class="v up">32.8%</div></div>
+          <div class="co-kpi"><div class="l">P.E.</div><div class="v up">102%</div></div>
+        </div>
+        <div class="co-foot"><span class="co-status"><i style="background:var(--good)"></i>OPERATIVO</span><a href="dashboard.html">Abrir →</a></div>
+      </div>
+
+      <div class="co">
+        <div class="co-h">
+          <div class="co-ic" style="background:var(--accent)">SA</div>
+          <div class="co-info"><b>Servicios Aluminio Tlx.</b><span>SUBSIDIARIA · 4 USUARIOS · ENE 2025</span></div>
+          <span class="co-tier pro">Pro</span>
+        </div>
+        <div class="co-kpis">
+          <div class="co-kpi"><div class="l">VENTAS</div><div class="v">$528K</div></div>
+          <div class="co-kpi"><div class="l">MARGEN</div><div class="v warn">28.4%</div></div>
+          <div class="co-kpi"><div class="l">P.E.</div><div class="v warn">96%</div></div>
+        </div>
+        <div class="co-foot"><span class="co-status"><i style="background:var(--warn)"></i>BAJO P.E.</span><a href="dashboard.html">Abrir →</a></div>
+      </div>
+
+      <div class="co">
+        <div class="co-h">
+          <div class="co-ic" style="background:var(--good)">CL</div>
+          <div class="co-info"><b>Constructora Lobos S.A.</b><span>FILIAL · 3 USUARIOS · MAR 2026</span></div>
+          <span class="co-tier start">Starter</span>
+        </div>
+        <div class="co-kpis">
+          <div class="co-kpi"><div class="l">VENTAS</div><div class="v">$214K</div></div>
+          <div class="co-kpi"><div class="l">MARGEN</div><div class="v up">42.1%</div></div>
+          <div class="co-kpi"><div class="l">P.E.</div><div class="v up">118%</div></div>
+        </div>
+        <div class="co-foot"><span class="co-status"><i style="background:var(--good)"></i>OPERATIVO</span><a href="dashboard.html">Abrir →</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Comparativa + Roles -->
+<div class="grid row-2">
+  <div class="card">
+    <div class="card-pad">
+      <div class="ch"><h3>Comparativa <span class="serif">consolidada</span></h3><span class="meta">ABRIL 2026</span></div>
+      <table class="t">
+        <thead><tr><th>Empresa</th><th class="num">VENTAS</th><th class="num">UT. NETA</th><th class="num">% MARGEN</th><th class="num">P.E.</th></tr></thead>
+        <tbody>
+          <tr><td><b>Tlaxes Industrial</b></td><td class="num">$1,840,000</td><td class="num good">$368,800</td><td class="num">38.2%</td><td class="num good">114%</td></tr>
+          <tr><td><b>Distribuidora Tlaxes</b></td><td class="num">$842,000</td><td class="num good">$168,400</td><td class="num">32.8%</td><td class="num good">102%</td></tr>
+          <tr><td><b>Servicios Aluminio</b></td><td class="num">$528,000</td><td class="num bad">$108,200</td><td class="num">28.4%</td><td class="num bad">96%</td></tr>
+          <tr><td><b>Constructora Lobos</b></td><td class="num">$214,000</td><td class="num good">$38,600</td><td class="num">42.1%</td><td class="num good">118%</td></tr>
+          <tr class="total"><td>HOLDING TLAXES</td><td class="num">$3,424,000</td><td class="num good">$684,000</td><td class="num">36.4%</td><td class="num good">108%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-pad">
+      <div class="ch"><h3>Usuarios <span class="serif">&amp; roles</span></h3><span class="meta">23 USUARIOS · 4 ROLES</span></div>
+      <div class="ru">
+        <div class="ur"><span class="ur-av" style="background:var(--navy)">GS</span><div class="ur-info"><b>Germán Solís</b><span>g.solis@tlaxes.mx</span></div><span class="ur-role role admin">ADMIN HOLDING</span><span class="ur-cos">4 EMPRESAS</span></div>
+        <div class="ur"><span class="ur-av" style="background:var(--accent)">MH</span><div class="ur-info"><b>Mauricio Hernández</b><span>m.hernandez@tlaxes.mx</span></div><span class="ur-role role manager">CFO</span><span class="ur-cos">4 EMPRESAS</span></div>
+        <div class="ur"><span class="ur-av" style="background:var(--purple)">LA</span><div class="ur-info"><b>Lucía Aguilar</b><span>l.aguilar@tlaxes.mx</span></div><span class="ur-role role editor">RH MANAGER</span><span class="ur-cos">3 EMPRESAS</span></div>
+        <div class="ur"><span class="ur-av" style="background:var(--good)">JP</span><div class="ur-info"><b>Jorge Pérez</b><span>j.perez@tlaxes.mx</span></div><span class="ur-role role editor">OPERACIONES</span><span class="ur-cos">2 EMPRESAS</span></div>
+        <div class="ur"><span class="ur-av" style="background:var(--navy)">CR</span><div class="ur-info"><b>Carlos Ramos</b><span>c.ramos@tlaxes.mx</span></div><span class="ur-role role manager">CONTROLLER · DT</span><span class="ur-cos">DISTRIBUIDORA</span></div>
+        <div class="ur"><span class="ur-av" style="background:var(--accent)">SF</span><div class="ur-info"><b>Sofía Fernández</b><span>s.fernandez@lobos.mx</span></div><span class="ur-role role admin">ADMIN · CL</span><span class="ur-cos">CONSTRUCTORA</span></div>
+        <div class="ur"><span class="ur-av" style="background:var(--purple)">AB</span><div class="ur-info"><b>Andrés Bautista</b><span>a.bautista@tlaxes.mx</span></div><span class="ur-role role viewer">SOLO LECTURA</span><span class="ur-cos">3 EMPRESAS</span></div>
+      </div>
+      <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase">
+        <span>+ 16 USUARIOS MÁS</span><a href="#" style="color:var(--navy);font-weight:500">Ver todos →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modules matrix + Bitácora -->
+<div class="grid row-2">
+  <div class="card">
+    <div class="card-pad">
+      <div class="ch"><h3>Módulos <span class="serif">activos</span></h3><span class="meta">POR EMPRESA</span></div>
+      <table class="matrix">
+        <thead><tr><th style="width:32%">MÓDULO</th><th class="co">TI</th><th class="co">DT</th><th class="co">SA</th><th class="co">CL</th></tr></thead>
+        <tbody>
+          <tr><td class="mod-nm">📊 Financiero</td><td class="ck on">●</td><td class="ck on">●</td><td class="ck on">●</td><td class="ck on">●</td></tr>
+          <tr><td class="mod-nm">👥 Nómina &amp; Comisiones</td><td class="ck on">●</td><td class="ck on">●</td><td class="ck on">●</td><td class="ck off">○</td></tr>
+          <tr><td class="mod-nm">⚖️ Costos / P.E.</td><td class="ck on">●</td><td class="ck on">●</td><td class="ck on">●</td><td class="ck on">●</td></tr>
+          <tr><td class="mod-nm">💳 CxC / CxP</td><td class="ck on">●</td><td class="ck on">●</td><td class="ck on">●</td><td class="ck partial">PARCIAL</td></tr>
+          <tr><td class="mod-nm">🏦 Bancos</td><td class="ck on">●</td><td class="ck on">●</td><td class="ck off">○</td><td class="ck off">○</td></tr>
+          <tr><td class="mod-nm">🎙️ Transcripción IA</td><td class="ck on">●</td><td class="ck on">●</td><td class="ck on">●</td><td class="ck off">○</td></tr>
+          <tr><td class="mod-nm">🔒 Denuncias · IA</td><td class="ck on">●</td><td class="ck off">○</td><td class="ck off">○</td><td class="ck off">○</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-pad">
+      <div class="ch"><h3>Bitácora <span class="serif">consolidada</span></h3><span class="meta">ÚLTIMAS 24 H</span></div>
+      <div class="bit">
+        <div class="be"><span class="be-ic good">✓</span><div class="t"><b>g.solis</b><span> aprobó dictamen IA en denuncia </span><b>#DEN-2026-0142</b><span> · </span><b>Tlaxes Industrial</b></div><span class="be-time">15:21</span></div>
+        <div class="be"><span class="be-ic">↑</span><div class="t"><b>m.hernandez</b><span> exportó cierre fiscal de abril · </span><b>Distribuidora Tlaxes</b></div><span class="be-time">14:48</span></div>
+        <div class="be"><span class="be-ic">⊕</span><div class="t"><b>s.fernandez</b><span> registró 12 movimientos en módulo Costos · </span><b>Constructora Lobos</b></div><span class="be-time">13:32</span></div>
+        <div class="be"><span class="be-ic warn">!</span><div class="t"><b>Servicios Aluminio</b><span> bajó del P.E. del día (96%) · alerta enviada a CFO</span></div><span class="be-time">12:14</span></div>
+        <div class="be"><span class="be-ic">⏱</span><div class="t"><b>l.aguilar</b><span> generó nómina semanal · </span><b>3 empresas</b><span> · 18 trabajadores</span></div><span class="be-time">11:08</span></div>
+        <div class="be"><span class="be-ic">🎙️</span><div class="t"><b>g.solis</b><span> subió audio "Comité directivo Q2" · 9 pendientes asignados</span></div><span class="be-time">10:55</span></div>
+        <div class="be"><span class="be-ic good">✓</span><div class="t"><b>c.ramos</b><span> conciló cuenta BBVA #****4218 · </span><b>Distribuidora</b><span> · diferencia $0</span></div><span class="be-time">09:42</span></div>
+        <div class="be"><span class="be-ic">+</span><div class="t"><b>g.solis</b><span> agregó usuario </span><b>a.bautista</b><span> con rol "Solo lectura" en 3 empresas</span></div><span class="be-time">09:14</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
