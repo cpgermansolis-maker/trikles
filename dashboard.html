@@ -938,6 +938,130 @@ body {
   .g2, .g3, .g12 { grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px; }
 }
 
+/* ════════════════════════════════════════════════════════════════
+   ▶ FASE 2 — Paso 5: Detalles finales OAC
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--paper); }
+::-webkit-scrollbar-thumb {
+  background: var(--mist);
+  border-radius: 999px;
+  border: 2px solid var(--paper);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* Tooltips (ícono "?" con tt al hover) */
+.help-icon {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  width: 17px;
+  height: 17px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.help-icon:hover { background: var(--navy); border-color: var(--navy); color: #fff; }
+.help-icon .tt {
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.55;
+  border-radius: var(--r-xl);
+  padding: 11px 14px;
+  box-shadow: var(--shadow-modal);
+}
+.help-icon .tt::before { border-bottom-color: var(--line); }
+
+/* Toasts (notificaciones esquina inferior derecha) */
+.toast {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  padding: 13px 18px;
+  box-shadow: var(--shadow-modal);
+  font-family: var(--font-sans);
+}
+.t-title {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -.005em;
+}
+.t-msg {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.toast.success { border-left: 4px solid var(--good); }
+.toast.error   { border-left: 4px solid var(--bad); }
+.toast.info    { border-left: 4px solid var(--navy); }
+
+/* Tabla de bitácora */
+.bit-table { font-family: var(--font-sans); }
+.bit-table th {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 12px 16px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+.bit-table td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 13px;
+}
+.bit-table tr:hover td { background: var(--paper); }
+.bit-fecha {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--navy);
+  font-size: 12.5px;
+}
+.bit-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid;
+}
+.bit-tag.red    { background: rgba(159,43,30,.08);  color: var(--bad);    border-color: rgba(159,43,30,.25); }
+.bit-tag.yellow { background: rgba(185,122,27,.1);  color: var(--warn);   border-color: rgba(185,122,27,.3); }
+.bit-tag.blue   { background: rgba(14,42,78,.06);   color: var(--navy);   border-color: rgba(14,42,78,.2); }
+.bit-tag.gray   { background: var(--paper);          color: var(--muted);  border-color: var(--line); }
+.bit-notas { color: var(--ink); font-size: 12.5px; line-height: 1.55; }
+.bit-empty { color: var(--muted); }
+
+/* Botón "EL ABC DE LA GESTIÓN" — adaptado a OAC sin tocar abc.css global */
+.btn-abc {
+  background: var(--navy) !important;
+  color: #fff !important;
+  font-family: var(--font-sans) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: -.005em !important;
+  padding: 10px 18px !important;
+  border-radius: var(--r-lg) !important;
+  box-shadow: 0 4px 14px -6px rgba(14,42,78,.4) !important;
+}
+.btn-abc:hover {
+  background: var(--navy-2) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px -6px rgba(14,42,78,.5) !important;
+}
+
 </style>
 <link rel="stylesheet" href="mobile.css">
 <link rel="stylesheet" href="abc.css">
