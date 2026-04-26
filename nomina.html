@@ -759,6 +759,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   SESSION = getSession();
   if (!SESSION) { window.location.href = 'acceso.html'; return; }
 
+  // SuperAdmin con empresa filtrada en el dashboard → respetarla aquí también
+  if (SESSION.rol === 'SUPER_ADMIN' && SESSION.empresaFiltro && SESSION.empresaFiltro !== 'ALL') {
+    SESSION.empresa = SESSION.empresaFiltro;
+  }
+
   // Topbar inmediato
   document.getElementById('topbar-name').textContent = (SESSION.empresa||'').replace(/_/g,' ').toUpperCase();
   document.getElementById('userChip').textContent = SESSION.nombre + ' — ' + SESSION.rol;
