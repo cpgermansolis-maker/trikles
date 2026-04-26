@@ -634,6 +634,175 @@ select.sel:focus {
   .fb { padding: 5px 10px; font-size: 11.5px; }
 }
 
+/* ════════════════════════════════════════════════════════════════
+   ▶ FASE 2 — Paso 3: KPIs OAC
+   Mapeo de colores (las clases .o .g .b .r .y .p se mantienen):
+     .o = accent (Ventas)         .r = bad (Gastos)
+     .g = good (Ganancia)         .y = warn (P.E.)
+     .b = navy (Utilidad)         .p = purple
+   ═══════════════════════════════════════════════════════════════ */
+
+.kpi-grid {
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  padding: 16px 28px;
+  gap: 12px;
+  font-family: var(--font-sans);
+}
+
+/* Tarjeta KPI base — fondo blanco, border line, hover navy */
+.kpi {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-2xl);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: transform var(--t-fast), box-shadow var(--t-fast), border-color var(--t-fast);
+  box-shadow: 0 1px 2px rgba(14,42,78,.04);
+}
+.kpi:hover {
+  transform: translateY(-2px);
+  border-color: var(--navy);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Línea inferior de color por tipo de KPI */
+.kpi::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  border-bottom-left-radius: var(--r-2xl);
+  border-bottom-right-radius: var(--r-2xl);
+}
+.kpi.o::after { background: linear-gradient(90deg, var(--accent), transparent); }
+.kpi.g::after { background: linear-gradient(90deg, var(--good),   transparent); }
+.kpi.b::after { background: linear-gradient(90deg, var(--navy),   transparent); }
+.kpi.r::after { background: linear-gradient(90deg, var(--bad),    transparent); }
+.kpi.y::after { background: linear-gradient(90deg, var(--warn),   transparent); }
+.kpi.p::after { background: linear-gradient(90deg, var(--purple), transparent); }
+
+/* Tipografía interna */
+.kpi-ico {
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+.kpi-lbl {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.kpi-val {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 26px;
+  letter-spacing: -.02em;
+  line-height: 1.05;
+  margin-bottom: 4px;
+  color: var(--ink);
+}
+.kpi-sub {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+/* Valor por color */
+.kpi-val.o { color: var(--accent); }
+.kpi-val.g { color: var(--good); }
+.kpi-val.b { color: var(--navy); }
+.kpi-val.r { color: var(--bad); }
+.kpi-val.y { color: var(--warn); }
+.kpi-val.p { color: var(--purple); }
+
+/* Delta (badge arriba a la derecha) */
+.kpi-delta {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 0;
+}
+.kpi-delta.pos {
+  background: rgba(30,127,92,.1);
+  color: var(--good);
+  border: 1px solid rgba(30,127,92,.25);
+}
+.kpi-delta.neg {
+  background: rgba(159,43,30,.08);
+  color: var(--bad);
+  border: 1px solid rgba(159,43,30,.25);
+}
+
+/* Botón expandible "?" */
+.kpi-exp-btn {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  width: 17px;
+  height: 17px;
+  font-size: 9px;
+  font-weight: 600;
+}
+.kpi-exp-btn:hover {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+
+/* Panel expandible al dar click en "?" */
+.kpi-exp-panel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  padding: 14px 16px;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink);
+  box-shadow: var(--shadow-modal);
+  width: 280px;
+}
+.kpi-exp-title {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 10px;
+  font-size: 13.5px;
+  letter-spacing: -.005em;
+}
+.kpi-exp-paso {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.kpi-exp-paso b { color: var(--navy); font-weight: 600; }
+.kpi-exp-paso a { color: var(--accent); font-weight: 600; }
+.kpi-exp-val {
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .kpi-grid { padding: 12px; gap: 8px; grid-template-columns: repeat(2, 1fr); }
+  .kpi { padding: 12px 14px; }
+  .kpi-val { font-size: 22px; }
+  .kpi-exp-panel { width: calc(100vw - 32px) !important; left: 0 !important; right: auto !important; }
+}
+
 </style>
 <link rel="stylesheet" href="mobile.css">
 <link rel="stylesheet" href="abc.css">
