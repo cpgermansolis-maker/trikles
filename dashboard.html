@@ -26,10 +26,10 @@ function navegar(url) {
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap');
 :root{
   --bg:#0c0c0c;--bg2:#111;--card:#181818;--card2:#1e1e1e;
-  --orange:#F5821F;--orange2:#c96a10;--ora-l:rgba(245,130,31,.12);
+  --orange:#E07A3E;--orange2:#c96a10;--ora-l:rgba(224,122,62,.12);
   --white:#f0f0f0;--gray:#555;--light:#999;
-  --green:#2ecc71;--red:#e74c3c;--blue:#3498db;--yellow:#f1c40f;--purple:#9b59b6;--teal:#1abc9c;
-  --border:rgba(245,130,31,.18);--border2:rgba(255,255,255,.06);
+  --green:#1E7F5C;--red:#9F2B1E;--blue:#0E2A4E;--yellow:#B97A1B;--purple:#7C5BD9;--teal:#1abc9c;
+  --border:rgba(224,122,62,.18);--border2:rgba(255,255,255,.06);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--white);font-family:'Nunito',sans-serif;min-height:100vh;}
@@ -37,7 +37,7 @@ body{background:var(--bg);color:var(--white);font-family:'Nunito',sans-serif;min
   display:flex;align-items:center;justify-content:space-between;padding:12px 28px;
   position:sticky;top:0;z-index:300;box-shadow:0 4px 30px rgba(0,0,0,.8);}
 .tb-left{display:flex;align-items:center;gap:14px;}
-.tb-logo{height:48px;filter:drop-shadow(0 0 12px rgba(245,130,31,.5));}
+.tb-logo{height:48px;filter:drop-shadow(0 0 12px rgba(224,122,62,.5));}
 .tb-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:5px;color:var(--orange);}
 .tb-sub{font-size:10px;color:var(--gray);letter-spacing:2px;text-transform:uppercase;}
 .tb-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
@@ -45,16 +45,16 @@ body{background:var(--bg);color:var(--white);font-family:'Nunito',sans-serif;min
   border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;
   transition:.2s;text-decoration:none;display:inline-flex;align-items:center;gap:5px;}
 .btn-nav:hover{border-color:var(--orange);color:var(--orange);}
-.btn-nav.dash{background:linear-gradient(135deg,rgba(245,130,31,.2),rgba(245,130,31,.1));
-  border-color:rgba(245,130,31,.5);color:var(--orange);font-weight:900;}
+.btn-nav.dash{background:linear-gradient(135deg,rgba(224,122,62,.2),rgba(224,122,62,.1));
+  border-color:rgba(224,122,62,.5);color:var(--orange);font-weight:900;}
 
 /* Dropdown agrupado "IA" (Transcribir + Denuncias) */
 .nav-group{position:relative;display:inline-flex}
-.nav-group-btn{background:linear-gradient(135deg,rgba(155,89,182,.15),rgba(231,76,60,.15));
-  border:1px solid rgba(155,89,182,.45);color:#c88bc3;padding:7px 14px;border-radius:8px;
+.nav-group-btn{background:linear-gradient(135deg,rgba(124,91,217,.15),rgba(159,43,30,.15));
+  border:1px solid rgba(124,91,217,.45);color:#c88bc3;padding:7px 14px;border-radius:8px;
   cursor:pointer;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;
   display:inline-flex;align-items:center;gap:5px;transition:.2s}
-.nav-group-btn:hover{border-color:#e74c3c;background:linear-gradient(135deg,rgba(155,89,182,.25),rgba(231,76,60,.25))}
+.nav-group-btn:hover{border-color:#9F2B1E;background:linear-gradient(135deg,rgba(124,91,217,.25),rgba(159,43,30,.25))}
 .nav-group-btn .caret{font-size:9px;margin-left:4px;transition:transform .2s}
 .nav-group.open .nav-group-btn .caret{transform:rotate(180deg)}
 .nav-group-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;min-width:210px;
@@ -63,17 +63,17 @@ body{background:var(--bg);color:var(--white);font-family:'Nunito',sans-serif;min
 .nav-group.open .nav-group-menu{display:flex;flex-direction:column;gap:2px}
 .nav-group-menu a{display:flex;align-items:center;gap:8px;padding:10px 14px;color:#ccc;
   font-size:12px;font-weight:700;text-decoration:none;border-radius:7px;transition:.15s}
-.nav-group-menu a.purple:hover,.nav-group-menu a.purple.current{background:rgba(155,89,182,.2);color:#b979d1}
-.nav-group-menu a.red:hover,.nav-group-menu a.red.current{background:rgba(231,76,60,.18);color:#e74c3c}
+.nav-group-menu a.purple:hover,.nav-group-menu a.purple.current{background:rgba(124,91,217,.2);color:#b979d1}
+.nav-group-menu a.red:hover,.nav-group-menu a.red.current{background:rgba(159,43,30,.18);color:#9F2B1E}
 .nav-group-menu a .sub{display:block;font-size:10px;color:var(--gray);font-weight:600;margin-top:2px}
 .btn-pdf{background:linear-gradient(135deg,var(--orange),var(--orange2));border:none;color:#fff;
   padding:7px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;
   font-weight:800;cursor:pointer;transition:.2s;}
-.btn-pdf:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(245,130,31,.4);}
-.user-pill{display:flex;align-items:center;gap:8px;background:rgba(245,130,31,.08);
+.btn-pdf:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(224,122,62,.4);}
+.user-pill{display:flex;align-items:center;gap:8px;background:rgba(224,122,62,.08);
   border:1px solid var(--border);border-radius:30px;padding:6px 16px;font-size:13px;font-weight:700;color:var(--light);}
 .u-dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;flex-shrink:0;}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(46,204,113,.5)}50%{box-shadow:0 0 0 5px rgba(46,204,113,0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(30,127,92,.5)}50%{box-shadow:0 0 0 5px rgba(30,127,92,0)}}
 .btn-out{background:none;border:1px solid #444;color:var(--gray);padding:7px 12px;
   border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:.2s;}
 .btn-out:hover{border-color:var(--red);color:var(--red);}
@@ -82,7 +82,7 @@ body{background:var(--bg);color:var(--white);font-family:'Nunito',sans-serif;min
 .mtab{background:#1a1a1a;border:1px solid #2a2a2a;color:var(--light);padding:8px 18px;
   border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:.2s;}
 .mtab.active{background:linear-gradient(135deg,var(--orange),var(--orange2));
-  border-color:var(--orange);color:#fff;box-shadow:0 4px 16px rgba(245,130,31,.35);}
+  border-color:var(--orange);color:#fff;box-shadow:0 4px 16px rgba(224,122,62,.35);}
 .mtab:hover:not(.active){border-color:var(--orange);color:var(--orange);}
 /* FILTER BAR */
 .filter-bar{background:#0e0e0e;border-bottom:1px solid var(--border2);
@@ -108,7 +108,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
   padding:14px 28px;background:var(--bg2);border-bottom:1px solid var(--border2);}
 .kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;
   padding:13px 15px;cursor:pointer;transition:transform .2s,box-shadow .2s;position:relative;overflow:visible;}
-.kpi:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(245,130,31,.18);border-color:var(--orange);}
+.kpi:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(224,122,62,.18);border-color:var(--orange);}
 .kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
 .kpi.o::after{background:linear-gradient(90deg,var(--orange),transparent);}
 .kpi.g::after{background:linear-gradient(90deg,var(--green),transparent);}
@@ -125,8 +125,8 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 .kpi-val.y{color:var(--yellow);}.kpi-val.p{color:var(--purple);}
 .kpi-delta{position:absolute;top:10px;right:10px;font-size:10px;font-weight:900;
   padding:2px 6px;border-radius:8px;}
-.kpi-delta.pos{background:rgba(46,204,113,.15);color:var(--green);}
-.kpi-delta.neg{background:rgba(231,76,60,.15);color:var(--red);}
+.kpi-delta.pos{background:rgba(30,127,92,.15);color:var(--green);}
+.kpi-delta.neg{background:rgba(159,43,30,.15);color:var(--red);}
 /* MAIN */
 .main{padding:18px 28px;max-width:1800px;margin:0 auto;}
 .panel{display:none;}.panel.active{display:block;}
@@ -140,9 +140,9 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 .cc-sub{font-size:11px;font-weight:700;color:var(--gray);margin-top:2px;}
 .cc-badge{background:var(--ora-l);border:1px solid var(--border);border-radius:14px;
   padding:3px 10px;font-size:10px;font-weight:900;color:var(--orange);white-space:nowrap;}
-.cc-badge.g{background:rgba(46,204,113,.1);border-color:rgba(46,204,113,.3);color:var(--green);}
-.cc-badge.b{background:rgba(52,152,219,.1);border-color:rgba(52,152,219,.3);color:var(--blue);}
-.cc-badge.r{background:rgba(231,76,60,.1);border-color:rgba(231,76,60,.3);color:var(--red);}
+.cc-badge.g{background:rgba(30,127,92,.1);border-color:rgba(30,127,92,.3);color:var(--green);}
+.cc-badge.b{background:rgba(14,42,78,.1);border-color:rgba(14,42,78,.3);color:var(--blue);}
+.cc-badge.r{background:rgba(159,43,30,.1);border-color:rgba(159,43,30,.3);color:var(--red);}
 /* GRID */
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
@@ -229,7 +229,7 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 .bit-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;
   font-weight:700;margin:2px 2px 0 0;}
 .bit-tag.red{background:rgba(230,57,70,.15);color:#e63946;border:1px solid rgba(230,57,70,.3);}
-.bit-tag.yellow{background:rgba(244,211,94,.15);color:#f4d35e;border:1px solid rgba(244,211,94,.3);}
+.bit-tag.yellow{background:rgba(185,122,27,.15);color:#B97A1B;border:1px solid rgba(185,122,27,.3);}
 .bit-tag.blue{background:rgba(67,97,238,.15);color:#4361ee;border:1px solid rgba(67,97,238,.3);}
 .bit-tag.gray{background:rgba(255,255,255,.08);color:var(--gray);border:1px solid rgba(255,255,255,.1);}
 .bit-notas{color:var(--light);font-size:12px;line-height:1.5;}
@@ -238,8 +238,8 @@ select.sel:focus{outline:none;border-color:var(--orange);}
 
 /* ── KPI Expandible ── */
 .kpi-exp-btn { display:inline-flex; align-items:center; justify-content:center; width:15px; height:15px; border-radius:50%; background:rgba(255,255,255,.1); color:#aaa; font-size:9px; font-weight:700; margin-left:4px; vertical-align:middle; cursor:pointer; border:none; padding:0; transition:.2s; }
-.kpi-exp-btn:hover { background:rgba(245,130,31,.3); color:var(--orange); }
-.kpi-exp-panel { display:none; position:absolute; top:calc(100% + 8px); left:0; background:#1a1a2e; border:1px solid rgba(245,130,31,.35); border-radius:10px; padding:14px; font-size:12px; line-height:1.7; color:#ccc; z-index:300; width:260px; box-shadow:0 8px 32px rgba(0,0,0,.5); }
+.kpi-exp-btn:hover { background:rgba(224,122,62,.3); color:var(--orange); }
+.kpi-exp-panel { display:none; position:absolute; top:calc(100% + 8px); left:0; background:#1a1a2e; border:1px solid rgba(224,122,62,.35); border-radius:10px; padding:14px; font-size:12px; line-height:1.7; color:#ccc; z-index:300; width:260px; box-shadow:0 8px 32px rgba(0,0,0,.5); }
 .kpi-exp-panel.open { display:block !important; }
 .kpi-exp-title { font-weight:700; color:var(--orange); margin-bottom:8px; font-size:13px; }
 .kpi-exp-paso { margin-bottom:8px; }
@@ -1131,7 +1131,7 @@ body {
         <a href="denuncias.html" class="red">🔒 Denuncias<span class="sub">Investigaciones internas</span></a>
       </div>
     </div>
-    <a class="btn-nav" href="juegos.html" style="background:rgba(245,130,31,.15);border-color:rgba(245,130,31,.5);color:#F5821F">🎮 Juegos</a>
+    <a class="btn-nav" href="juegos.html" style="background:rgba(224,122,62,.15);border-color:rgba(224,122,62,.5);color:#E07A3E">🎮 Juegos</a>
     <button class="btn-pdf" onclick="exportPDF()">📄 PDF</button>
     <div class="user-pill"><div class="u-dot"></div><span id="userChip">...</span></div>
     <a href="manual.html" class="btn-help" title="Manual de usuario">❓ Ayuda</a>
@@ -1147,9 +1147,9 @@ body {
   <a class="btn-nav" href="cuentas.html" id="mNavCxC" style="display:none">💳 CxC</a>
   <a class="btn-nav" href="costos.html" id="mNavCostos" style="display:none">💰 Costos</a>
   <a class="btn-nav" href="panel.html" id="mNavPanel" style="display:none">⚙️ Panel</a>
-  <a class="btn-nav" href="transcripcion.html" style="background:rgba(155,89,182,.15);border-color:rgba(155,89,182,.55);color:#b979d1">🎙️ Transcribir</a>
-  <a class="btn-nav" href="denuncias.html" style="background:rgba(231,76,60,.15);border-color:rgba(231,76,60,.55);color:#e74c3c">🔒 Denuncias</a>
-  <a class="btn-nav" href="juegos.html" style="background:rgba(245,130,31,.15);border-color:rgba(245,130,31,.5);color:#F5821F">🎮 Juegos</a>
+  <a class="btn-nav" href="transcripcion.html" style="background:rgba(124,91,217,.15);border-color:rgba(124,91,217,.55);color:#b979d1">🎙️ Transcribir</a>
+  <a class="btn-nav" href="denuncias.html" style="background:rgba(159,43,30,.15);border-color:rgba(159,43,30,.55);color:#9F2B1E">🔒 Denuncias</a>
+  <a class="btn-nav" href="juegos.html" style="background:rgba(224,122,62,.15);border-color:rgba(224,122,62,.5);color:#E07A3E">🎮 Juegos</a>
   <a class="btn-nav" href="manual.html">❓ Ayuda</a>
   <button class="btn-pdf" onclick="exportPDF();toggleMenu()">📄 PDF</button>
   <button class="btn-out" onclick="logout()">Salir ✕</button>
@@ -1597,11 +1597,11 @@ body {
   <!-- Filtro de empleado -->
   <div style="position:relative;max-width:320px;margin-bottom:16px">
     <input id="nomEmpSearch" type="text" placeholder="🔍 Filtrar por empleado..."
-      style="width:100%;padding:10px 14px;background:#1a1a2e;border:1px solid rgba(245,130,31,.3);border-radius:8px;color:#f0f0f0;font-size:14px;outline:none"
+      style="width:100%;padding:10px 14px;background:#fff;border:1px solid #E6E9EE;border-radius:8px;color:#0A1A30;font-family:'Geist',system-ui,sans-serif;font-size:14px;font-weight:500;outline:none"
       oninput="filtrarNomEmpleado(this.value)" autocomplete="off">
-    <div id="nomEmpDropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:#1a1a2e;border:1px solid rgba(245,130,31,.3);border-radius:8px;z-index:100;max-height:200px;overflow-y:auto"></div>
+    <div id="nomEmpDropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #E6E9EE;border-radius:8px;z-index:100;max-height:200px;overflow-y:auto;box-shadow:0 12px 32px -16px rgba(14,42,78,.25)"></div>
   </div>
-  <div id="nomEmpActivo" style="display:none;margin-bottom:12px;padding:8px 14px;background:rgba(245,130,31,.1);border:1px solid rgba(245,130,31,.4);border-radius:8px;color:var(--orange);font-weight:700;display:flex;align-items:center;justify-content:space-between">
+  <div id="nomEmpActivo" style="display:none;margin-bottom:12px;padding:8px 14px;background:rgba(224,122,62,.1);border:1px solid rgba(224,122,62,.4);border-radius:8px;color:var(--orange);font-weight:700;display:flex;align-items:center;justify-content:space-between">
     <span id="nomEmpNombre"></span>
     <button onclick="limpiarFiltroEmp()" style="background:none;border:none;color:var(--orange);cursor:pointer;font-size:18px">✕</button>
   </div>
@@ -1691,7 +1691,7 @@ body {
         <div class="srow"><span class="srow-l">💸 Retiro Efectivo</span><span class="srow-v" style="color:var(--red)" id="bf_retiro">—</span></div>
         <div class="srow"><span class="srow-l">🏦 Reserva</span><span class="srow-v" style="color:var(--red)" id="bf_reserva">—</span></div>
         <div class="srow" style="border-top:1px solid rgba(255,255,255,.06);margin-top:6px;padding-top:6px"><span class="srow-l"><b>Total Egresos</b></span><span class="srow-v" style="color:var(--red);font-weight:800" id="bf_egresos">—</span></div>
-        <div class="srow" style="border-top:2px solid rgba(245,130,31,.3);margin-top:8px;padding-top:8px"><span class="srow-l"><b>Efvo Esperado</b></span><span class="srow-v" style="color:var(--orange);font-weight:800" id="bf_esperado">—</span></div>
+        <div class="srow" style="border-top:2px solid rgba(224,122,62,.3);margin-top:8px;padding-top:8px"><span class="srow-l"><b>Efvo Esperado</b></span><span class="srow-v" style="color:var(--orange);font-weight:800" id="bf_esperado">—</span></div>
         <div class="srow"><span class="srow-l"><b>Efvo en Caja</b></span><span class="srow-v" style="color:var(--blue);font-weight:800" id="bf_caja">—</span></div>
         <div class="srow"><span class="srow-l"><b>Diferencia</b></span><span class="srow-v" style="font-weight:800" id="bf_diferencia">—</span></div>
       </div>
@@ -1954,7 +1954,7 @@ let PE_VAL = 0;
 const MES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const DOWS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 let PRODS = ['Producto 1','Producto 2','Producto 3','Producto 4'];
-const PCOLS = ['#F5821F','#3498db','#2ecc71','#9b59b6'];
+const PCOLS = ['#E07A3E','#0E2A4E','#1E7F5C','#7C5BD9'];
 
 /* ──── CHART ENGINE ──── */
 Chart.defaults.font.family='Nunito';
@@ -1966,12 +1966,12 @@ const BASE_OPT={
   responsive:true,maintainAspectRatio:false,
   plugins:{
     legend:{labels:{color:'#666',font:{size:11,weight:'700'},boxWidth:12,padding:10}},
-    tooltip:{backgroundColor:'#1a1a1a',borderColor:'rgba(245,130,31,.4)',borderWidth:1,
+    tooltip:{backgroundColor:'#fff',titleColor:'#0A1A30',bodyColor:'#5A6A7E',borderColor:'rgba(224,122,62,.4)',borderWidth:1,
       titleColor:'#eee',bodyColor:'#aaa',padding:10}
   },
   scales:{
-    x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#444',font:{size:10},maxTicksLimit:16}},
-    y:{grid:{color:'rgba(255,255,255,.06)'},ticks:{color:'#444',font:{size:10},
+    x:{grid:{color:'rgba(14,42,78,.05)'},ticks:{color:'#444',font:{size:10},maxTicksLimit:16}},
+    y:{grid:{color:'rgba(14,42,78,.07)'},ticks:{color:'#444',font:{size:10},
         callback:v=>'$'+Number(v).toLocaleString('es-MX',{maximumFractionDigits:0})}}
   }
 };
@@ -1979,7 +1979,7 @@ const DON_OPT={
   responsive:true,maintainAspectRatio:false,cutout:'60%',
   plugins:{
     legend:{position:'right',labels:{color:'#666',font:{size:11,weight:'700'},padding:8}},
-    tooltip:{backgroundColor:'#1a1a1a',borderColor:'rgba(245,130,31,.4)',borderWidth:1,
+    tooltip:{backgroundColor:'#fff',titleColor:'#0A1A30',bodyColor:'#5A6A7E',borderColor:'rgba(224,122,62,.4)',borderWidth:1,
       titleColor:'#eee',bodyColor:'#aaa',padding:10,
       callbacks:{label:ctx=>' '+ctx.label+': '+fmtK(ctx.parsed)}}
   }
@@ -2359,7 +2359,7 @@ function buildCh1(data){
         pointBackgroundColor:colores,pointBorderColor:colores,
         pointBorderWidth:1.5,pointRadius:radios,pointHoverRadius:9,
         tension:0,spanGaps:false},
-      {label:'P.E.',data:peArr,borderColor:'#f4d35e',backgroundColor:'rgba(244,211,94,.06)',
+      {label:'P.E.',data:peArr,borderColor:'#B97A1B',backgroundColor:'rgba(185,122,27,.06)',
         borderWidth:2.5,borderDash:[8,4],pointRadius:0,tension:0,fill:true},
     ]
   },opt);
@@ -2376,10 +2376,10 @@ function buildCh2(data){
     labels,
     datasets:[
       {label:'Ganancia',data:byM.map(r=>r.g),
-        backgroundColor:byM.map(r=>r.g>=0?'rgba(245,130,31,.75)':'rgba(231,76,60,.75)'),
-        borderColor:byM.map(r=>r.g>=0?'#F5821F':'#e74c3c'),borderWidth:1,borderRadius:4,borderSkipped:false},
+        backgroundColor:byM.map(r=>r.g>=0?'rgba(224,122,62,.75)':'rgba(159,43,30,.75)'),
+        borderColor:byM.map(r=>r.g>=0?'#E07A3E':'#9F2B1E'),borderWidth:1,borderRadius:4,borderSkipped:false},
       {label:'Utilidad Neta',data:byM.map(r=>r.u),
-        backgroundColor:'rgba(52,152,219,.4)',borderColor:'#3498db',
+        backgroundColor:'rgba(14,42,78,.4)',borderColor:'#0E2A4E',
         borderWidth:1,borderRadius:3,borderSkipped:false}
     ]
   },opt);
@@ -2431,9 +2431,9 @@ function buildCh4(data){
   mk('c4','cv4','line',{
     labels,
     datasets:[
-      {label:curLabel,data:curData,borderColor:'#F5821F',backgroundColor:'rgba(245,130,31,.1)',
+      {label:curLabel,data:curData,borderColor:'#E07A3E',backgroundColor:'rgba(224,122,62,.1)',
         borderWidth:2.5,pointRadius:2,tension:.4,fill:true,spanGaps:false},
-      {label:prevLabel,data:prevData,borderColor:'#3498db',backgroundColor:'rgba(52,152,219,.08)',
+      {label:prevLabel,data:prevData,borderColor:'#0E2A4E',backgroundColor:'rgba(14,42,78,.08)',
         borderWidth:2,pointRadius:2,tension:.4,fill:false,spanGaps:false},
     ]
   },opt);
@@ -2458,9 +2458,9 @@ function buildCh5(){
   mk('c5','cv5','line',{
     labels,
     datasets:[
-      {label:'Ganancia Semanal '+yr,data:byW.map(r=>r.g),borderColor:'#F5821F',
-        backgroundColor:'rgba(245,130,31,.08)',borderWidth:2,pointRadius:2,tension:.4,fill:true},
-      {label:'Acumulado '+yr,data:cumG,borderColor:'rgba(46,204,113,.8)',backgroundColor:'transparent',
+      {label:'Ganancia Semanal '+yr,data:byW.map(r=>r.g),borderColor:'#E07A3E',
+        backgroundColor:'rgba(224,122,62,.08)',borderWidth:2,pointRadius:2,tension:.4,fill:true},
+      {label:'Acumulado '+yr,data:cumG,borderColor:'rgba(30,127,92,.8)',backgroundColor:'transparent',
         borderWidth:1.5,borderDash:[5,3],pointRadius:1,tension:.4,fill:false},
     ]
   },opt);
@@ -2487,9 +2487,9 @@ function buildCh6(data){
     labels,
     datasets:[
       {type:'bar',label:'Utilidad Neta',data:uVals,
-        backgroundColor:uVals.map(v=>v>=0?'rgba(46,204,113,.7)':'rgba(231,76,60,.7)'),
-        borderColor:uVals.map(v=>v>=0?'#2ecc71':'#e74c3c'),borderWidth:1,borderRadius:3,borderSkipped:false},
-      {type:'line',label:'Tendencia',data:trend,borderColor:'rgba(241,196,15,.9)',
+        backgroundColor:uVals.map(v=>v>=0?'rgba(30,127,92,.7)':'rgba(159,43,30,.7)'),
+        borderColor:uVals.map(v=>v>=0?'#1E7F5C':'#9F2B1E'),borderWidth:1,borderRadius:3,borderSkipped:false},
+      {type:'line',label:'Tendencia',data:trend,borderColor:'rgba(185,122,27,.9)',
         borderWidth:2,borderDash:[5,3],pointRadius:0,tension:.3,fill:false},
     ]
   },opt);
@@ -2516,10 +2516,10 @@ function buildCh7(data){
   mk('c7','cv7','bar',{
     labels,
     datasets:[
-      {label:'Ganancia '+curY,data:curArr,backgroundColor:'rgba(245,130,31,.75)',
-        borderColor:'#F5821F',borderWidth:1,borderRadius:4,borderSkipped:false},
-      {label:'Ganancia '+prevY,data:prevArr,backgroundColor:'rgba(52,152,219,.5)',
-        borderColor:'#3498db',borderWidth:1,borderRadius:4,borderSkipped:false},
+      {label:'Ganancia '+curY,data:curArr,backgroundColor:'rgba(224,122,62,.75)',
+        borderColor:'#E07A3E',borderWidth:1,borderRadius:4,borderSkipped:false},
+      {label:'Ganancia '+prevY,data:prevArr,backgroundColor:'rgba(14,42,78,.5)',
+        borderColor:'#0E2A4E',borderWidth:1,borderRadius:4,borderSkipped:false},
     ]
   },opt);
   document.getElementById('b7').textContent=curY+' vs '+prevY;
@@ -2550,8 +2550,8 @@ function buildCh8(data){
   mk('c8','cv8','bar',{
     labels:DOWS,
     datasets:[
-      {label:cLabel,data:curByDow,backgroundColor:'rgba(245,130,31,.75)',borderColor:'#F5821F',borderWidth:1,borderRadius:4,borderSkipped:false},
-      {label:pLabel,data:prevByDow,backgroundColor:'rgba(52,152,219,.5)',borderColor:'#3498db',borderWidth:1,borderRadius:4,borderSkipped:false},
+      {label:cLabel,data:curByDow,backgroundColor:'rgba(224,122,62,.75)',borderColor:'#E07A3E',borderWidth:1,borderRadius:4,borderSkipped:false},
+      {label:pLabel,data:prevByDow,backgroundColor:'rgba(14,42,78,.5)',borderColor:'#0E2A4E',borderWidth:1,borderRadius:4,borderSkipped:false},
     ]
   },opt);
   document.getElementById('b8').textContent=cLabel+' vs '+pLabel;
@@ -2585,8 +2585,8 @@ function buildCh9(data){
   mk('c9','cv9','line',{
     labels,
     datasets:[
-      {label:curLabel,data:cumCur,borderColor:'#F5821F',backgroundColor:'rgba(245,130,31,.1)',borderWidth:2.5,pointRadius:1.5,tension:.4,fill:true,spanGaps:false},
-      {label:prevLabel,data:cumPrev,borderColor:'#3498db',backgroundColor:'rgba(52,152,219,.08)',borderWidth:2,pointRadius:1.5,tension:.4,fill:false,spanGaps:false},
+      {label:curLabel,data:cumCur,borderColor:'#E07A3E',backgroundColor:'rgba(224,122,62,.1)',borderWidth:2.5,pointRadius:1.5,tension:.4,fill:true,spanGaps:false},
+      {label:prevLabel,data:cumPrev,borderColor:'#0E2A4E',backgroundColor:'rgba(14,42,78,.08)',borderWidth:2,pointRadius:1.5,tension:.4,fill:false,spanGaps:false},
     ]
   },opt);
   const sign=diff>=0?'▲':'▼';
@@ -2606,9 +2606,9 @@ function buildCh10(data){
   mk('c10','cv10','bar',{
     labels,
     datasets:[
-      {label:'Ingresos Efvo',data:byM.map(r=>ingData[r.k]||0),backgroundColor:'rgba(46,204,113,.6)',borderColor:'#2ecc71',borderWidth:1,borderRadius:3,borderSkipped:false},
-      {label:'Egresos',data:byM.map(r=>egrData[r.k]||0),backgroundColor:'rgba(231,76,60,.6)',borderColor:'#e74c3c',borderWidth:1,borderRadius:3,borderSkipped:false},
-      {type:'line',label:'Efectivo en Caja',data:byM.map(r=>efData[r.k]||0),borderColor:'#F5821F',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.4},
+      {label:'Ingresos Efvo',data:byM.map(r=>ingData[r.k]||0),backgroundColor:'rgba(30,127,92,.6)',borderColor:'#1E7F5C',borderWidth:1,borderRadius:3,borderSkipped:false},
+      {label:'Egresos',data:byM.map(r=>egrData[r.k]||0),backgroundColor:'rgba(159,43,30,.6)',borderColor:'#9F2B1E',borderWidth:1,borderRadius:3,borderSkipped:false},
+      {type:'line',label:'Efectivo en Caja',data:byM.map(r=>efData[r.k]||0),borderColor:'#E07A3E',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.4},
     ]
   },opt);
   const ti=data.reduce((s,r)=>s+r.ing,0);
@@ -2626,7 +2626,7 @@ function buildCh11(data){
     'Cobranza':data.reduce((s,r)=>s+r.cob,0),
     'Anticipos':data.reduce((s,r)=>s+r.ant,0),
   };
-  const cols=['#F5821F','#2ecc71','#9b59b6'];
+  const cols=['#E07A3E','#1E7F5C','#7C5BD9'];
   mk('c11','cv11','doughnut',{
     labels:Object.keys(cats),
     datasets:[{data:Object.values(cats),
@@ -2642,7 +2642,7 @@ function buildCh13(data){
     'Tarjeta' :data.reduce((s,r)=>s+(r.vtar||0),0),
     'Crédito' :data.reduce((s,r)=>s+(r.vcr||0),0),
   };
-  const cols=['#F5821F','#3498db','#9b59b6'];
+  const cols=['#E07A3E','#0E2A4E','#7C5BD9'];
   mk('c13','cv13','doughnut',{
     labels:Object.keys(cats),
     datasets:[{data:Object.values(cats),
@@ -2665,7 +2665,7 @@ function buildCh12(data){
     'Retiro Efvo' :data.reduce((s,r)=>s+(r.ref||0),0),
     'Reserva'     :data.reduce((s,r)=>s+(r.res||0),0),
   };
-  const cols=['#e74c3c','#F5821F','#f1c40f','#3498db','#1abc9c','#9b59b6','#2ecc71'];
+  const cols=['#9F2B1E','#E07A3E','#B97A1B','#0E2A4E','#1abc9c','#7C5BD9','#1E7F5C'];
   mk('c12','cv12','doughnut',{
     labels:Object.keys(cats),
     datasets:[{data:Object.values(cats),
@@ -2842,7 +2842,7 @@ function filtrarNomEmpleado(q) {
   if (!empleados.length) { dd.style.display='none'; return; }
   dd.innerHTML = empleados.map(e =>
     `<div style="padding:10px 14px;cursor:pointer;color:#f0f0f0;border-bottom:1px solid rgba(255,255,255,.05)"
-      onmouseover="this.style.background='rgba(245,130,31,.2)'"
+      onmouseover="this.style.background='rgba(224,122,62,.2)'"
       onmouseout="this.style.background=''"
       onclick="seleccionarNomEmp('${e}')">${e}</div>`
   ).join('');
@@ -2943,11 +2943,11 @@ function buildFlujo(data) {
         backgroundColor: [
           'rgba(46,196,182,.7)',
           'rgba(230,57,70,.7)',
-          'rgba(245,130,31,.7)',
+          'rgba(224,122,62,.7)',
           'rgba(67,97,238,.7)',
           tDif >= 0 ? 'rgba(46,196,182,.7)' : 'rgba(230,57,70,.7)'
         ],
-        borderColor: ['#2ec4b4','#e63946','#F5821F','#4361ee', tDif >= 0 ? '#2ec4b4' : '#e63946'],
+        borderColor: ['#2ec4b4','#e63946','#E07A3E','#4361ee', tDif >= 0 ? '#2ec4b4' : '#e63946'],
         borderWidth: 1, borderRadius: 6, borderSkipped: false
       }]
     },
@@ -2962,8 +2962,8 @@ function buildFlujo(data) {
   });
 
   // Colores donas
-  const coloresIng = ['rgba(46,196,182,.8)','rgba(245,130,31,.8)','rgba(67,97,238,.8)','rgba(244,211,94,.8)'];
-  const coloresEgr = ['rgba(230,57,70,.8)','rgba(245,130,31,.8)','rgba(155,89,182,.8)','rgba(52,152,219,.8)','rgba(46,196,182,.8)','rgba(244,211,94,.8)','rgba(231,76,60,.8)'];
+  const coloresIng = ['rgba(46,196,182,.8)','rgba(224,122,62,.8)','rgba(67,97,238,.8)','rgba(185,122,27,.8)'];
+  const coloresEgr = ['rgba(230,57,70,.8)','rgba(224,122,62,.8)','rgba(124,91,217,.8)','rgba(14,42,78,.8)','rgba(46,196,182,.8)','rgba(185,122,27,.8)','rgba(159,43,30,.8)'];
 
   // Gráfica 2: Dona ingresos
   const ingLabels = ['Saldo Inicial','Vta Efectivo','Cobros','Anticipos'];
@@ -3209,8 +3209,8 @@ function buildReserva(data) {
         datasets: [{
           label: 'Saldo CxP',
           data: empty ? [0] : cxpSaldoDatos.saldos,
-          borderColor: '#e74c3c',
-          backgroundColor: 'rgba(231,76,60,.12)',
+          borderColor: '#9F2B1E',
+          backgroundColor: 'rgba(159,43,30,.12)',
           borderWidth: 2.5, tension: .35, fill: true, pointRadius: 3
         }]
       },
@@ -3237,7 +3237,7 @@ function buildReserva(data) {
         labels: empty ? ['Sin datos'] : resMovDatos.labels,
         datasets: [
           { label: 'Entradas', data: empty ? [0] : resMovDatos.entradas, backgroundColor: 'rgba(46,196,182,.7)', borderColor: '#2ec4b6', borderWidth: 1 },
-          { label: 'Salidas',  data: empty ? [0] : resMovDatos.salidas,  backgroundColor: 'rgba(231,76,60,.7)', borderColor: '#e74c3c', borderWidth: 1 }
+          { label: 'Salidas',  data: empty ? [0] : resMovDatos.salidas,  backgroundColor: 'rgba(159,43,30,.7)', borderColor: '#9F2B1E', borderWidth: 1 }
         ]
       },
       options: { ...JSON.parse(JSON.stringify(BASE_OPT)) }
@@ -3264,8 +3264,8 @@ function buildReserva(data) {
         labels: empty ? ['Sin salidas'] : ['Pago Compras','Nómina','Otros Gastos'],
         datasets: [{
           data: empty ? [1] : [salPagoC, salNom, salOtros],
-          backgroundColor: empty ? ['rgba(100,100,100,.3)'] : ['#e74c3cbb','#9b59b6bb','#f1c40fbb'],
-          borderColor:    empty ? ['#666'] : ['#e74c3c','#9b59b6','#f1c40f'],
+          backgroundColor: empty ? ['rgba(100,100,100,.3)'] : ['#9F2B1Ebb','#7C5BD9bb','#B97A1Bbb'],
+          borderColor:    empty ? ['#666'] : ['#9F2B1E','#7C5BD9','#B97A1B'],
           borderWidth: 2
         }]
       },
@@ -3285,7 +3285,7 @@ function buildReserva(data) {
       data: {
         labels: empty ? ['Sin datos'] : cxpMovDatos.labels,
         datasets: [
-          { label: 'Compras Crédito', data: empty ? [0] : cxpMovDatos.entradas, backgroundColor: 'rgba(231,76,60,.7)',  borderColor: '#e74c3c', borderWidth: 1 },
+          { label: 'Compras Crédito', data: empty ? [0] : cxpMovDatos.entradas, backgroundColor: 'rgba(159,43,30,.7)',  borderColor: '#9F2B1E', borderWidth: 1 },
           { label: 'Pagos',           data: empty ? [0] : cxpMovDatos.salidas,  backgroundColor: 'rgba(46,196,182,.7)', borderColor: '#2ec4b6', borderWidth: 1 }
         ]
       },
@@ -3315,7 +3315,7 @@ function buildNomina(data){
     });
     const semanas = [...new Set(nomFiltrada.map(r => 'S'+r.w+'/'+r.iy))].sort();
     const empleados = Object.keys(empSemana);
-    const colors = ['#F5821F','#2ec4b6','#4361ee','#f4d35e','#e63946','#a8dadc'];
+    const colors = ['#E07A3E','#2ec4b6','#4361ee','#B97A1B','#e63946','#a8dadc'];
     mk('cn1','cvn1','bar',{
       labels: semanas,
       datasets: empleados.map((emp,i) => ({
@@ -3332,7 +3332,7 @@ function buildNomina(data){
     mk('cn1','cvn1','bar',{
       labels:byW.map(r=>'S'+r.w+'/'+r.iy),
       datasets:[{label:'Sueldo Semanal',data:byW.map(r=>r.su),
-        backgroundColor:'rgba(245,130,31,.7)',borderColor:'#F5821F',borderWidth:1,borderRadius:4,borderSkipped:false}]
+        backgroundColor:'rgba(224,122,62,.7)',borderColor:'#E07A3E',borderWidth:1,borderRadius:4,borderSkipped:false}]
     },opt);
     document.getElementById('bn1').textContent=byW.length+' semanas';
   }
@@ -3358,8 +3358,8 @@ function buildNomina(data){
   mk('cn2','cvn2','bar',{
     labels,
     datasets:[{label:'Total Sueldos',data:byM.map(r=>r.su),
-      backgroundColor:byM.map(r=>r.su>0?'rgba(46,204,113,.7)':'rgba(52,152,219,.3)'),
-      borderColor:'#2ecc71',borderWidth:1,borderRadius:4,borderSkipped:false}]
+      backgroundColor:byM.map(r=>r.su>0?'rgba(30,127,92,.7)':'rgba(14,42,78,.3)'),
+      borderColor:'#1E7F5C',borderWidth:1,borderRadius:4,borderSkipped:false}]
   },opt);
   document.getElementById('bn2').textContent=fmtK(byM.reduce((s,r)=>s+r.su,0));
 
@@ -3367,11 +3367,11 @@ function buildNomina(data){
   mk('cn3','cvn3','bar',{
     labels,
     datasets:[
-      {label:'Sueldo',data:byM.map(r=>r.su),backgroundColor:'rgba(245,130,31,.7)',borderColor:'#F5821F',borderWidth:1,borderRadius:3,borderSkipped:false},
-      {label:'Gasolina',data:byM.map(r=>r.gas),backgroundColor:'rgba(52,152,219,.6)',borderColor:'#3498db',borderWidth:1,borderRadius:3,borderSkipped:false},
-      {label:'Luz',data:byM.map(r=>r.luz),backgroundColor:'rgba(241,196,15,.6)',borderColor:'#f1c40f',borderWidth:1,borderRadius:3,borderSkipped:false},
+      {label:'Sueldo',data:byM.map(r=>r.su),backgroundColor:'rgba(224,122,62,.7)',borderColor:'#E07A3E',borderWidth:1,borderRadius:3,borderSkipped:false},
+      {label:'Gasolina',data:byM.map(r=>r.gas),backgroundColor:'rgba(14,42,78,.6)',borderColor:'#0E2A4E',borderWidth:1,borderRadius:3,borderSkipped:false},
+      {label:'Luz',data:byM.map(r=>r.luz),backgroundColor:'rgba(185,122,27,.6)',borderColor:'#B97A1B',borderWidth:1,borderRadius:3,borderSkipped:false},
       {label:'Internet',data:byM.map(r=>r.net),backgroundColor:'rgba(26,188,156,.6)',borderColor:'#1abc9c',borderWidth:1,borderRadius:3,borderSkipped:false},
-      {label:'Reserva',data:byM.map(r=>r.res),backgroundColor:'rgba(155,89,182,.6)',borderColor:'#9b59b6',borderWidth:1,borderRadius:3,borderSkipped:false},
+      {label:'Reserva',data:byM.map(r=>r.res),backgroundColor:'rgba(124,91,217,.6)',borderColor:'#7C5BD9',borderWidth:1,borderRadius:3,borderSkipped:false},
     ]
   },opt);
   document.getElementById('bn3').textContent=byM.length+' mes(es)';
@@ -3562,7 +3562,7 @@ function exportPDF(){
       });
       // Chart 3: Composición
       if (compoKeys.length > 0) {
-        const pal = ['#e63946','#F5821F','#f4d35e','#9b59b6','#3498db','#2ec4b6'];
+        const pal = ['#e63946','#E07A3E','#B97A1B','#7C5BD9','#0E2A4E','#2ec4b6'];
         new Chart(document.getElementById('pdf_cv_banco_comp'), {
           type:'doughnut',
           data:{ labels: compoKeys, datasets:[{ data: compoVals, backgroundColor: compoKeys.map((_,i)=>pal[i%pal.length]+'bb'), borderColor: compoKeys.map((_,i)=>pal[i%pal.length]), borderWidth:2 }] },
@@ -3732,13 +3732,13 @@ function exportPDF(){
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'Nunito',sans-serif;background:#fff;color:#111;font-size:12px;}
     .hdr{background:linear-gradient(135deg,#0f0f0f,#1c1c1c);color:#fff;padding:22px 28px;display:flex;align-items:flex-start;justify-content:space-between;}
-    .hdr h1{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:4px;color:#F5821F;}
+    .hdr h1{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:4px;color:#E07A3E;}
     .hdr h2{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:#ddd;margin-top:2px;}
     .hdr p{font-size:10px;color:#888;letter-spacing:2px;margin-top:4px;}
     .hdr-r{text-align:right;font-size:10px;color:#888;}
     .hdr-r strong{display:block;color:#bbb;font-size:12px;margin-bottom:2px;}
     .sec{padding:14px 28px;page-break-inside:avoid;}
-    .sec-t{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:#F5821F;margin-bottom:12px;padding-bottom:4px;border-bottom:2px solid #F5821F22;}
+    .sec-t{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:#E07A3E;margin-bottom:12px;padding-bottom:4px;border-bottom:2px solid #E07A3E22;}
     /* ── Resumen / Conclusión ── */
     .res-estado{display:inline-block;padding:8px 18px;border-radius:20px;font-weight:900;letter-spacing:2px;font-size:11px;margin-bottom:12px;}
     .res-intro{background:#fafafa;border:1px solid #e5e5e5;border-radius:10px;padding:16px 18px;line-height:1.7;font-size:13px;margin-bottom:14px;}
@@ -3757,7 +3757,7 @@ function exportPDF(){
     .res-block li:last-child{border-bottom:none;}
     /* ── KPIs ── */
     .kpi-g{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
-    .kpi{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:8px;padding:11px 12px;border-left:4px solid #F5821F;}
+    .kpi{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:8px;padding:11px 12px;border-left:4px solid #E07A3E;}
     .kpi.g{border-left-color:#16a34a;}.kpi.b{border-left-color:#2563eb;}
     .kpi.r{border-left-color:#dc2626;}.kpi.y{border-left-color:#ca8a04;}
     .kpi.p{border-left-color:#7c3aed;}.kpi.t{border-left-color:#0891b2;}
@@ -3769,9 +3769,9 @@ function exportPDF(){
     .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:10px;}
     img.ci{width:100%;max-height:220px;object-fit:contain;border:1px solid #e5e5e5;border-radius:6px;padding:4px;background:#f9f9f9;}
     .chart-cell{margin-bottom:14px;page-break-inside:avoid;}
-    .chart-ttl{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1.5px;color:#333;margin-bottom:6px;padding:6px 10px;background:#f5f5f5;border-left:3px solid #F5821F;border-radius:4px;}
+    .chart-ttl{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1.5px;color:#333;margin-bottom:6px;padding:6px 10px;background:#f5f5f5;border-left:3px solid #E07A3E;border-radius:4px;}
     .page-break{page-break-before:always;}
-    .ftr{background:#f3f3f3;padding:10px 28px;display:flex;justify-content:space-between;font-size:9px;color:#888;border-top:2px solid #F5821F22;margin-top:10px;}
+    .ftr{background:#f3f3f3;padding:10px 28px;display:flex;justify-content:space-between;font-size:9px;color:#888;border-top:2px solid #E07A3E22;margin-top:10px;}
     @media print { .sec{page-break-inside:avoid;} }
     </style></head><body>
     <div class="hdr">
@@ -4414,7 +4414,7 @@ async function applyBranding(empresaId) {
       emp.producto4 || 'Producto 4',
     ];
     const logo   = emp.logo   || '';
-    const c1     = emp.color1 || '#F5821F';
+    const c1     = emp.color1 || '#E07A3E';
     const c2     = emp.color2 || '#1a1a2e';
 
     // CSS variables
