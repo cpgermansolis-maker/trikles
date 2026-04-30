@@ -3627,13 +3627,13 @@ function exportPDF(){
     // ── Diagnóstico general ──
     let estadoGeneral, estadoColor, estadoIco;
     if (tu > 0 && pctSobre >= 60 && margen >= 25) {
-      estadoGeneral = 'SALUDABLE'; estadoColor = '#16a34a'; estadoIco = '✅';
+      estadoGeneral = 'SALUDABLE'; estadoColor = '#1E7F5C'; estadoIco = '✅';
     } else if (tu > 0 && pctSobre >= 40) {
-      estadoGeneral = 'ESTABLE CON MEJORAS PENDIENTES'; estadoColor = '#ca8a04'; estadoIco = '⚖️';
+      estadoGeneral = 'ESTABLE CON MEJORAS PENDIENTES'; estadoColor = '#B97A1B'; estadoIco = '⚖️';
     } else if (tu > 0) {
-      estadoGeneral = 'FRÁGIL — RENTABLE PERO CON RIESGOS'; estadoColor = '#ea580c'; estadoIco = '⚠️';
+      estadoGeneral = 'FRÁGIL — RENTABLE PERO CON RIESGOS'; estadoColor = '#E07A3E'; estadoIco = '⚠️';
     } else {
-      estadoGeneral = 'REQUIERE ATENCIÓN URGENTE'; estadoColor = '#dc2626'; estadoIco = '🚨';
+      estadoGeneral = 'REQUIERE ATENCIÓN URGENTE'; estadoColor = '#9F2B1E'; estadoIco = '🚨';
     }
 
     // ── Fortalezas ──
@@ -3728,57 +3728,65 @@ function exportPDF(){
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>OAC — Reporte Ejecutivo</title>
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap');
     *{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:'Nunito',sans-serif;background:#fff;color:#111;font-size:12px;}
-    .hdr{background:linear-gradient(135deg,#0f0f0f,#1c1c1c);color:#fff;padding:22px 28px;display:flex;align-items:flex-start;justify-content:space-between;}
-    .hdr h1{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:4px;color:#E07A3E;}
-    .hdr h2{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:#ddd;margin-top:2px;}
-    .hdr p{font-size:10px;color:#888;letter-spacing:2px;margin-top:4px;}
-    .hdr-r{text-align:right;font-size:10px;color:#888;}
-    .hdr-r strong{display:block;color:#bbb;font-size:12px;margin-bottom:2px;}
-    .sec{padding:14px 28px;page-break-inside:avoid;}
-    .sec-t{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:#E07A3E;margin-bottom:12px;padding-bottom:4px;border-bottom:2px solid #E07A3E22;}
+    body{font-family:'Geist','Inter',-apple-system,system-ui,sans-serif;background:#fff;color:#0A1A30;font-size:12px;-webkit-font-smoothing:antialiased;}
+    /* ── Header ── */
+    .hdr{background:#fff;border-bottom:1px solid #E6E9EE;padding:24px 28px 20px;display:flex;align-items:flex-start;justify-content:space-between;position:relative;}
+    .hdr::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#0E2A4E 0%,#9FCDE6 100%);}
+    .hdr h1{font-family:'Geist',sans-serif;font-size:26px;font-weight:600;letter-spacing:-.02em;color:#0A1A30;}
+    .hdr h1 em{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;color:#0E2A4E;}
+    .hdr h2{font-family:'Geist',sans-serif;font-size:14px;font-weight:600;letter-spacing:-.005em;color:#5A6A7E;margin-top:6px;text-transform:none;}
+    .hdr p{font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;color:#5A6A7E;letter-spacing:.14em;margin-top:6px;text-transform:uppercase;}
+    .hdr-r{text-align:right;font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;color:#5A6A7E;letter-spacing:.04em;}
+    .hdr-r strong{display:block;color:#0A1A30;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;letter-spacing:-.005em;margin-bottom:3px;text-transform:none;}
+    /* ── Sección ── */
+    .sec{padding:18px 28px;page-break-inside:avoid;}
+    .sec-t{font-family:'Geist',sans-serif;font-size:14px;font-weight:600;letter-spacing:-.005em;color:#0E2A4E;margin-bottom:14px;padding-bottom:6px;border-bottom:1px solid #E6E9EE;text-transform:none;}
     /* ── Resumen / Conclusión ── */
-    .res-estado{display:inline-block;padding:8px 18px;border-radius:20px;font-weight:900;letter-spacing:2px;font-size:11px;margin-bottom:12px;}
-    .res-intro{background:#fafafa;border:1px solid #e5e5e5;border-radius:10px;padding:16px 18px;line-height:1.7;font-size:13px;margin-bottom:14px;}
-    .res-intro b{color:#111;}
+    .res-estado{display:inline-block;padding:7px 16px;border-radius:999px;font-family:'Geist',sans-serif;font-weight:600;letter-spacing:-.005em;font-size:11px;margin-bottom:14px;text-transform:uppercase;}
+    .res-intro{background:#FAFBFC;border:1px solid #E6E9EE;border-radius:12px;padding:16px 18px;line-height:1.65;font-size:13px;margin-bottom:14px;color:#0A1A30;}
+    .res-intro b{color:#0A1A30;font-weight:600;}
     .res-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-    .res-block{background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #e5e5e5;}
-    .res-block.ok{border-left:4px solid #16a34a;background:#f0fdf4;}
-    .res-block.warn{border-left:4px solid #dc2626;background:#fef2f2;}
-    .res-block.tip{border-left:4px solid #2563eb;background:#eff6ff;}
-    .res-title{font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
-    .res-block.ok .res-title{color:#16a34a;}
-    .res-block.warn .res-title{color:#dc2626;}
-    .res-block.tip .res-title{color:#2563eb;}
+    .res-block{background:#fff;border-radius:12px;padding:14px 16px;border:1px solid #E6E9EE;}
+    .res-block.ok{border-left:4px solid #1E7F5C;background:rgba(30,127,92,.04);}
+    .res-block.warn{border-left:4px solid #9F2B1E;background:rgba(159,43,30,.04);}
+    .res-block.tip{border-left:4px solid #0E2A4E;background:rgba(14,42,78,.03);}
+    .res-title{font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px;}
+    .res-block.ok .res-title{color:#1E7F5C;}
+    .res-block.warn .res-title{color:#9F2B1E;}
+    .res-block.tip .res-title{color:#0E2A4E;}
     .res-block ul{list-style:none;margin:0;padding:0;}
-    .res-block li{font-size:11px;line-height:1.6;padding:5px 0;border-bottom:1px dashed #e5e5e5;}
+    .res-block li{font-family:'Geist',sans-serif;font-size:11.5px;line-height:1.55;padding:5px 0;border-bottom:1px dashed #E6E9EE;color:#0A1A30;}
     .res-block li:last-child{border-bottom:none;}
     /* ── KPIs ── */
-    .kpi-g{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
-    .kpi{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:8px;padding:11px 12px;border-left:4px solid #E07A3E;}
-    .kpi.g{border-left-color:#16a34a;}.kpi.b{border-left-color:#2563eb;}
-    .kpi.r{border-left-color:#dc2626;}.kpi.y{border-left-color:#ca8a04;}
-    .kpi.p{border-left-color:#7c3aed;}.kpi.t{border-left-color:#0891b2;}
-    .kpi-l{font-size:8px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:3px;}
-    .kpi-v{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1.1;}
-    .kpi-s{font-size:9px;color:#666;margin-top:2px;}
+    .kpi-g{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+    .kpi{background:#fff;border:1px solid #E6E9EE;border-radius:10px;padding:12px 14px;border-left:4px solid #E07A3E;box-shadow:0 1px 2px rgba(14,42,78,.04);}
+    .kpi.g{border-left-color:#1E7F5C;}
+    .kpi.b{border-left-color:#0E2A4E;}
+    .kpi.r{border-left-color:#9F2B1E;}
+    .kpi.y{border-left-color:#B97A1B;}
+    .kpi.p{border-left-color:#7C5BD9;}
+    .kpi.t{border-left-color:#9FCDE6;}
+    .kpi-l{font-family:'Geist Mono',ui-monospace,monospace;font-size:9px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#5A6A7E;margin-bottom:4px;}
+    .kpi-v{font-family:'Geist',sans-serif;font-size:20px;font-weight:600;letter-spacing:-.02em;line-height:1.1;color:#0A1A30;}
+    .kpi-s{font-family:'Geist',sans-serif;font-size:10px;color:#5A6A7E;margin-top:3px;}
     /* ── Charts ── */
     .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;}
     .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:10px;}
-    img.ci{width:100%;max-height:220px;object-fit:contain;border:1px solid #e5e5e5;border-radius:6px;padding:4px;background:#f9f9f9;}
+    img.ci{width:100%;max-height:220px;object-fit:contain;border:1px solid #E6E9EE;border-radius:8px;padding:6px;background:#fff;}
     .chart-cell{margin-bottom:14px;page-break-inside:avoid;}
-    .chart-ttl{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1.5px;color:#333;margin-bottom:6px;padding:6px 10px;background:#f5f5f5;border-left:3px solid #E07A3E;border-radius:4px;}
+    .chart-ttl{font-family:'Geist',sans-serif;font-size:12px;font-weight:600;letter-spacing:-.005em;color:#0A1A30;margin-bottom:6px;padding:7px 12px;background:#FAFBFC;border-left:3px solid #0E2A4E;border-radius:6px;text-transform:none;}
     .page-break{page-break-before:always;}
-    .ftr{background:#f3f3f3;padding:10px 28px;display:flex;justify-content:space-between;font-size:9px;color:#888;border-top:2px solid #E07A3E22;margin-top:10px;}
-    @media print { .sec{page-break-inside:avoid;} }
+    /* ── Footer ── */
+    .ftr{background:#FAFBFC;padding:12px 28px;display:flex;justify-content:space-between;align-items:center;font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;color:#5A6A7E;letter-spacing:.04em;border-top:1px solid #E6E9EE;margin-top:14px;}
+    @media print { .sec{page-break-inside:avoid;} body{font-size:11.5px;} .hdr{padding:18px 24px;} }
     </style></head><body>
     <div class="hdr">
       <div>
-        <h1>OAC</h1>
+        <h1>Reporte ejecutivo <em>OAC</em></h1>
         <h2>${empresa}</h2>
-        <p>📊 REPORTE EJECUTIVO — ${d1}${GF.from!==GF.to?' al '+d2:''}</p>
+        <p>${d1}${GF.from!==GF.to?' — '+d2:''}</p>
       </div>
       <div class="hdr-r">
         <strong>Generado: ${ahora}</strong>
@@ -3795,11 +3803,11 @@ function exportPDF(){
       <div class="res-intro">
         En los <b>${data.length} día(s)</b> analizados, el negocio facturó <b>${fmtK(tv)}</b> con una ganancia bruta
         de <b>${fmtK(tg)}</b> (margen de <b>${margen.toFixed(1)}%</b>) y una utilidad neta de
-        <b style="color:${tu>=0?'#16a34a':'#dc2626'}">${fmtK(tu)}</b>.
+        <b style="color:${tu>=0?'#1E7F5C':'#9F2B1E'}">${fmtK(tu)}</b>.
         Los gastos totales (operativos + costos fijos) fueron <b>${fmtK(tgt + cf)}</b>,
         equivalente a <b>${gastosRatio.toFixed(1)}%</b> de las ventas.
-        ${peDiario > 0 ? `De los ${data.length} días, <b style="color:#16a34a">${diasSobre} estuvieron sobre el Punto de Equilibrio</b>
-        y <b style="color:#dc2626">${diasBajo} por debajo</b>.` : ''}
+        ${peDiario > 0 ? `De los ${data.length} días, <b style="color:#1E7F5C">${diasSobre} estuvieron sobre el Punto de Equilibrio</b>
+        y <b style="color:#9F2B1E">${diasBajo} por debajo</b>.` : ''}
         ${pePeri > 0 ? ` Se alcanzó un logro de <b>${logro}%</b> del P.E. del período.` : ''}
       </div>
       <div class="res-grid">
@@ -3824,7 +3832,7 @@ function exportPDF(){
       <div class="kpi-g">
         <div class="kpi"><div class="kpi-l">Ventas</div><div class="kpi-v">${fmtK(tv)}</div><div class="kpi-s">${data.length} día(s)</div></div>
         <div class="kpi g"><div class="kpi-l">Ganancia Bruta</div><div class="kpi-v">${fmtK(tg)}</div><div class="kpi-s">margen ${margen.toFixed(1)}%</div></div>
-        <div class="kpi b"><div class="kpi-l">Utilidad Neta</div><div class="kpi-v" style="color:${tu>=0?'#16a34a':'#dc2626'}">${fmtK(tu)}</div><div class="kpi-s">${tv>0?((tu/tv)*100).toFixed(1)+'% margen neto':'—'}</div></div>
+        <div class="kpi b"><div class="kpi-l">Utilidad Neta</div><div class="kpi-v" style="color:${tu>=0?'#1E7F5C':'#9F2B1E'}">${fmtK(tu)}</div><div class="kpi-s">${tv>0?((tu/tv)*100).toFixed(1)+'% margen neto':'—'}</div></div>
         <div class="kpi r"><div class="kpi-l">Gastos Operativos</div><div class="kpi-v">${fmtK(tgt)}</div><div class="kpi-s">${tv>0?((tgt/tv)*100).toFixed(1)+'% de ventas':'—'}</div></div>
       </div>
       <div class="kpi-g">
