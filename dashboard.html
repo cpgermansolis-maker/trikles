@@ -3401,8 +3401,38 @@ function buildNomina(data){
 /* ─────────────── PDF ─────────────── */
 function exportPDF(){
   toast('info','Generando PDF','Preparando gráficas de todos los módulos...');
+
+  // ① iOS Safari bloquea popups que no se abren SINCRÓNICAMENTE dentro
+  // del click handler. Abrimos la ventana ya, con un loader, y después
+  // reescribimos su contenido cuando todo esté listo.
+  const _pdfWin = window.open('', '_blank');
+  if (!_pdfWin) {
+    toast('error','Popup bloqueado','Habilita ventanas emergentes para esta página y vuelve a intentar.');
+    return;
+  }
+  try {
+    _pdfWin.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>OAC — Generando reporte...</title>
+      <style>
+        body{font-family:-apple-system,system-ui,'Segoe UI',sans-serif;background:#FAFBFC;color:#0A1A30;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;}
+        .ldr{text-align:center;max-width:340px;}
+        .ldr h1{font-size:18px;font-weight:600;letter-spacing:-.01em;margin:0 0 10px;}
+        .ldr p{color:#5A6A7E;font-size:13.5px;line-height:1.55;margin:0;}
+        .spin{display:inline-block;width:36px;height:36px;border:3px solid #E6E9EE;border-top-color:#0E2A4E;border-radius:50%;animation:r 1s linear infinite;margin-bottom:18px;}
+        @keyframes r{to{transform:rotate(360deg);}}
+      </style></head><body>
+      <div class="ldr"><div class="spin"></div><h1>Generando reporte ejecutivo OAC…</h1><p>Las gráficas se están renderizando. Esto puede tardar unos segundos.</p></div>
+      </body></html>`);
+    _pdfWin.document.close();
+  } catch(e){ console.warn('PDF placeholder:', e); }
+
   const data = filterData(GF.from, GF.to);
-  if(!data.length){ toast('error','Sin datos','Selecciona un rango con datos.'); return; }
+  if(!data.length){
+    try{ _pdfWin.close(); }catch{}
+    toast('error','Sin datos','Selecciona un rango con datos.');
+    return;
+  }
 
   // ── Force-build de módulos "lazy" (Flujo, Nómina) ──
   // Los paneles están en display:none, así que los posicionamos fuera de pantalla
@@ -3690,8 +3720,12 @@ function exportPDF(){
     // Sacar datos de empresa para el encabezado
     const empresa = (document.querySelector('.tb-name')?.textContent || 'OAC').trim();
 
-    const w = window.open('','_blank');
+    // Reusar la ventana ya abierta sincrónicamente (compatibilidad iOS Safari)
+    const w = _pdfWin || window.open('','_blank');
+    if (!w) { toast('error','Popup bloqueado','Habilita ventanas emergentes y vuelve a intentar.'); restorePanels(); return; }
+    try { w.document.open(); } catch(e){}
     w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>OAC — Reporte Ejecutivo</title>
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;800;900&display=swap');
