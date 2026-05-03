@@ -522,7 +522,7 @@ function checkExistingSession() {
 // ══════════════════════════════════════════════════════════
 async function doLogin() {
   const usuario = document.getElementById('inputUser').value.trim();
-  const pass    = document.getElementById('inputPass').value;
+  const pass    = document.getElementById('inputPass').value.trim();
   const btn     = document.getElementById('btnLogin');
 
   if (!usuario)  { shakeField('inputUser'); return; }
