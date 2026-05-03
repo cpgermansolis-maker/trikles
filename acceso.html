@@ -571,7 +571,19 @@ async function doLogin() {
     btn.style.background = 'var(--good)';
     setTimeout(() => redirectByRole(u.rol), 800);
   } else {
-    showError('Usuario o contraseña incorrectos');
+    // Diagnóstico más específico para que el cliente sepa qué pasó:
+    // 1) sin respuesta (timeout / red bloqueada)
+    // 2) backend devolvió un mensaje específico
+    // 3) credenciales incorrectas (caso default)
+    let msg = 'Usuario o contraseña incorrectos';
+    if (result === null) {
+      msg = 'No hubo respuesta del servidor — revisa tu conexión y vuelve a intentar.';
+    } else if (result && result.message) {
+      msg = result.message;
+    } else if (result && result.error) {
+      msg = result.error;
+    }
+    showError(msg);
     btn.classList.remove('loading');
   }
 }
