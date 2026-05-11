@@ -1338,6 +1338,27 @@ function toast(type,title,msg,dur=4000){
 const API_BASE = API;
 
 async function apiCall(params) {
+  // Si el payload es grande (logo en base64, listas largas), el URL JSONP
+  // excede los límites y falla con "Error de carga". En ese caso usamos
+  // fetch POST con text/plain (no requiere preflight CORS) que Apps Script
+  // recibe en e.postData.contents.
+  const qs = new URLSearchParams(params).toString();
+  if (qs.length > 1800) {
+    try {
+      const res = await fetch(API_BASE, {
+        method: 'POST',
+        headers: {'Content-Type': 'text/plain;charset=utf-8'},
+        body: JSON.stringify(params),
+        redirect: 'follow'
+      });
+      const text = await res.text();
+      try { return JSON.parse(text); }
+      catch(e){ throw new Error('Respuesta no JSON: ' + text.slice(0,80)); }
+    } catch (e) {
+      throw new Error('POST falló: ' + e.message);
+    }
+  }
+  // Modo JSONP (queries cortos)
   return new Promise((resolve, reject) => {
     const cbName = 'trkCb_' + Date.now();
     const script = document.createElement('script');
@@ -1356,10 +1377,10 @@ async function apiCall(params) {
       done = true;
       delete window[cbName];
       if (script.parentNode) script.parentNode.removeChild(script);
-      reject(new Error('Error de carga'));
+      reject(new Error('Error de carga (script bloqueado o URL inválida)'));
     };
 
-    script.src = API_BASE + '?' + new URLSearchParams({...params, callback: cbName});
+    script.src = API_BASE + '?' + qs + '&callback=' + cbName;
     document.head.appendChild(script);
 
     setTimeout(() => {
@@ -1367,8 +1388,8 @@ async function apiCall(params) {
       done = true;
       delete window[cbName];
       if (script.parentNode) script.parentNode.removeChild(script);
-      reject(new Error('Timeout'));
-    }, 15000);
+      reject(new Error('Timeout — el servidor no respondió en 30s'));
+    }, 30000);
   });
 }
 
@@ -1747,15 +1768,16 @@ async function guardarEmpresa(){
   };
   try{
     const r=await apiPost(params);
-    if(r.success){
+    if(r && r.success){
       toast('success','Empresa guardada','Los datos se guardaron en Google Sheets.');
       closeModal('empresa');
       setTimeout(()=>loadEmpresas(), 1500);
     }else{
-      toast('error','Error al guardar',r.error||'Intenta de nuevo.');
+      toast('error','Error al guardar',(r && (r.error||r.message))||'El servidor rechazó los datos.');
     }
   }catch(e){
-    toast('error','Error de conexión','No se pudo guardar. Verifica tu conexión.');
+    console.error('guardarEmpresa error:', e);
+    toast('error','Error al guardar', e && e.message ? e.message : 'No se pudo conectar.');
   }
   document.getElementById('emp_btn_save').style.display='flex';
   document.getElementById('emp_saving').style.display='none';
