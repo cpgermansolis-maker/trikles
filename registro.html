@@ -358,6 +358,11 @@ input[type=date]:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3p
   box-shadow:var(--shadow-modal);
 }
 .help-icon:hover .tt{visibility:visible;opacity:1;}
+.help-icon.tt-show .tt{visibility:visible;opacity:1;}
+.help-icon .tt b{color:var(--navy);}
+@media (max-width:768px){
+  .help-icon .tt{width:80vw;max-width:280px;left:auto;right:0;transform:none;}
+}
 
 /* Charts grid */
 .charts-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;}
@@ -473,9 +478,9 @@ input[type=date]:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3p
     <span class="help-icon">?<span class="tt">Registra todas las ventas del día por tipo de pago. Solo las ventas en efectivo afectan el flujo de caja.</span></span>
   </div>
   <div class="fr3">
-    <div class="field"><label>Ventas en Efectivo <span class="req">*</span></label><input type="number" class="fi" id="f_vtaEfvo" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
-    <div class="field"><label>Ventas con Tarjeta <span class="req">*</span></label><input type="number" class="fi" id="f_vtaTarjeta" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
-    <div class="field"><label>Ventas a Crédito <span class="req">*</span></label><input type="number" class="fi" id="f_vtaCred" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
+    <div class="field"><label>Ventas en Efectivo <span class="req">*</span><span class="help-icon">?<span class="tt"><b>💵 Ventas en Efectivo</b><br>Total cobrado HOY en billetes / monedas.<br><br>✅ Sí afecta el flujo de caja (suma efectivo disponible).</span></span></label><input type="number" class="fi" id="f_vtaEfvo" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
+    <div class="field"><label>Ventas con Tarjeta <span class="req">*</span><span class="help-icon">?<span class="tt"><b>💳 Ventas con Tarjeta</b><br>Pagos hechos con tarjeta (débito/crédito) — el dinero llega al banco.<br><br>❌ No afecta el flujo de caja del día.<br>✅ Se refleja como abono en BANCO1 en el módulo de Bancos.</span></span></label><input type="number" class="fi" id="f_vtaTarjeta" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
+    <div class="field"><label>Ventas a Crédito <span class="req">*</span><span class="help-icon">?<span class="tt"><b>🏷️ Ventas a Crédito</b><br>El cliente se llevó la mercancía pero pagará después.<br><br>❌ No afecta el flujo de caja hoy (no hay billetes).<br>✅ Queda registrada en <b>CxC</b> hasta que cobres.<br>✅ Sí cuenta como venta total del día.</span></span></label><input type="number" class="fi" id="f_vtaCred" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
   </div>
   <div class="field"><label>Total Ventas del Día (auto)</label><input type="number" class="fi total" id="r_totalVentas" readonly placeholder="0.00"></div>
   <div class="sub-sep">Desglose por producto</div>
@@ -486,8 +491,8 @@ input[type=date]:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3p
     <div class="field"><label>Otros <span class="req">*</span></label><input type="number" class="fi" id="f_otros" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
   </div>
   <div class="fr2">
-    <div class="field"><label>Ganancia del Día <span class="req">*</span></label><input type="number" class="fi" id="f_ganancia" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"><div class="fi-hint">Ventas − Costo de mercancía</div></div>
-    <div class="field"><label>Costo de Ventas (auto)</label><input type="number" class="fi" id="r_costo" readonly placeholder="Auto"></div>
+    <div class="field"><label>Ganancia del Día <span class="req">*</span><span class="help-icon">?<span class="tt"><b>📈 Ganancia Bruta</b><br>Ganancia REAL del día (lo que te queda después de descontar el costo de lo que vendiste).<br><br><b>Fórmula:</b> Ventas Totales − Costo de mercancía<br><br><b>Ejemplo:</b> Vendiste $1,000, pero esos productos te costaron $400 — la ganancia es $600.<br><br>El "Costo de Ventas" se calcula automáticamente como Ventas − Ganancia.</span></span></label><input type="number" class="fi" id="f_ganancia" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"><div class="fi-hint">Ventas − Costo de mercancía</div></div>
+    <div class="field"><label>Costo de Ventas (auto)<span class="help-icon">?<span class="tt"><b>📦 Costo de Mercancía</b><br>Lo que te costaron los productos que vendiste hoy.<br><br>Se calcula automáticamente: Total Ventas − Ganancia que escribiste arriba.<br><br>No lo edites — sale solo.</span></span></label><input type="number" class="fi" id="r_costo" readonly placeholder="Auto"></div>
   </div>
 </div>
 
@@ -510,7 +515,7 @@ input[type=date]:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3p
   <div class="field"><label>Anticipos Recibidos <span class="req">*</span><span class="help-icon">?<span class="tt" style="width:260px;white-space:normal;line-height:1.5"><b>🤝 Anticipos Recibidos</b><br>Pagos parciales en efectivo por pedidos que aún no has entregado.<br><br><b>Ejemplo:</b> Un cliente te paga hoy $300 como anticipo por un pedido que entregarás mañana — eso va aquí.<br><br>✅ Sí afecta el flujo de efectivo.<br>⚠️ No es venta hasta que entregues el pedido.<br><br><b>¿Diferencia con Cobros?</b><br>Cobros = ya vendiste y te pagaban. Anticipos = te pagan antes de entregar.</span></span></label><input type="number" class="fi" id="f_anticipo" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
   <div class="sub-sep">Egresos de efectivo</div>
   <div class="fr2">
-    <div class="field"><label>Compras Totales del Día <span class="req">*</span></label><input type="number" class="fi" id="f_compras" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
+    <div class="field"><label>Compras Totales del Día <span class="req">*</span><span class="help-icon">?<span class="tt"><b>🛒 Compras Totales del Día</b><br>Total de mercancía que compraste hoy (sin importar cómo la pagaste).<br><br><b>Ejemplo:</b> Compraste $1,000 — escribe $1,000 aquí. No importa si pagaste $700 en efectivo y dejaste $300 a crédito; el total son $1,000.<br><br>Después en "Compras a Crédito" especificas cuánto quedó pendiente.</span></span></label><input type="number" class="fi" id="f_compras" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
     <div class="field"><label>Compras a Crédito <span class="help-icon">?<span class="tt" style="width:240px;white-space:normal;line-height:1.5"><b>🏷️ Compras a Crédito</b><br>Del total de compras de hoy, ¿cuánto quedó pendiente de pagar?<br><br><b>Ejemplo:</b> Compraste $500 pero solo pagaste $300 hoy — escribe $200 aquí.<br><br>❌ No afecta el flujo de efectivo de hoy.<br>✅ Queda registrado en Cuentas por Pagar.</span></span></label><input type="number" class="fi" id="f_comprasCredito" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
   </div>
   <div class="fr2">
@@ -529,7 +534,7 @@ input[type=date]:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3p
         </select>
       </div>
     </div>
-    <div class="field"><label>Retiro de Utilidades <span class="req">*</span></label><input type="number" class="fi" id="f_retiroUtil" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
+    <div class="field"><label>Retiro de Utilidades <span class="req">*</span><span class="help-icon">?<span class="tt"><b>💼 Retiro de Utilidades</b><br>Dinero que el dueño / socios sacan del negocio para uso personal.<br><br>✅ Sí afecta el flujo de caja (sale efectivo).<br>❌ No es un gasto operativo — es el pago al dueño.<br><br>Si no retiraste nada hoy, escribe 0.</span></span></label><input type="number" class="fi" id="f_retiroUtil" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
   </div>
   <div class="sub-sep">Conteo físico de billetes y monedas</div>
   <div class="fr4">
@@ -548,7 +553,7 @@ input[type=date]:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3p
     <div class="field"><label>$2</label><input type="number" class="fi" id="d_b2" placeholder="0" min="0" oninput="calcContado();draft()"></div>
     <div class="field"><label>$1</label><input type="number" class="fi" id="d_b1" placeholder="0" min="0" oninput="calcContado();draft()"></div>
     <div class="field"><label>$0.50</label><input type="number" class="fi" id="d_b050" placeholder="0" min="0" oninput="calcContado();draft()"></div>
-    <div class="field"><label>Retiro de caja</label><input type="number" class="fi" id="f_retiroEfvo" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
+    <div class="field"><label>Retiro de caja<span class="help-icon">?<span class="tt"><b>💵 Retiro de Caja</b><br>Efectivo que sacaste de la caja durante el día (por ejemplo para depositarlo en el banco al cierre).<br><br>✅ Resta del efectivo esperado en caja.<br><br><b>Diferencia con Retiro de Utilidades:</b><br>• Retiro de Caja → cualquier salida de billetes (depósito al banco, cambio, etc.)<br>• Retiro de Utilidades → pago al dueño/socio.</span></span></label><input type="number" class="fi" id="f_retiroEfvo" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
   </div>
   <div class="rbox-row">
     <div class="rbox"><div class="rbox-label">Efectivo contado</div><div class="rbox-val blue" id="r_contado">$0.00</div></div>
@@ -582,10 +587,10 @@ input[type=date]:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3p
       </div>
       <div class="fi-hint">Solo el monto pagado en efectivo o con reserva</div>
     </div>
-    <div class="field"><label>Reserva del Día <span class="req">*</span></label><input type="number" class="fi" id="f_reserva" value="0" min="0" step="0.01" oninput="calcular();draft()"></div>
+    <div class="field"><label>Reserva del Día <span class="req">*</span><span class="help-icon">?<span class="tt"><b>🏦 Reserva del Día</b><br>Dinero que <b>apartaste hoy</b> de la caja para guardar (ej. para pagar costos fijos como renta o luz cuando lleguen).<br><br>✅ Sí afecta el flujo (sale efectivo de caja).<br>✅ Suma al saldo total de reserva acumulada.<br><br>Cuando uses ese dinero después, regístralo en "¿Se usó dinero de la Reserva?" más abajo.<br><br>Si no apartaste nada hoy, deja 0.</span></span></label><input type="number" class="fi" id="f_reserva" value="0" min="0" step="0.01" oninput="calcular();draft()"></div>
   </div>
   <div class="fr2">
-    <div class="field"><label>Gastos de Días Anteriores <span class="req">*</span></label><input type="number" class="fi" id="f_gAnt" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
+    <div class="field"><label>Gastos de Días Anteriores <span class="req">*</span><span class="help-icon">?<span class="tt"><b>📋 Gastos de Días Anteriores</b><br>Gastos que correspondían a un día pasado pero los pagaste HOY.<br><br><b>Ejemplo:</b> El sábado fuiste a comprar gasolina por $300 pero no pasaste por el sistema. Hoy lunes regularizas — escríbelo aquí.<br><br>✅ Sí afecta el flujo de hoy (sale el dinero ahora).<br><br>Si todo lo de hoy ya está al día, deja 0.</span></span></label><input type="number" class="fi" id="f_gAnt" placeholder="0.00" min="0" step="0.01" oninput="calcular();draft()"></div>
     <!-- Uso de Reserva -->
     <div class="field" style="grid-column:1/-1;margin-top:8px">
       <label>¿Se usó dinero de la Reserva hoy? <span class="help-icon">?<span class="tt" style="width:240px;white-space:normal;line-height:1.5"><b>🏦 Uso de Reserva</b><br>Si pagaste algo con dinero de la reserva, regístralo aquí.<br><br>No afecta el flujo de efectivo del día porque ese dinero ya salió de caja en días anteriores cuando se apartó.</span></span></label>
@@ -1091,6 +1096,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
   applyBranding(activeEmp(s));
   changeDate(today());
+});
+
+// ── Tooltips: tap-to-toggle en móvil (no solo hover) ──
+document.addEventListener('click', function(e){
+  const icon = e.target.closest('.help-icon');
+  document.querySelectorAll('.help-icon.tt-show').forEach(el => { if(el !== icon) el.classList.remove('tt-show'); });
+  if(icon){ e.stopPropagation(); icon.classList.toggle('tt-show'); }
 });
 
 // Navegación con cache-busting automático
