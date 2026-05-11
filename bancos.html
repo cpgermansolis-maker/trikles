@@ -514,6 +514,7 @@ body.director-mode .director-hidden{display:none!important;}
   <!-- Botones de captura (ocultos para directivos) -->
   <div class="actions-bar director-hidden">
     <button class="btn-primary" onclick="openForm(false)">➕ Nuevo movimiento</button>
+    <button class="btn-primary" onclick="openTransfer()" style="background:var(--purple)">🔁 Transferencia entre cuentas</button>
     <button class="btn-danger-soft" onclick="openForm(true)">🛠️ Ajuste bancario</button>
   </div>
 
@@ -567,6 +568,43 @@ body.director-mode .director-hidden{display:none!important;}
     <div class="form-btns">
       <button class="btn-primary" onclick="guardarMov()" id="btn-guardar">💾 Guardar movimiento</button>
       <button class="btn-cancel" onclick="closeForm()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Formulario de TRANSFERENCIA entre cuentas propias -->
+  <div class="form-box director-hidden" id="transferBox" style="border-left:4px solid var(--purple);">
+    <div class="card-title" style="color:var(--purple);">🔁 Transferencia entre cuentas propias</div>
+    <p style="font-family:var(--font-sans);font-size:12.5px;color:var(--muted);margin:-8px 0 14px;line-height:1.55;">
+      Cuando mueves dinero de una cuenta tuya a otra. Esto crea <b style="color:var(--ink)">dos movimientos vinculados</b>:
+      una salida en la cuenta origen y una entrada en la cuenta destino, por el mismo monto.
+    </p>
+    <div class="form-grid">
+      <div class="fi-wrap">
+        <label class="fi-lbl">Cuenta origen <span style="color:var(--bad)">*</span></label>
+        <select class="fi" id="tx_origen">
+          <option value="BANCO1" id="tx-opt-orig1">Cuenta 1</option>
+          <option value="BANCO2" id="tx-opt-orig2">Cuenta 2</option>
+        </select>
+      </div>
+      <div class="fi-wrap">
+        <label class="fi-lbl">Cuenta destino <span style="color:var(--bad)">*</span></label>
+        <select class="fi" id="tx_destino">
+          <option value="BANCO2" id="tx-opt-dest2">Cuenta 2</option>
+          <option value="BANCO1" id="tx-opt-dest1">Cuenta 1</option>
+        </select>
+      </div>
+      <div class="fi-wrap">
+        <label class="fi-lbl">Monto <span style="color:var(--bad)">*</span></label>
+        <input type="number" class="fi" id="tx_monto" placeholder="0.00" min="0" step="0.01">
+      </div>
+      <div class="fi-wrap full">
+        <label class="fi-lbl">Concepto / Notas (opcional)</label>
+        <input type="text" class="fi" id="tx_notas" placeholder="Ej: Pasar dinero a cuenta de reserva">
+      </div>
+    </div>
+    <div class="form-btns">
+      <button class="btn-primary" onclick="guardarTransfer()" id="btn-transfer-save" style="background:var(--purple)">💾 Registrar transferencia</button>
+      <button class="btn-cancel" onclick="closeTransfer()">Cancelar</button>
     </div>
   </div>
 
@@ -725,6 +763,11 @@ function refreshBankLabels(){
   document.getElementById('btn-bank2').innerHTML = '🏦 ' + BANK_NAMES.BANCO2;
   document.getElementById('opt-bank1').textContent = BANK_NAMES.BANCO1;
   document.getElementById('opt-bank2').textContent = BANK_NAMES.BANCO2;
+  // Selectors del formulario de transferencia
+  const t1o = document.getElementById('tx-opt-orig1'); if (t1o) t1o.textContent = BANK_NAMES.BANCO1;
+  const t2o = document.getElementById('tx-opt-orig2'); if (t2o) t2o.textContent = BANK_NAMES.BANCO2;
+  const t1d = document.getElementById('tx-opt-dest1'); if (t1d) t1d.textContent = BANK_NAMES.BANCO1;
+  const t2d = document.getElementById('tx-opt-dest2'); if (t2d) t2d.textContent = BANK_NAMES.BANCO2;
 }
 function openEditNames(){
   document.getElementById('edit-bank1').value = BANK_NAMES.BANCO1;
@@ -1201,6 +1244,102 @@ async function guardarMov(){
   } finally {
     document.getElementById('btn-guardar').disabled = false;
     document.getElementById('btn-guardar').textContent = '💾 Guardar movimiento';
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   TRANSFERENCIA ENTRE CUENTAS PROPIAS
+   Crea 2 movimientos vinculados:
+   - TRANSFER_OUT en cuenta origen (cargo)
+   - TRANSFER_IN  en cuenta destino (abono)
+   Ambos comparten un "TXR-<timestamp>" en el concepto para
+   identificarlos como par y poder rastrearlos.
+══════════════════════════════════════════════════════════ */
+function openTransfer(){
+  // Cerrar el form normal si está abierto
+  closeForm();
+  const box = document.getElementById('transferBox');
+  box.classList.add('show');
+  // Defaults
+  document.getElementById('tx_origen').value  = CURRENT_BANK === 'BANCO2' ? 'BANCO2' : 'BANCO1';
+  document.getElementById('tx_destino').value = CURRENT_BANK === 'BANCO2' ? 'BANCO1' : 'BANCO2';
+  document.getElementById('tx_monto').value = '';
+  document.getElementById('tx_notas').value = '';
+  box.scrollIntoView({behavior:'smooth', block:'center'});
+}
+function closeTransfer(){ document.getElementById('transferBox').classList.remove('show'); }
+
+async function guardarTransfer(){
+  const origen   = document.getElementById('tx_origen').value;
+  const destino  = document.getElementById('tx_destino').value;
+  const monto    = parseFloat(document.getElementById('tx_monto').value) || 0;
+  const concepto = document.getElementById('tx_notas').value.trim();
+
+  if (origen === destino) { toast('err','Cuentas iguales','La cuenta origen y destino deben ser distintas.'); return; }
+  if (monto <= 0)         { toast('err','Monto inválido'); return; }
+
+  const nOrigen  = BANK_NAMES[origen]  || origen;
+  const nDestino = BANK_NAMES[destino] || destino;
+  if (!confirm(`¿Confirmas registrar transferencia de ${fmt(monto)}?\n\nDe:  ${nOrigen}\nA:   ${nDestino}`)) return;
+
+  // ID compartido para vincular los dos lados (sólo informativo)
+  const txrId = 'TXR-' + Date.now().toString(36).toUpperCase();
+  const conceptoBase = concepto || 'Traslado entre cuentas propias';
+  const conceptoOut  = `${conceptoBase} → ${nDestino} (${txrId})`;
+  const conceptoIn   = `${conceptoBase} ← ${nOrigen} (${txrId})`;
+  const usuario      = SESSION.usuario || SESSION.nombre || 'SYS';
+
+  document.getElementById('btn-transfer-save').disabled = true;
+  document.getElementById('btn-transfer-save').textContent = 'Guardando...';
+
+  try {
+    // 1) Salida en cuenta origen
+    const r1 = await jsonp({
+      action: 'saveCxC',
+      empresa: ACTIVE_EMPRESA,
+      tipo: 'BANCO_CARGO',
+      concepto: conceptoOut,
+      monto,
+      forma_pago: origen,
+      notas: 'TRANSFER_OUT|' + conceptoOut,
+      usuario
+    });
+    if (!(r1 && r1.success)) {
+      toast('err','Error', (r1 && r1.error) || 'No se pudo registrar la salida.');
+      return;
+    }
+
+    // 2) Entrada en cuenta destino
+    const r2 = await jsonp({
+      action: 'saveCxC',
+      empresa: ACTIVE_EMPRESA,
+      tipo: 'BANCO_ABONO',
+      concepto: conceptoIn,
+      monto,
+      forma_pago: destino,
+      notas: 'TRANSFER_IN|' + conceptoIn,
+      usuario
+    });
+    if (!(r2 && r2.success)) {
+      // Caso crítico: la salida ya se guardó pero la entrada falló.
+      // Avisar al usuario claramente y dar el ID para que pueda corregir.
+      toast('err', 'Transferencia incompleta',
+        `Se registró la salida pero falló la entrada (${txrId}). Captura manualmente una "Transferencia recibida" de ${fmt(monto)} en ${nDestino}.`);
+      await loadAll();
+      renderAll();
+      return;
+    }
+
+    toast('ok','✓ Transferencia registrada', `${fmt(monto)} de ${nOrigen} a ${nDestino}`);
+    closeTransfer();
+    await loadAll();
+    renderAll();
+  } catch(e) {
+    console.warn(e);
+    toast('err','Error de conexión','No se pudo completar la transferencia.');
+  } finally {
+    document.getElementById('btn-transfer-save').disabled = false;
+    document.getElementById('btn-transfer-save').textContent = '💾 Registrar transferencia';
   }
 }
 
