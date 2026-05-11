@@ -377,6 +377,38 @@ select.fi option{background:#fff;color:var(--ink);}
 ::-webkit-scrollbar-thumb{background:var(--mist);border-radius:999px;border:2px solid var(--paper);}
 ::-webkit-scrollbar-thumb:hover{background:var(--muted);}
 
+/* ══ Tooltips help-icon ══ */
+.help-icon{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--paper);border:1px solid var(--line);color:var(--muted);
+  font-size:10px;font-weight:600;cursor:help;
+  position:relative;flex-shrink:0;margin-left:6px;vertical-align:middle;
+  -webkit-tap-highlight-color:transparent;
+  transition:all var(--t-fast);
+}
+.help-icon:hover{background:var(--navy);border-color:var(--navy);color:#fff;}
+.help-icon .tt{
+  visibility:hidden;opacity:0;
+  pointer-events:none;white-space:normal;word-wrap:break-word;
+  width:280px;
+  background:#fff;border:1px solid var(--line);color:var(--ink);
+  font-family:var(--font-sans);font-size:12px;font-weight:400;line-height:1.55;
+  border-radius:var(--r-xl);padding:12px 14px;
+  position:absolute;z-index:9999;
+  left:50%;transform:translateX(-50%);top:26px;
+  transition:opacity .2s;
+  box-shadow:var(--shadow-modal);
+  text-align:left;
+}
+.help-icon .tt b{color:var(--navy);}
+.help-icon.tt-show .tt,
+.help-icon:hover .tt{visibility:visible;opacity:1;}
+/* Mobile: posicionar tooltip a la derecha del icono para no salirse */
+@media (max-width:768px){
+  .help-icon .tt{width:80vw;max-width:280px;left:auto;right:0;transform:none;}
+}
+
 /* ── Responsive ── */
 @media (max-width:900px){.charts-grid{grid-template-columns:1fr;}.charts-grid .wide{grid-column:auto;}}
 @media (max-width:768px){
@@ -514,8 +546,19 @@ body.director-mode .director-hidden{display:none!important;}
   <!-- Botones de captura (ocultos para directivos) -->
   <div class="actions-bar director-hidden">
     <button class="btn-primary" onclick="openForm(false)">➕ Nuevo movimiento</button>
+    <span class="help-icon">?<span class="tt">
+      Registra <b>un solo movimiento</b> en una cuenta: un depósito, retiro, transferencia recibida o enviada, pago de servicio, comisión, etc. Es lo más común.
+    </span></span>
+
     <button class="btn-primary" onclick="openTransfer()" style="background:var(--purple)">🔁 Transferencia entre cuentas</button>
+    <span class="help-icon">?<span class="tt">
+      Para cuando mueves dinero <b>entre tus dos cuentas</b> (ej. de BANCO1 a BANCO2). Crea automáticamente la salida en una cuenta y la entrada en la otra, vinculadas con un mismo código de rastreo.
+    </span></span>
+
     <button class="btn-danger-soft" onclick="openForm(true)">🛠️ Ajuste bancario</button>
+    <span class="help-icon">?<span class="tt">
+      <b>Úsalo solo en excepciones.</b> Cuando el saldo real del estado de cuenta del banco no cuadra con el sistema y necesitas sumar o restar un monto que no es ningún movimiento normal. Estos ajustes se monitorean.
+    </span></span>
   </div>
 
   <!-- Formulario (oculto para directivos) -->
@@ -523,7 +566,12 @@ body.director-mode .director-hidden{display:none!important;}
     <div class="card-title" id="formTitle">➕ Nuevo movimiento bancario</div>
     <div class="form-grid">
       <div class="fi-wrap">
-        <label class="fi-lbl">Tipo de movimiento <span style="color:var(--red)">*</span></label>
+        <label class="fi-lbl">Tipo de movimiento <span style="color:var(--red)">*</span>
+          <span class="help-icon">?<span class="tt">
+            <b>Abonos:</b> dinero que ENTRA al banco (saldo inicial, depósito, transferencia recibida, intereses).<br><br>
+            <b>Cargos:</b> dinero que SALE del banco (retiro, transferencia enviada, pago de servicio, comisión).
+          </span></span>
+        </label>
         <select class="fi" id="f_tipo" onchange="onTipoChange()">
           <option value="">— Selecciona —</option>
           <optgroup label="Abonos (entran al banco)">
@@ -580,14 +628,22 @@ body.director-mode .director-hidden{display:none!important;}
     </p>
     <div class="form-grid">
       <div class="fi-wrap">
-        <label class="fi-lbl">Cuenta origen <span style="color:var(--bad)">*</span></label>
+        <label class="fi-lbl">Cuenta origen <span style="color:var(--bad)">*</span>
+          <span class="help-icon">?<span class="tt">
+            De aquí <b>sale</b> el dinero. Se registrará como una <b>salida</b> (cargo) en esta cuenta.
+          </span></span>
+        </label>
         <select class="fi" id="tx_origen">
           <option value="BANCO1" id="tx-opt-orig1">Cuenta 1</option>
           <option value="BANCO2" id="tx-opt-orig2">Cuenta 2</option>
         </select>
       </div>
       <div class="fi-wrap">
-        <label class="fi-lbl">Cuenta destino <span style="color:var(--bad)">*</span></label>
+        <label class="fi-lbl">Cuenta destino <span style="color:var(--bad)">*</span>
+          <span class="help-icon">?<span class="tt">
+            A aquí <b>llega</b> el dinero. Se registrará como una <b>entrada</b> (abono) en esta cuenta.
+          </span></span>
+        </label>
         <select class="fi" id="tx_destino">
           <option value="BANCO2" id="tx-opt-dest2">Cuenta 2</option>
           <option value="BANCO1" id="tx-opt-dest1">Cuenta 1</option>
@@ -1352,6 +1408,14 @@ async function guardarTransfer(){
   await loadAll();
   renderAll();
 })();
+
+// ── Tooltips: tap-to-toggle en móvil (no solo hover) ──
+document.addEventListener('click', function(e){
+  const icon = e.target.closest('.help-icon');
+  // Cierra todos los abiertos
+  document.querySelectorAll('.help-icon.tt-show').forEach(el => { if(el !== icon) el.classList.remove('tt-show'); });
+  if(icon){ e.stopPropagation(); icon.classList.toggle('tt-show'); }
+});
 </script>
 </body>
 </html>
