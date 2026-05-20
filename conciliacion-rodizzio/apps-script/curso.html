@@ -1,0 +1,684 @@
+<? var __tokenInyectado = '';
+try { __tokenInyectado = (queryParams && queryParams.t) ? String(queryParams.t) : ''; } catch(e){} ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi curso · Fogueira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<base target="_top">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500;1,600&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  /* Paleta handoff oficial Fogueira (v160) */
+  --ink:#0c0907; --ink-soft:#1a1310;
+  --ember:#c4322a; --ember-hot:#e04826; --ember-deep:#8a1f17;
+  --cream:#f6f1e8; --cream-warm:#efe5d2; --cream-line:#e4d9c2;
+  --bone:#fffdf8; --slate-soft:#5d6c80; --smoke:#8a8278;
+  --gold:#c89a4a; --gold-soft:#e8c46a;
+  /* Aliases legacy */
+  --muted:var(--slate-soft); --line:var(--cream-line); --paper:var(--cream-warm);
+  --good:#1E7F5C; --warn:var(--gold); --bad:var(--ember-deep); --teal:#0E7C90;
+  --brand:var(--ember); --brand-deep:var(--ember-deep); --brand-tint:rgba(196,50,42,.08);
+  /* Tipografía handoff */
+  --font-sans:'DM Sans',system-ui,-apple-system,sans-serif;
+  --font-serif:'Cormorant Garamond',Georgia,serif;
+  --font-mono:'DM Mono',ui-monospace,'SF Mono',monospace;
+  --r-sm:4px; --r-md:6px; --r-lg:7px; --r-xl:10px; --r-2xl:12px;
+  --shadow-card:0 1px 3px rgba(12,9,7,.06);
+  --t-fast:.15s ease;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--ink);background:var(--cream);line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ── Topbar oscuro (handoff Fogueira) ── */
+header.app{
+  background:var(--ink);color:var(--cream);
+  border-bottom:1px solid rgba(200,154,74,.22);
+  position:sticky;top:0;z-index:30;
+}
+.head-row{max-width:1100px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.brand-cluster{display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-width:0}
+.brand-flame{display:flex;align-items:center;gap:9px}
+.brand-flame svg{display:block;flex-shrink:0}
+.brand-flame .wordmark{font-family:'DM Sans',sans-serif;font-weight:800;font-size:18px;letter-spacing:.02em;color:var(--gold);line-height:1}
+.brand-sep-v{width:1px;height:30px;background:rgba(246,241,232,.15);flex-shrink:0}
+.brand-eyebrow{font-family:var(--font-mono);font-size:10px;letter-spacing:.22em;color:rgba(246,241,232,.5);text-transform:uppercase;font-weight:500;display:block;line-height:1.2}
+.brand-name{font-family:var(--font-serif);font-style:italic;font-weight:500;font-size:22px;color:var(--cream);line-height:1.1;margin-top:3px}
+.brand-empresa{font-family:'DM Sans',sans-serif;font-weight:600;font-size:10px;color:var(--gold);padding:5px 12px;background:rgba(200,154,74,.12);border:1px solid rgba(200,154,74,.4);letter-spacing:.18em;text-transform:uppercase}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:var(--r-lg);font-family:var(--font-sans);font-size:12.5px;font-weight:500;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--ink);text-decoration:none;transition:all var(--t-fast)}
+.btn:hover{background:#fff;border-color:var(--brand);color:var(--brand)}
+.btn.primary{background:var(--ink);color:var(--gold);border-color:var(--ink)}
+.btn.primary:hover{background:#000;border-color:#000;color:var(--gold)}
+.btn.success{background:var(--good);color:#fff;border-color:var(--good)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+header.app .btn{background:rgba(246,241,232,.04);color:var(--cream);border-color:rgba(246,241,232,.18)}
+header.app .btn:hover{background:rgba(200,154,74,.12);border-color:var(--gold);color:var(--cream)}
+header.app .btn.primary{background:var(--gold);color:var(--ink);border-color:var(--gold);font-weight:600}
+header.app .btn.primary:hover{background:var(--gold-soft);border-color:var(--gold-soft);color:var(--ink)}
+
+main{max-width:1100px;margin:0 auto;padding:24px 22px 70px}
+@media(max-width:640px){main{padding:18px 14px 60px}}
+
+/* Hero del curso (handoff: oscuro + gold accent) */
+.curso-hero{background:linear-gradient(135deg,var(--ink) 0,var(--ink-soft) 100%);color:var(--cream);border-radius:var(--r-2xl);padding:26px 28px;margin-bottom:22px;box-shadow:0 6px 20px -8px rgba(12,9,7,.3);border:1px solid rgba(200,154,74,.25)}
+.curso-hero .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:var(--gold);margin-bottom:8px}
+.curso-hero h1{font-family:var(--font-serif);font-style:italic;font-weight:500;font-size:36px;letter-spacing:-.01em;line-height:1.05;margin:0 0 10px;color:var(--cream)}
+@media(max-width:640px){.curso-hero{padding:20px 18px}.curso-hero h1{font-size:28px}}
+.curso-hero .desc{font-size:14px;color:rgba(246,241,232,.78);max-width:640px;line-height:1.6}
+.curso-progress{margin-top:22px}
+.curso-progress .lab{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;opacity:.85;display:flex;justify-content:space-between;margin-bottom:8px}
+.bar{height:8px;background:rgba(255,255,255,.20);border-radius:6px;overflow:hidden}
+.bar .fill{height:100%;background:#fff;transition:width .4s ease}
+
+/* Layout: sidebar + contenido */
+.layout{display:grid;grid-template-columns:300px 1fr;gap:22px}
+@media(max-width:768px){.layout{grid-template-columns:1fr;gap:14px}}
+
+aside.sidebar{background:#fff;border:1px solid var(--line);border-radius:var(--r-2xl);padding:14px;align-self:start;position:sticky;top:80px;max-height:calc(100vh - 100px);overflow-y:auto}
+@media(max-width:768px){aside.sidebar{position:static;max-height:none}}
+aside.sidebar h3{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin:6px 8px 10px;font-weight:600}
+.modulo-link{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:var(--r-md);cursor:pointer;text-decoration:none;color:var(--ink);transition:all var(--t-fast);margin-bottom:4px;border:1px solid transparent}
+.modulo-link:hover{background:var(--paper)}
+.modulo-link.active{background:var(--brand-tint);border-color:var(--brand)}
+.modulo-link.bloqueado{opacity:.5;cursor:not-allowed}
+.modulo-link .num{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--paper);border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--muted);transition:all var(--t-fast)}
+.modulo-link.completado .num{background:var(--good);color:#fff;border-color:var(--good)}
+.modulo-link.activo-actual .num{background:var(--brand);color:#fff;border-color:var(--brand)}
+.modulo-link .body{flex:1;min-width:0}
+.modulo-link .titulo{font-size:13.5px;font-weight:500;line-height:1.35;margin-bottom:2px}
+.modulo-link .meta{font-family:var(--font-mono);font-size:10px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;font-weight:500}
+
+.examen-cta{margin:18px 8px 6px;padding:14px;border-radius:var(--r-md);background:linear-gradient(135deg,rgba(30,127,92,.08),rgba(30,127,92,.04));border:1.5px dashed var(--good);text-align:center}
+.examen-cta.bloqueado{background:var(--paper);border-style:solid;border-color:var(--line);opacity:.7}
+.examen-cta .lab{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:var(--good);text-transform:uppercase;font-weight:700;margin-bottom:4px}
+.examen-cta.bloqueado .lab{color:var(--muted)}
+.examen-cta .titulo{font-family:var(--font-serif);font-style:italic;font-size:18px;font-weight:400;color:var(--ink);margin-bottom:10px}
+.examen-cta .btn{width:100%;justify-content:center}
+
+/* Contenido del módulo */
+.modulo-card{background:#fff;border:1px solid var(--line);border-radius:var(--r-2xl);padding:32px;box-shadow:var(--shadow-card)}
+@media(max-width:640px){.modulo-card{padding:22px 18px}}
+.modulo-card .header-modulo{padding-bottom:20px;border-bottom:1px solid var(--line);margin-bottom:24px}
+.modulo-card .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:var(--brand);text-transform:uppercase;font-weight:700;margin-bottom:6px}
+.modulo-card h2{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:30px;letter-spacing:-.01em;line-height:1.15;color:var(--ink);margin:0 0 8px}
+.modulo-card .resumen{font-size:15px;color:var(--muted);line-height:1.55;margin:0 0 12px}
+.modulo-card .meta{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;color:var(--muted);font-weight:500}
+.modulo-card .meta .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:var(--paper);border-radius:10px}
+
+/* Markdown render */
+.contenido-md{font-size:15.5px;line-height:1.75;color:var(--ink)}
+.contenido-md h2{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:24px;color:var(--brand);margin:28px 0 10px;line-height:1.2}
+.contenido-md h2:first-child{margin-top:0}
+.contenido-md h3{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:19px;color:var(--brand-deep);margin:22px 0 8px}
+.contenido-md p{margin:0 0 14px}
+.contenido-md ul,.contenido-md ol{padding-left:24px;margin:0 0 14px}
+.contenido-md li{margin-bottom:7px}
+.contenido-md strong{color:var(--ink);font-weight:600}
+.contenido-md em{font-style:italic;color:var(--brand-deep)}
+.contenido-md table{border-collapse:collapse;width:100%;margin:14px 0;font-size:13.5px}
+.contenido-md th{background:var(--paper);text-align:left;padding:8px 12px;border:1px solid var(--line);font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+.contenido-md td{padding:10px 12px;border:1px solid var(--line)}
+.contenido-md code{background:var(--brand-tint);padding:2px 6px;border-radius:4px;font-family:var(--font-mono);font-size:13px;color:var(--brand-deep)}
+
+/* Quiz al final del módulo */
+.quiz-section{margin-top:30px;padding-top:24px;border-top:2px dashed var(--line)}
+.quiz-section .quiz-eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--brand);text-transform:uppercase;font-weight:700;margin-bottom:6px}
+.quiz-section h3{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:24px;color:var(--ink);margin:0 0 8px}
+.quiz-section .quiz-desc{font-size:13.5px;color:var(--muted);margin-bottom:20px}
+.quiz-pregunta{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);padding:18px 20px;margin-bottom:14px}
+.quiz-pregunta.correcta{background:rgba(30,127,92,.06);border-color:var(--good)}
+.quiz-pregunta.incorrecta{background:rgba(159,43,30,.06);border-color:var(--bad)}
+.quiz-pregunta .num-q{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;font-weight:700;margin-bottom:6px}
+.quiz-pregunta .texto-q{font-size:15px;color:var(--ink);font-weight:500;margin-bottom:14px;line-height:1.5}
+.quiz-opciones{display:flex;flex-direction:column;gap:8px}
+.quiz-opcion{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:#fff;border:1.5px solid var(--line);border-radius:var(--r-md);cursor:pointer;transition:all var(--t-fast);text-align:left;font-family:var(--font-sans);font-size:14px;line-height:1.45;color:var(--ink)}
+.quiz-opcion:hover:not(:disabled){border-color:var(--brand);background:var(--brand-tint)}
+.quiz-opcion.selected{border-color:var(--brand);background:var(--brand-tint)}
+.quiz-opcion.correcta-revelada{border-color:var(--good);background:rgba(30,127,92,.08)}
+.quiz-opcion.incorrecta-marcada{border-color:var(--bad);background:rgba(159,43,30,.08)}
+.quiz-opcion .letra{flex-shrink:0;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--muted);transition:all var(--t-fast)}
+.quiz-opcion.selected .letra{background:var(--brand);color:#fff;border-color:var(--brand)}
+.quiz-opcion.correcta-revelada .letra{background:var(--good);color:#fff;border-color:var(--good)}
+.quiz-opcion.incorrecta-marcada .letra{background:var(--bad);color:#fff;border-color:var(--bad)}
+.quiz-opcion a{pointer-events:none;color:inherit;text-decoration:none;cursor:pointer}
+
+.feedback-explicacion{margin-top:10px;padding:10px 14px;background:#fff;border-left:3px solid var(--good);font-size:13px;color:var(--ink);border-radius:0 var(--r-sm) var(--r-sm) 0}
+
+/* Acciones */
+.modulo-acciones{margin-top:28px;padding-top:20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.modulo-acciones .btn{flex:1;min-width:140px;justify-content:center;padding:13px 18px;font-size:14px}
+
+/* Resultado del quiz */
+.quiz-resultado{padding:22px;border-radius:var(--r-md);margin-top:18px;text-align:center}
+.quiz-resultado.aprobado{background:rgba(30,127,92,.08);border:1.5px solid var(--good)}
+.quiz-resultado.reprobado{background:rgba(185,122,27,.08);border:1.5px solid var(--warn)}
+.quiz-resultado .icon{font-size:42px;margin-bottom:6px}
+.quiz-resultado h3{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:24px;margin:0 0 6px}
+.quiz-resultado.aprobado h3{color:var(--good)}
+.quiz-resultado.reprobado h3{color:var(--warn)}
+.quiz-resultado .calif{font-family:var(--font-mono);font-size:13px;letter-spacing:.04em;color:var(--muted);font-weight:600;margin-bottom:14px}
+
+.alerta{padding:14px 18px;border-radius:var(--r-md);font-size:14px;margin-bottom:14px}
+.alerta.warn{background:rgba(185,122,27,.08);border:1px solid rgba(185,122,27,.30);color:var(--warn)}
+.alerta.bad{background:rgba(159,43,30,.08);border:1px solid rgba(159,43,30,.30);color:var(--bad)}
+.alerta.info{background:rgba(14,124,144,.08);border:1px solid rgba(14,124,144,.25);color:var(--teal)}
+
+.loading{padding:60px 20px;text-align:center;color:var(--muted)}
+.hidden{display:none !important}
+.exento-card{padding:40px 24px;text-align:center;background:#fff;border:1px solid var(--line);border-radius:var(--r-2xl)}
+.exento-card .icon{font-size:48px;margin-bottom:14px;opacity:.7}
+.exento-card h2{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:28px;color:var(--ink);margin:0 0 8px}
+.exento-card p{color:var(--muted);font-size:14.5px;max-width:480px;margin:0 auto}
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="head-row">
+    <div class="brand-cluster">
+      <div class="brand-flame" aria-label="Fogueira">
+        <svg width="22" height="26" viewBox="0 0 32 38" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="flameGradCu" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e8c46a"/>
+              <stop offset="50%" stop-color="#c89a4a"/>
+              <stop offset="100%" stop-color="#9a7330"/>
+            </linearGradient>
+          </defs>
+          <path d="M16 1.5 C 17 6, 22 9, 23 14 C 24 18, 22 21, 20 22 C 22 24, 24 27, 24 31 C 24 35, 21 37, 16 37 C 11 37, 8 35, 8 31 C 8 28, 10 26, 11 24 C 9 22, 7 19, 8 15 C 9 11, 13 11, 14 7 C 15 5, 16 3, 16 1.5 Z" fill="url(#flameGradCu)"/>
+          <path d="M16 16 C 17 19, 19 21, 19 25 C 19 28, 17 30, 16 30 C 15 30, 13 28, 13 25 C 13 22, 15 19, 16 16 Z" fill="#0c0907" opacity="0.55"/>
+        </svg>
+        <span class="wordmark">FOGUEIRA</span>
+      </div>
+      <div class="brand-sep-v"></div>
+      <div>
+        <div class="brand-eyebrow">Capacitación · Restaurante</div>
+        <div class="brand-name">Mi curso</div>
+      </div>
+      <span class="brand-empresa" id="empresaNombre">—</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <a class="btn" id="btnExamen" href="#" target="_top" style="display:none">📝 Tomar examen</a>
+      <a class="btn" id="btnInicio" href="#" target="_top">Inicio</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="loadingBox" class="loading">Cargando tu curso…</div>
+
+  <!-- Vista exento -->
+  <div id="exentoBox" class="exento-card hidden">
+    <div class="icon">👁</div>
+    <h2>Tu rol no requiere capacitación</h2>
+    <p>Como observador solo puedes ver el sistema, sin editar. No necesitas tomar el curso ni el examen. Lee el manual cuando quieras consultarlo.</p>
+    <p style="margin-top:18px"><a class="btn primary" id="btnManualExento" href="#" target="_top">📖 Abrir mi manual</a></p>
+  </div>
+
+  <!-- Vista principal -->
+  <div id="cursoBox" class="hidden">
+    <div class="curso-hero">
+      <div class="eyebrow" id="rolEyebrow">Curso de —</div>
+      <h1 id="cursoTitulo">Capacitación operativa</h1>
+      <p class="desc">Avanza por los módulos en orden. Cada uno termina con un mini-quiz que debes aprobar para desbloquear el siguiente. Al completar el 100% se desbloquea tu examen final de certificación.</p>
+      <div class="curso-progress">
+        <div class="lab"><span>Tu progreso</span><span id="progPct">0% · 0 de 0</span></div>
+        <div class="bar"><div class="fill" id="progFill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <h3>Módulos</h3>
+        <div id="sidebarModulos"></div>
+        <div id="examenCta" class="examen-cta bloqueado">
+          <div class="lab">EXAMEN FINAL</div>
+          <div class="titulo">Certificación</div>
+          <a class="btn primary" id="btnIrExamen" href="#" target="_top">📝 Tomar examen</a>
+        </div>
+      </aside>
+
+      <div id="moduloContenido">
+        <div class="loading">Selecciona un módulo a la izquierda</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+  'use strict';
+  var API_URL = 'https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec';
+
+  function getQuery(name){
+    var m = (location.search.match(new RegExp('[?&]' + name + '=([^&]*)')) || [])[1];
+    return m ? decodeURIComponent(m) : '';
+  }
+  var token = getQuery('t') || '<?!= __tokenInyectado ?>';
+  var user = null, empresa = null;
+  if (token) { try { sessionStorage.setItem('fogueira_token', token); } catch(e){} }
+  else { try { token = sessionStorage.getItem('fogueira_token'); } catch(e){} }
+  if (!token) {
+    var _a=document.createElement('a');_a.href=API_URL + '?p=acceso';_a.target='_top';document.body.appendChild(_a);_a.click(); return;
+  }
+  try {
+    user = JSON.parse(sessionStorage.getItem('fogueira_user') || 'null');
+    empresa = JSON.parse(sessionStorage.getItem('fogueira_empresa') || 'null');
+  } catch(e){}
+
+  function apiCall(params, cb){
+    var done=false, t=setTimeout(function(){if(done)return;done=true;cb({ok:false,error:'Tiempo de espera'});},25000);
+    fetch(API_URL,{method:'POST',body:JSON.stringify(params),redirect:'follow'})
+      .then(function(r){return r.json();})
+      .then(function(d){if(done)return;done=true;clearTimeout(t);cb(d);})
+      .catch(function(){if(done)return;done=true;clearTimeout(t);cb({ok:false,error:'Sin conexión'});});
+  }
+
+  function urlInterna(pagina){ return API_URL + '?p=' + pagina + '&t=' + encodeURIComponent(token); }
+  function urlInicio(){ return urlInterna('inicio') + (user ? '&urol='+encodeURIComponent(user.rol||'')+'&unom='+encodeURIComponent(user.nombre||user.email||'') : ''); }
+  document.getElementById('btnInicio').href = urlInicio();
+  document.getElementById('btnExamen').href = urlInterna('examen');
+  document.getElementById('btnIrExamen').href = urlInterna('examen');
+  document.getElementById('btnManualExento').href = urlInterna('instructivo');
+
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function $(id){ return document.getElementById(id); }
+  function show(id){ $(id).classList.remove('hidden'); }
+  function hide(id){ $(id).classList.add('hidden'); }
+  function rolBonito(r){
+    return ({
+      admin:'Administrador', host:'Host', cajera:'Cajera',
+      cocina:'Cocina', churrasca:'Churrasca',
+      encargado_piso:'Encargado de piso',
+      comprador:'Comprador',
+      gerente_restaurante:'Gerente de Restaurante',
+      gerente_administrativo:'Gerente Administrativo',
+      auditoria:'Auditoría', observador:'Observador'
+    })[String(r||'').toLowerCase()] || (r || '—');
+  }
+
+  if (empresa && empresa.nombre) $('empresaNombre').textContent = empresa.nombre;
+
+  // Markdown super-básico (suficiente para nuestro contenido)
+  function renderMarkdown(md){
+    if (!md) return '';
+    var out = String(md);
+    // Tablas (formato | a | b | con --- debajo)
+    out = out.replace(/((?:^\|.+\|\s*\n)+)/gm, function(block){
+      var lines = block.trim().split('\n');
+      if (lines.length < 2) return block;
+      var hdr = lines[0].trim().slice(1,-1).split('|').map(function(c){return c.trim();});
+      var sep = lines[1];
+      if (!/^\|[\s\-:|]+\|$/.test(sep.trim())) return block;
+      var rows = lines.slice(2).map(function(l){return l.trim().slice(1,-1).split('|').map(function(c){return c.trim();});});
+      var html = '<table><thead><tr>' + hdr.map(function(h){return '<th>'+h+'</th>';}).join('') + '</tr></thead><tbody>';
+      rows.forEach(function(r){ html += '<tr>' + r.map(function(c){return '<td>'+c+'</td>';}).join('') + '</tr>'; });
+      html += '</tbody></table>';
+      return html;
+    });
+    // Headers
+    out = out.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    out = out.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    // Listas (procesa bloques de líneas que empiezan con "- ")
+    out = out.replace(/(?:^- .+(?:\n|$))+/gm, function(block){
+      var items = block.trim().split('\n').map(function(l){
+        return '<li>' + l.replace(/^- /, '') + '</li>';
+      }).join('');
+      return '<ul>' + items + '</ul>';
+    });
+    // Bold y código inline
+    out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    out = out.replace(/`([^`]+)`/g, function(_, code) {
+      return '<code>' + code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</code>';
+    });
+    // Italicos
+    out = out.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    // Links [texto](url) — solo mostrar el texto, sin <a> (curso es solo lectura)
+    out = out.replace(/\[([^\]]+)\]\([^)\s]+\)/g, '$1');
+    // Párrafos: separar por doble salto, ignorar lo que ya es bloque
+    var bloques = out.split(/\n{2,}/);
+    return bloques.map(function(b){
+      var t = b.trim();
+      if (!t) return '';
+      if (/^<(h[123]|ul|ol|li|table|p|div|blockquote)/.test(t)) return t;
+      // Reemplaza saltos simples por <br>
+      return '<p>' + t.replace(/\n/g,'<br>') + '</p>';
+    }).join('\n');
+  }
+
+  // Estado del curso
+  var CURSO = null; // { rol, modulos, progreso_pct, ... }
+  var MODULO_ACTUAL = null; // datos cargados del módulo seleccionado
+  var RESPUESTAS_QUIZ = {}; // pregunta_id → letra
+
+  function cargarCurso(){
+    show('loadingBox');
+    // Timeout visible: si después de 12s no llegó respuesta, mostramos mensaje accionable
+    // en lugar de dejar al usuario con pantalla "Cargando…" indefinida.
+    var timeoutId = setTimeout(function(){
+      var lb = $('loadingBox');
+      if (lb && !lb.classList.contains('hidden')) {
+        lb.innerHTML = '<div class="alerta warn" style="padding:18px;border-radius:8px;background:rgba(185,122,27,.08);border-left:4px solid var(--warn);max-width:520px;margin:24px auto">' +
+          '<strong>⚠ La carga está tardando más de lo normal.</strong><br><br>' +
+          'Pasos para resolver, en orden:<br>' +
+          '<ol style="margin:8px 0;padding-left:22px;line-height:1.8">' +
+          '<li>Apreta <strong>Ctrl+Shift+R</strong> (Windows) o <strong>Cmd+Shift+R</strong> (Mac) para hacer un refresh forzado.</li>' +
+          '<li>Si sigue igual, cierra el navegador completo y vuelve a abrir el link.</li>' +
+          '<li>Si persiste, cierra sesión e <a href="' + API_URL + '?p=acceso" target="_top" style="color:var(--brand);font-weight:600">vuelve a iniciar</a> (tu token puede haber expirado).</li>' +
+          '<li>Si nada funciona, prueba el link en Chrome (Edge a veces tiene problemas con esta app).</li>' +
+          '</ol>' +
+          '<button class="btn primary" onclick="location.reload()" style="margin-top:8px">↻ Reintentar ahora</button>' +
+          '</div>';
+      }
+    }, 12000);
+    apiCall({ action:'curso_get', token: token }, function(res){
+      clearTimeout(timeoutId);
+      hide('loadingBox');
+      if (!res.ok) {
+        $('cursoBox').innerHTML = '<div class="alerta bad">Error: '+esc(res.error||'No se pudo cargar')+'</div>';
+        show('cursoBox');
+        return;
+      }
+      if (res.exento) {
+        show('exentoBox');
+        return;
+      }
+      if (!res.modulos || res.modulos.length === 0) {
+        $('cursoBox').innerHTML = '<div class="alerta info">El curso para tu rol aún no está disponible. Pide al administrador que cargue el contenido desde Admin → Certificaciones → "Cargar cursos".</div>';
+        show('cursoBox');
+        return;
+      }
+      CURSO = res;
+      pintarHero(res);
+      pintarSidebar(res);
+      // Si el curso ya está al 100% → mostrar pantalla de completado con CTA al examen
+      // En vez de regresar al primer módulo (bug previo)
+      if (res.progreso_pct >= 100) {
+        pintarCursoCompletado(res);
+      } else {
+        // Cargar el siguiente módulo a hacer
+        var idxAuto = res.siguiente_idx >= 0 ? res.siguiente_idx : 0;
+        seleccionarModulo(res.modulos[idxAuto].id);
+      }
+      show('cursoBox');
+    });
+  }
+  function pintarCursoCompletado(res){
+    var examenUrl = API_URL + '?p=examen&t=' + encodeURIComponent(token);
+    document.querySelectorAll('#sidebarModulos .modulo-link').forEach(function(a){ a.classList.remove('active','activo-actual'); });
+    $('moduloContenido').innerHTML =
+      '<div class="modulo-card" style="text-align:center;padding:48px 32px">' +
+        '<div style="font-size:64px;margin-bottom:8px">🎉</div>' +
+        '<h2 style="font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:34px;color:var(--good);margin:0 0 12px">¡Has completado tu curso!</h2>' +
+        '<p style="font-size:15px;color:var(--muted);max-width:520px;margin:0 auto 24px;line-height:1.65">Felicidades. Has cubierto los <strong>'+res.total+' módulos</strong> de la capacitación de '+rolBonito(res.rol)+'. El siguiente paso es presentar tu <strong>examen final de certificación</strong> (15 preguntas, mínimo 14/15 para aprobar).</p>' +
+        '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">' +
+          '<a href="'+examenUrl+'" target="_top" class="btn primary" style="padding:14px 26px;font-size:15px">📝 Tomar examen ahora →</a>' +
+        '</div>' +
+        '<p style="margin-top:24px;font-size:12.5px;color:var(--muted)">Si quieres repasar algún módulo antes del examen, puedes seleccionarlo del menú izquierdo en cualquier momento.</p>' +
+      '</div>';
+  }
+
+  function pintarHero(res){
+    $('rolEyebrow').textContent = 'Curso de ' + rolBonito(res.rol);
+    $('cursoTitulo').textContent = 'Capacitación de ' + rolBonito(res.rol);
+    $('progPct').textContent = res.progreso_pct + '% · ' + res.completados + ' de ' + res.total;
+    $('progFill').style.width = res.progreso_pct + '%';
+  }
+
+  function pintarSidebar(res){
+    var sb = $('sidebarModulos');
+    sb.innerHTML = res.modulos.map(function(m, idx){
+      var cls = 'modulo-link';
+      if (m.completado) cls += ' completado';
+      if (!m.desbloqueado) cls += ' bloqueado';
+      var icon = m.completado ? '✓' : (idx + 1);
+      var meta = m.completado ? 'Completado' : (m.desbloqueado ? '~' + m.tiempo_estimado + ' min' : 'Bloqueado');
+      return '<a class="'+cls+'" data-mod="'+esc(m.id)+'" href="javascript:void(0)">' +
+        '<div class="num">'+icon+'</div>' +
+        '<div class="body">' +
+          '<div class="titulo">'+esc(m.titulo)+'</div>' +
+          '<div class="meta">'+esc(meta)+'</div>' +
+        '</div>' +
+      '</a>';
+    }).join('');
+    sb.querySelectorAll('.modulo-link').forEach(function(a){
+      a.addEventListener('click', function(){
+        var modId = a.getAttribute('data-mod');
+        var m = res.modulos.find(function(x){return x.id===modId;});
+        if (!m || !m.desbloqueado) {
+          alert('Este módulo aún está bloqueado. Completa los anteriores primero.');
+          return;
+        }
+        seleccionarModulo(modId);
+      });
+    });
+    // CTA examen
+    var examenCta = $('examenCta');
+    var btnExamen = $('btnExamen');
+    var btnIrExamen = $('btnIrExamen');
+    if (res.progreso_pct >= 100) {
+      examenCta.classList.remove('bloqueado');
+      btnExamen.style.display = 'inline-flex';
+      btnIrExamen.disabled = false;
+      btnIrExamen.textContent = '📝 Tomar examen';
+    } else {
+      examenCta.classList.add('bloqueado');
+      btnExamen.style.display = 'none';
+      btnIrExamen.style.pointerEvents = 'none';
+      btnIrExamen.style.opacity = '.5';
+      btnIrExamen.textContent = '🔒 Completa el curso primero';
+    }
+  }
+
+  function marcarActivoSidebar(modulo_id){
+    document.querySelectorAll('#sidebarModulos .modulo-link').forEach(function(a){
+      a.classList.remove('active','activo-actual');
+      if (a.getAttribute('data-mod') === modulo_id) {
+        a.classList.add('active');
+        if (!a.classList.contains('completado')) a.classList.add('activo-actual');
+      }
+    });
+  }
+
+  function seleccionarModulo(modulo_id){
+    marcarActivoSidebar(modulo_id);
+    var box = $('moduloContenido');
+    box.innerHTML = '<div class="loading">Cargando módulo…</div>';
+    apiCall({ action:'curso_modulo_get', token: token, modulo_id: modulo_id }, function(res){
+      if (!res.ok) {
+        box.innerHTML = '<div class="alerta bad">Error al cargar el módulo: '+esc(res.error||'Sin respuesta del servidor')+'</div>';
+        return;
+      }
+      MODULO_ACTUAL = res.modulo;
+      RESPUESTAS_QUIZ = {};
+      try {
+        pintarModulo(res.modulo);
+      } catch(e) {
+        box.innerHTML = '<div class="alerta bad">Error al mostrar el módulo. Recarga la página e intenta de nuevo.</div>';
+        return;
+      }
+      if (window.innerWidth <= 768) {
+        box.scrollIntoView({ behavior:'smooth', block:'start' });
+      }
+    });
+  }
+
+  function pintarModulo(m){
+    var modInfo = (CURSO.modulos || []).find(function(x){ return x.id === m.id; });
+    var yaCompletado = modInfo && modInfo.completado;
+    var html = '<div class="modulo-card">';
+    html += '<div class="header-modulo">';
+    html += '<div class="eyebrow">MÓDULO ' + m.orden / 10 + '</div>'; // orden es 10, 20, 30...
+    html += '<h2>'+esc(m.titulo)+'</h2>';
+    html += '<p class="resumen">'+esc(m.resumen)+'</p>';
+    html += '<div class="meta">';
+    html += '<span class="pill">⏱ ~'+m.tiempo_estimado+' min</span>';
+    if (m.tiene_quiz) html += '<span class="pill">📝 Quiz: '+m.preguntas.length+' preguntas</span>';
+    if (yaCompletado) html += '<span class="pill" style="background:rgba(30,127,92,.10);color:var(--good)">✓ Completado</span>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="contenido-md">' + renderMarkdown(m.contenido_md) + '</div>';
+
+    // Quiz si aplica
+    if (m.tiene_quiz) {
+      html += '<div class="quiz-section" id="quizSection">';
+      html += '<div class="quiz-eyebrow">📝 MINI-QUIZ DEL MÓDULO</div>';
+      html += '<h3>Verifica que entendiste</h3>';
+      if (m.preguntas.length > 0) {
+        html += '<p class="quiz-desc">Contesta las '+m.preguntas.length+' preguntas. Necesitas <strong>'+m.quiz_min_aprobatorio+' de '+m.preguntas.length+' correctas</strong> para avanzar al siguiente módulo.</p>';
+        m.preguntas.forEach(function(q, i){
+          html += '<div class="quiz-pregunta" data-pid="'+esc(q.id)+'">';
+          html += '<div class="num-q">PREGUNTA '+(i+1)+'</div>';
+          html += '<div class="texto-q">'+esc(q.pregunta)+'</div>';
+          html += '<div class="quiz-opciones">';
+          ['a','b','c','d'].forEach(function(letra){
+            var t = q[letra];
+            if (!t) return;
+            html += '<button type="button" class="quiz-opcion" data-letra="'+letra+'"><span class="letra">'+letra.toUpperCase()+'</span><span>'+esc(t)+'</span></button>';
+          });
+          html += '</div>';
+          html += '</div>';
+        });
+      } else {
+        html += '<div class="alerta warn">Las preguntas del quiz no están disponibles. Recarga la página o contacta al administrador.</div>';
+      }
+      html += '<div id="quizResultado"></div>';
+      html += '</div>';
+    }
+
+    // Acciones
+    html += '<div class="modulo-acciones">';
+    if (m.tiene_quiz) {
+      html += '<button class="btn primary" id="btnEnviarQuiz">' + (yaCompletado ? 'Repasar quiz' : '✓ Calificar quiz') + '</button>';
+    } else {
+      html += '<button class="btn primary" id="btnMarcarCompleto">' + (yaCompletado ? 'Ya completado' : '✓ Marcar como leído') + '</button>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    $('moduloContenido').innerHTML = html;
+
+
+    // Bind opciones del quiz
+    if (m.tiene_quiz) {
+      document.querySelectorAll('.quiz-pregunta').forEach(function(qBox){
+        var pid = qBox.getAttribute('data-pid');
+        qBox.querySelectorAll('.quiz-opcion').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            qBox.querySelectorAll('.quiz-opcion').forEach(function(b){ b.classList.remove('selected'); });
+            btn.classList.add('selected');
+            RESPUESTAS_QUIZ[pid] = btn.getAttribute('data-letra');
+          });
+        });
+      });
+      var bEnv = document.getElementById('btnEnviarQuiz');
+      if (bEnv) bEnv.addEventListener('click', enviarQuiz);
+    } else {
+      var bMc = document.getElementById('btnMarcarCompleto');
+      if (bMc && !yaCompletado) bMc.addEventListener('click', marcarCompleto);
+    }
+  }
+
+  function enviarQuiz(){
+    var m = MODULO_ACTUAL;
+    if (!m.preguntas || m.preguntas.length === 0) {
+      alert('Este módulo no tiene preguntas cargadas. Recarga la página.');
+      return;
+    }
+    var sinContestar = m.preguntas.filter(function(q){ return !RESPUESTAS_QUIZ[q.id]; });
+    if (sinContestar.length > 0) {
+      alert('Te faltan ' + sinContestar.length + ' preguntas por contestar.');
+      return;
+    }
+    var btn = document.getElementById('btnEnviarQuiz');
+    btn.disabled = true; btn.textContent = 'Calificando…';
+    apiCall({ action:'curso_modulo_completar', token: token, modulo_id: m.id, respuestas: JSON.stringify(RESPUESTAS_QUIZ) }, function(res){
+      btn.disabled = false; btn.textContent = '✓ Calificar quiz';
+      if (!res.ok) {
+        alert('Error: ' + (res.error || 'desconocido'));
+        return;
+      }
+      mostrarResultadoQuiz(res);
+    });
+  }
+
+  function mostrarResultadoQuiz(res){
+    var html;
+    if (res.aprobado) {
+      html = '<div class="quiz-resultado aprobado">' +
+        '<div class="icon">🎉</div>' +
+        '<h3>¡Aprobaste el quiz!</h3>' +
+        '<div class="calif">'+res.score+' de '+res.total+' correctas</div>' +
+        '<button class="btn success" id="btnSiguiente">Siguiente módulo →</button>' +
+      '</div>';
+    } else {
+      var detalleHtml = '';
+      if (res.detalle && res.detalle.length) {
+        detalleHtml = '<div style="margin:12px auto 16px;max-width:520px;text-align:left">' +
+          res.detalle.map(function(d, i){
+            var icono = d.ok ? '✓' : '✗';
+            var color = d.ok ? '#1e7f5c' : '#c0392b';
+            var extra = !d.ok
+              ? '<div style="font-size:11.5px;color:var(--muted);margin-top:3px">Respuesta correcta: <strong style="color:#1e7f5c">'+esc(d.texto_correcta)+'</strong></div>'
+              : '';
+            return '<div style="display:flex;gap:10px;padding:8px 10px;margin-bottom:4px;background:rgba(0,0,0,.03);border-left:3px solid '+color+'">' +
+              '<span style="font-weight:700;color:'+color+';flex-shrink:0;font-size:15px">'+icono+'</span>' +
+              '<div><div style="font-size:12.5px"><strong>P'+(i+1)+':</strong> '+esc(d.pregunta)+'</div>'+extra+'</div>' +
+            '</div>';
+          }).join('') +
+        '</div>';
+      }
+      html = '<div class="quiz-resultado reprobado">' +
+        '<div class="icon">📚</div>' +
+        '<h3>No aprobaste esta vez</h3>' +
+        '<div class="calif">'+res.score+' de '+res.total+' · Mínimo: '+res.min_aprobatorio+'/'+res.total+'</div>' +
+        detalleHtml +
+        '<button class="btn primary" id="btnReintentar">Reintentar quiz</button>' +
+      '</div>';
+    }
+    var qrEl = document.getElementById('quizResultado');
+    if (!qrEl) {
+      alert('Error interno: no se encontró el área de resultado. Recarga la página.');
+      return;
+    }
+    qrEl.innerHTML = html;
+    qrEl.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    if (res.aprobado) {
+      document.getElementById('btnSiguiente').addEventListener('click', function(){
+        cargarCurso();
+      });
+    } else {
+      document.getElementById('btnReintentar').addEventListener('click', function(){
+        qrEl.innerHTML = '';
+        document.querySelectorAll('.quiz-opcion').forEach(function(b){ b.classList.remove('selected'); });
+        RESPUESTAS_QUIZ = {};
+        var firstQ = document.querySelectorAll('.quiz-pregunta')[0];
+        if (firstQ) firstQ.scrollIntoView({ behavior:'smooth', block:'start' });
+      });
+    }
+  }
+
+  function marcarCompleto(){
+    var m = MODULO_ACTUAL;
+    var btn = document.getElementById('btnMarcarCompleto');
+    btn.disabled = true; btn.textContent = 'Guardando…';
+    apiCall({ action:'curso_modulo_completar', token: token, modulo_id: m.id, respuestas: '{}' }, function(res){
+      if (!res.ok) {
+        alert('Error: '+(res.error||'desconocido'));
+        btn.disabled = false; btn.textContent = '✓ Marcar como leído';
+        return;
+      }
+      cargarCurso();
+    });
+  }
+
+  // Inicio
+  cargarCurso();
+})();
+</script>
+</body>
+</html>
