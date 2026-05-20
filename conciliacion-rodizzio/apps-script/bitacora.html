@@ -1,0 +1,3263 @@
+<? var __tokenInyectado = '';
+try { __tokenInyectado = (queryParams && queryParams.t) ? String(queryParams.t) : ''; } catch(e){} ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitácora del Host · Fogueira</title>
+<base target="_top">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500;1,600&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* ══════════════════════════════════════════════════════════
+   oac-tokens.css — Sistema de diseño OAC
+   Paleta, tipografía, escalas y primitivos UI
+   Cargar al inicio del <head> en cada página OAC
+   ══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Paleta handoff oficial Fogueira (v153) ── */
+  --ink:        #0c0907;
+  --ink-soft:   #1a1310;
+  --ink-mid:    #2a201b;
+  --ember:      #c4322a;
+  --ember-hot:  #e04826;
+  --ember-deep: #8a1f17;
+  --cream:      #f6f1e8;
+  --cream-warm: #efe5d2;
+  --cream-line: #e4d9c2;
+  --bone:       #fffdf8;
+  --slate:      #2b3a4e;
+  --slate-soft: #5d6c80;
+  --smoke:      #8a8278;
+  --gold:       #c89a4a;
+  --gold-soft:  #e8c46a;
+
+  /* ── Aliases legacy → handoff (el CSS antiguo sigue funcionando) ── */
+  --navy:    var(--ink);
+  --navy-2:  var(--ink-soft);
+  --sky:     var(--gold);
+  --sky-2:   rgba(200,154,74,.18);
+  --mist:    var(--cream-line);
+  --muted:   var(--slate-soft);
+  --line:    var(--cream-line);
+  --paper:   var(--cream-warm);
+  --accent:  var(--ember);
+  --good:    #1E7F5C;
+  --warn:    var(--gold);
+  --bad:     var(--ember-deep);
+  --purple:  #7C5BD9;
+
+  /* ── Tipografía handoff ── */
+  --font-sans:  'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-mono:  'DM Mono', ui-monospace, 'SF Mono', monospace;
+
+  /* ── Radios ── */
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 7px;
+  --r-xl: 10px;
+  --r-2xl: 12px;
+  --r-3xl: 14px;
+
+  /* ── Sombras ── */
+  --shadow-card-hover: 0 12px 28px -16px rgba(14,42,78,.18);
+  --shadow-hero:       0 40px 80px -30px rgba(14,42,78,.35);
+  --shadow-feature:    0 30px 60px -25px rgba(14,42,78,.4);
+  --shadow-modal:      0 20px 60px -20px rgba(14,42,78,.4);
+
+  /* ── Trans ── */
+  --t-fast: .15s ease;
+  --t-base: .2s ease;
+
+  /* ══════════════════════════════════════════════════════════
+     Legacy aliases — apuntan a equivalentes OAC.
+     Permite que inline styles antiguos (style="color:var(--orange)")
+     en el HTML/JS rendericen con paleta OAC sin tener que reescribirlos.
+     ══════════════════════════════════════════════════════════ */
+  --orange: #E07A3E;            /* → accent */
+  --orange2: #c66830;
+  --ora-l: rgba(224,122,62,.08);
+  --green: #1E7F5C;             /* → good */
+  --red: #9F2B1E;               /* → bad */
+  --blue: #0E2A4E;              /* → navy */
+  --yellow: #B97A1B;            /* → warn */
+  --gray: #5A6A7E;              /* → muted */
+  --light: #5A6A7E;             /* (era texto claro sobre dark) → muted */
+  --white: #0A1A30;             /* (era texto blanco sobre dark) → ink */
+  --dark: #fff;
+  --bg: #fff;
+  --bg2: #fff;
+  --card: #fff;
+  --card2: #FAFBFC;             /* → paper */
+  --border: #E6E9EE;            /* → line */
+  --border2: #E6E9EE;
+  --panel: #fff;
+}
+
+/* ══ Reset suave ══ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: #fff;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+img, svg { display: block; max-width: 100%; }
+
+/* ══ Helpers de tipografía ══ */
+.mono  { font-family: var(--font-mono); }
+.serif { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ══ Logo OAC (SVG inline) — usar siempre estas medidas ══ */
+.oac-logo { display: inline-flex; align-items: center; gap: 11px; }
+.oac-logo .lt { display: flex; flex-direction: column; line-height: 1.02; }
+.oac-logo .a  { font-weight: 600; letter-spacing: -.02em; font-size: 18px; color: var(--ink); }
+.oac-logo .b  { font-family: var(--font-mono); font-size: 9px; letter-spacing: .16em; color: var(--muted); text-transform: uppercase; margin-top: 3px; }
+
+/* ══ Botones ══ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: var(--r-lg);
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -.005em;
+  transition: all var(--t-fast);
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn.lg { padding: 14px 22px; font-size: 15px; border-radius: var(--r-xl); }
+.btn.primary  { background: var(--navy); color: #fff; }
+.btn.primary:hover { background: var(--navy-2); }
+.btn.ghost    { color: var(--ink); background: transparent; }
+.btn.ghost:hover { background: var(--paper); }
+.btn.outline  { color: var(--ink); border: 1px solid var(--line); background: transparent; }
+.btn.outline:hover { border-color: var(--navy); color: var(--navy); }
+.btn.accent   { background: var(--accent); color: #fff; }
+.btn.danger   { background: var(--bad); color: #fff; }
+.btn.danger:hover { opacity: .9; }
+
+/* ══ Inputs ══ */
+.input, input.oac, select.oac, textarea.oac {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--ink);
+  width: 100%;
+  outline: none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.input:focus, input.oac:focus, select.oac:focus, textarea.oac:focus {
+  border-color: var(--sky);
+  box-shadow: 0 0 0 3px var(--sky-2);
+}
+
+/* ══ Card estándar ══ */
+.card-oac {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-2xl);
+  padding: 24px;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.card-oac:hover { border-color: var(--navy); box-shadow: var(--shadow-card-hover); }
+
+/* ══ KPI estándar ══ */
+.kpi-oac {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.kpi-oac .lab {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .12em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.kpi-oac .val {
+  font-size: 28px;
+  letter-spacing: -.02em;
+  font-weight: 500;
+  line-height: 1.05;
+  color: var(--ink);
+}
+.kpi-oac .val .em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* ══ Status colors ══ */
+.is-good { color: var(--good); }
+.is-warn { color: var(--warn); }
+.is-bad  { color: var(--bad); }
+.is-navy { color: var(--navy); }
+.is-sky  { color: var(--sky); }
+.bg-paper { background: var(--paper); }
+.bg-navy  { background: var(--navy); color: #fff; }
+.bg-sky   { background: var(--sky-2); }
+
+/* ══ Topbar OAC (compartido) ══ */
+.oac-topbar {
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.oac-topbar-inner {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.oac-topbar .nav {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+.oac-topbar .nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--ink);
+  border-radius: var(--r-md);
+  font-weight: 500;
+  letter-spacing: -.005em;
+  text-decoration: none;
+}
+.oac-topbar .nav a:hover { background: var(--paper); }
+.oac-topbar .nav a.active { background: var(--navy); color: #fff; }
+.oac-topbar .tools { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.oac-topbar .icon-btn {
+  width: 34px; height: 34px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+}
+.oac-topbar .icon-btn:hover { border-color: var(--navy); color: var(--navy); }
+
+/* ══ Hamburger (mobile) ══ */
+.oac-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.oac-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--navy);
+  border-radius: 2px;
+  transition: var(--t-base);
+}
+.oac-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.oac-hamburger.open span:nth-child(2) { opacity: 0; }
+.oac-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.oac-mobile-nav {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(255,255,255,.98);
+  backdrop-filter: blur(10px);
+  z-index: 350;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 60px 16px 24px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.oac-mobile-nav.open { display: flex; }
+.oac-mobile-nav a, .oac-mobile-nav button {
+  width: min(280px, 86vw);
+  padding: 14px 22px;
+  border-radius: var(--r-xl);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.oac-mobile-nav a:hover, .oac-mobile-nav button:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+.oac-mobile-nav .close-btn {
+  position: absolute;
+  top: 18px; right: 18px;
+  width: auto;
+  padding: 8px 12px;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .1em;
+}
+
+/* ══ Responsive ══ */
+@media (max-width: 768px) {
+  .oac-topbar .nav,
+  .oac-topbar .tools { display: none; }
+  .oac-hamburger { display: flex; }
+  .oac-topbar-inner { padding: 12px 16px; gap: 12px; }
+}
+
+</style>
+
+<style>
+  /* ── Marca Fogueira handoff (v153) ── */
+  :root{
+    --brand:        var(--ember);
+    --brand-deep:   var(--ember-deep);
+    --brand-tint:   rgba(196,50,42,.08);
+  }
+
+  body{background:var(--cream)}
+
+  /* ── Topbar oscuro (handoff Fogueira) ── */
+  header.app{
+    background:var(--ink);color:var(--cream);
+    border-bottom:1px solid rgba(200,154,74,.22);
+    position:sticky;top:0;z-index:30;
+  }
+  .head-row{
+    max-width:1480px;margin:0 auto;padding:12px 22px;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:14px;flex-wrap:wrap;
+  }
+  .brand-cluster{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brand-flame{display:flex;align-items:center;gap:9px}
+  .brand-flame svg{display:block;flex-shrink:0}
+  .brand-flame .wordmark{
+    font-family:'DM Sans',sans-serif;font-weight:800;font-size:18px;
+    letter-spacing:.02em;color:var(--gold);line-height:1;
+  }
+  .brand-sep-v{
+    width:1px;height:30px;background:rgba(246,241,232,.15);flex-shrink:0;
+  }
+  .brand-eyebrow{
+    font-family:var(--font-mono);font-size:10px;letter-spacing:.22em;
+    color:rgba(246,241,232,.5);text-transform:uppercase;font-weight:500;
+    display:block;line-height:1.2;
+  }
+  .brand-name{
+    font-family:var(--font-serif);font-style:italic;font-weight:500;
+    font-size:20px;letter-spacing:-.01em;color:var(--cream);line-height:1.1;
+    margin-top:3px;
+  }
+  .brand-empresa{
+    font-family:var(--font-sans);font-weight:600;font-size:10px;
+    color:var(--gold);
+    padding:5px 12px;
+    background:rgba(200,154,74,.12);
+    border:1px solid rgba(200,154,74,.4);
+    letter-spacing:.18em;text-transform:uppercase;
+  }
+  .head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .head-actions input[type=date],
+  .head-actions select{
+    border:1px solid rgba(246,241,232,.18);background:rgba(246,241,232,.04);
+    padding:7px 10px;border-radius:var(--r-md);
+    font-family:var(--font-sans);font-size:12.5px;color:var(--cream);
+  }
+  .head-actions input[type=date]::-webkit-calendar-picker-indicator{
+    filter:invert(.85) sepia(.1) saturate(.6) hue-rotate(15deg);
+    cursor:pointer;
+  }
+  .head-actions select option{background:var(--ink);color:var(--cream)}
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:8px 13px;border-radius:var(--r-md);
+    font-family:var(--font-sans);font-size:12.5px;font-weight:500;
+    border:1px solid var(--line);background:#fff;color:var(--ink);
+    cursor:pointer;transition:all var(--t-fast);text-decoration:none;
+  }
+  .btn:hover{background:var(--paper);border-color:var(--brand)}
+  .btn-primary{background:var(--ink);color:var(--gold);border-color:var(--ink)}
+  .btn-primary:hover{background:#000;border-color:#000}
+  .btn-help{background:rgba(200,154,74,.18);color:var(--ink);border-color:var(--gold)}
+  .btn-help:hover{background:var(--gold);color:var(--ink)}
+  /* Botones dentro del topbar oscuro: outline cream sobre negro */
+  .head-actions .btn{
+    background:rgba(246,241,232,.04);color:var(--cream);
+    border-color:rgba(246,241,232,.18);
+  }
+  .head-actions .btn:hover{
+    background:rgba(200,154,74,.12);border-color:var(--gold);color:var(--cream);
+  }
+  .head-actions .btn-help{
+    background:rgba(200,154,74,.14);color:var(--gold);
+    border-color:rgba(200,154,74,.45);
+  }
+  .head-actions .btn-help:hover{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+  .btn-logout{color:rgba(246,241,232,.65) !important}
+  .btn-logout:hover{
+    background:rgba(196,50,42,.12) !important;
+    border-color:var(--ember) !important;color:var(--ember-hot) !important;
+  }
+  .btn-pausar{background:var(--bad);color:#fff;border-color:var(--bad)}
+  .btn-pausar:hover{opacity:.9;background:var(--bad)}
+  .btn-reactivar{background:var(--good);color:#fff;border-color:var(--good)}
+  .btn-reactivar:hover{opacity:.9;background:var(--good)}
+  /* Banner de bloqueo en bitácora */
+  .bloqueo-banner-host{
+    background:rgba(159,43,30,.08);border:1px solid var(--bad);border-left-width:4px;
+    padding:11px 16px;border-radius:var(--r-md);margin:0 0 14px;
+    display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink);
+  }
+  .bloqueo-banner-host strong{color:var(--bad)}
+
+  .save-indicator{
+    font-family:var(--font-mono);
+    font-size:10px;letter-spacing:.1em;font-weight:500;
+    display:inline-flex;align-items:center;gap:5px;
+    padding:6px 10px;border-radius:var(--r-md);
+    background:rgba(30,127,92,.18);color:#7dd3a8;
+    border:1px solid rgba(30,127,92,.35);
+    transition:all var(--t-base);user-select:none;
+    text-transform:uppercase;
+  }
+  .save-indicator.saving{background:rgba(200,154,74,.15);color:var(--gold);border-color:rgba(200,154,74,.4)}
+  .save-indicator.error{background:rgba(196,50,42,.15);color:var(--ember-hot);border-color:rgba(196,50,42,.4)}
+
+  .sync-indicator{
+    font-family:var(--font-mono);
+    font-size:10px;letter-spacing:.1em;font-weight:500;
+    display:inline-flex;align-items:center;gap:5px;
+    padding:6px 10px;border-radius:var(--r-md);
+    background:rgba(246,241,232,.06);color:rgba(246,241,232,.6);
+    border:1px solid rgba(246,241,232,.15);
+    transition:all var(--t-base);user-select:none;
+    text-transform:uppercase;
+  }
+
+  /* Flash verde sutil cuando el polling actualiza una fila */
+  @keyframes rowFlashSync {
+    0%   { background-color: rgba(30,127,92,.18); }
+    100% { background-color: transparent; }
+  }
+  tr.row-flash-sync td { animation: rowFlashSync 1.4s ease-out; }
+
+  /* Pista pequeña de quién tocó la fila al último (se muestra en columna acciones) */
+  .row-host-tip{
+    font-family:var(--font-mono);font-size:9.5px;color:var(--muted);
+    display:block;margin-top:2px;letter-spacing:.04em;
+  }
+
+  /* ── Main ── */
+  main{max-width:1480px;margin:0 auto;padding:24px 22px}
+
+  .empty-state{
+    background:#fff;border:1px dashed var(--line);
+    border-radius:var(--r-2xl);
+    padding:60px 24px;text-align:center;
+  }
+  .empty-state .eyebrow{
+    font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;
+    color:var(--muted);text-transform:uppercase;margin-bottom:8px;
+  }
+  .empty-state h3{
+    font-family:var(--font-serif);font-style:italic;font-weight:400;
+    font-size:28px;color:var(--ink);margin:0 0 10px;
+  }
+  .empty-state p{color:var(--muted);font-size:14px;margin:0 0 18px}
+
+  .alert-bar{
+    background:var(--brand-tint);border-left:3px solid var(--brand);
+    padding:10px 16px;border-radius:var(--r-md);
+    margin-bottom:18px;font-size:13px;
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  }
+  .alert-bar strong{color:var(--brand-deep)}
+  .alert-msg{color:var(--ink)}
+
+  /* ── Cards ── */
+  .card{
+    background:#fff;border:1px solid var(--line);
+    border-radius:var(--r-2xl);padding:22px;margin-bottom:16px;
+  }
+  .card-head{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:12px;flex-wrap:wrap;margin-bottom:14px;
+  }
+  .card-head h3{
+    font-family:var(--font-serif);font-style:italic;font-weight:400;
+    font-size:22px;color:var(--ink);margin:0;letter-spacing:-.005em;
+  }
+  .card-head .help{font-family:var(--font-mono);font-size:11px;color:var(--muted)}
+
+  /* ── Form ── */
+  label{
+    display:block;font-family:var(--font-mono);
+    font-size:10.5px;letter-spacing:.1em;
+    color:var(--muted);text-transform:uppercase;font-weight:500;
+    margin-bottom:5px;
+  }
+  .lbl-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+  .lbl-row label{margin:0}
+  input[type=text],input[type=number],input[type=time],
+  input[type=date],input[type=tel],input[type=email],input[type=password],
+  select,textarea{
+    width:100%;
+    border:1px solid var(--line);background:#fff;
+    padding:8px 11px;border-radius:var(--r-md);
+    font-family:var(--font-sans);font-size:13.5px;color:var(--ink);
+    transition:border-color var(--t-fast),box-shadow var(--t-fast);
+  }
+  input:focus,select:focus,textarea:focus{
+    outline:none;border-color:var(--brand);
+    box-shadow:0 0 0 3px var(--brand-tint);
+  }
+  textarea{resize:vertical;min-height:60px;font-family:var(--font-sans)}
+  .meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px}
+
+  /* ── Tabla de ingresos ── */
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-md)}
+  table.ingresos{width:100%;border-collapse:collapse;font-size:13px;min-width:1240px}
+  table.ingresos th{
+    background:var(--ink);color:#fff;padding:0;
+    font-family:var(--font-mono);font-weight:500;
+    font-size:10.5px;letter-spacing:.08em;
+    text-transform:uppercase;text-align:center;
+    position:sticky;top:0;z-index:1;
+  }
+  .th-content{display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 6px;white-space:nowrap}
+  .th-content .info-icon{
+    background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff;
+    width:15px;height:15px;font-size:9px;
+  }
+  .th-content .info-icon:hover{background:var(--brand);border-color:var(--brand)}
+  table.ingresos td{padding:2px;border-bottom:1px solid var(--line);background:#fff}
+  table.ingresos tr:nth-child(even) td{background:var(--paper)}
+  table.ingresos input,table.ingresos select{
+    width:100%;border:1px solid transparent;background:transparent;
+    padding:7px 6px;font-size:13px;border-radius:var(--r-sm);text-align:center;
+  }
+  table.ingresos input:focus,table.ingresos select:focus{
+    background:#fff;border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-tint);
+  }
+  table.ingresos td.row-num{
+    text-align:center;font-family:var(--font-mono);
+    font-weight:500;color:var(--muted);
+    font-size:11px;width:34px;background:var(--paper);
+  }
+  table.ingresos td.actions{width:96px;text-align:center;white-space:nowrap}
+  .row-del,.row-detail,.row-wa{
+    background:transparent;border:none;color:var(--muted);
+    cursor:pointer;font-size:14px;padding:4px 6px;border-radius:var(--r-sm);
+  }
+  .row-del:hover{background:rgba(159,43,30,.08);color:var(--bad)}
+  .row-detail:hover{background:var(--brand-tint);color:var(--brand-deep)}
+  .row-wa{background:#25D366;color:#fff;font-size:13px;padding:5px 8px}
+  .row-wa:hover{background:#1da851}
+
+  /* Estados de fila */
+  table.ingresos tr.row-espera td{background:rgba(185,122,27,.07) !important}
+  table.ingresos tr.row-ocupada td{background:rgba(184,71,42,.06) !important}
+  table.ingresos tr.row-desocupada td{background:rgba(30,127,92,.10) !important;border-left:3px solid var(--good)}
+  table.ingresos tr.row-desocupada td:first-child{position:relative}
+  table.ingresos tr.row-desocupada td:first-child::before{content:'✓ ';color:var(--good);font-weight:600}
+  table.ingresos tr.row-cancelada td{
+    background:rgba(159,43,30,.07) !important;
+    color:var(--muted);text-decoration:line-through;
+  }
+  table.ingresos tr.row-cancelada input,
+  table.ingresos tr.row-cancelada select{color:var(--muted);text-decoration:line-through}
+
+  /* Encuesta con color */
+  table.ingresos td.enc-excelente select{background:var(--good);color:#fff;font-weight:600}
+  table.ingresos td.enc-bueno select{background:rgba(30,127,92,.15);color:var(--good);font-weight:600}
+  table.ingresos td.enc-regular select{background:rgba(185,122,27,.15);color:var(--warn);font-weight:600}
+  table.ingresos td.enc-malo select{background:rgba(159,43,30,.15);color:var(--bad);font-weight:600}
+
+  /* Cortesía sin autorizar */
+  table.ingresos td.cell-cort{position:relative}
+  table.ingresos td.cort-sinaut::after{
+    content:'⚠';position:absolute;font-size:10px;color:var(--bad);
+    top:2px;right:4px;
+  }
+
+  /* Hora con botón ↻ */
+  .time-cell{display:flex;align-items:stretch;gap:2px}
+  .time-cell input{flex:1;min-width:0}
+  .btn-now{
+    background:var(--paper);border:1px solid var(--line);
+    width:26px;flex-shrink:0;border-radius:var(--r-sm);
+    font-size:11px;cursor:pointer;color:var(--muted);
+    display:flex;align-items:center;justify-content:center;
+    transition:all var(--t-fast);padding:0;
+  }
+  .btn-now:hover{background:var(--brand-tint);color:var(--brand-deep);border-color:var(--brand)}
+
+  /* Celda de mesa con botón de sugerencia debajo */
+  .mesa-cell{display:flex;flex-direction:column;gap:3px;align-items:stretch}
+  .mesa-cell input{width:100%}
+  .btn-sugerir-mesa{
+    background:linear-gradient(135deg, rgba(185,122,27,.10), rgba(185,122,27,.04));
+    border:1px solid var(--warn);color:var(--warn);
+    padding:3px 6px;border-radius:var(--r-sm);
+    font-family:var(--font-mono);font-size:10px;letter-spacing:.04em;
+    font-weight:600;cursor:pointer;text-align:center;
+    transition:all var(--t-fast);line-height:1.2;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis;
+  }
+  .btn-sugerir-mesa:hover:not(:disabled){
+    background:var(--warn);color:#fff;transform:translateY(-1px);
+    box-shadow:0 2px 6px rgba(185,122,27,.25);
+  }
+  .btn-sugerir-mesa:disabled{
+    background:rgba(159,43,30,.06);border-color:var(--bad);color:var(--bad);
+    cursor:not-allowed;opacity:.85;
+  }
+  @media print { .btn-sugerir-mesa{display:none !important} }
+
+  .add-row-btn{
+    margin-top:10px;background:var(--paper);border:1px dashed var(--line);
+    width:100%;padding:11px;border-radius:var(--r-md);cursor:pointer;
+    color:var(--muted);font-family:var(--font-sans);font-size:13px;
+    transition:all var(--t-fast);
+  }
+  .add-row-btn:hover{
+    border-color:var(--brand);color:var(--brand);background:var(--brand-tint);
+  }
+
+  /* ── KPIs ── */
+  .kpi-row{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:10px;margin-bottom:18px;
+  }
+  .kpi{
+    background:#fff;border:1px solid var(--line);
+    border-radius:var(--r-xl);padding:14px 16px;
+  }
+  .kpi .lbl{
+    font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;
+    color:var(--muted);text-transform:uppercase;font-weight:500;
+  }
+  .kpi .val{
+    font-size:24px;letter-spacing:-.02em;font-weight:500;line-height:1.05;
+    color:var(--ink);margin-top:4px;
+  }
+  .kpi.alert{border-color:var(--bad);background:rgba(159,43,30,.05)}
+  .kpi.alert .val{color:var(--bad)}
+  .kpi.ok{border-color:var(--good);background:rgba(30,127,92,.05)}
+  .kpi.ok .val{color:var(--good)}
+
+  /* ── Conciliación tabla ── */
+  table.concil-tbl{width:100%;border-collapse:collapse;font-size:13px}
+  table.concil-tbl th{
+    background:var(--ink);color:#fff;padding:9px 8px;
+    font-family:var(--font-mono);font-size:10.5px;
+    text-transform:uppercase;letter-spacing:.08em;font-weight:500;
+    text-align:center;
+  }
+  table.concil-tbl th:first-child{text-align:left}
+  table.concil-tbl td{
+    padding:7px 8px;border-bottom:1px solid var(--line);text-align:center;
+    font-variant-numeric:tabular-nums;
+  }
+  table.concil-tbl td:first-child{text-align:left;font-weight:500;font-size:12.5px}
+  table.concil-tbl input{
+    width:100%;border:1px solid var(--line);
+    padding:6px;font-size:13px;border-radius:var(--r-sm);
+    text-align:center;font-variant-numeric:tabular-nums;
+  }
+  table.concil-tbl tr.diff td{background:rgba(159,43,30,.08);font-weight:600}
+  table.concil-tbl tr.diff td.bad{color:var(--bad)}
+  table.concil-tbl tr.diff td.good{color:var(--good)}
+  table.concil-tbl tr.totals td{background:var(--paper);font-weight:600}
+
+  /* ── Cierre y firmas ── */
+  .close-grid{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+  @media(max-width:720px){.close-grid{grid-template-columns:1fr}}
+  .sign-box{
+    border:1px solid var(--line);background:var(--paper);
+    border-radius:var(--r-md);padding:12px;
+  }
+  .sign-box .role-lbl{
+    font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;
+    color:var(--muted);text-transform:uppercase;font-weight:500;
+    margin-bottom:6px;display:flex;align-items:center;gap:6px;
+  }
+  .sign-stamp{
+    font-size:11px;font-style:italic;margin-top:6px;
+    padding:3px 8px;border-radius:var(--r-sm);display:inline-block;
+  }
+  .sign-stamp.not-stamped{
+    color:var(--warn);background:rgba(185,122,27,.1);font-weight:500;font-style:normal;
+  }
+  .sign-stamp.not-stamped::before{content:'⚠ ';}
+  .sign-stamp.stamped{
+    color:var(--good);background:rgba(30,127,92,.12);font-weight:500;font-style:normal;
+  }
+  .sign-stamp.stamped::before{content:'✓ ';}
+
+  .close-service-bar{
+    margin:24px 0 8px;padding:20px 22px;
+    background:var(--ink);color:var(--cream);
+    border-radius:var(--r-2xl);
+    border:1px solid rgba(200,154,74,.3);
+    display:flex;align-items:center;justify-content:space-between;
+    gap:14px;flex-wrap:wrap;
+  }
+  .close-service-bar .info h4{
+    font-family:var(--font-serif);font-style:italic;
+    font-size:22px;font-weight:500;margin:0 0 5px;color:var(--gold);
+  }
+  .close-service-bar .info p{font-size:13px;color:rgba(246,241,232,.7);margin:0}
+  .btn-close-service{
+    background:var(--gold);color:var(--ink);border:none;
+    padding:12px 22px;border-radius:var(--r-md);
+    font-family:var(--font-sans);font-size:11.5px;font-weight:600;
+    letter-spacing:.18em;text-transform:uppercase;
+    cursor:pointer;transition:all var(--t-fast);
+  }
+  .btn-close-service:hover{background:var(--gold-soft)}
+
+  /* ── Tooltip ── */
+  .info-icon{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:17px;height:17px;border-radius:50%;
+    background:var(--paper);border:1px solid var(--line);
+    color:var(--muted);font-size:10.5px;font-weight:600;
+    cursor:pointer;flex-shrink:0;
+    font-family:var(--font-mono);
+  }
+  .info-icon:hover,.info-icon.active{background:var(--brand);border-color:var(--brand);color:#fff}
+  .tooltip{
+    position:absolute;z-index:200;
+    background:var(--ink);color:#fff;
+    padding:10px 30px 10px 14px;border-radius:var(--r-md);
+    font-size:12.5px;line-height:1.45;
+    max-width:280px;width:max-content;
+    box-shadow:var(--shadow-modal);
+    pointer-events:auto;animation:tipIn .12s ease-out;
+  }
+  .tooltip::after{
+    content:'';position:absolute;top:-6px;left:var(--arrow-x,20px);
+    width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;
+    border-bottom:6px solid var(--ink);
+  }
+  .tooltip.below::after{top:auto;bottom:-6px;border-bottom:none;border-top:6px solid var(--ink)}
+  .tooltip-close{
+    position:absolute;top:4px;right:6px;
+    background:transparent;border:none;color:rgba(255,255,255,.6);
+    cursor:pointer;font-size:14px;padding:2px 6px;line-height:1;
+  }
+  .tooltip-close:hover{color:#fff}
+  .tooltip strong{color:var(--brand-tint)}
+  @keyframes tipIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+  /* ── Modal ── */
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(12,9,7,.65);
+    z-index:300;display:none;align-items:flex-start;justify-content:center;
+    padding:24px 16px;overflow-y:auto;animation:bdIn .15s ease;
+  }
+  .modal-backdrop.open{display:flex}
+  @keyframes bdIn{from{opacity:0}to{opacity:1}}
+  .modal{
+    background:#fff;border-radius:var(--r-2xl);
+    max-width:820px;width:100%;
+    box-shadow:var(--shadow-modal);
+    animation:mdIn .2s ease-out;margin:auto;
+  }
+  @keyframes mdIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .modal-head{
+    padding:18px 24px;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;background:#fff;border-radius:var(--r-2xl) var(--r-2xl) 0 0;z-index:1;
+  }
+  .modal-head h2{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:24px;margin:0;letter-spacing:-.01em}
+  .modal-head .modal-sub{
+    font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;
+    color:var(--muted);text-transform:uppercase;margin-top:3px;
+  }
+  .modal-close{
+    background:var(--paper);border:1px solid var(--line);
+    width:32px;height:32px;border-radius:50%;
+    cursor:pointer;font-size:18px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--muted);
+  }
+  .modal-close:hover{background:rgba(159,43,30,.08);color:var(--bad);border-color:var(--bad)}
+  .modal-body{padding:20px 24px 28px}
+  .modal-foot{
+    padding:12px 24px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+    background:var(--paper);border-radius:0 0 var(--r-2xl) var(--r-2xl);
+  }
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:640px){.detail-grid{grid-template-columns:1fr}}
+
+  /* Validation list (modal de cierre) */
+  .validation-list{list-style:none;padding:0;margin:0}
+  .validation-list li{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:10px 0;border-bottom:1px solid var(--line);
+  }
+  .validation-list li:last-child{border-bottom:none}
+  .validation-list li.ok{color:var(--good)}
+  .validation-list li.fail{color:var(--bad)}
+  .validation-list .icon{
+    width:22px;height:22px;border-radius:50%;
+    background:currentColor;color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;flex-shrink:0;
+  }
+  .validation-list li > div{flex:1;color:var(--ink);font-size:13.5px;font-weight:500}
+  .closed-banner{
+    background:rgba(30,127,92,.1);border:1px solid var(--good);color:var(--good);
+    padding:14px;border-radius:var(--r-md);font-weight:500;text-align:center;
+  }
+
+  /* === Modo Observador (solo lectura) === */
+  body.solo-lectura .btn-action,
+  body.solo-lectura button[data-act],
+  body.solo-lectura .row-wa,
+  body.solo-lectura #btnPausarReservas,
+  body.solo-lectura #btnAbrirNuevo,
+  body.solo-lectura #btnNuevoServicio,
+  body.solo-lectura #btnAddRow,
+  body.solo-lectura #btnCerrarServicio,
+  body.solo-lectura #detailSaveBtn,
+  body.solo-lectura #waModalSend,
+  body.solo-lectura tbody input,
+  body.solo-lectura tbody select,
+  body.solo-lectura textarea,
+  body.solo-lectura input[type=checkbox],
+  body.solo-lectura .modal-body input:not([type=date]):not([type=time]),
+  body.solo-lectura .modal-body select,
+  body.solo-lectura [data-stamp],
+  body.solo-lectura [data-now]{
+    pointer-events:none !important;
+    opacity:.45 !important;
+    cursor:not-allowed !important;
+  }
+  body.solo-lectura .lock-banner{
+    display:flex;align-items:center;gap:10px;
+    background:rgba(185,122,27,.1);border-left:3px solid var(--warn);
+    padding:10px 14px;margin:14px 0;border-radius:var(--r-md);
+    font-size:13px;color:var(--ink);
+  }
+  body:not(.solo-lectura) .lock-banner{display:none}
+</style>
+</head>
+<body>
+
+<div class="lock-banner">👁️ Estás en <strong>modo observador</strong>: puedes ver toda la operación pero no editar ni capturar.</div>
+
+<header class="app">
+  <div class="head-row">
+    <div class="brand-cluster">
+      <div class="brand-flame" aria-label="Fogueira">
+        <svg width="22" height="26" viewBox="0 0 32 38" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="flameGradB" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e8c46a"/>
+              <stop offset="50%" stop-color="#c89a4a"/>
+              <stop offset="100%" stop-color="#9a7330"/>
+            </linearGradient>
+          </defs>
+          <path d="M16 1.5 C 17 6, 22 9, 23 14 C 24 18, 22 21, 20 22 C 22 24, 24 27, 24 31 C 24 35, 21 37, 16 37 C 11 37, 8 35, 8 31 C 8 28, 10 26, 11 24 C 9 22, 7 19, 8 15 C 9 11, 13 11, 14 7 C 15 5, 16 3, 16 1.5 Z" fill="url(#flameGradB)"/>
+          <path d="M16 16 C 17 19, 19 21, 19 25 C 19 28, 17 30, 16 30 C 15 30, 13 28, 13 25 C 13 22, 15 19, 16 16 Z" fill="#0c0907" opacity="0.55"/>
+        </svg>
+        <span class="wordmark">FOGUEIRA</span>
+      </div>
+      <div class="brand-sep-v"></div>
+      <div>
+        <div class="brand-eyebrow">Bitácora · Host</div>
+        <div class="brand-name" id="brandName">Servicio del día</div>
+      </div>
+      <span class="brand-empresa" id="empresaNombre">—</span>
+    </div>
+    <div class="head-actions no-print">
+      <button class="btn btn-help" id="btnHelp" title="Abrir instructivo">📖 Instructivo</button>
+      <input type="date" id="fecha" title="Fecha del servicio">
+      <select id="serviciosDia" title="Servicios del día"><option value="">— Servicios del día —</option></select>
+      <button class="btn" id="btnNuevoServicio">➕ Nuevo servicio</button>
+      <button class="btn" id="btnPausarReservas" title="Pausar / reactivar reservaciones del día">…</button>
+      <span class="save-indicator" id="saveIndicator" title="Tu trabajo se guarda automáticamente">✓ Guardado</span>
+      <span class="sync-indicator" id="syncIndicator" title="Sincronización entre hosts cada 8 segundos. Si otra host captura, te aparece automáticamente.">↻ Conectando…</span>
+      <a class="btn" href="https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec?p=inicio" target="_top">← Inicio</a>
+      <button class="btn btn-logout" id="btnLogout">Cerrar sesión</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <div id="emptyState" class="empty-state" style="display:none">
+    <div class="eyebrow">Sin servicio activo</div>
+    <h3>Aún no has abierto un servicio para hoy</h3>
+    <p>Da clic en <strong>Nuevo servicio</strong> para empezar a registrar grupos, o selecciona un servicio existente del día arriba.</p>
+    <button class="btn btn-primary" id="btnNuevoServicioEmpty">➕ Nuevo servicio</button>
+  </div>
+
+  <div id="bitacoraContent" style="display:none">
+    <div class="alert-bar">
+      <strong>Recuerda:</strong>
+      <span class="alert-msg">registra al momento del ingreso. Un grupo = una sola fila. Toda cortesía requiere nombre de quien autoriza.</span>
+      <button class="btn btn-help no-print" id="btnHelpInline">Ver instructivo</button>
+    </div>
+
+    <div class="bloqueo-banner-host" id="bloqueoBannerHost" style="display:none"></div>
+
+    <div class="card">
+      <div class="meta-grid">
+        <div>
+          <div class="lbl-row"><label for="meta_folio">Folio</label></div>
+          <input type="text" id="meta_folio" readonly style="background:var(--paper)">
+        </div>
+        <div>
+          <div class="lbl-row"><label for="meta_servicio">Servicio</label></div>
+          <select id="meta_servicio">
+            <option value="">—</option>
+            <option>Buffet completo</option><option>Desayuno</option><option>Comida</option>
+          </select>
+        </div>
+        <div>
+          <div class="lbl-row"><label for="meta_host">Host</label></div>
+          <input type="text" id="meta_host" placeholder="Nombre del host">
+        </div>
+        <div>
+          <div class="lbl-row"><label for="meta_t_adulto">Tarifa Adulto</label></div>
+          <input type="number" min="0" step="1" id="meta_t_adulto" placeholder="590">
+        </div>
+        <div>
+          <div class="lbl-row"><label for="meta_t_nino">Tarifa Niño 6–10</label></div>
+          <input type="number" min="0" step="1" id="meta_t_nino" placeholder="249">
+        </div>
+        <div>
+          <div class="lbl-row"><label for="meta_t_3era">Tarifa 3ra edad</label></div>
+          <input type="number" min="0" step="1" id="meta_t_3era" placeholder="590">
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-row" id="kpiRow"></div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3>Ingresos del servicio</h3>
+        <span class="help" id="rowCount">0 grupos registrados</span>
+      </div>
+
+      <!-- Mini-resumen del salón: panorama instantáneo de mesas + botón para abrir el plano completo -->
+      <div id="salonResumen" class="no-print" style="display:flex;align-items:center;gap:14px;padding:10px 14px;margin:0 0 12px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);font-size:13px;flex-wrap:wrap">
+        <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:var(--good);display:inline-block"></span><strong id="cntLibres">0</strong> libres</span>
+        <span style="color:var(--line)">·</span>
+        <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:var(--brand);display:inline-block"></span><strong id="cntOcupadas">0</strong> ocupadas</span>
+        <span style="color:var(--line)">·</span>
+        <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:var(--warn);display:inline-block"></span><strong id="cntEspera">0</strong> en espera</span>
+        <span style="margin-left:auto"><button class="btn" id="btnVerPlano" type="button">📋 Ver plano del salón</button></span>
+      </div>
+
+      <div class="table-wrap">
+        <table class="ingresos" id="tblIngresos">
+          <thead>
+            <tr id="ingHead">
+              <th style="width:34px"><div class="th-content">#</div></th>
+              <th style="width:115px"><div class="th-content">Estado <button class="info-icon no-print" data-tip="<strong>En espera</strong>: grupo llegó pero aún no se sienta.<br><strong>Ocupada</strong>: grupo sentado o consumiendo.<br><strong>Cancelada</strong>: reservación que no llegó — <strong>NO suma</strong> en totales." type="button">i</button></div></th>
+              <th style="width:96px"><div class="th-content">Hora ent. <button class="info-icon no-print" data-tip="Hora de entrada del grupo. El botón <strong>↻</strong> pone la hora actual." type="button">i</button></div></th>
+              <th style="width:96px"><div class="th-content">Hora sal. <button class="info-icon no-print" data-tip="Hora de salida. No requerida en filas Canceladas." type="button">i</button></div></th>
+              <th style="width:72px"><div class="th-content">Mesa <button class="info-icon no-print" data-tip="Número de mesa. Es el puente con el ticket POS." type="button">i</button></div></th>
+              <th style="width:60px"><div class="th-content">Adulto</div></th>
+              <th style="width:60px"><div class="th-content">Niño</div></th>
+              <th style="width:55px"><div class="th-content">3ra</div></th>
+              <th style="width:60px"><div class="th-content">Promo</div></th>
+              <th style="width:55px"><div class="th-content">Cort. <button class="info-icon no-print" data-tip="Cortesías del grupo. Si > 0 SIN nombre de quien autoriza, ⚠ visible y bandera roja al cierre. La autorización va en el detalle ✎." type="button">i</button></div></th>
+              <th style="width:90px"><div class="th-content">Origen</div></th>
+              <th style="width:140px"><div class="th-content">Nombre</div></th>
+              <th style="width:120px"><div class="th-content">Encuesta <button class="info-icon no-print" data-tip="Calificación al despedir al grupo: Excelente / Bueno / Regular / Malo." type="button">i</button></div></th>
+              <th style="width:64px" class="actions no-print"></th>
+            </tr>
+          </thead>
+          <tbody id="tbodyIngresos"></tbody>
+        </table>
+      </div>
+      <button class="add-row-btn no-print" id="btnAddRow">+ Agregar fila (nuevo grupo)</button>
+    </div>
+
+    <!-- Subtotales del servicio (solo lectura — para que el host vea su propio recuento). La conciliación con POS se hace en el módulo de Conciliación de caja. -->
+    <div class="card">
+      <div class="card-head">
+        <h3>Subtotales del servicio</h3>
+        <span class="help">La conciliación contra POS se hace en el módulo de Conciliación de caja.</span>
+      </div>
+      <table class="concil-tbl">
+        <thead>
+          <tr><th>Concepto</th><th>Adulto</th><th>Niño</th><th>3ra ed.</th><th>Promo</th><th>Cort.</th><th>TOTAL</th></tr>
+        </thead>
+        <tbody>
+          <tr class="totals">
+            <td>Subtotal del host</td>
+            <td id="sub_adulto">0</td><td id="sub_nino">0</td><td id="sub_3era">0</td>
+            <td id="sub_promo">0</td><td id="sub_corte">0</td><td id="sub_total">0</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Cierre del servicio</h3></div>
+      <div class="close-grid">
+        <div>
+          <div class="lbl-row">
+            <label for="cierre_hora">Hora de cierre</label>
+            <button class="btn btn-now no-print" id="btnNowCierre" title="Hora actual" style="height:24px;width:auto;padding:0 8px;font-size:11px;margin-left:auto" type="button">↻ Ahora</button>
+          </div>
+          <input type="time" id="cierre_hora">
+          <div style="margin-top:10px">
+            <label for="cierre_obs">Observaciones generales</label>
+            <textarea id="cierre_obs" rows="4" placeholder="Incidentes, mesas grandes, reclamos, diferencias…"></textarea>
+          </div>
+        </div>
+        <div>
+          <div class="sign-box">
+            <div class="role-lbl">Host</div>
+            <input type="text" id="firma_host" placeholder="Nombre completo">
+            <div class="sign-stamp not-stamped" id="firma_host_stamp">Sin sellar</div>
+            <button class="btn no-print" data-stamp="firma_host" style="margin-top:6px" type="button">Sellar</button>
+          </div>
+          <div class="sign-box" style="margin-top:10px">
+            <div class="role-lbl">Cajero / Supervisor que recibe</div>
+            <input type="text" id="firma_caj" placeholder="Nombre completo">
+            <div class="sign-stamp not-stamped" id="firma_caj_stamp">Sin sellar</div>
+            <button class="btn no-print" data-stamp="firma_caj" style="margin-top:6px" type="button">Sellar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sellos de la bitácora: el host (o gerente de restaurante) firma con su sesión autenticada -->
+    <div class="card no-print" style="margin-top:14px" id="sellosCard">
+      <h3 id="sellosCardTitle" style="font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:22px;margin:0 0 12px;color:var(--ink)">
+        🖋️ Mis firmas
+      </h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="padding:14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--paper)">
+          <div style="font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;font-weight:500;margin-bottom:6px">Apertura</div>
+          <div id="selloAperturaInfo" style="font-size:13px;color:var(--muted);margin-bottom:8px">Sin sellar</div>
+          <button class="btn btn-primary" id="btnSellarApertura" type="button">✓ Sellar mi apertura</button>
+        </div>
+        <div style="padding:14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--paper)">
+          <div style="font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;font-weight:500;margin-bottom:6px">Cierre</div>
+          <div id="selloCierreInfo" style="font-size:13px;color:var(--muted);margin-bottom:8px">Sin sellar</div>
+          <button class="btn btn-primary" id="btnSellarCierre" type="button">✓ Sellar mi cierre</button>
+        </div>
+      </div>
+      <p style="font-size:11.5px;color:var(--muted);margin:12px 0 0">El sello queda firmado a tu nombre y con la hora exacta. Solo tú puedes sellar tu apertura/cierre como Host.</p>
+    </div>
+
+    <div class="close-service-bar no-print">
+      <div class="info">
+        <h4>Cerrar y entregar servicio</h4>
+        <p>Verifica todo, sella firmas y marca el servicio como cerrado. Si falta algo, te lo dirá.</p>
+      </div>
+      <button class="btn-close-service" id="btnCerrarServicio" type="button">🔒 Cerrar y entregar</button>
+    </div>
+  </div>
+
+</main>
+
+<!-- Modal: Plano del salón -->
+<div class="modal-backdrop" id="planoModal" role="dialog" aria-labelledby="planoTitle" aria-hidden="true">
+  <div class="modal" role="document" style="max-width:900px">
+    <div class="modal-head">
+      <div>
+        <h2 id="planoTitle">Plano del salón</h2>
+        <div class="modal-sub">Tap a una mesa libre para capturar walk-in · Tap a una ocupada para ver/marcar salida</div>
+      </div>
+      <button class="modal-close" id="planoClose" aria-label="Cerrar" type="button">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="planoLeyenda" style="display:flex;gap:10px;margin-bottom:16px;font-size:11.5px;flex-wrap:wrap;font-family:var(--font-mono);font-weight:600;letter-spacing:.04em">
+        <span style="display:inline-flex;align-items:center;gap:6px;background:#1E7F5C;color:#fff;padding:5px 11px;border-radius:14px">✓ LIBRE</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;background:#c4322a;color:#fff;padding:5px 11px;border-radius:14px">🔴 OCUPADA</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;background:#B97A1B;color:#fff;padding:5px 11px;border-radius:14px">⏳ EN ESPERA</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;background:#0E7C90;color:#fff;padding:5px 11px;border-radius:14px">✨ DESOCUPADA</span>
+      </div>
+      <div id="planoGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px"></div>
+      <p style="font-size:11.5px;color:var(--muted);margin:18px 0 0">Si no ves una mesa que ya tienes en el salón, agrégala desde Configuración (admin) → "Mesas del salón".</p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de detalle del grupo -->
+<div class="modal-backdrop" id="detailModal" role="dialog" aria-labelledby="detailTitle" aria-hidden="true">
+  <div class="modal" role="document">
+    <div class="modal-head">
+      <div>
+        <h2 id="detailTitle">Detalles del grupo <span id="detailIdxLbl" style="color:var(--muted);font-size:14px;font-weight:400">— Mesa —</span></h2>
+        <div class="modal-sub">Datos complementarios del cliente y servicio</div>
+      </div>
+      <button class="modal-close" id="detailClose" aria-label="Cerrar" type="button">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-grid">
+        <div>
+          <label for="d_tipo">Tipo de cliente</label>
+          <select id="d_tipo" data-df="tipo">
+            <option value="">—</option>
+            <option>1ª vez</option><option>No frecuente</option><option>Frecuente</option>
+          </select>
+        </div>
+        <div>
+          <label for="d_telefono">Teléfono (opcional)</label>
+          <input type="tel" id="d_telefono" data-df="telefono" placeholder="55 1234 5678">
+        </div>
+        <div id="d_autoriza_box">
+          <label for="d_autoriza">Autorizó cortesía <span style="color:var(--bad)" id="d_autoriza_req">*</span></label>
+          <select id="d_autoriza" data-df="autoriza">
+            <option value="">— Seleccionar —</option>
+            <!-- Las opciones se pueblan al cargar (gerentes desde Configuracion) -->
+          </select>
+        </div>
+        <div>
+          <label for="d_ticket">Ticket POS</label>
+          <input type="text" id="d_ticket" data-df="ticket" placeholder="Folio del ticket" maxlength="10">
+        </div>
+        <div style="grid-column:span 2">
+          <label for="d_obs">Observaciones / notas</label>
+          <textarea id="d_obs" data-df="obs" rows="3" placeholder="Alergias, peticiones especiales, motivo si Cancelada…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span style="font-size:12px;color:var(--muted)" id="d_warning"></span>
+      <button class="btn btn-primary" id="detailSaveBtn" type="button">Listo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de WhatsApp para confirmar reserva -->
+<div class="modal-backdrop" id="waModal" role="dialog" aria-hidden="true">
+  <div class="modal" role="document">
+    <div class="modal-head">
+      <div>
+        <h2>Confirmar reserva por WhatsApp</h2>
+        <div class="modal-sub" id="waModalSub">—</div>
+      </div>
+      <button class="modal-close" id="waModalClose" type="button">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin:0 0 12px;font-size:13px;color:var(--muted)">Revisa el mensaje, edítalo si quieres y envíalo. Al abrir WhatsApp la reserva queda como <strong>confirmada</strong> y este botón desaparece de la fila.</p>
+      <textarea id="wa_msg" rows="9" style="width:100%;background:#dcf8c6;border-radius:7px;padding:14px;font-size:14px;line-height:1.5;border:1px solid #b8e09a;resize:vertical;font-family:var(--font-sans);color:var(--ink)"></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="waModalCancel" type="button">Cerrar (sin confirmar)</button>
+      <a id="waModalSend" class="btn" target="_blank" style="background:#25D366;color:#fff;border-color:#25D366">📱 Abrir WhatsApp</a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de validación de cierre -->
+<div class="modal-backdrop" id="closeModal" role="dialog" aria-labelledby="closeTitle" aria-hidden="true">
+  <div class="modal" role="document">
+    <div class="modal-head">
+      <div>
+        <h2 id="closeTitle">Cierre del servicio</h2>
+        <div class="modal-sub" id="closeSubtitle">Validando…</div>
+      </div>
+      <button class="modal-close" id="closeModalX" aria-label="Cerrar" type="button">×</button>
+    </div>
+    <div class="modal-body">
+      <ul class="validation-list" id="validationList"></ul>
+      <div id="closedBanner" class="closed-banner" style="display:none">✅ Servicio cerrado correctamente.</div>
+    </div>
+    <div class="modal-foot">
+      <span style="font-size:12px;color:var(--muted)" id="closeFootHint"></span>
+      <button class="btn btn-primary" id="closeForzarBtn" type="button" style="display:none">Cerrar de todos modos</button>
+      <button class="btn" id="closeCancelBtn" type="button">Volver al servicio</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de instructivo -->
+<div class="modal-backdrop" id="helpModal" role="dialog" aria-labelledby="helpTitle" aria-hidden="true">
+  <div class="modal" role="document">
+    <div class="modal-head">
+      <div>
+        <h2 id="helpTitle">Bitácora del Host</h2>
+        <div class="modal-sub">Instructivo</div>
+      </div>
+      <button class="modal-close" id="helpClose" aria-label="Cerrar" type="button">×</button>
+    </div>
+    <div class="modal-body">
+      <p><strong>Propósito:</strong> registrar cada grupo al momento del ingreso. Es la fuente primaria de la conciliación de caja.</p>
+      <ol style="padding-left:22px">
+        <li>Anota <strong>al momento del ingreso</strong>, nunca al final ni de memoria.</li>
+        <li>Un grupo que llega junto = <strong>una sola fila</strong> con desglose por tarifa.</li>
+        <li>La <strong>hora de salida</strong> se anota cuando ves a la mesa retirarse.</li>
+        <li><strong>Nunca regales una entrada</strong> sin nombre de quien autoriza (en el detalle ✎).</li>
+        <li>Al cerrar, captura los totales del POS y firma.</li>
+        <li>Para cambio de host planeado, abre <strong>Nuevo servicio</strong>.</li>
+        <li>Si una reservación no llegó, márcala como <strong>Cancelada</strong> — no suma en totales.</li>
+        <li>Califica cada grupo al despedir (encuesta).</li>
+      </ol>
+    </div>
+    <div class="modal-foot">
+      <span></span>
+      <button class="btn btn-primary" id="helpCloseFoot" type="button">Entendido</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var API_URL = 'https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec';
+
+  // ============= Sesión =============
+  // Token: URL param > template inyectado > sessionStorage (iOS pierde sessionStorage entre subdominios)
+  function getQuery(name){
+    var m = (location.search.match(new RegExp('[?&]' + name + '=([^&]*)')) || [])[1];
+    return m ? decodeURIComponent(m) : '';
+  }
+  var token = getQuery('t') || '<?!= __tokenInyectado ?>';
+  var user, empresa, sucursales;
+  if (token) {
+    try { sessionStorage.setItem('fogueira_token', token); } catch(e){}
+  } else {
+    try { token = sessionStorage.getItem('fogueira_token'); } catch(e){}
+  }
+  if (!token) { var _a=document.createElement('a');_a.href=API_URL+'?p=acceso';_a.target='_top';document.body.appendChild(_a);_a.click(); return; }
+  try {
+    user = JSON.parse(sessionStorage.getItem('fogueira_user') || 'null');
+    empresa = JSON.parse(sessionStorage.getItem('fogueira_empresa') || 'null');
+    sucursales = JSON.parse(sessionStorage.getItem('fogueira_sucursales') || '[]');
+  } catch(e){}
+  // Verifica rol y configura UI. Se llama inmediatamente si user está en sessionStorage,
+  // o desde el callback de 'me' en init() cuando iOS borró sessionStorage.
+  var _sesionUIAplicada = false;
+  function aplicarSesionUI() {
+    if (_sesionUIAplicada) return true;
+    _sesionUIAplicada = true;
+    var r = String(user.rol || '').toLowerCase();
+    if (['host','admin','auditoria','gerente_restaurante','gerente_administrativo','observador'].indexOf(r) === -1) {
+      alert('Tu rol no tiene acceso a la bitácora del host.');
+      var _b=document.createElement('a');_b.href=API_URL+'?p=inicio';_b.target='_top';document.body.appendChild(_b);_b.click();
+      return false;
+    }
+    (function(){ try { var b=API_URL+'?p=inicio&t='+encodeURIComponent(token||'')+(user?'&urol='+encodeURIComponent(user.rol||'')+'&unom='+encodeURIComponent(user.nombre||user.email||''):''); document.querySelectorAll('a[href*="p=inicio"]').forEach(function(a){a.href=b;}); }catch(e){} })();
+    if (r === 'observador') document.body.classList.add('solo-lectura');
+    if (['host','gerente_restaurante'].indexOf(r) === -1) {
+      setTimeout(function(){ var sc=document.getElementById('sellosCard'); if(sc) sc.style.display='none'; }, 100);
+    }
+    document.getElementById('empresaNombre').textContent = (empresa && empresa.nombre) || 'Sin empresa';
+    return true;
+  }
+  if (user && !aplicarSesionUI()) return;
+
+  // ============= API JSONP =============
+  function apiCall(params, cb){
+    var cbName = '_jcb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+    var script = document.createElement('script');
+    var cleanup = function(){ try{ delete window[cbName];}catch(e){window[cbName]=undefined;} if(script.parentNode) script.parentNode.removeChild(script); };
+    var t = setTimeout(function(){ cleanup(); cb({ok:false,error:'timeout'}); }, 20000);
+    window[cbName] = function(d){ clearTimeout(t); cleanup(); cb(d); };
+    var qs = Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
+    script.onerror = function(){ clearTimeout(t); cleanup(); cb({ok:false,error:'network'}); };
+    script.src = API_URL + '?' + qs + '&callback=' + cbName;
+    document.body.appendChild(script);
+  }
+
+  // ============= Estado =============
+  // bitacoraActual: objeto del backend (id, fecha, folio, servicio, payload, ...)
+  var bitacoraActual = null;
+  var state = { meta:{}, rows:[], pos:{}, cierre:{}, firmas:{} };
+  var saveTimer = null;
+  // Save de EMERGENCIA cuando se cierra/oculta la pestaña: SIEMPRE envía el state actual
+  // (no depende de si había timers — el state puede tener cambios no guardados).
+  window.addEventListener('pagehide', function(){
+    if (!bitacoraActual || !bitacoraActual.id) return;
+    try {
+      syncStateFromInputs();
+      guardarBackupLocal();
+      // Solo meta/cierre/firmas/pos (rows viven en BitacoraFilas)
+      var payloadSinRows = { meta: state.meta||{}, pos: state.pos||{}, cierre: state.cierre||{}, firmas: state.firmas||{} };
+      var data = {
+        id: bitacoraActual.id, fecha: bitacoraActual.fecha,
+        folio: bitacoraActual.folio, servicio: state.meta.servicio || bitacoraActual.servicio || '',
+        host_email: user.email, sucursal_id: bitacoraActual.sucursal_id || (sucursales[0] && sucursales[0].id) || '',
+        estado: bitacoraActual.estado || 'abierta', payload: payloadSinRows
+      };
+      var url = API_URL + '?action=bitacora_save&token=' + encodeURIComponent(token) +
+                '&data=' + encodeURIComponent(JSON.stringify(data));
+      navigator.sendBeacon && navigator.sendBeacon(url);
+    } catch(e) {}
+  });
+  // visibilitychange en hidden: también disparar save (iOS background)
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'hidden' && bitacoraActual) doSave();
+  });
+  var lastSavedAt = null;
+  var lastSyncedMetaHost = '';
+
+  // ============= Helpers =============
+  function num(v){ var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+  function $(id){ return document.getElementById(id); }
+  function uuidLocal(){
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c){
+      var r = Math.random()*16|0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+  function siguienteIdx(){
+    // idx incremental para mantener orden visual. Espacios de 1000 para inserciones futuras.
+    var max = 0;
+    state.rows.forEach(function(r){ if (r._idx && r._idx > max) max = r._idx; });
+    return (max || 0) + 1000;
+  }
+
+  // ============= Save por fila individual (anti-pérdida granular) =============
+  // Cada fila tiene su propio _id y se guarda individualmente al backend al cambiar.
+  // Si falla un save, solo se pierde 1 fila (recuperable manualmente).
+  var saveFilaTimers = {};
+  var saveFilaPendientes = {};
+  function scheduleSaveFila(row){
+    if (!row || !bitacoraActual || !bitacoraActual.id) return;
+    var key = row._id || ('tmp_' + state.rows.indexOf(row));
+    saveFilaPendientes[key] = row;
+    clearTimeout(saveFilaTimers[key]);
+    saveFilaTimers[key] = setTimeout(function(){ saveFilaIndividual(saveFilaPendientes[key]); }, 200);
+  }
+  function saveFilaIndividual(row){
+    if (!row || !bitacoraActual || !bitacoraActual.id) return;
+    setSaveIndicator('saving');
+    var datos = {};
+    Object.keys(row).forEach(function(k){
+      if (k !== '_id' && k !== '_idx') datos[k] = row[k];
+    });
+    if (!row._idx) row._idx = siguienteIdx();
+    apiCall({
+      action: 'bitacora_fila_save', token: token,
+      data: JSON.stringify({
+        id: row._id || '',
+        bitacora_id: bitacoraActual.id,
+        idx: row._idx,
+        datos: datos
+      })
+    }, function(res){
+      if (res.ok) {
+        if (!row._id) row._id = res.id; // capturar id si era nueva
+        // Actualizar metadatos de sync con la respuesta del server. Esto evita que el
+        // próximo poll re-mergee mi propia escritura como si fuera "cambio externo".
+        if (res.actualizada_at) {
+          row._actualizada_at = res.actualizada_at;
+          // Avanzar lastTs si esta escritura es más reciente
+          if (res.actualizada_at > syncState.lastTs) syncState.lastTs = res.actualizada_at;
+        }
+        if (res.host_email) row._host_email = res.host_email;
+        setSaveIndicator('saved');
+      } else {
+        // Reintento en background sin alarmar al usuario
+        setTimeout(function(){ saveFilaIndividual(row); }, 3000);
+      }
+    });
+  }
+  function deleteFilaIndividual(row, motivo, cb){
+    if (!row || !row._id) { if (cb) cb(true); return; } // si no tenía id, solo borrar local
+    apiCall({
+      action: 'bitacora_fila_delete', token: token,
+      data: JSON.stringify({ id: row._id, motivo: motivo })
+    }, function(res){
+      if (cb) cb(res.ok);
+      if (!res.ok) {
+        // Reintento en background
+        setTimeout(function(){ deleteFilaIndividual(row, motivo, function(){}); }, 3000);
+      }
+    });
+  }
+  function nowHHMM(){ var d = new Date(); return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
+  // Fecha local en formato YYYY-MM-DD (NO usar toISOString — devuelve UTC y rompe en zonas horarias negativas)
+  function todayLocalISO(){
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  function escAttr(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+  function nextFolio(current){
+    var m = (current || '').match(/^(FOG-\d{4}-)(\d+)$/);
+    if (m) { var n = parseInt(m[2],10) + 1; return m[1] + String(n).padStart(4,'0'); }
+    return 'FOG-' + new Date().getFullYear() + '-0001';
+  }
+
+  // ============= Indicador de guardado (UX tranquilizadora) =============
+  // Solo muestra "Guardando..." si pasa más de 600ms sin completar todos los saves.
+  // Mientras todo va rápido, siempre se ve "Guardado ✓" — no asusta al host.
+  var savesPendientes = 0;
+  var savingTimerUI = null;
+  function marcarSaveIniciado(){
+    savesPendientes++;
+    if (savingTimerUI) return; // ya hay un timer corriendo
+    savingTimerUI = setTimeout(function(){
+      savingTimerUI = null;
+      if (savesPendientes > 0) {
+        var el = $('saveIndicator');
+        el.classList.remove('error');
+        el.classList.add('saving');
+        el.textContent = '💾 Guardando…';
+      }
+    }, 600);
+  }
+  function marcarSaveTerminado(ok, msg){
+    savesPendientes = Math.max(0, savesPendientes - 1);
+    if (savesPendientes === 0) {
+      if (savingTimerUI) { clearTimeout(savingTimerUI); savingTimerUI = null; }
+      var el = $('saveIndicator');
+      el.classList.remove('saving');
+      if (ok) { el.classList.remove('error'); el.textContent = '✓ Guardado'; lastSavedAt = new Date(); }
+      else    { el.classList.add('error');    el.textContent = '⚠ ' + (msg || 'Error al guardar'); }
+    }
+  }
+  function setSaveIndicator(estado, msg){
+    var el = $('saveIndicator');
+    if (estado === 'saving') { marcarSaveIniciado(); }
+    else if (estado === 'error') { marcarSaveTerminado(false, msg); }
+    else if (estado === 'saved') { marcarSaveTerminado(true); }
+    else if (estado === 'idle') {
+      el.classList.remove('saving','error');
+      el.textContent = '✓ Sin cambios';
+    }
+  }
+
+  // ============= Auto-guardado =============
+  // Doble timer: el corto se reinicia con cada cambio (200ms),
+  // el LÍMITE garantiza que máximo cada 2 segundos haya un save aunque la host esté capturando sin parar.
+  var maxSaveTimer = null;
+  function scheduleSave(){
+    if (!bitacoraActual) return;
+    setSaveIndicator('saving');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(doSave, 200);
+    if (!maxSaveTimer) {
+      maxSaveTimer = setTimeout(function(){ maxSaveTimer = null; doSave(); }, 2000);
+    }
+    guardarBackupLocal();
+  }
+  // Backup en localStorage: protege contra pérdida si el save falla y luego refresh.
+  function guardarBackupLocal(){
+    if (!bitacoraActual || !bitacoraActual.id) return;
+    try {
+      syncStateFromInputs();
+      var snap = { state: state, fecha: bitacoraActual.fecha, ts: Date.now(), rowsCount: state.rows.length };
+      localStorage.setItem('fogueira_bitacora_backup_' + bitacoraActual.id, JSON.stringify(snap));
+    } catch(e) {}
+  }
+  function leerBackupLocal(id){
+    try {
+      var raw = localStorage.getItem('fogueira_bitacora_backup_' + id);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch(e) { return null; }
+  }
+  function borrarBackupLocal(id){
+    try { localStorage.removeItem('fogueira_bitacora_backup_' + id); } catch(e){}
+  }
+
+  // Reintentos automáticos del save: si falla, reintentar hasta 5 veces con backoff.
+  var saveRetryCount = 0;
+  var saveRetryTimer = null;
+  function doSave(estadoOverride){
+    if (!bitacoraActual) return;
+    // Resetear AMBOS timers al disparar save (no quedan timers obsoletos)
+    clearTimeout(saveTimer); saveTimer = null;
+    clearTimeout(maxSaveTimer); maxSaveTimer = null;
+    syncStateFromInputs();
+    guardarBackupLocal();
+    // CRÍTICO: NO enviar state.rows en el payload — las filas ya viven en BitacoraFilas
+    // como registros individuales. Si las enviamos aquí, la URL JSONP crece y Apps Script
+    // rechaza el request con "network error". Solo enviamos meta/cierre/firmas/pos.
+    var payloadSinRows = {
+      meta:   state.meta   || {},
+      pos:    state.pos    || {},
+      cierre: state.cierre || {},
+      firmas: state.firmas || {}
+    };
+    var data = {
+      id: bitacoraActual.id || null,
+      fecha: bitacoraActual.fecha,
+      folio: bitacoraActual.folio,
+      servicio: state.meta.servicio || bitacoraActual.servicio || '',
+      host_email: user.email,
+      sucursal_id: bitacoraActual.sucursal_id || (sucursales[0] && sucursales[0].id) || '',
+      estado: estadoOverride || bitacoraActual.estado || 'abierta',
+      payload: payloadSinRows
+    };
+    apiCall({ action:'bitacora_save', token: token, data: JSON.stringify(data) }, function(res){
+      if (res.ok) {
+        if (!bitacoraActual.id) bitacoraActual.id = res.id;
+        if (estadoOverride) bitacoraActual.estado = estadoOverride;
+        setSaveIndicator('saved');
+        saveRetryCount = 0;
+        ocultarBannerErrorSave();
+        // Save exitoso: el backup local ya no es necesario (pero lo conservamos por si acaso 24h)
+      } else {
+        // Reintentos INFINITOS en silencio. Datos están seguros en localStorage.
+        // Backoff: 2s, 5s, 10s, 20s, 40s, 60s, 60s, 60s... cada minuto en adelante.
+        saveRetryCount++;
+        var esperas = [2000, 5000, 10000, 20000, 40000];
+        var espera = esperas[Math.min(saveRetryCount - 1, esperas.length - 1)] || 60000;
+        clearTimeout(saveRetryTimer);
+        saveRetryTimer = setTimeout(function(){ doSave(estadoOverride); }, espera);
+        // El indicador discreto sigue diciendo "guardando..." hasta que tenga éxito.
+        // Sin banner rojo. La host no se entera del problema técnico.
+      }
+    });
+  }
+  function ocultarBannerErrorSave(){ /* no-op: ya no usamos banner */ }
+
+  // ============= Sincronizar inputs ⇄ state =============
+  function syncStateFromInputs(){
+    state.meta = {
+      folio: $('meta_folio').value,
+      servicio: $('meta_servicio').value,
+      host: $('meta_host').value,
+      t_adulto: $('meta_t_adulto').value,
+      t_nino: $('meta_t_nino').value,
+      t_3era: $('meta_t_3era').value
+    };
+    state.cierre = state.cierre || {};
+    state.cierre.hora = $('cierre_hora').value;
+    state.cierre.obs = $('cierre_obs').value;
+    state.firmas = state.firmas || {};
+    ['firma_host','firma_caj'].forEach(function(id){
+      state.firmas[id] = state.firmas[id] || {};
+      state.firmas[id].nombre = $(id).value;
+    });
+  }
+  function applyStateToInputs(){
+    $('meta_folio').value    = (state.meta && state.meta.folio) || (bitacoraActual && bitacoraActual.folio) || '';
+    $('meta_servicio').value = (state.meta && state.meta.servicio) || '';
+    $('meta_host').value     = (state.meta && state.meta.host) || user.nombre || user.email;
+    $('meta_t_adulto').value = (state.meta && state.meta.t_adulto) || '';
+    $('meta_t_nino').value   = (state.meta && state.meta.t_nino) || '';
+    $('meta_t_3era').value   = (state.meta && state.meta.t_3era) || '';
+    $('cierre_hora').value   = (state.cierre && state.cierre.hora) || '';
+    $('cierre_obs').value    = (state.cierre && state.cierre.obs) || '';
+    ['firma_host','firma_caj'].forEach(function(id){
+      var f = (state.firmas && state.firmas[id]) || {};
+      $(id).value = f.nombre || '';
+      var stEl = $(id+'_stamp');
+      if (stEl) {
+        stEl.textContent = f.stamp ? ('Sellado: '+f.stamp) : 'Sin sellar';
+        stEl.className = 'sign-stamp ' + (f.stamp ? 'stamped' : 'not-stamped');
+      }
+    });
+    lastSyncedMetaHost = $('meta_host').value;
+    // Si ya hay servicio guardado pero las tarifas vienen vacías, intenta auto-llenar
+    if ($('meta_servicio').value) cargarTarifaDelServicio(false);
+    // Si NO hay servicio guardado, sugerir según el día de la semana de la fecha
+    else sugerirServicioPorFecha();
+  }
+
+  // ============= Auto-llenado de tarifas desde el catálogo =============
+  // Lee la fecha del input y, si es Lun-Jue, prellena servicio "Buffet completo".
+  // Para Vie-Dom no autoselecciona (el host debe elegir Desayuno o Comida).
+  function sugerirServicioPorFecha(){
+    var fecha = $('fecha').value;
+    if (!fecha) return;
+    var d = new Date(fecha + 'T12:00:00'); // mediodía local para evitar TZ
+    var dia = d.getDay(); dia = dia === 0 ? 7 : dia; // 1=Lun..7=Dom
+    if (dia >= 1 && dia <= 4) {
+      $('meta_servicio').value = 'Buffet completo';
+      cargarTarifaDelServicio(true);
+    }
+  }
+  // Llama al backend y llena los 3 campos de tarifa.
+  // Si forzar=true, sobrescribe valores existentes (cuando el host cambia el servicio).
+  // Si forzar=false, solo llena los campos que estén vacíos (carga inicial).
+  function cargarTarifaDelServicio(forzar){
+    var servicio = $('meta_servicio').value;
+    var fecha = $('fecha').value;
+    if (!servicio || !fecha) return;
+    apiCall({ action:'tarifa_vigente', token: token, fecha: fecha, servicio: servicio }, function(res){
+      if (!res.ok || !res.tarifa) return;
+      var t = res.tarifa;
+      if (forzar || !$('meta_t_adulto').value) $('meta_t_adulto').value = t.t_adulto;
+      if (forzar || !$('meta_t_nino').value)   $('meta_t_nino').value   = t.t_nino;
+      if (forzar || !$('meta_t_3era').value)   $('meta_t_3era').value   = t.t_3era;
+      if (forzar) { scheduleSave(); recalc(); }
+    });
+  }
+
+  // ============= Filas =============
+  var ORIGENES = ['', 'Walk-in', 'Reserva', 'Referencia'];
+  var ESTADOS = ['Ocupada', 'Desocupada', 'En espera', 'Cancelada'];
+  var ENCUESTAS = ['', 'Excelente', 'Bueno', 'Regular', 'Malo'];
+
+  function estadoClass(estado){
+    if (estado === 'En espera')  return 'row-espera';
+    if (estado === 'Cancelada')  return 'row-cancelada';
+    if (estado === 'Desocupada') return 'row-desocupada';
+    return 'row-ocupada';
+  }
+  function encuestaClass(e){
+    if (e === 'Excelente') return 'enc-excelente';
+    if (e === 'Bueno') return 'enc-bueno';
+    if (e === 'Regular') return 'enc-regular';
+    if (e === 'Malo') return 'enc-malo';
+    return '';
+  }
+  function applyRowClasses(idx){
+    var tbody = $('tbodyIngresos');
+    var tr = tbody.querySelector('tr[data-idx="'+idx+'"]');
+    if (!tr) return;
+    var row = state.rows[idx] || {};
+    tr.className = estadoClass(row.estado);
+    var cortTd = tr.querySelector('.cell-cort');
+    if (cortTd) {
+      var cortSinAut = num(row.corte) > 0 && !(row.autoriza||'').trim();
+      cortTd.classList.toggle('cort-sinaut', cortSinAut);
+    }
+    var encTd = tr.querySelector('.cell-enc');
+    if (encTd) encTd.className = 'cell-enc ' + encuestaClass(row.encuesta);
+  }
+
+  function renderRows(){
+    var tbody = $('tbodyIngresos');
+    tbody.innerHTML = '';
+    // Actualizar el mini-resumen del salón cada vez que cambian las filas
+    actualizarMiniResumenSalon();
+    state.rows.forEach(function(row, idx){
+      var tr = document.createElement('tr');
+      tr.dataset.idx = idx;
+      tr.className = estadoClass(row.estado);
+      var cortSinAut = num(row.corte) > 0 && !(row.autoriza||'').trim();
+      tr.innerHTML =
+        '<td class="row-num">'+(idx+1)+'</td>'+
+        '<td><select data-f="estado">'+ESTADOS.map(function(e){return '<option value="'+e+'"'+((row.estado||'Ocupada')===e?' selected':'')+'>'+e+'</option>';}).join('')+'</select></td>'+
+        '<td><div class="time-cell"><input type="time" data-f="hora_ent" value="'+escAttr(row.hora_ent)+'"><button class="btn-now no-print" data-now="hora_ent" title="Hora actual" type="button">↻</button></div></td>'+
+        '<td><div class="time-cell"><input type="time" data-f="hora_sal" value="'+escAttr(row.hora_sal)+'"><button class="btn-now no-print" data-now="hora_sal" title="Hora actual" type="button">↻</button></div></td>'+
+        '<td><div class="mesa-cell"><input type="text" data-f="mesa" value="'+escAttr(row.mesa)+'" maxlength="6"><button type="button" class="btn-sugerir-mesa no-print" hidden></button></div></td>'+
+        '<td><input type="number" min="0" data-f="adulto" value="'+escAttr(row.adulto)+'"></td>'+
+        '<td><input type="number" min="0" data-f="nino" value="'+escAttr(row.nino)+'"></td>'+
+        '<td><input type="number" min="0" data-f="3era" value="'+escAttr(row['3era'])+'"></td>'+
+        '<td><input type="number" min="0" data-f="promo" value="'+escAttr(row.promo)+'"></td>'+
+        '<td class="cell-cort'+(cortSinAut?' cort-sinaut':'')+'"><input type="number" min="0" data-f="corte" value="'+escAttr(row.corte)+'"></td>'+
+        '<td><select data-f="origen">'+ORIGENES.map(function(o){return '<option value="'+o+'"'+(row.origen===o?' selected':'')+'>'+(o||'—')+'</option>';}).join('')+'</select></td>'+
+        '<td><input type="text" data-f="nombre" value="'+escAttr(row.nombre)+'" placeholder="Nombre"></td>'+
+        '<td class="cell-enc '+encuestaClass(row.encuesta)+'"><select data-f="encuesta">'+ENCUESTAS.map(function(e){return '<option value="'+e+'"'+((row.encuesta||'')===e?' selected':'')+'>'+(e||'—')+'</option>';}).join('')+'</select></td>'+
+        '<td class="actions no-print">' +
+          (row.reserva_id && row.reserva_estado === 'creada' ? '<button class="row-wa" title="Confirmar reserva por WhatsApp" type="button">📱</button>' : '') +
+          '<button class="row-detail" title="Detalles" type="button">✎</button>' +
+          '<button class="row-del" title="Eliminar" type="button">×</button>' +
+        '</td>';
+      tbody.appendChild(tr);
+    });
+    $('rowCount').textContent = state.rows.length + ' grupo' + (state.rows.length === 1 ? '' : 's') + ' registrado' + (state.rows.length === 1 ? '' : 's');
+    bindRowEvents();
+    // Inicializar visibilidad del botón sugerir mesa en cada fila
+    state.rows.forEach(function(_, i){ actualizarBotonSugerirEnFila(i); });
+  }
+  // Muestra/oculta el botón "💡 Mesa X" al lado del input mesa según el estado de la fila.
+  function actualizarBotonSugerirEnFila(idx){
+    var tbody = $('tbodyIngresos');
+    if (!tbody) return;
+    var tr = tbody.querySelector('tr[data-idx="' + idx + '"]');
+    if (!tr) return;
+    var btn = tr.querySelector('.btn-sugerir-mesa');
+    if (!btn) return;
+    var row = state.rows[idx];
+    if (!row) return;
+    var mesaActual = String(row.mesa || '').trim();
+    var pax = (parseInt(row.adulto,10)||0) + (parseInt(row.nino,10)||0) + (parseInt(row['3era'],10)||0);
+    // No sugerir: ya tiene mesa, no hay pax, o el estado lo descarta
+    if (mesaActual || pax <= 0 || row.estado === 'Cancelada' || row.estado === 'No llegó') {
+      btn.hidden = true;
+      btn.disabled = false;
+      delete btn.dataset.sugMesa;
+      return;
+    }
+    var sug = sugerirMesa(pax, idx);
+    if (!sug) {
+      btn.hidden = false;
+      btn.disabled = true;
+      btn.textContent = '⚠ Sin mesa para ' + pax + ' pax';
+      btn.title = 'No hay mesas libres con capacidad suficiente';
+      delete btn.dataset.sugMesa;
+      return;
+    }
+    btn.hidden = false;
+    btn.disabled = false;
+    btn.textContent = '💡 Mesa ' + sug.id + ' (' + sug.cap + ' pax)';
+    btn.title = 'Click para asignar la mesa más chica disponible';
+    btn.dataset.sugMesa = sug.id;
+  }
+
+  function bindRowEvents(){
+    var tbody = $('tbodyIngresos');
+    tbody.querySelectorAll('input,select').forEach(function(el){
+      el.addEventListener('input', function(){
+        var tr = el.closest('tr'); var idx = parseInt(tr.dataset.idx, 10);
+        var f = el.getAttribute('data-f');
+        var oldEstado = state.rows[idx].estado;
+        state.rows[idx][f] = el.value;
+        // Auto-cambio: cuando el host captura hora de salida y la fila estaba "Ocupada",
+        // pasa automáticamente a "Desocupada" (verde) para visibilidad de mesas disponibles.
+        if (f === 'hora_sal' && el.value && state.rows[idx].estado === 'Ocupada') {
+          state.rows[idx].estado = 'Desocupada';
+          var selEstado = tr.querySelector('select[data-f="estado"]');
+          if (selEstado) selEstado.value = 'Desocupada';
+          applyRowClasses(idx);
+        }
+        // Save individual de ESTA fila (con debouncing 200ms por fila, no global)
+        scheduleSaveFila(state.rows[idx]);
+        if (f === 'estado' || f === 'encuesta' || f === 'corte') applyRowClasses(idx);
+        // Si cambió mesa o estado, actualizar el mini-resumen del salón
+        if (f === 'mesa' || f === 'estado') actualizarMiniResumenSalon();
+        // Si cambió pax, mesa o estado, actualizar el botón de sugerencia en TODAS las filas
+        // (porque al ocupar una mesa nueva, las otras filas pueden cambiar su sugerencia)
+        if (f === 'mesa' || f === 'estado' || f === 'adulto' || f === 'nino' || f === '3era') {
+          state.rows.forEach(function(_, i){ actualizarBotonSugerirEnFila(i); });
+        }
+        // Validación de promo: si llenó la columna fuera de horario, alertar y limpiar
+        if (f === 'promo' && num(el.value) > 0) {
+          var v = validarPromoEnFila(state.rows[idx]);
+          if (!v.ok) {
+            alert(v.error);
+            state.rows[idx].promo = '';
+            el.value = '';
+          }
+        }
+        // Cambio destructivo de estado (Cancelada / No llegó) requiere confirmación
+        if (f === 'estado' && oldEstado !== el.value && (el.value === 'Cancelada' || el.value === 'No llegó')) {
+          var rowConfirm = state.rows[idx];
+          var nombreFila = rowConfirm.nombre || '(sin nombre)';
+          var resumenF = nombreFila + (rowConfirm.mesa ? ' · mesa ' + rowConfirm.mesa : '');
+          var motivoEst = prompt('Vas a marcar como ' + el.value + ':\n\n' + resumenF + '\n\nMotivo (mínimo 5 caracteres):');
+          if (motivoEst === null || String(motivoEst || '').trim().length < 5) {
+            // Revertir
+            state.rows[idx].estado = oldEstado;
+            el.value = oldEstado;
+            applyRowClasses(idx);
+            if (motivoEst !== null) alert('Motivo demasiado corto. El cambio NO se aplicó.');
+            return;
+          }
+          // Anexar motivo a observaciones
+          state.rows[idx].obs = (state.rows[idx].obs ? state.rows[idx].obs + ' · ' : '') + el.value + ': ' + motivoEst;
+        }
+        // Si la fila viene de una reserva y cambió de estado, sincronizar con el backend de reservas
+        if (f === 'estado' && state.rows[idx].reserva_id && oldEstado !== el.value) {
+          var nuevoEstadoRes = null;
+          if (el.value === 'Ocupada')    nuevoEstadoRes = 'llego';
+          else if (el.value === 'Desocupada') nuevoEstadoRes = 'llego'; // ya estuvo y se fue
+          else if (el.value === 'Cancelada')  nuevoEstadoRes = 'no_llego';
+          else if (el.value === 'En espera')  nuevoEstadoRes = 'confirmada';
+          if (nuevoEstadoRes) {
+            apiCall({ action:'reservas_update', token: token,
+                      data: JSON.stringify({ id: state.rows[idx].reserva_id, estado: nuevoEstadoRes }) }, function(){});
+          }
+        }
+        recalc(); scheduleSave();
+      });
+      el.addEventListener('keydown', function(e){
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          var inputs = Array.prototype.slice.call(tbody.querySelectorAll('input,select'));
+          var pos = inputs.indexOf(el);
+          if (pos >= 0 && pos < inputs.length - 1) inputs[pos+1].focus();
+        }
+      });
+    });
+    tbody.querySelectorAll('.btn-now[data-now]').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.preventDefault();
+        var tr = btn.closest('tr'); var idx = parseInt(tr.dataset.idx, 10);
+        var f = btn.getAttribute('data-now'); var val = nowHHMM();
+        state.rows[idx][f] = val;
+        var input = tr.querySelector('input[data-f="'+f+'"]');
+        if (input) input.value = val;
+        scheduleSave();
+      });
+    });
+    tbody.querySelectorAll('.row-del').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var tr = btn.closest('tr'); var idx = parseInt(tr.dataset.idx, 10);
+        var row = state.rows[idx] || {};
+        var nombre = row.nombre || '(sin nombre)';
+        var personas = (parseInt(row.adulto,10)||0) + (parseInt(row.nino,10)||0) + (parseInt(row['3era'],10)||0);
+        var resumenFila = nombre + (personas ? ' · ' + personas + ' personas' : '') + (row.mesa ? ' · mesa ' + row.mesa : '');
+        var motivo = prompt('¿Por qué quieres eliminar esta fila?\n\n' + resumenFila + '\n\nEscribe la razón (mínimo 5 caracteres):');
+        if (motivo === null) return;
+        if (String(motivo || '').trim().length < 5) { alert('Razón demasiado corta. La fila NO se eliminó.'); return; }
+        // Soft-delete en backend (mantiene auditoría) Y borra local
+        deleteFilaIndividual(row, motivo.trim(), function(ok){
+          if (ok) {
+            state.rows.splice(idx, 1);
+            renderRows(); recalc();
+          }
+        });
+      });
+    });
+    tbody.querySelectorAll('.row-detail').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var tr = btn.closest('tr'); var idx = parseInt(tr.dataset.idx, 10);
+        openDetailModal(idx);
+      });
+    });
+    tbody.querySelectorAll('.row-wa').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var tr = btn.closest('tr'); var idx = parseInt(tr.dataset.idx, 10);
+        openWaModalForRow(idx);
+      });
+    });
+    tbody.querySelectorAll('.btn-sugerir-mesa').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var sugId = btn.dataset.sugMesa;
+        if (!sugId) return; // Sin sugerencia válida (botón mostrando "Sin mesa")
+        var tr = btn.closest('tr'); var idx = parseInt(tr.dataset.idx, 10);
+        state.rows[idx].mesa = sugId;
+        var mesaInput = tr.querySelector('input[data-f="mesa"]');
+        if (mesaInput) mesaInput.value = sugId;
+        scheduleSaveFila(state.rows[idx]);
+        actualizarMiniResumenSalon();
+        // Refrescar botones de TODAS las filas (porque ahora una mesa más se ocupa)
+        state.rows.forEach(function(_, i){ actualizarBotonSugerirEnFila(i); });
+      });
+    });
+  }
+
+  function addRow(){
+    var nuevaFila = {
+      _id: uuidLocal(), _idx: siguienteIdx(),
+      estado:'Ocupada', hora_ent: nowHHMM(), hora_sal:'', mesa:'',
+      adulto:'', nino:'', '3era':'', promo:'', corte:'',
+      autoriza:'', origen:'Walk-in',
+      nombre:'', telefono:'', tipo:'', encuesta:'',
+      obs:'', ticket:''
+    };
+    state.rows.push(nuevaFila);
+    renderRows(); recalc();
+    saveFilaIndividual(nuevaFila); // save inmediato al backend (no esperar debouncing)
+    var tbody = $('tbodyIngresos');
+    var lastTr = tbody.lastElementChild;
+    if (lastTr) {
+      var mesaInput = lastTr.querySelector('[data-f="mesa"]');
+      if (mesaInput) mesaInput.focus();
+    }
+  }
+
+  // ============= Cálculos =============
+  function recalc(){
+    var subs = { adulto:0, nino:0, '3era':0, promo:0, corte:0 };
+    state.rows.forEach(function(r){
+      if (r.estado === 'Cancelada') return;
+      subs.adulto += num(r.adulto);
+      subs.nino += num(r.nino);
+      subs['3era'] += num(r['3era']);
+      subs.promo += num(r.promo);
+      subs.corte += num(r.corte);
+    });
+    var subTotal = subs.adulto + subs.nino + subs['3era'] + subs.promo + subs.corte;
+    $('sub_adulto').textContent = subs.adulto;
+    $('sub_nino').textContent = subs.nino;
+    $('sub_3era').textContent = subs['3era'];
+    $('sub_promo').textContent = subs.promo;
+    $('sub_corte').textContent = subs.corte;
+    $('sub_total').textContent = subTotal;
+
+    var corteSinAut = state.rows.filter(function(r){ return r.estado !== 'Cancelada' && num(r.corte) > 0 && !(r.autoriza||'').trim(); }).length;
+    var canceladas = state.rows.filter(function(r){ return r.estado === 'Cancelada'; }).length;
+    var enEspera = state.rows.filter(function(r){ return r.estado === 'En espera'; }).length;
+    var tarifaAd = num($('meta_t_adulto').value), tarifaNi = num($('meta_t_nino').value), tarifa3 = num($('meta_t_3era').value);
+    var ventaTeorica = subs.adulto * tarifaAd + subs.nino * tarifaNi + subs['3era'] * tarifa3;
+
+    var kpis = [
+      { lbl:'Total comensales', val: subTotal, cls:'' },
+      { lbl:'Mesas ocupadas', val: state.rows.filter(function(r){return r.estado!=='Cancelada' && (r.mesa||'').trim();}).length, cls:'' },
+      { lbl:'En espera', val: enEspera, cls: enEspera>0 ? 'alert' : '' },
+      { lbl:'Canceladas', val: canceladas, cls:'' },
+      { lbl:'Cortesías', val: subs.corte, cls: corteSinAut>0 ? 'alert' : '' },
+      { lbl:'Venta teórica buffet', val: '$'+ventaTeorica.toLocaleString('es-MX'), cls:'' }
+    ];
+    $('kpiRow').innerHTML = kpis.map(function(k){
+      return '<div class="kpi '+k.cls+'"><div class="lbl">'+k.lbl+'</div><div class="val">'+k.val+'</div></div>';
+    }).join('');
+  }
+
+  // ============= Modal de detalle =============
+  var detailIdx = -1;
+  function openDetailModal(idx){
+    detailIdx = idx;
+    var row = state.rows[idx] || {};
+    $('d_tipo').value = row.tipo || '';
+    $('d_telefono').value = row.telefono || '';
+    $('d_autoriza').value = row.autoriza || '';
+    $('d_ticket').value = row.ticket || '';
+    $('d_obs').value = row.obs || '';
+    var mesa = (row.mesa||'').trim();
+    $('detailIdxLbl').textContent = '— ' + (mesa ? 'Mesa ' + mesa : 'Grupo ' + (idx+1)) + ' —';
+    $('d_autoriza_req').style.display = num(row.corte) > 0 ? 'inline' : 'none';
+    updateDetailWarning();
+    $('detailModal').classList.add('open');
+    $('detailModal').setAttribute('aria-hidden','false');
+    closeTooltip();
+    setTimeout(function(){ $('d_tipo').focus(); }, 50);
+  }
+  function closeDetailModal(){
+    $('detailModal').classList.remove('open');
+    $('detailModal').setAttribute('aria-hidden','true');
+    detailIdx = -1;
+  }
+  function updateDetailWarning(){
+    if (detailIdx < 0) return;
+    var row = state.rows[detailIdx] || {};
+    var w = $('d_warning');
+    if (num(row.corte) > 0 && !($('d_autoriza').value || '').trim()) {
+      w.textContent = '⚠ Hay cortesías sin autorizar — bandera roja al cerrar.';
+      w.style.color = 'var(--bad)';
+    } else { w.textContent = ''; }
+  }
+  function bindDetailModal(){
+    document.querySelectorAll('#detailModal [data-df]').forEach(function(el){
+      el.addEventListener('input', function(){
+        if (detailIdx < 0) return;
+        var f = el.getAttribute('data-df');
+        state.rows[detailIdx][f] = el.value;
+        applyRowClasses(detailIdx);
+        updateDetailWarning();
+        scheduleSave();
+      });
+    });
+    $('detailClose').addEventListener('click', closeDetailModal);
+    $('detailSaveBtn').addEventListener('click', closeDetailModal);
+    $('detailModal').addEventListener('click', function(e){ if (e.target === this) closeDetailModal(); });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && $('detailModal').classList.contains('open')) closeDetailModal();
+    });
+  }
+
+  // ============= Tooltip =============
+  var activeTip = null, activeTrigger = null;
+  function closeTooltip(){
+    if (activeTip) { activeTip.remove(); activeTip = null; }
+    if (activeTrigger) { activeTrigger.classList.remove('active'); activeTrigger = null; }
+  }
+  function openTooltip(triggerEl){
+    closeTooltip();
+    var tipText = triggerEl.getAttribute('data-tip'); if (!tipText) return;
+    var tip = document.createElement('div');
+    tip.className = 'tooltip';
+    tip.innerHTML = tipText + '<button class="tooltip-close" aria-label="Cerrar" type="button">×</button>';
+    document.body.appendChild(tip);
+    var rect = triggerEl.getBoundingClientRect();
+    var tipRect = tip.getBoundingClientRect();
+    var scrollY = window.scrollY || window.pageYOffset, scrollX = window.scrollX || window.pageXOffset;
+    var top = rect.bottom + scrollY + 10;
+    var left = rect.left + scrollX + (rect.width/2) - 20;
+    var maxLeft = scrollX + window.innerWidth - tipRect.width - 12;
+    if (left > maxLeft) left = maxLeft;
+    if (left < scrollX + 12) left = scrollX + 12;
+    if (rect.bottom + tipRect.height + 20 > window.innerHeight) {
+      top = rect.top + scrollY - tipRect.height - 10;
+      tip.classList.add('below');
+    }
+    var arrowX = (rect.left + scrollX + rect.width/2) - left - 6;
+    arrowX = Math.max(10, Math.min(arrowX, tipRect.width - 22));
+    tip.style.setProperty('--arrow-x', arrowX + 'px');
+    tip.style.top = top + 'px'; tip.style.left = left + 'px';
+    activeTip = tip; activeTrigger = triggerEl;
+    triggerEl.classList.add('active');
+    tip.querySelector('.tooltip-close').addEventListener('click', function(e){ e.stopPropagation(); closeTooltip(); });
+  }
+  function bindTooltips(){
+    document.addEventListener('click', function(e){
+      var trigger = e.target.closest('.info-icon[data-tip]');
+      if (trigger) {
+        e.preventDefault(); e.stopPropagation();
+        if (activeTrigger === trigger) closeTooltip(); else openTooltip(trigger);
+        return;
+      }
+      if (activeTip && !e.target.closest('.tooltip')) closeTooltip();
+    });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeTooltip(); });
+    window.addEventListener('scroll', closeTooltip, { passive: true });
+    window.addEventListener('resize', closeTooltip);
+  }
+
+  // ============= Help modal =============
+  function bindHelp(){
+    $('btnHelp').addEventListener('click', function(){ $('helpModal').classList.add('open'); closeTooltip(); });
+    $('btnHelpInline').addEventListener('click', function(){ $('helpModal').classList.add('open'); closeTooltip(); });
+    $('helpClose').addEventListener('click', function(){ $('helpModal').classList.remove('open'); });
+    $('helpCloseFoot').addEventListener('click', function(){ $('helpModal').classList.remove('open'); });
+    $('helpModal').addEventListener('click', function(e){ if (e.target === this) this.classList.remove('open'); });
+  }
+
+  // ============= Cierre de servicio =============
+  function validarCierre(){
+    var checks = [];
+    var folioOk = ($('meta_folio').value || '').trim().length > 0;
+    var tipoOk = !!$('meta_servicio').value;
+    var hostOk = ($('meta_host').value || '').trim().length > 0;
+    checks.push({ ok: folioOk && tipoOk && hostOk, label: 'Servicio identificado (folio, tipo, host)',
+      detail: !folioOk?'Falta folio':!tipoOk?'Falta tipo':!hostOk?'Falta host':'' });
+    var rowsConDatos = state.rows.filter(function(r){
+      if (r.estado === 'Cancelada') return false;
+      var hayMesa = (r.mesa||'').trim().length > 0;
+      var hayCom = num(r.adulto)+num(r.nino)+num(r['3era'])+num(r.promo)+num(r.corte) > 0;
+      return hayMesa || hayCom;
+    });
+    checks.push({ ok: rowsConDatos.length > 0, label: 'Al menos un grupo registrado',
+      detail: rowsConDatos.length === 0 ? 'No hay grupos' : rowsConDatos.length + ' grupo(s)' });
+    var sinSalida = rowsConDatos.filter(function(r){ return r.estado === 'Ocupada' && !(r.hora_sal||'').trim(); });
+    checks.push({ ok: sinSalida.length === 0, label: 'Todos los grupos ocupados tienen hora de salida',
+      detail: sinSalida.length > 0 ? sinSalida.length + ' grupo(s) sin hora' : '' });
+    var corteSinAut = state.rows.filter(function(r){
+      return r.estado !== 'Cancelada' && num(r.corte) > 0 && !(r.autoriza||'').trim();
+    });
+    checks.push({ ok: corteSinAut.length === 0, label: 'Todas las cortesías tienen autorización',
+      detail: corteSinAut.length > 0 ? corteSinAut.length + ' fila(s) con cortesía sin autorizar' : '' });
+    checks.push({ ok: !!($('cierre_hora').value || '').trim(), label: 'Hora de cierre capturada' });
+    var firmaHost = state.firmas.firma_host && state.firmas.firma_host.stamp;
+    var firmaCaj = state.firmas.firma_caj && state.firmas.firma_caj.stamp;
+    checks.push({ ok: !!firmaHost, label: 'Firma del host sellada' });
+    checks.push({ ok: !!firmaCaj, label: 'Firma del cajero sellada' });
+    return checks;
+  }
+
+  function abrirCierre(){
+    var checks = validarCierre();
+    var todasOk = checks.every(function(c){ return c.ok; });
+    var faltantes = checks.filter(function(c){ return !c.ok; }).length;
+    var html = checks.map(function(c){
+      var icon = c.ok ? '<span class="icon">✓</span>' : '<span class="icon">✗</span>';
+      var detail = c.detail ? '<br><span style="font-weight:400;font-size:12px;opacity:.85">' + c.detail + '</span>' : '';
+      return '<li class="' + (c.ok ? 'ok' : 'fail') + '">' + icon + '<div>' + c.label + detail + '</div></li>';
+    }).join('');
+    $('validationList').innerHTML = html;
+    $('closedBanner').style.display = 'none';
+    if (todasOk) {
+      $('closeSubtitle').textContent = '✅ Todo listo';
+      $('closeFootHint').textContent = '';
+      $('closeForzarBtn').textContent = '🔒 Cerrar servicio';
+      $('closeForzarBtn').style.display = '';
+      $('closeForzarBtn').onclick = function(){ ejecutarCierre(true); };
+    } else {
+      $('closeSubtitle').textContent = '⚠ Falta(n) ' + faltantes + ' paso(s)';
+      $('closeFootHint').textContent = 'Resuelve los pendientes y vuelve a intentar.';
+      $('closeForzarBtn').textContent = 'Cerrar de todos modos (con incidentes)';
+      $('closeForzarBtn').style.display = '';
+      $('closeForzarBtn').onclick = function(){
+        if (confirm('¿Cerrar el servicio aunque falten pasos?')) ejecutarCierre(false);
+      };
+    }
+    $('closeModal').classList.add('open');
+    closeTooltip();
+  }
+  function ejecutarCierre(limpio){
+    state.cierre = state.cierre || {};
+    state.cierre.cerrado_at = new Date().toISOString();
+    state.cierre.cerrado_limpio = !!limpio;
+    doSave('cerrada');
+    $('validationList').innerHTML = '';
+    $('closeSubtitle').textContent = limpio ? '✅ Servicio cerrado' : '⚠ Cerrado con incidentes';
+    $('closedBanner').textContent = limpio
+      ? '✅ Servicio cerrado correctamente. Quedó guardado en el sistema.'
+      : '⚠ Servicio cerrado con incidentes. Documenta el motivo en observaciones.';
+    $('closedBanner').style.display = 'block';
+    $('closeFootHint').textContent = '';
+    $('closeForzarBtn').style.display = 'none';
+    $('closeCancelBtn').textContent = 'Listo';
+    // Refrescar lista de servicios del día
+    setTimeout(loadServiciosDia, 500);
+  }
+  function bindCerrarServicio(){
+    $('btnCerrarServicio').addEventListener('click', abrirCierre);
+    var btnSelloAp = $('btnSellarApertura'); if (btnSelloAp) btnSelloAp.addEventListener('click', function(){ sellarMomento('apertura'); });
+    var btnSelloCi = $('btnSellarCierre');   if (btnSelloCi) btnSelloCi.addEventListener('click', function(){ sellarMomento('cierre'); });
+    var btnPlano = $('btnVerPlano'); if (btnPlano) btnPlano.addEventListener('click', abrirPlanoSalon);
+    var pmClose = $('planoClose'); if (pmClose) pmClose.addEventListener('click', cerrarPlanoSalon);
+    var pm = $('planoModal'); if (pm) pm.addEventListener('click', function(e){ if (e.target === pm) cerrarPlanoSalon(); });
+    $('closeModalX').addEventListener('click', function(){ $('closeModal').classList.remove('open'); });
+    $('closeCancelBtn').addEventListener('click', function(){ $('closeModal').classList.remove('open'); });
+    $('closeModal').addEventListener('click', function(e){ if (e.target === this) this.classList.remove('open'); });
+  }
+
+  // ============= Servicios del día =============
+  var serviciosDelDia = [];
+  function loadServiciosDia(callback){
+    var fecha = $('fecha').value;
+    apiCall({ action:'bitacora_list', token: token, fecha: fecha,
+              sucursal_id: (sucursales[0] && sucursales[0].id) || '' }, function(res){
+      if (!res.ok) { console.warn('No se pudo listar bitácoras:', res.error); if (callback) callback(); return; }
+      serviciosDelDia = res.bitacoras || [];
+      var sel = $('serviciosDia');
+      sel.innerHTML = '<option value="">— Servicios del día —</option>';
+      serviciosDelDia.forEach(function(b){
+        var label = b.folio + ' · ' + (b.servicio || '—') + ' · ' + b.estado + (b.host_email ? ' · ' + b.host_email : '');
+        var opt = document.createElement('option');
+        opt.value = b.id;
+        opt.textContent = label;
+        if (bitacoraActual && bitacoraActual.id === b.id) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      if (callback) callback();
+    });
+  }
+
+  function loadBitacora(id){
+    setSaveIndicator('saving');
+    apiCall({ action:'bitacora_get', token: token, id: id }, function(res){
+      if (!res.ok) { alert('No se pudo cargar: ' + res.error); setSaveIndicator('error', res.error); return; }
+      bitacoraActual = res.bitacora;
+      var stateBackend = res.bitacora.payload || { meta:{}, rows:[], pos:{}, cierre:{}, firmas:{} };
+      stateBackend.rows = stateBackend.rows || [];
+
+      // PROTECCIÓN SILENCIOSA: si hay backup local con MÁS filas que el backend
+      // y es de las últimas 24h, restaurar automáticamente sin avisar al usuario.
+      // La host nunca se entera del problema técnico — sus datos simplemente "están ahí".
+      var backup = leerBackupLocal(id);
+      var rowsBackend = stateBackend.rows.length;
+      var rowsBackup = backup ? (backup.state.rows || []).length : 0;
+      var minutosBackup = backup ? Math.round((Date.now() - backup.ts) / 60000) : 999999;
+      if (backup && rowsBackup > rowsBackend && minutosBackup < 1440 /* 24h */) {
+        // Restaurar silenciosamente y sincronizar con servidor en background.
+        state = backup.state;
+        setTimeout(function(){ doSave(); }, 800);
+      } else {
+        state = stateBackend;
+      }
+
+      state.meta = state.meta || {};
+      state.pos = state.pos || {};
+      state.cierre = state.cierre || {};
+      state.firmas = state.firmas || {};
+      // Las filas se cargan AHORA desde BitacoraFilas (registros individuales).
+      // Si la bitácora es vieja y tiene rows en payload_json, las migramos automáticamente.
+      var rowsLegacy = Array.isArray(state.rows) ? state.rows : [];
+      state.rows = [];
+
+      apiCall({ action:'bitacora_filas_list', token: token, bitacora_id: bitacoraActual.id }, function(resF){
+        if (resF.ok && resF.filas && resF.filas.length > 0) {
+          // Caso normal: bitácora con filas individuales ya guardadas
+          state.rows = resF.filas;
+          // Inicializar timestamp de sync para que el polling solo traiga cambios POSTERIORES
+          syncState.lastTs = parseInt(resF.max_ts, 10) || 0;
+        } else if (rowsLegacy.length > 0) {
+          // Bitácora vieja: migramos cada row del payload_json a fila individual
+          state.rows = rowsLegacy.map(function(r, i){
+            var copy = JSON.parse(JSON.stringify(r));
+            copy._id = copy._id || uuidLocal();
+            copy._idx = (i + 1) * 1000;
+            return copy;
+          });
+          // Guardar cada una al backend (migración silenciosa)
+          state.rows.forEach(function(row){ saveFilaIndividual(row); });
+        }
+        if (state.rows.length === 0) {
+          state.rows.push({_id: uuidLocal(), _idx: siguienteIdx(), estado:'Ocupada', hora_ent:'', hora_sal:'', mesa:'', adulto:'', nino:'', '3era':'', promo:'', corte:'', autoriza:'', origen:'Walk-in', nombre:'', telefono:'', tipo:'', encuesta:'', obs:'', ticket:''});
+        }
+        $('emptyState').style.display = 'none';
+        $('bitacoraContent').style.display = '';
+        $('brandName').textContent = 'Servicio ' + (bitacoraActual.folio || '');
+        $('fecha').value = bitacoraActual.fecha || $('fecha').value;
+        applyStateToInputs();
+        renderRows();
+        recalc();
+        setSaveIndicator('idle');
+        actualizarSellosUI(); // cargar estado de mis firmas como Host
+        // Si la bitácora está abierta, traer reservas pendientes del día como filas "En espera"
+        if (bitacoraActual.estado !== 'cerrada') cargarReservasComoFilas();
+      });
+    });
+  }
+
+  // ============= Estado de reservas (pausar/cupo) =============
+  var ESTADO_RESERVAS = null;
+  function loadEstadoReservas(){
+    var fecha = $('fecha').value;
+    if (!fecha) return;
+    apiCall({ action:'reservas_status', empresa_id: user.empresa_id, fecha: fecha }, function(res){
+      if (!res.ok) return;
+      ESTADO_RESERVAS = res.estado;
+      renderBotonPausar();
+      renderBloqueoBannerHost();
+    });
+  }
+  function renderBotonPausar(){
+    var btn = $('btnPausarReservas');
+    if (!btn || !ESTADO_RESERVAS) return;
+    if (ESTADO_RESERVAS.bloqueado_manual) {
+      btn.textContent = '🟢 Reactivar reservas';
+      btn.className = 'btn btn-reactivar';
+    } else {
+      btn.textContent = '🔴 Pausar reservas';
+      btn.className = 'btn btn-pausar';
+    }
+  }
+  function renderBloqueoBannerHost(){
+    var b = $('bloqueoBannerHost');
+    if (!b || !ESTADO_RESERVAS) return;
+    if (ESTADO_RESERVAS.bloqueado_manual) {
+      b.innerHTML = '🔴 <strong>Reservaciones pausadas</strong> · Los clientes ya no pueden reservar desde la web pública para esta fecha.' +
+        (ESTADO_RESERVAS.motivo_bloqueo ? ' · Motivo: ' + esc(ESTADO_RESERVAS.motivo_bloqueo) : '');
+      b.style.display = 'flex';
+    } else if (ESTADO_RESERVAS.cupo_lleno) {
+      b.innerHTML = '🔴 <strong>Cupo lleno</strong> · ' + ESTADO_RESERVAS.total_reservado + '/' + ESTADO_RESERVAS.cupo_maximo + ' comensales reservados. La web pública rechaza nuevas reservas.';
+      b.style.display = 'flex';
+    } else if (ESTADO_RESERVAS.disponible <= 5) {
+      b.innerHTML = '⚠️ <strong>Cupo casi lleno</strong> · ' + ESTADO_RESERVAS.total_reservado + '/' + ESTADO_RESERVAS.cupo_maximo + ' (quedan ' + ESTADO_RESERVAS.disponible + ' lugares).';
+      b.style.display = 'flex';
+      b.style.background = 'rgba(185,122,27,.08)';
+      b.style.borderColor = 'var(--warn)';
+      b.style.color = 'var(--ink)';
+    } else {
+      b.style.display = 'none';
+    }
+  }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function togglePausarReservas(){
+    if (!ESTADO_RESERVAS) return;
+    var fecha = $('fecha').value;
+    var nuevo = !ESTADO_RESERVAS.bloqueado_manual;
+    var motivo = '';
+    if (nuevo) {
+      motivo = prompt('¿Por qué pausas las reservaciones? (opcional)') || '';
+      if (motivo === null) return;
+    } else {
+      if (!confirm('¿Reactivar las reservaciones para esta fecha?')) return;
+    }
+    apiCall({ action:'reservas_bloqueo_set', token: token,
+              data: JSON.stringify({ fecha: fecha, bloqueado: nuevo, motivo: motivo }) }, function(res){
+      if (res.ok) loadEstadoReservas();
+      else alert(res.error || 'Error');
+    });
+  }
+
+  // ============= Modal WhatsApp para confirmar reserva =============
+  var waReservaActual = null;
+  var waRowIdx = -1;
+  function fmtHora12Esp(h){
+    var p = String(h || '').split(':');
+    if (p.length < 2) return h;
+    var hh = parseInt(p[0],10), ampm = hh >= 12 ? 'pm' : 'am', hh12 = hh % 12 || 12;
+    return hh12 + (p[1]==='00' ? '' : ':' + p[1]) + ' ' + ampm;
+  }
+  function fmtFechaLargaEsp(iso){
+    var p = String(iso || '').split('-');
+    if (p.length < 3) return iso;
+    var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    return Number(p[2]) + ' de ' + meses[Number(p[1])-1] + ' de ' + p[0];
+  }
+  function generarMsgWa(r){
+    var primerNombre = String(r.nombre || '').split(' ')[0];
+    var msg = '¡Hola ' + primerNombre + '! 👋\n\n';
+    msg += 'Confirmamos tu reservación en *' + ((empresa && empresa.nombre) || 'Fogueira') + '*:\n';
+    msg += '📅 ' + fmtFechaLargaEsp(r.fecha_reserva) + '\n';
+    msg += '🕗 ' + fmtHora12Esp(r.hora_reserva) + '\n';
+    msg += '👥 ' + r.comensales + ' personas';
+    var mix = [];
+    if (r.adultos) mix.push(r.adultos + ' adulto' + (r.adultos===1?'':'s'));
+    if (r.ninos)   mix.push(r.ninos   + ' niño'   + (r.ninos===1?'':'s'));
+    if (r.tercera) mix.push(r.tercera + ' 3ra edad');
+    if (mix.length) msg += ' (' + mix.join(', ') + ')';
+    msg += '\n';
+    if (r.promo_nombre) msg += '🎉 Aplica promoción: *' + r.promo_nombre + '*\n';
+    if (r.evento)       msg += '🎂 Evento: ' + r.evento + '\n';
+    msg += '\n⚠️ Te recordamos que *no contamos con tolerancia*. De no poder llegar a tiempo, contamos con sala de espera.\n\n';
+    // Link de gestión para que el cliente pueda cancelar online (hasta 30 min antes)
+    if (r.url_gestion) {
+      msg += '🔗 *¿Necesitas cancelar?* Da click aquí (hasta 30 min antes de tu reserva):\n' + r.url_gestion + '\n\n';
+    }
+    msg += '¡Te esperamos! 🔥';
+    return msg;
+  }
+  function actualizarWaLink(){
+    if (!waReservaActual) return;
+    var tel = String(waReservaActual.telefono || '').replace(/\D/g,'');
+    if (tel && !tel.startsWith('52') && tel.length === 10) tel = '52' + tel;
+    var msg = encodeURIComponent($('wa_msg').value);
+    var send = $('waModalSend');
+    if (tel) {
+      send.href = 'https://wa.me/' + tel + '?text=' + msg;
+      send.style.pointerEvents = '';
+      send.style.opacity = '';
+      send.textContent = '📱 Abrir WhatsApp';
+    } else {
+      send.href = '#';
+      send.style.pointerEvents = 'none';
+      send.style.opacity = '.5';
+      send.textContent = 'Sin teléfono';
+    }
+  }
+  function openWaModalForRow(idx){
+    var row = state.rows[idx];
+    if (!row || !row.reserva_id) return;
+    var r = reservasCache[row.reserva_id];
+    if (!r) { alert('No se encontraron los datos de la reserva. Espera al próximo refresh.'); return; }
+    waReservaActual = r;
+    waRowIdx = idx;
+    $('waModalSub').textContent = (r.nombre || '') + ' · ' + fmtHora12Esp(r.hora_reserva);
+    $('wa_msg').value = generarMsgWa(r);
+    actualizarWaLink();
+    $('waModal').classList.add('open');
+  }
+  function closeWaModal(){
+    $('waModal').classList.remove('open');
+    waReservaActual = null;
+    waRowIdx = -1;
+  }
+  $('waModalClose').addEventListener('click', closeWaModal);
+  $('waModalCancel').addEventListener('click', closeWaModal);
+  $('waModal').addEventListener('click', function(e){ if (e.target === this) closeWaModal(); });
+  $('wa_msg').addEventListener('input', actualizarWaLink);
+  $('waModalSend').addEventListener('click', function(){
+    if (!waReservaActual) return;
+    var rid = waReservaActual.id, idx = waRowIdx;
+    // Marcar la reserva como confirmada en el backend
+    apiCall({ action:'reservas_update', token: token,
+              data: JSON.stringify({ id: rid, estado: 'confirmada' }) }, function(){});
+    // Actualizar localmente y re-render para que desaparezca el botón WA
+    if (reservasCache[rid]) reservasCache[rid].estado = 'confirmada';
+    if (idx >= 0 && state.rows[idx]) state.rows[idx].reserva_estado = 'confirmada';
+    renderRows();
+    closeWaModal();
+  });
+
+  // Trae reservas del día (creadas/confirmadas) y las agrega como filas "En espera".
+  // Evita duplicados con el campo reserva_id en cada row. También sincroniza el estado
+  // de las filas existentes con el estado actual de la reserva (creada/confirmada).
+  var reservasCache = {}; // id → reserva completa, para construir mensaje de WhatsApp
+  function cargarReservasComoFilas(silent){
+    if (!bitacoraActual || bitacoraActual.estado === 'cerrada') return;
+    var fecha = bitacoraActual.fecha;
+    apiCall({ action:'reservas_list', token: token, fecha: fecha,
+              sucursal_id: bitacoraActual.sucursal_id || (sucursales[0] && sucursales[0].id) || '' }, function(res){
+      if (!res.ok) return;
+      var pendientes = (res.reservas || []).filter(function(r){
+        return r.estado === 'creada' || r.estado === 'confirmada';
+      });
+      // Cachear reservas para uso del modal de WhatsApp
+      pendientes.forEach(function(r){ reservasCache[r.id] = r; });
+      // Actualizar estado de filas ya existentes (por si la reserva pasó a confirmada desde otra pantalla)
+      var changedExistente = false;
+      state.rows.forEach(function(row){
+        if (!row.reserva_id) return;
+        var rr = reservasCache[row.reserva_id];
+        if (rr && row.reserva_estado !== rr.estado) {
+          row.reserva_estado = rr.estado;
+          changedExistente = true;
+        }
+      });
+      var existentes = {};
+      state.rows.forEach(function(row){ if (row.reserva_id) existentes[row.reserva_id] = true; });
+      var nuevas = 0;
+      pendientes.forEach(function(r){
+        if (existentes[r.id]) return;
+        var notas = [];
+        if (r.evento)       notas.push('🎂 ' + r.evento);
+        if (r.periquera)    notas.push('🍼 Periquera');
+        if (r.escaleras)    notas.push('♿ Escaleras');
+        if (r.alergias)     notas.push('🥜 ' + r.alergias);
+        if (r.promo_nombre) notas.push('🎉 ' + r.promo_nombre);
+        // Mapeo de niños: 0-5 = cortesía (no pagan), 6-10 = tarifa niño, 11+ = tarifa adulto
+        var adultosBase  = parseInt(r.adultos,    10) || 0;
+        var ninos11mas   = parseInt(r.ninos_11mas, 10) || 0;
+        var adultoTotal  = adultosBase + ninos11mas; // 11+ pagan adulto
+        var ninoTarifa   = parseInt(r.ninos_6_10, 10) || 0;
+        var cortesiaBebes = parseInt(r.ninos_0_5, 10) || 0;
+        var nuevaFilaRes = {
+          _id: uuidLocal(), _idx: siguienteIdx(),
+          estado: 'En espera',
+          hora_ent: r.hora_reserva || '',
+          hora_sal: '',
+          mesa: '',
+          adulto: adultoTotal || (r.adultos || ''),
+          nino: ninoTarifa || '',
+          '3era': r.tercera || '',
+          promo: '',
+          corte: cortesiaBebes || '',
+          autoriza: cortesiaBebes ? 'Bebé/niño 0-5' : '',
+          origen: 'Reserva',
+          nombre: r.nombre || '',
+          telefono: r.telefono || '',
+          tipo: '',
+          encuesta: '',
+          obs: notas.join(' · '),
+          ticket: '',
+          reserva_id: r.id,
+          reserva_estado: r.estado
+        };
+        state.rows.push(nuevaFilaRes);
+        saveFilaIndividual(nuevaFilaRes); // save inmediato individual
+        nuevas++;
+      });
+      if (nuevas > 0 || changedExistente) {
+        renderRows();
+        recalc();
+        if (!silent && nuevas > 0) console.log(nuevas + ' reserva(s) cargada(s) como fila(s) En espera.');
+      }
+    });
+  }
+
+  function calcularSiguienteFolio(callback){
+    apiCall({ action:'bitacora_list', token: token,
+              sucursal_id: (sucursales[0] && sucursales[0].id) || '' }, function(res){
+      var maxNum = 0;
+      var year = new Date().getFullYear();
+      (res.bitacoras || []).forEach(function(b){
+        var m = (b.folio || '').match(/^FOG-(\d{4})-(\d+)$/);
+        if (m && parseInt(m[1],10) === year) {
+          var n = parseInt(m[2], 10);
+          if (n > maxNum) maxNum = n;
+        }
+      });
+      callback('FOG-' + year + '-' + String(maxNum + 1).padStart(4, '0'));
+    });
+  }
+
+  var creandoServicio = false;
+  function setNuevoServicioDisabled(disabled){
+    var b1 = $('btnNuevoServicio'); if (b1) b1.disabled = disabled;
+    var b2 = $('btnNuevoServicioEmpty'); if (b2) b2.disabled = disabled;
+  }
+  function nuevoServicio(){
+    // Lock anti-doble-clic: si ya estamos creando, ignorar
+    if (creandoServicio) return;
+    // Validar: solo un servicio abierto a la vez. Si ya hay uno, cargarlo en lugar de crear nuevo.
+    var abierta = serviciosDelDia.find(function(s){ return s.estado === 'abierta'; });
+    if (abierta && (!bitacoraActual || bitacoraActual.id !== abierta.id)) {
+      alert('Ya hay un servicio abierto del día (' + abierta.folio + '). Debes cerrarlo antes de abrir uno nuevo.\n\nVoy a cargar ese servicio para que lo veas.');
+      loadBitacora(abierta.id);
+      return;
+    }
+    creandoServicio = true;
+    setNuevoServicioDisabled(true);
+    setSaveIndicator('saving');
+
+    var fecha = $('fecha').value || todayLocalISO();
+    calcularSiguienteFolio(function(folio){
+      bitacoraActual = {
+        id: null, fecha: fecha, folio: folio, servicio: '',
+        host_email: user.email, estado: 'abierta',
+        sucursal_id: (sucursales[0] && sucursales[0].id) || ''
+      };
+      state = {
+        meta: { folio: folio, host: user.nombre || user.email, servicio:'', t_adulto:'', t_nino:'', t_3era:'' },
+        rows: [{estado:'Ocupada', hora_ent: nowHHMM(), hora_sal:'', mesa:'', adulto:'', nino:'', '3era':'', promo:'', corte:'', autoriza:'', origen:'Walk-in', nombre:'', telefono:'', tipo:'', encuesta:'', obs:'', ticket:''}],
+        pos: {}, cierre: {}, firmas: { firma_host:{nombre: user.nombre || user.email}, firma_caj:{} }
+      };
+      $('emptyState').style.display = 'none';
+      $('bitacoraContent').style.display = '';
+      $('brandName').textContent = 'Servicio ' + folio;
+      applyStateToInputs();
+      renderRows();
+      recalc();
+
+      // Guardar inline para esperar respuesta antes de liberar el lock
+      var data = {
+        id: null, fecha: fecha, folio: folio, servicio:'',
+        host_email: user.email,
+        sucursal_id: bitacoraActual.sucursal_id,
+        estado: 'abierta', payload: state
+      };
+      apiCall({ action:'bitacora_save', token: token, data: JSON.stringify(data) }, function(res){
+        if (res.ok) {
+          bitacoraActual.id = res.id;
+          setSaveIndicator('saved');
+        } else {
+          setSaveIndicator('error', res.error);
+        }
+        loadServiciosDia();
+        creandoServicio = false;
+        setNuevoServicioDisabled(false);
+      });
+    });
+  }
+
+  // ============= Bindings principales =============
+  function bindMeta(){
+    ['meta_folio','meta_t_adulto','meta_t_nino','meta_t_3era'].forEach(function(id){
+      $(id).addEventListener('input', function(){ scheduleSave(); recalc(); });
+    });
+    // Servicio: además de guardar, auto-llena tarifas desde el catálogo
+    $('meta_servicio').addEventListener('change', function(){
+      cargarTarifaDelServicio();
+      scheduleSave();
+      recalc();
+    });
+    // Fecha: si cambia y aún no hay servicio elegido, lo sugiere por día (Lun-Jue → Buffet completo)
+    $('fecha').addEventListener('change', function(){
+      if (!$('meta_servicio').value) sugerirServicioPorFecha();
+    });
+    $('meta_host').addEventListener('input', function(){ scheduleSave(); recalc(); });
+    $('cierre_hora').addEventListener('input', scheduleSave);
+    $('cierre_obs').addEventListener('input', scheduleSave);
+    $('btnNowCierre').addEventListener('click', function(){
+      $('cierre_hora').value = nowHHMM(); scheduleSave();
+    });
+    ['firma_host','firma_caj'].forEach(function(id){
+      $(id).addEventListener('input', function(){
+        state.firmas[id] = state.firmas[id] || {};
+        state.firmas[id].nombre = $(id).value;
+        scheduleSave();
+      });
+    });
+    document.querySelectorAll('[data-stamp]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.getAttribute('data-stamp');
+        var name = ($(id).value || '').trim();
+        if (!name) { alert('Captura primero el nombre antes de sellar.'); return; }
+        var iso = new Date().toLocaleString('es-MX',{dateStyle:'short',timeStyle:'short'});
+        state.firmas[id] = { nombre: name, stamp: name + ' · ' + iso };
+        var stEl = $(id+'_stamp');
+        stEl.textContent = 'Sellado: ' + state.firmas[id].stamp;
+        stEl.className = 'sign-stamp stamped';
+        scheduleSave();
+      });
+    });
+  }
+
+  function bindHeader(){
+    $('fecha').addEventListener('change', function(){
+      // Cambiar fecha: limpiar bitácora actual y recargar lista
+      bitacoraActual = null;
+      $('bitacoraContent').style.display = 'none';
+      $('emptyState').style.display = '';
+      $('brandName').textContent = 'Servicio del día';
+      loadServiciosDia();
+      loadEstadoReservas();
+    });
+    $('serviciosDia').addEventListener('change', function(){
+      var id = $('serviciosDia').value;
+      if (id) loadBitacora(id);
+    });
+    $('btnNuevoServicio').addEventListener('click', nuevoServicio);
+    $('btnNuevoServicioEmpty').addEventListener('click', nuevoServicio);
+    $('btnPausarReservas').addEventListener('click', togglePausarReservas);
+    $('btnAddRow').addEventListener('click', addRow);
+    $('btnLogout').addEventListener('click', function(){
+      if (!confirm('¿Cerrar sesión?')) return;
+      sessionStorage.clear();
+      var _a=document.createElement('a');_a.href=API_URL + '?p=acceso';_a.target='_top';document.body.appendChild(_a);_a.click();
+    });
+  }
+
+  // ============= Configuración + promociones + gerentes (cargados al iniciar) =============
+  var CONFIG_BITACORA = {};
+  var PROMOCIONES = [];
+  var GERENTES = []; // usuarios activos con rol gerente_restaurante / gerente_administrativo / admin
+  var OCUPACION_MESAS = {}; // mesa → {promedio, muestras} (cacheado de últimos 60 días)
+  var OCUPACION_DIAS = 60;
+  function cargarConfiguracionYPromos(){
+    apiCall({ action:'configuracion_get', token: token }, function(res){
+      if (res && res.ok) CONFIG_BITACORA = res.config || {};
+    });
+    apiCall({ action:'promociones_list', empresa_id: user.empresa_id }, function(res){
+      if (res && res.ok) PROMOCIONES = res.promociones || [];
+    });
+    apiCall({ action:'gerentes_list', token: token }, function(res){
+      if (res && res.ok) {
+        GERENTES = res.gerentes || [];
+        poblarSelectAutoriza();
+      }
+    });
+    // Carga el promedio de ocupación por mesa (en background; no bloquea)
+    apiCall({ action:'ocupacion_promedio_mesas', token: token, dias: OCUPACION_DIAS }, function(res){
+      if (res && res.ok) {
+        OCUPACION_MESAS = res.mesas || {};
+        // Si el plano del salón ya está abierto cuando llegan los datos, re-renderizar
+        var modal = $('planoModal');
+        if (modal && modal.classList.contains('open')) renderPlanoSalon();
+      }
+    });
+  }
+  function labelRolCorto(r){
+    return ({
+      gerente_restaurante:'Gerente de Restaurante',
+      gerente_administrativo:'Gerente Administrativo',
+      admin:'Administrador'
+    })[r] || r;
+  }
+  function poblarSelectAutoriza(){
+    var sel = $('d_autoriza');
+    if (!sel) return;
+    var actual = sel.value;
+    sel.innerHTML = '<option value="">— Seleccionar —</option>';
+    GERENTES.forEach(function(g){
+      sel.appendChild(new Option(labelRolCorto(g.rol) + ': ' + g.nombre, g.nombre));
+    });
+    sel.appendChild(new Option('Bebé/niño 0-5 (cortesía automática)', 'Bebé/niño 0-5'));
+    if (!GERENTES.length) {
+      var opt = new Option('⚠ Crea usuarios con rol Gerente en el panel admin', '');
+      opt.disabled = true;
+      sel.appendChild(opt);
+    }
+    if (actual) sel.value = actual;
+  }
+
+  // ============= Plano del salón (mini-resumen + modal) =============
+  // Formato configurable de mesas:
+  //   - Con zonas: "Salón:1:4,2:4|Terraza:30:4,31:4"
+  //   - Sin zonas (legacy): "1:4, 2:4, 3:4, ..."
+  // Cada mesa puede ser "id:capacidad" o solo "id" (capacidad default 4).
+  function parseMesasYZonas(){
+    var raw = String(CONFIG_BITACORA.mesas_salon || '').trim();
+    if (!raw) {
+      return [{ zona: '', mesas: Array.from({length:20}, function(_, i){ return { id: String(i+1), cap: 4 }; }) }];
+    }
+    function parseMesasStr(s){
+      return s.split(',').map(function(t){
+        t = t.trim();
+        if (!t) return null;
+        var p = t.split(':');
+        var id = (p[0]||'').trim();
+        var cap = parseInt((p[1]||'').trim(), 10);
+        if (!id) return null;
+        return { id: id, cap: isNaN(cap) ? 4 : cap };
+      }).filter(Boolean);
+    }
+    // Con zonas: cada bloque tiene "Nombre:mesa1:cap,mesa2:cap"
+    if (raw.indexOf('|') !== -1) {
+      return raw.split('|').map(function(zonaStr){
+        zonaStr = zonaStr.trim();
+        var idx = zonaStr.indexOf(':');
+        // Si la primera "palabra" antes del ':' no es solo dígitos, es nombre de zona
+        var nombre = '';
+        var mesasStr = zonaStr;
+        if (idx > 0) {
+          var posibleNombre = zonaStr.slice(0, idx).trim();
+          // Si no es solo número, es nombre de zona
+          if (!/^\d+$/.test(posibleNombre.replace(/[A-Za-z]/g,''))) {
+            // Pero también es nombre si tiene letras
+            if (/[A-Za-z]/.test(posibleNombre) && posibleNombre.indexOf(',') === -1) {
+              nombre = posibleNombre;
+              mesasStr = zonaStr.slice(idx+1).trim();
+            }
+          }
+        }
+        return { zona: nombre, mesas: parseMesasStr(mesasStr) };
+      }).filter(function(z){ return z.mesas.length > 0; });
+    }
+    // Legacy plano: detectar zonas automáticamente por saltos de numeración
+    // (ej. 1-12, 20-23, 30-35, 40-41 → 4 zonas auto-detectadas)
+    var mesas = parseMesasStr(raw);
+    return autoZonificar(mesas);
+  }
+  // Si las mesas son numéricas y hay saltos > 5 entre IDs consecutivos, agrupa en zonas auto.
+  // Ej: 1-12, 20-23, 30-35, 40-41 → "Zona 1" (1-12), "Zona 2" (20-23), "Terraza" (30-35), "Zona 4" (40-41)
+  function autoZonificar(mesas){
+    if (mesas.length === 0) return [{ zona:'', mesas: mesas }];
+    // Verificar que TODAS las mesas tengan ID numérico
+    var todasNumericas = mesas.every(function(m){ return /^\d+$/.test(m.id); });
+    if (!todasNumericas) return [{ zona:'', mesas: mesas }];
+    // Ordenar por ID numérico
+    var ordenadas = mesas.slice().sort(function(a,b){ return parseInt(a.id,10) - parseInt(b.id,10); });
+    // Detectar saltos > 5 (umbral arbitrario que distingue mesas consecutivas vs zonas distintas)
+    var zonas = [];
+    var actual = [ordenadas[0]];
+    for (var i = 1; i < ordenadas.length; i++) {
+      var prev = parseInt(ordenadas[i-1].id, 10);
+      var curr = parseInt(ordenadas[i].id, 10);
+      if (curr - prev > 5) {
+        zonas.push(actual);
+        actual = [ordenadas[i]];
+      } else {
+        actual.push(ordenadas[i]);
+      }
+    }
+    zonas.push(actual);
+    // Si solo se detectó 1 zona, no agregar nombre (mantener UI simple)
+    if (zonas.length === 1) return [{ zona:'', mesas: zonas[0] }];
+    // Nombrar zonas: la decena 30 = "Terraza" por convención Fogueira; resto "Zona N"
+    return zonas.map(function(z, idx){
+      var primeraDecena = Math.floor(parseInt(z[0].id,10) / 10);
+      var nombre = primeraDecena === 3 ? 'Terraza' : 'Zona ' + (idx+1);
+      return { zona: nombre, mesas: z };
+    });
+  }
+  // Versión plana (todas las mesas sin importar zona) — usada por mini-resumen y validaciones
+  function listaMesasSalon(){
+    return parseMesasYZonas().reduce(function(acc, z){ return acc.concat(z.mesas); }, []);
+  }
+  // Calcula el estado actual de cada mesa según las filas de la bitácora
+  function estadoPorMesa(){
+    var mapa = {}; // mesa → {estado, fila, idx}
+    state.rows.forEach(function(r, idx){
+      var m = String(r.mesa || '').trim();
+      if (!m) return;
+      var st = r.estado || 'Ocupada';
+      // Si una mesa tiene varias filas hoy, prioridad: Ocupada > En espera > Desocupada > Cancelada
+      var prio = { 'Ocupada':4, 'En espera':3, 'Desocupada':2, 'Cancelada':1 };
+      var actual = mapa[m];
+      if (!actual || (prio[st]||0) > (prio[actual.estado]||0)) {
+        mapa[m] = { estado: st, fila: r, idx: idx };
+      }
+    });
+    return mapa;
+  }
+  // Sugerencia automática de mesa: dada una cantidad de pax, devuelve la mesa libre
+  // más chica (capacidad >= pax). Excluye mesas en uso por otras filas activas.
+  // Devuelve {id, cap} o null si no hay disponibles.
+  function sugerirMesa(pax, idxExcluir){
+    pax = parseInt(pax, 10) || 0;
+    if (pax <= 0) return null;
+    // Mesas tomadas por otras filas (no incluye la fila actual ni Canceladas/No llegó/Desocupadas)
+    var enUso = {};
+    state.rows.forEach(function(r, i){
+      if (i === idxExcluir) return;
+      var m = String(r.mesa || '').trim();
+      if (!m) return;
+      if (r.estado === 'Cancelada' || r.estado === 'No llegó' || r.estado === 'Desocupada') return;
+      enUso[m] = true;
+    });
+    // Candidatas: libres + cap suficiente
+    var candidatas = listaMesasSalon().filter(function(m){
+      if (enUso[m.id]) return false;
+      if (m.cap < pax) return false;
+      return true;
+    });
+    // La más chica primero (evita ocupar mesa de 8 con grupo de 2)
+    candidatas.sort(function(a,b){ return a.cap - b.cap; });
+    return candidatas[0] || null;
+  }
+  function actualizarMiniResumenSalon(){
+    var mapa = estadoPorMesa();
+    var mesas = listaMesasSalon();
+    var ocupadas = 0, espera = 0, libres = 0;
+    var capLibre = 0;
+    mesas.forEach(function(m){
+      var s = mapa[m.id];
+      if (!s) { libres++; capLibre += m.cap; return; }
+      if (s.estado === 'Ocupada')    ocupadas++;
+      else if (s.estado === 'En espera') espera++;
+      else { libres++; capLibre += m.cap; } // Desocupada o Cancelada cuenta como libre
+    });
+    var elL = $('cntLibres'), elO = $('cntOcupadas'), elE = $('cntEspera');
+    if (elL) elL.innerHTML = libres + ' <span style="color:var(--muted);font-weight:400;font-size:11.5px">(' + capLibre + ' pax)</span>';
+    if (elO) elO.textContent = ocupadas;
+    if (elE) elE.textContent = espera;
+  }
+  function abrirPlanoSalon(){
+    renderPlanoSalon();
+    var modal = $('planoModal');
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+  }
+  function cerrarPlanoSalon(){
+    var modal = $('planoModal');
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+  }
+  function renderPlanoSalon(){
+    var grid = $('planoGrid');
+    if (!grid) return;
+    var mapa = estadoPorMesa();
+    var zonas = parseMesasYZonas();
+    function renderMesa(m){
+      var s = mapa[m.id];
+      // Estilos por estado: cinta superior con texto blanco + fondo más saturado + borde grueso
+      var cintaBg, cintaTxt, fondoCard, borderCard, label, info, sombra;
+      if (!s) {
+        cintaBg = '#1E7F5C';   // verde sólido
+        cintaTxt = '✓ LIBRE';
+        fondoCard = '#F1FAF6';
+        borderCard = '#1E7F5C';
+        sombra = '0 2px 6px rgba(30,127,92,.12)';
+        label = ''; info = 'Lista para usar';
+      } else if (s.estado === 'Ocupada') {
+        cintaBg = '#c4322a';   // naranja sólido
+        cintaTxt = '🔴 OCUPADA';
+        fondoCard = '#FCE9E1';
+        borderCard = '#c4322a';
+        sombra = '0 2px 6px rgba(184,71,42,.18)';
+        var pers = (parseInt(s.fila.adulto,10)||0) + (parseInt(s.fila.nino,10)||0) + (parseInt(s.fila['3era'],10)||0);
+        label = '';
+        info = (s.fila.nombre || '(sin nombre)') + (pers ? ' · ' + pers + ' pax' : '') + (s.fila.hora_ent ? ' · ' + s.fila.hora_ent : '');
+      } else if (s.estado === 'En espera') {
+        cintaBg = '#B97A1B';   // ámbar sólido
+        cintaTxt = '⏳ EN ESPERA';
+        fondoCard = '#FBF1DE';
+        borderCard = '#B97A1B';
+        sombra = '0 2px 6px rgba(185,122,27,.18)';
+        label = '';
+        info = (s.fila.nombre || '(sin nombre)') + (s.fila.hora_ent ? ' · llega ' + s.fila.hora_ent : '');
+      } else if (s.estado === 'Desocupada') {
+        cintaBg = '#0E7C90';   // teal/azul sólido (distinto de Libre para no confundir)
+        cintaTxt = '✨ DESOCUPADA';
+        fondoCard = '#E0F1F4';
+        borderCard = '#0E7C90';
+        sombra = '0 2px 6px rgba(14,124,144,.18)';
+        label = '';
+        info = (s.fila.hora_sal ? 'Salida ' + s.fila.hora_sal + ' · Lista para limpiar' : 'Lista para limpiar');
+      } else {
+        cintaBg = '#1E7F5C'; cintaTxt = '✓ LIBRE'; fondoCard = '#F1FAF6'; borderCard = '#1E7F5C';
+        sombra = '0 2px 6px rgba(30,127,92,.12)';
+        info = 'Lista para usar';
+      }
+      // Tiempo promedio de ocupación (si tenemos datos del histórico)
+      var ocup = OCUPACION_MESAS[m.id];
+      var tiempoStr = '';
+      if (ocup && ocup.muestras >= 3) {
+        tiempoStr = '<div style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:.04em;color:var(--muted);font-weight:500;margin-top:4px" title="Promedio de '+ocup.muestras+' visitas en últimos '+OCUPACION_DIAS+' días">⏱ ~' + ocup.promedio + ' min</div>';
+      }
+      return '<button type="button" class="mesa-card" data-mesa="' + esc(m.id) + '" data-cap="' + m.cap + '" data-tieneFila="' + (s ? '1' : '0') + '" ' +
+        'style="background:' + fondoCard + ';border:2px solid ' + borderCard + ';border-radius:var(--r-md);padding:0;cursor:pointer;text-align:left;font-family:var(--font-sans);transition:transform .1s ease,box-shadow .15s ease;overflow:hidden;box-shadow:'+sombra+'">' +
+        // Cinta superior con color sólido y texto blanco
+        '<div style="background:'+cintaBg+';color:#fff;padding:6px 12px;font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;display:flex;justify-content:space-between;align-items:center">' +
+          '<span>'+cintaTxt+'</span>' +
+          '<span style="opacity:.85;font-size:10px">👥 '+m.cap+'</span>' +
+        '</div>' +
+        // Cuerpo
+        '<div style="padding:10px 12px 12px">' +
+          '<div style="font-family:var(--font-serif);font-style:italic;font-size:24px;color:var(--ink);font-weight:400;line-height:1;margin-bottom:6px">Mesa ' + esc(m.id) + '</div>' +
+          '<div style="font-size:12px;color:var(--ink);line-height:1.4;min-height:18px">' + esc(info) + '</div>' +
+          tiempoStr +
+        '</div>' +
+      '</button>';
+    }
+    function renderZonaHeader(z){
+      // Calcula resumen de la zona: libres / ocupadas / en espera
+      var lib = 0, ocu = 0, esp = 0;
+      z.mesas.forEach(function(m){
+        var s = mapa[m.id];
+        if (!s || s.estado === 'Desocupada' || s.estado === 'Cancelada') lib++;
+        else if (s.estado === 'Ocupada') ocu++;
+        else if (s.estado === 'En espera') esp++;
+      });
+      return '<div style="grid-column:1/-1;background:linear-gradient(90deg,var(--brand) 0,var(--brand-deep) 100%);color:#fff;border-radius:var(--r-md);padding:10px 16px;margin:18px 0 4px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;box-shadow:0 2px 8px rgba(184,71,42,.20)">' +
+        '<div style="display:flex;align-items:baseline;gap:10px">' +
+          '<span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;opacity:.85">ZONA</span>' +
+          '<span style="font-family:var(--font-serif);font-style:italic;font-size:24px;font-weight:400;line-height:1">' + esc(z.zona || 'Sin nombre') + '</span>' +
+        '</div>' +
+        '<div style="font-family:var(--font-mono);font-size:11px;letter-spacing:.05em;font-weight:600;display:flex;gap:14px;flex-wrap:wrap">' +
+          '<span>'+z.mesas.length+' mesas</span>' +
+          '<span style="background:rgba(255,255,255,.20);padding:2px 8px;border-radius:10px">✓ '+lib+' libres</span>' +
+          (ocu ? '<span style="background:rgba(255,255,255,.20);padding:2px 8px;border-radius:10px">🔴 '+ocu+' ocupadas</span>' : '') +
+          (esp ? '<span style="background:rgba(255,255,255,.20);padding:2px 8px;border-radius:10px">⏳ '+esp+' espera</span>' : '') +
+        '</div>' +
+      '</div>';
+    }
+    var html = [];
+    zonas.forEach(function(z){
+      // Solo mostrar header si hay nombre de zona y hay más de una zona O hay nombre explícito
+      if (z.zona) html.push(renderZonaHeader(z));
+      z.mesas.forEach(function(m){ html.push(renderMesa(m)); });
+    });
+    grid.innerHTML = html.join('');
+    // Bindings: tap a mesa
+    grid.querySelectorAll('button[data-mesa]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var mesa = btn.getAttribute('data-mesa');
+        var cap = parseInt(btn.getAttribute('data-cap'), 10) || 4;
+        var tieneFila = btn.getAttribute('data-tieneFila') === '1';
+        if (tieneFila) {
+          // Buscar la fila de esa mesa con estado activo y abrir su detalle
+          var idx = -1;
+          state.rows.forEach(function(r, i){
+            if (String(r.mesa||'').trim() === mesa && r.estado !== 'Cancelada') idx = i;
+          });
+          cerrarPlanoSalon();
+          if (idx >= 0) openDetailModal(idx);
+        } else {
+          // Mesa libre → preguntar cuántas personas y validar capacidad
+          var pax = prompt('Mesa ' + mesa + ' libre (capacidad ' + cap + ' pax).\n\n¿Cuántas personas vienen?');
+          if (pax === null) return;
+          pax = parseInt(pax, 10);
+          if (isNaN(pax) || pax < 1) { alert('Captura un número válido de personas.'); return; }
+          if (pax > cap) {
+            if (!confirm('⚠ Esta mesa es para ' + cap + ' personas y vienen ' + pax + '.\n¿Asignarla igualmente? (Tip: revisa si hay otra mesa más grande disponible)')) return;
+          }
+          cerrarPlanoSalon();
+          addRow();
+          // Asignar mesa + precargar adultos a la última fila creada
+          var ultIdx = state.rows.length - 1;
+          if (ultIdx >= 0) {
+            state.rows[ultIdx].mesa = mesa;
+            state.rows[ultIdx].adulto = pax;
+            scheduleSaveFila(state.rows[ultIdx]);
+            renderRows();
+            // Foco al input de nombre para que la host lo capture
+            var tr = $('tbodyIngresos').querySelector('tr[data-idx="' + ultIdx + '"]');
+            if (tr) {
+              var nomInput = tr.querySelector('input[data-f="nombre"]');
+              if (nomInput) nomInput.focus();
+            }
+          }
+        }
+      });
+    });
+  }
+
+  // ============= Sellos (apertura/cierre autenticados) =============
+  // Detecta el rol del usuario y firma como ese rol específico (host O gerente_restaurante).
+  function rolEsperadoSelloEnBitacora() {
+    var r = String((user && user.rol) || '').toLowerCase();
+    return r === 'gerente_restaurante' ? 'gerente_restaurante' : 'host';
+  }
+  function labelRolSelloEnBitacora() {
+    return rolEsperadoSelloEnBitacora() === 'gerente_restaurante' ? 'Gerente de Restaurante' : 'Host';
+  }
+  function actualizarSellosUI(){
+    if (!bitacoraActual || !bitacoraActual.id) return;
+    var miRol = rolEsperadoSelloEnBitacora();
+    var titleEl = $('sellosCardTitle');
+    if (titleEl) titleEl.textContent = '🖋️ Mis firmas como ' + labelRolSelloEnBitacora();
+    apiCall({ action:'sellos_estado', token: token, bitacora_id: bitacoraActual.id }, function(res){
+      if (!res.ok || !res.tablero) return;
+      var miSelloAp = res.tablero.find(function(s){ return s.momento==='apertura' && s.rol===miRol; });
+      var miSelloCi = res.tablero.find(function(s){ return s.momento==='cierre' && s.rol===miRol; });
+      var infoAp = $('selloAperturaInfo'), btnAp = $('btnSellarApertura');
+      var infoCi = $('selloCierreInfo'),   btnCi = $('btnSellarCierre');
+      if (infoAp && miSelloAp) {
+        if (miSelloAp.sellado) {
+          infoAp.innerHTML = '✓ Sellado por <strong>' + (miSelloAp.por||'—') + '</strong><br><span style="color:var(--muted);font-size:11.5px">' + (new Date(miSelloAp.sellado_at).toLocaleString('es-MX')) + '</span>';
+          infoAp.style.color = 'var(--good)';
+          if (btnAp) { btnAp.disabled = true; btnAp.textContent = '✓ Ya sellaste apertura'; }
+        } else {
+          infoAp.textContent = 'Sin sellar';
+        }
+      }
+      if (infoCi && miSelloCi) {
+        if (miSelloCi.sellado) {
+          infoCi.innerHTML = '✓ Sellado por <strong>' + (miSelloCi.por||'—') + '</strong><br><span style="color:var(--muted);font-size:11.5px">' + (new Date(miSelloCi.sellado_at).toLocaleString('es-MX')) + '</span>';
+          infoCi.style.color = 'var(--good)';
+          if (btnCi) { btnCi.disabled = true; btnCi.textContent = '✓ Ya sellaste cierre'; }
+        } else {
+          infoCi.textContent = 'Sin sellar';
+        }
+      }
+    });
+  }
+  function sellarMomento(momento){
+    if (!bitacoraActual || !bitacoraActual.id) { alert('Primero abre o crea un servicio.'); return; }
+    var miRol = rolEsperadoSelloEnBitacora();
+    var labelMomento = momento === 'apertura' ? 'apertura' : 'cierre';
+    if (!confirm('¿Confirmas sellar tu ' + labelMomento + ' como ' + labelRolSelloEnBitacora() + '? Quedará firmado a tu nombre con la hora exacta y no se puede deshacer.')) return;
+    apiCall({ action:'sello_save', token: token,
+              data: JSON.stringify({ bitacora_id: bitacoraActual.id, momento: momento, rol_esperado: miRol }) }, function(res){
+      if (res.ok) { actualizarSellosUI(); }
+      else alert('No se pudo sellar: ' + (res.error || 'Error'));
+    });
+  }
+
+  // ============= Marcar visualmente las reservas atrasadas (NO cambia estado) =============
+  // Solo agrega un flag visual; el host decide manualmente si las marca como "no llegó".
+  // (Antes esto auto-cancelaba reservas pasados N minutos — causaba pérdida visual de filas
+  // cuando Yazmín refrescaba; quitado el 2026-04-30.)
+  function chequearAtrasadas(){
+    if (!bitacoraActual || bitacoraActual.estado === 'cerrada') return;
+    if ($('fecha').value !== todayLocalISO()) return;
+    var tolerancia = parseInt(CONFIG_BITACORA.tolerancia_minutos, 10) || 10;
+    var ahora = nowHHMM();
+    var ahoraMin = parseInt(ahora.split(':')[0],10)*60 + parseInt(ahora.split(':')[1],10);
+    var marcadas = 0;
+    state.rows.forEach(function(row){
+      if (row.estado !== 'En espera') return;
+      if (!row.hora_ent) return;
+      var p = String(row.hora_ent).split(':');
+      if (p.length < 2) return;
+      var rMin = parseInt(p[0],10)*60 + parseInt(p[1],10);
+      var atraso = ahoraMin - rMin;
+      // Solo flag visual; el HOST decide cancelar manualmente con confirmación.
+      row._atrasada = atraso > tolerancia;
+      row._atrasoMin = atraso;
+      if (row._atrasada) marcadas++;
+    });
+    if (marcadas > 0) renderRows();
+  }
+
+  // ============= Validación de promociones (DUO, etc.) =============
+  // Devuelve {ok: bool, error?: string} cuando se aplica una promo (columna promo > 0).
+  function validarPromoEnFila(row){
+    if (!num(row.promo)) return { ok:true };
+    if (!PROMOCIONES.length) return { ok:true };
+    var fecha = $('fecha').value;
+    if (!fecha) return { ok:true };
+    var d = new Date(fecha + 'T12:00:00');
+    var dia = d.getDay(); dia = dia === 0 ? 7 : dia;
+    var hora = row.hora_ent || nowHHMM();
+    var match = PROMOCIONES.find(function(p){
+      var act = String(p.activa);
+      if (act === 'false' || act === '0' || act === '') return false;
+      var diasArr = String(p.dias_semana || '').split(',').map(function(s){ return parseInt(s.trim(),10); });
+      if (diasArr.indexOf(dia) === -1) return false;
+      var hd = String(p.hora_desde || '00:00');
+      var hh = String(p.hora_hasta || '23:59');
+      return hora >= hd && hora <= hh;
+    });
+    if (!match) {
+      return { ok:false, error:'No hay promociones vigentes para esta fecha (' + fecha + ') y hora (' + hora + '). Verifica el horario o quita el valor de la columna Promo.' };
+    }
+    return { ok:true, promo: match };
+  }
+
+  // ============= Sincronización en tiempo real entre hosts =============
+  // Cada 8s, traemos del backend las filas que cambiaron desde el último sync.
+  // Mergeamos al state local respetando lo que el usuario está editando AHORA.
+  // Resultado: dos hosts simultáneos ven los cambios de la otra sin recargar.
+  var syncState = {
+    lastTs: 0,            // milliseconds — timestamp del último sync exitoso
+    inFlight: false,      // evita pollings simultáneos si el primero tarda
+    consecutivosError: 0  // backoff sutil si hay errores
+  };
+  function syncFilasDesdeServidor(){
+    if (!bitacoraActual || !bitacoraActual.id) return;
+    if (syncState.inFlight) return;
+    syncState.inFlight = true;
+    apiCall({
+      action:'bitacora_filas_sync', token: token,
+      bitacora_id: bitacoraActual.id,
+      since_ts: String(syncState.lastTs || 0)
+    }, function(res){
+      syncState.inFlight = false;
+      if (!res || !res.ok) {
+        syncState.consecutivosError++;
+        actualizarIndicadorSync('error');
+        return;
+      }
+      syncState.consecutivosError = 0;
+      syncState.lastTs = parseInt(res.max_ts, 10) || syncState.lastTs;
+      if (res.sin_cambios) {
+        actualizarIndicadorSync('idle');
+        return;
+      }
+      var deltas = res.deltas || [];
+      if (!deltas.length) { actualizarIndicadorSync('idle'); return; }
+      mergearDeltasEnState(deltas);
+      actualizarIndicadorSync('updated', deltas.length);
+    });
+  }
+  // Mergea las filas cambiadas del backend con el state local. Reglas:
+  //   1. Si el usuario está editando una celda de la fila → no la tocamos esta ronda.
+  //   2. Si la fila NO existe localmente → la insertamos (otra host la creó).
+  //   3. Si la fila existe Y _actualizada_at del server > local → reemplazamos.
+  //   4. Si _borrada=true → la quitamos del state (otra host la borró).
+  //   5. Re-render preservando el focus del usuario.
+  function mergearDeltasEnState(deltas){
+    if (!Array.isArray(deltas) || !deltas.length) return;
+    // Capturar focus actual (qué fila/celda) para restaurarlo después del rerender
+    var activo = capturarFocoActivo();
+    var filaEditando = activo ? activo.fila_id : null;
+    var huboCambios = false;
+    var filasNuevas = 0, filasActualizadas = 0, filasBorradas = 0;
+    deltas.forEach(function(d){
+      var idLocal = d._id;
+      if (!idLocal) return;
+      // Caso borrada
+      if (d._borrada) {
+        var iBorr = state.rows.findIndex(function(r){ return r._id === idLocal; });
+        if (iBorr !== -1) {
+          state.rows.splice(iBorr, 1);
+          huboCambios = true;
+          filasBorradas++;
+        }
+        return;
+      }
+      // Saltar si el usuario está editando esta fila
+      if (filaEditando === idLocal) return;
+      // Buscar local
+      var i = state.rows.findIndex(function(r){ return r._id === idLocal; });
+      if (i === -1) {
+        // Insertar nueva — respetando el orden por _idx
+        var nuevaCopia = JSON.parse(JSON.stringify(d));
+        // Insertar al final; el siguiente render reordenará si hay sort por _idx (no lo hay actualmente)
+        state.rows.push(nuevaCopia);
+        huboCambios = true;
+        filasNuevas++;
+      } else {
+        var local = state.rows[i];
+        var tsLocal = local._actualizada_at || 0;
+        var tsServer = d._actualizada_at || 0;
+        if (tsServer > tsLocal) {
+          // Server más reciente → reemplazar conservando atributos internos no críticos
+          state.rows[i] = JSON.parse(JSON.stringify(d));
+          huboCambios = true;
+          filasActualizadas++;
+        }
+      }
+    });
+    if (huboCambios) {
+      renderRows();
+      recalc();
+      restaurarFocoActivo(activo);
+      // Marca visual sutil de las filas actualizadas (flash verde)
+      destacarFilasActualizadas(deltas);
+    }
+  }
+  // Devuelve { fila_id, campo, selStart, selEnd } del input/select activo dentro de la tabla
+  function capturarFocoActivo(){
+    var ae = document.activeElement;
+    if (!ae || !ae.matches) return null;
+    if (!ae.matches('input,select,textarea')) return null;
+    var tr = ae.closest && ae.closest('tr');
+    if (!tr) return null;
+    var idx = parseInt(tr.dataset.idx, 10);
+    if (isNaN(idx)) return null;
+    var fila = state.rows[idx];
+    if (!fila) return null;
+    var info = {
+      fila_id: fila._id,
+      campo: ae.getAttribute('data-f') || '',
+      selStart: null, selEnd: null, valor: ae.value
+    };
+    try {
+      if (ae.setSelectionRange && ae.type !== 'number' && ae.type !== 'time') {
+        info.selStart = ae.selectionStart;
+        info.selEnd = ae.selectionEnd;
+      }
+    } catch(e){}
+    return info;
+  }
+  function restaurarFocoActivo(activo){
+    if (!activo) return;
+    var tbody = $('tbodyIngresos');
+    if (!tbody) return;
+    var i = state.rows.findIndex(function(r){ return r._id === activo.fila_id; });
+    if (i === -1) return;
+    var tr = tbody.querySelector('tr[data-idx="' + i + '"]');
+    if (!tr) return;
+    var sel = activo.campo ? tr.querySelector('[data-f="' + activo.campo + '"]') : null;
+    if (!sel) return;
+    sel.focus();
+    // Si tenía valor distinto al renderizado (estaba escribiendo), lo restauramos
+    if (typeof activo.valor === 'string' && sel.value !== activo.valor) {
+      sel.value = activo.valor;
+    }
+    try {
+      if (activo.selStart != null && sel.setSelectionRange) {
+        sel.setSelectionRange(activo.selStart, activo.selEnd);
+      }
+    } catch(e){}
+  }
+  function destacarFilasActualizadas(deltas){
+    var tbody = $('tbodyIngresos');
+    if (!tbody) return;
+    deltas.forEach(function(d){
+      if (d._borrada) return;
+      var i = state.rows.findIndex(function(r){ return r._id === d._id; });
+      if (i === -1) return;
+      var tr = tbody.querySelector('tr[data-idx="' + i + '"]');
+      if (!tr) return;
+      tr.classList.add('row-flash-sync');
+      setTimeout(function(){ tr.classList.remove('row-flash-sync'); }, 1500);
+    });
+  }
+  // Indicador "↻ Sincronizado · Xs" en la barra superior
+  function actualizarIndicadorSync(estado, cuantasFilas){
+    var el = $('syncIndicator');
+    if (!el) return;
+    var ahora = new Date();
+    var hh = String(ahora.getHours()).padStart(2,'0') + ':' + String(ahora.getMinutes()).padStart(2,'0') + ':' + String(ahora.getSeconds()).padStart(2,'0');
+    if (estado === 'updated') {
+      el.textContent = '✓ ' + cuantasFilas + ' actualización' + (cuantasFilas===1?'':'es') + ' · ' + hh;
+      el.style.color = 'var(--good)';
+    } else if (estado === 'error') {
+      el.textContent = '⚠ Sin conexión · reintentando…';
+      el.style.color = 'var(--bad)';
+    } else {
+      el.textContent = '↻ Sincronizado · ' + hh;
+      el.style.color = 'var(--muted)';
+    }
+  }
+
+  // ============= Init =============
+  function init(){
+    $('fecha').value = todayLocalISO();
+    bindMeta();
+    bindHeader();
+    bindTooltips();
+    bindHelp();
+    bindDetailModal();
+    bindCerrarServicio();
+    // Validar token contra backend
+    apiCall({ action:'me', token: token }, function(res){
+      if (!res.ok) {
+        sessionStorage.clear();
+        alert('Tu sesión expiró. Vuelve a iniciar sesión.');
+        var _a=document.createElement('a');_a.href=API_URL + '?p=acceso';_a.target='_top';document.body.appendChild(_a);_a.click();
+        return;
+      }
+      // Actualizar user/empresa/sucursales (recuperación iOS: sessionStorage estaba vacío)
+      user = res.user || user;
+      empresa = res.empresa || empresa || null;
+      sucursales = res.sucursales || sucursales || [];
+      try {
+        sessionStorage.setItem('fogueira_user', JSON.stringify(user));
+        sessionStorage.setItem('fogueira_empresa', JSON.stringify(empresa));
+        sessionStorage.setItem('fogueira_sucursales', JSON.stringify(sucursales));
+      } catch(e){}
+      if (!aplicarSesionUI()) return;
+      cargarConfiguracionYPromos();
+      // Mostrar empty-state inicialmente, cargar lista
+      $('emptyState').style.display = '';
+      $('bitacoraContent').style.display = 'none';
+      loadServiciosDia(function(){
+        // Si hay un servicio abierto, cargarlo automáticamente
+        var abierta = serviciosDelDia.find(function(s){ return s.estado === 'abierta'; });
+        if (abierta) loadBitacora(abierta.id);
+      });
+      loadEstadoReservas();
+      // Polling cada 30s: refrescar reservas, estado de bloqueo y reservas atrasadas
+      setInterval(function(){
+        if (bitacoraActual && bitacoraActual.estado !== 'cerrada') {
+          cargarReservasComoFilas(true);
+          chequearAtrasadas();
+        }
+        loadEstadoReservas();
+      }, 30000);
+      // Polling cada 8s: sincronización en tiempo real entre hosts. Trae solo las filas
+      // que cambiaron desde el último poll (incluso borradas), sin sobreescribir lo que
+      // el host está editando localmente. Evita el problema de "no veo lo que la otra capturó".
+      setInterval(function(){
+        if (bitacoraActual && bitacoraActual.estado !== 'cerrada') {
+          syncFilasDesdeServidor();
+        }
+      }, 8000);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+
+})();
+</script>
+
+</body>
+</html>

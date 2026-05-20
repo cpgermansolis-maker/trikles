@@ -23,7 +23,7 @@ Sistema de control de caja, conciliación operativa y reservaciones para el rest
 | URL pública | `https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec` |
 | URL reservas (pública) | `...exec?p=reservar` |
 | Spreadsheet | "Conciliación Restaurante - DB" en Drive de cpgermansolis@gmail.com |
-| Último deploy | v217 (2026-05-20) |
+| Último deploy | v219 (2026-05-20) |
 
 ---
 
@@ -272,7 +272,7 @@ Cada rol sella desde su propia pantalla con su sesión activa. Override (firmar 
 - **nrModal desde detalleModal** (charolas.html v204): el botón abre encima ✅, pero pendiente que Marco o Sergio confirmen que el formulario se llena y envía correctamente (typeahead ingredientes + "Enviar para autorización" crea pendiente en recetas.html).
 
 ### Backlog técnico activo
-1. **[PRIORIDAD COMERCIAL] Migrar pantallas internas a `?p=...`** — El sessionStorage de Apps Script es no confiable entre subdominios. Con `?p=pantalla&t=TOKEN` el backend inyecta el token vía template antes de servir el HTML: la sesión nunca depende de sessionStorage. Orden recomendado: `bitacora.html` → `conciliacion.html` → `charolas.html` → `recetas.html` → resto. Sin esta migración, cada página nueva añadida al sistema reproduce silenciosamente el bug de "Cargando módulos…" si el desarrollador olvida el snippet de propagación de token.
+1. **[PRIORIDAD COMERCIAL] Migrar pantallas internas a `?p=...`** — `bitacora.html` ✅ (v219). Pendientes: `conciliacion.html` → `charolas.html` → `recetas.html` → resto. Patrón: `doGet` agrega la pantalla a la condición `createTemplateFromFile`; la pantalla agrega header `<?!= __tokenInyectado ?>` + `getQuery` + `aplicarSesionUI()` (deferred si sessionStorage vacío, se llama desde callback de `me`).
 2. **F3 Fase C** — Importador de Compras SR12 (historial de precios reales por transacción). En pausa — requiere archivos de compras de Estefanía/Raúl.
 3. **Branding** — Aplicar identidad Fogueira a las pantallas restantes (orden: `bitacora.html` → `charolas.html` → `recetas.html` → `conciliacion.html` → resto).
 4. **Isotipo Fogueira** — Recortar la llama dorada con fondo transparente para favicon y topbar móvil.
@@ -352,4 +352,4 @@ out = out.replace(/`([^`]+)`/g, function(_, code) {
 ```
 
 ### Sesión — sessionStorage no confiable entre páginas en Apps Script
-Apps Script sirve cada página desde un subdominio diferente de `googleusercontent.com`. El sessionStorage se aísla por subdominio: cada navegación entre pantallas puede llegar a un subdominio nuevo y perder la sesión. **Workaround actual (v218)**: propagar `?t=TOKEN&urol=ROL&unom=NOMBRE` en todos los links "← Inicio". **Solución definitiva pendiente**: migrar a `?p=pantalla` donde `doGet` inyecta el token vía template, eliminando la dependencia de sessionStorage.
+Apps Script sirve cada página desde un subdominio diferente de `googleusercontent.com`. El sessionStorage se aísla por subdominio: cada navegación entre pantallas puede llegar a un subdominio nuevo y perder la sesión. **Solución aplicada (v219)**: `doGet` sirve la pantalla via `createTemplateFromFile` e inyecta el token. La pantalla lee token de `getQuery('t') || '<?!= __tokenInyectado ?>'`, lo guarda en sessionStorage, y usa `aplicarSesionUI()` deferred (si sessionStorage estaba vacío, se llama desde el callback de `me`). Páginas migradas: `mireserva`, `charolas`, `curso`, `bitacora`. Pendientes: `conciliacion`, `recetas`, resto.
