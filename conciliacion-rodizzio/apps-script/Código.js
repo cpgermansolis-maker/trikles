@@ -5950,7 +5950,7 @@ function doGet(e)  {
     // - mireserva: recibe id + token de cancelación
     // - charolas: recibe area (cocina/churrasca) para filtrar la vista
     // - curso: recibe ?t=TOKEN (token de sesión) — fix para iOS y subdominios aislados
-    if (params.p === 'mireserva' || params.p === 'charolas' || params.p === 'curso' || params.p === 'bitacora') {
+    if (params.p === 'mireserva' || params.p === 'charolas' || params.p === 'curso' || params.p === 'bitacora' || params.p === 'conciliacion') {
       var template = HtmlService.createTemplateFromFile(pagina.archivo);
       template.queryParams = params;
       return template.evaluate()

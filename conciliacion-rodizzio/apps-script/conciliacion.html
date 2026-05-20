@@ -1,0 +1,3202 @@
+<? var __tokenInyectado = '';
+try { __tokenInyectado = (queryParams && queryParams.t) ? String(queryParams.t) : ''; } catch(e){} ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conciliación · Fogueira</title>
+<base target="_top">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500;1,600&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* ══════════════════════════════════════════════════════════
+   oac-tokens.css — Sistema de diseño OAC
+   Paleta, tipografía, escalas y primitivos UI
+   Cargar al inicio del <head> en cada página OAC
+   ══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Paleta handoff oficial Fogueira (v155) ── */
+  --ember:      #c4322a;
+  --ember-hot:  #e04826;
+  --ember-deep: #8a1f17;
+  --cream:      #f6f1e8;
+  --cream-warm: #efe5d2;
+  --cream-line: #e4d9c2;
+  --bone:       #fffdf8;
+  --slate:      #2b3a4e;
+  --slate-soft: #5d6c80;
+  --smoke:      #8a8278;
+  --gold:       #c89a4a;
+  --gold-soft:  #e8c46a;
+  --ink-handoff:#0c0907;
+
+  /* ── Aliases legacy → handoff ── */
+  --navy:    var(--ink-handoff);
+  --navy-2:  #1a1310;
+  --sky:     var(--gold);
+  --sky-2:   rgba(200,154,74,.18);
+  --mist:    var(--cream-line);
+  --ink:     var(--ink-handoff);
+  --muted:   var(--slate-soft);
+  --line:    var(--cream-line);
+  --paper:   var(--cream-warm);
+  --accent:  var(--ember);
+  --good:    #1E7F5C;
+  --warn:    var(--gold);
+  --bad:     var(--ember-deep);
+  --purple:  #7C5BD9;
+
+  /* ── Tipografía handoff ── */
+  --font-sans:  'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-mono:  'DM Mono', ui-monospace, 'SF Mono', monospace;
+
+  /* ── Radios ── */
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 7px;
+  --r-xl: 10px;
+  --r-2xl: 12px;
+  --r-3xl: 14px;
+
+  /* ── Sombras ── */
+  --shadow-card-hover: 0 12px 28px -16px rgba(14,42,78,.18);
+  --shadow-hero:       0 40px 80px -30px rgba(14,42,78,.35);
+  --shadow-feature:    0 30px 60px -25px rgba(14,42,78,.4);
+  --shadow-modal:      0 20px 60px -20px rgba(14,42,78,.4);
+
+  /* ── Trans ── */
+  --t-fast: .15s ease;
+  --t-base: .2s ease;
+
+  /* ══════════════════════════════════════════════════════════
+     Legacy aliases — apuntan a equivalentes OAC.
+     Permite que inline styles antiguos (style="color:var(--orange)")
+     en el HTML/JS rendericen con paleta OAC sin tener que reescribirlos.
+     ══════════════════════════════════════════════════════════ */
+  --orange: #E07A3E;            /* → accent */
+  --orange2: #c66830;
+  --ora-l: rgba(224,122,62,.08);
+  --green: #1E7F5C;             /* → good */
+  --red: #9F2B1E;               /* → bad */
+  --blue: #0E2A4E;              /* → navy */
+  --yellow: #B97A1B;            /* → warn */
+  --gray: #5A6A7E;              /* → muted */
+  --light: #5A6A7E;             /* (era texto claro sobre dark) → muted */
+  --white: #0A1A30;             /* (era texto blanco sobre dark) → ink */
+  --dark: #fff;
+  --bg: #fff;
+  --bg2: #fff;
+  --card: #fff;
+  --card2: #FAFBFC;             /* → paper */
+  --border: #E6E9EE;            /* → line */
+  --border2: #E6E9EE;
+  --panel: #fff;
+}
+
+/* ══ Reset suave ══ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: #fff;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+img, svg { display: block; max-width: 100%; }
+
+/* ══ Helpers de tipografía ══ */
+.mono  { font-family: var(--font-mono); }
+.serif { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ══ Logo OAC (SVG inline) — usar siempre estas medidas ══ */
+.oac-logo { display: inline-flex; align-items: center; gap: 11px; }
+.oac-logo .lt { display: flex; flex-direction: column; line-height: 1.02; }
+.oac-logo .a  { font-weight: 600; letter-spacing: -.02em; font-size: 18px; color: var(--ink); }
+.oac-logo .b  { font-family: var(--font-mono); font-size: 9px; letter-spacing: .16em; color: var(--muted); text-transform: uppercase; margin-top: 3px; }
+
+/* ══ Botones ══ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: var(--r-lg);
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -.005em;
+  transition: all var(--t-fast);
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn.lg { padding: 14px 22px; font-size: 15px; border-radius: var(--r-xl); }
+.btn.primary  { background: var(--navy); color: #fff; }
+.btn.primary:hover { background: var(--navy-2); }
+.btn.ghost    { color: var(--ink); background: transparent; }
+.btn.ghost:hover { background: var(--paper); }
+.btn.outline  { color: var(--ink); border: 1px solid var(--line); background: transparent; }
+.btn.outline:hover { border-color: var(--navy); color: var(--navy); }
+.btn.accent   { background: var(--accent); color: #fff; }
+.btn.danger   { background: var(--bad); color: #fff; }
+.btn.danger:hover { opacity: .9; }
+
+/* ══ Inputs ══ */
+.input, input.oac, select.oac, textarea.oac {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--ink);
+  width: 100%;
+  outline: none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.input:focus, input.oac:focus, select.oac:focus, textarea.oac:focus {
+  border-color: var(--sky);
+  box-shadow: 0 0 0 3px var(--sky-2);
+}
+
+/* ══ Card estándar ══ */
+.card-oac {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-2xl);
+  padding: 24px;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.card-oac:hover { border-color: var(--navy); box-shadow: var(--shadow-card-hover); }
+
+/* ══ KPI estándar ══ */
+.kpi-oac {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.kpi-oac .lab {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .12em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.kpi-oac .val {
+  font-size: 28px;
+  letter-spacing: -.02em;
+  font-weight: 500;
+  line-height: 1.05;
+  color: var(--ink);
+}
+.kpi-oac .val .em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* ══ Status colors ══ */
+.is-good { color: var(--good); }
+.is-warn { color: var(--warn); }
+.is-bad  { color: var(--bad); }
+.is-navy { color: var(--navy); }
+.is-sky  { color: var(--sky); }
+.bg-paper { background: var(--paper); }
+.bg-navy  { background: var(--navy); color: #fff; }
+.bg-sky   { background: var(--sky-2); }
+
+/* ══ Topbar OAC (compartido) ══ */
+.oac-topbar {
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.oac-topbar-inner {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.oac-topbar .nav {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+.oac-topbar .nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--ink);
+  border-radius: var(--r-md);
+  font-weight: 500;
+  letter-spacing: -.005em;
+  text-decoration: none;
+}
+.oac-topbar .nav a:hover { background: var(--paper); }
+.oac-topbar .nav a.active { background: var(--navy); color: #fff; }
+.oac-topbar .tools { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.oac-topbar .icon-btn {
+  width: 34px; height: 34px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+}
+.oac-topbar .icon-btn:hover { border-color: var(--navy); color: var(--navy); }
+
+/* ══ Hamburger (mobile) ══ */
+.oac-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.oac-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--navy);
+  border-radius: 2px;
+  transition: var(--t-base);
+}
+.oac-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.oac-hamburger.open span:nth-child(2) { opacity: 0; }
+.oac-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.oac-mobile-nav {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(255,255,255,.98);
+  backdrop-filter: blur(10px);
+  z-index: 350;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 60px 16px 24px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.oac-mobile-nav.open { display: flex; }
+.oac-mobile-nav a, .oac-mobile-nav button {
+  width: min(280px, 86vw);
+  padding: 14px 22px;
+  border-radius: var(--r-xl);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.oac-mobile-nav a:hover, .oac-mobile-nav button:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+.oac-mobile-nav .close-btn {
+  position: absolute;
+  top: 18px; right: 18px;
+  width: auto;
+  padding: 8px 12px;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .1em;
+}
+
+/* ══ Responsive ══ */
+@media (max-width: 768px) {
+  .oac-topbar .nav,
+  .oac-topbar .tools { display: none; }
+  .oac-hamburger { display: flex; }
+  .oac-topbar-inner { padding: 12px 16px; gap: 12px; }
+}
+
+</style>
+
+<style>
+  /* Paleta local migrada al handoff oficial Fogueira (v155).
+     Para otra empresa, basta cambiar los 3 valores --brasa-* */
+  :root{
+    --bg:         #f6f1e8;            /* cream */
+    --paper:      #fffdf8;            /* bone */
+    --ink:        #0c0907;            /* ink handoff */
+    --ink-soft:   #5d6c80;            /* slate-soft */
+    --line:       #e4d9c2;            /* cream-line */
+    --line-strong:#cfc1a5;
+    --brasa:      #c4322a;            /* ember handoff */
+    --brasa-deep: #8a1f17;            /* ember-deep */
+    --brasa-tint: rgba(196,50,42,.08);
+    --rojo:       #8a1f17;
+    --rojo-tint:  rgba(196,50,42,.10);
+    --ambar:      #c89a4a;            /* gold handoff */
+    --ambar-tint: rgba(200,154,74,.14);
+    --verde:      #1E7F5C;
+    --verde-tint: rgba(30,127,92,.12);
+    --azul:       #0c0907;            /* ink handoff (sustituye navy) */
+    --azul-tint:  rgba(12,9,7,.08);
+    --shadow:0 1px 2px rgba(12,9,7,.05), 0 4px 14px rgba(12,9,7,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-sans);
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ── Topbar oscuro (handoff Fogueira) ── */
+  header.app{
+    background:#0c0907;
+    color:#f6f1e8;
+    border-bottom:1px solid rgba(200,154,74,.22);
+    padding:16px 24px;
+    position:sticky;top:0;z-index:50;
+  }
+  .head-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;max-width:1280px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brand-flame{display:flex;align-items:center;gap:9px}
+  .brand-flame svg{display:block;flex-shrink:0}
+  .brand-flame .wordmark{
+    font-family:'DM Sans',sans-serif;font-weight:800;font-size:18px;
+    letter-spacing:.02em;color:#c89a4a;line-height:1;
+  }
+  .brand-sep-v{width:1px;height:30px;background:rgba(246,241,232,.15);flex-shrink:0}
+  .brand h1{
+    font-family:var(--font-serif);font-style:italic;
+    font-weight:500;font-size:22px;margin:0;
+    letter-spacing:-.01em;color:#f6f1e8;line-height:1.1;
+  }
+  .brand .sub{
+    font-family:var(--font-mono);font-size:10px;
+    color:rgba(246,241,232,.5);text-transform:uppercase;letter-spacing:.22em;
+    margin-top:3px;display:block;
+  }
+  .head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .head-actions input[type=date]{
+    border:1px solid rgba(246,241,232,.18);
+    background:rgba(246,241,232,.04);
+    color:#f6f1e8;
+    padding:7px 10px;border-radius:6px;
+    font-family:inherit;font-size:12.5px;
+  }
+  .head-actions input[type=date]::-webkit-calendar-picker-indicator{
+    filter:invert(.85) sepia(.1) saturate(.6) hue-rotate(15deg);cursor:pointer;
+  }
+  .btn{
+    border:1px solid var(--line-strong);
+    background:var(--paper);color:var(--ink);
+    padding:7px 12px;border-radius:6px;
+    font-size:12.5px;font-family:inherit;cursor:pointer;
+    transition:all .15s;
+  }
+  .btn:hover{background:var(--bg);border-color:var(--brasa)}
+  .btn-primary{background:var(--ink);color:var(--ambar);border-color:var(--ink)}
+  .btn-primary:hover{background:#000;border-color:#000}
+  /* Botones del topbar: outline cream sobre ink */
+  .head-actions .btn{
+    background:rgba(246,241,232,.04);color:#f6f1e8;
+    border-color:rgba(246,241,232,.18);
+  }
+  .head-actions .btn:hover{
+    background:rgba(200,154,74,.12);border-color:#c89a4a;color:#f6f1e8;
+  }
+  .head-actions .btn-primary{
+    background:#c89a4a;color:#0c0907;border-color:#c89a4a;font-weight:600;
+  }
+  .head-actions .btn-primary:hover{background:#e8c46a;border-color:#e8c46a}
+
+  /* Tabs */
+  nav.tabs{
+    background:var(--paper);
+    border-bottom:1px solid var(--line);
+    padding:0 24px;
+    position:sticky;top:73px;z-index:49;
+    overflow-x:auto;
+  }
+  .tabs-inner{display:flex;gap:4px;max-width:1280px;margin:0 auto;min-width:max-content}
+  .tab-btn{
+    background:none;
+    border:none;
+    padding:14px 18px;
+    font-family:inherit;
+    font-size:13px;
+    font-weight:500;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    cursor:pointer;
+    border-bottom:2px solid transparent;
+    white-space:nowrap;
+    transition:color .15s;
+    display:flex;align-items:center;gap:8px;
+  }
+  .tab-btn:hover{color:var(--ink)}
+  .tab-btn.active{color:var(--brasa);border-bottom-color:var(--brasa)}
+  .tab-btn .badge{
+    background:var(--rojo);color:white;border-radius:999px;
+    font-size:10px;padding:1px 6px;font-weight:600;letter-spacing:0;
+  }
+  .tab-btn.active .badge{background:var(--brasa-deep)}
+
+  /* Layout */
+  main{max-width:1280px;margin:0 auto;padding:28px 24px 80px}
+  .panel{display:none;animation:fade .25s ease}
+  .panel.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  .section-title{
+    font-family:var(--font-serif);font-style:italic;
+    font-size:22px;
+    font-weight:600;
+    margin:0 0 4px;
+    letter-spacing:-.01em;
+  }
+  .section-sub{color:var(--ink-soft);font-size:13px;margin-bottom:18px}
+
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:22px;
+    margin-bottom:18px;
+    box-shadow:var(--shadow);
+  }
+  .card h3{
+    font-family:var(--font-serif);font-style:italic;
+    font-size:17px;
+    font-weight:600;
+    margin:0 0 14px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .card h3 .num{
+    font-family:var(--font-serif);font-style:italic;
+    font-style:italic;
+    color:var(--brasa);
+    font-weight:500;
+    font-size:14px;
+  }
+
+  /* Form */
+  label{
+    display:block;
+    font-size:12px;
+    font-weight:500;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    margin-bottom:5px;
+  }
+  input[type=text],input[type=number],input[type=time],input[type=date],select,textarea{
+    width:100%;
+    border:1px solid var(--line-strong);
+    background:var(--paper);
+    padding:8px 10px;
+    border-radius:6px;
+    font-family:inherit;
+    font-size:14px;
+    color:var(--ink);
+    transition:border-color .15s;
+  }
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brasa);box-shadow:0 0 0 3px var(--brasa-tint)}
+  textarea{resize:vertical;min-height:60px}
+
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:720px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+  table.data{
+    width:100%;border-collapse:collapse;font-size:13px;
+  }
+  table.data th{
+    text-align:left;padding:10px 8px;
+    background:var(--bg);
+    border-bottom:1px solid var(--line-strong);
+    font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);
+  }
+  table.data td{
+    padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:middle;
+  }
+  table.data input{padding:6px 8px;font-size:13px}
+  table.data tr:last-child td{border-bottom:none}
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+
+  /* KPIs */
+  .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px}
+  .kpi{
+    background:var(--paper);border:1px solid var(--line);border-radius:8px;
+    padding:14px 16px;
+  }
+  .kpi .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:500}
+  .kpi .val{font-family:var(--font-sans);font-size:26px;font-weight:500;letter-spacing:-.02em;margin-top:2px;font-variant-numeric:tabular-nums}
+  .kpi.alert{border-color:var(--rojo);background:var(--rojo-tint)}
+  .kpi.alert .val{color:var(--rojo)}
+  .kpi.ok{border-color:var(--verde);background:var(--verde-tint)}
+  .kpi.ok .val{color:var(--verde)}
+  .kpi.warn{border-color:var(--ambar);background:var(--ambar-tint)}
+  .kpi.warn .val{color:#8a6700}
+
+  /* Alerts */
+  .alert{
+    border-left:3px solid var(--brasa);
+    background:var(--brasa-tint);
+    padding:14px 18px;
+    border-radius:6px;
+    margin-bottom:18px;
+  }
+  .alert.danger{border-color:var(--rojo);background:var(--rojo-tint)}
+  .alert.info{border-color:var(--azul);background:var(--azul-tint)}
+  .alert.success{border-color:var(--verde);background:var(--verde-tint)}
+  .alert h4{margin:0 0 6px;font-family:var(--font-serif);font-style:italic;font-size:15px;font-weight:600}
+  .alert p{margin:0;font-size:13px;color:var(--ink-soft)}
+
+  /* Roles */
+  .role-row{display:grid;grid-template-columns:1.3fr 1fr 2fr 1fr;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+  .role-row:last-child{border-bottom:none}
+  .role-row .role-name{font-weight:600;font-family:'Fraunces',serif}
+  @media(max-width:720px){.role-row{grid-template-columns:1fr}}
+
+  /* Banderas */
+  .flag-list{list-style:none;padding:0;margin:0}
+  .flag-list li{
+    display:flex;align-items:flex-start;gap:12px;
+    padding:12px 14px;border-radius:6px;margin-bottom:8px;
+    border:1px solid var(--line);
+  }
+  .flag-list li.fired{border-color:var(--rojo);background:var(--rojo-tint)}
+  .flag-list li.ok{border-color:var(--verde);background:var(--verde-tint)}
+  .flag-icon{font-size:18px;line-height:1}
+  .flag-body{flex:1}
+  .flag-title{font-weight:600;font-size:14px}
+  .flag-detail{font-size:12px;color:var(--ink-soft);margin-top:2px}
+
+  /* Firma */
+  .sign-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+  .sign-box{border:1px solid var(--line);border-radius:8px;padding:14px;background:var(--bg)}
+  .sign-box .role-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:600;margin-bottom:6px}
+  .sign-box input[type=text]{margin-bottom:6px;background:var(--paper)}
+  .sign-stamp{font-size:11px;color:var(--ink-soft);font-style:italic}
+  .sign-btn{margin-top:6px}
+
+  /* Print */
+  @media print{
+    @page{size:letter;margin:14mm}
+    header.app, nav.tabs, .head-actions, .no-print, .info-icon, .tooltip{display:none !important}
+    body{background:white;font-size:11pt}
+    main{padding:0;max-width:none}
+    .panel{display:block !important;page-break-after:always}
+    .panel:last-child{page-break-after:auto}
+    .card{box-shadow:none;border-color:#999;break-inside:avoid}
+    .kpi{break-inside:avoid}
+  }
+
+  /* Helper */
+  .row-flex{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.04em}
+  .pill.brasa{background:var(--brasa-tint);color:var(--brasa-deep)}
+  .pill.verde{background:var(--verde-tint);color:var(--verde)}
+  .pill.rojo{background:var(--rojo-tint);color:var(--rojo)}
+  .pill.ambar{background:var(--ambar-tint);color:#8a6700}
+  .help{font-size:12px;color:var(--ink-soft);margin-top:4px;font-style:italic}
+  .divider{height:1px;background:var(--line);margin:18px 0}
+  .text-center{text-align:center}
+  .text-right{text-align:right}
+  .num-cell{text-align:right;font-variant-numeric:tabular-nums}
+  .delta{font-weight:600;font-variant-numeric:tabular-nums}
+  .delta.bad{color:var(--rojo)}
+  .delta.good{color:var(--verde)}
+
+  /* Tabla dinámica de terminales bancarias */
+  .terminales-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;margin-top:8px}
+  table.terminales-tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:900px}
+  table.terminales-tbl th{
+    background:var(--ink);color:white;padding:8px 6px;
+    font-weight:600;font-size:11px;letter-spacing:.04em;
+    text-transform:uppercase;text-align:center;
+  }
+  table.terminales-tbl th:first-child{text-align:left}
+  table.terminales-tbl td{padding:2px;border-bottom:1px solid var(--line);background:var(--paper)}
+  table.terminales-tbl tr:nth-child(even) td{background:var(--bg)}
+  table.terminales-tbl input{
+    width:100%;border:1px solid transparent;background:transparent;
+    padding:7px 6px;font-size:13px;border-radius:4px;text-align:center;
+    font-family:inherit;color:var(--ink);
+  }
+  table.terminales-tbl input:focus{outline:none;background:var(--paper);border-color:var(--brasa)}
+  table.terminales-tbl input.banco{text-align:left;font-weight:600}
+  table.terminales-tbl tfoot td{
+    background:var(--bg);font-weight:600;text-align:center;
+    font-variant-numeric:tabular-nums;border-top:2px solid var(--line-strong);
+  }
+  table.terminales-tbl tfoot td:first-child{text-align:left;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+  .term-ops-delta{font-variant-numeric:tabular-nums;font-weight:600;display:block;text-align:center;padding:7px 6px}
+  .term-ops-delta.bad{color:var(--rojo)}
+  .term-ops-delta.good{color:var(--verde)}
+  .term-row-del{
+    background:transparent;border:none;color:var(--ink-soft);
+    cursor:pointer;font-size:16px;padding:4px 8px;border-radius:4px;
+  }
+  .term-row-del:hover{background:var(--rojo-tint);color:var(--rojo)}
+  .add-terminal-btn{
+    margin-top:10px;background:var(--bg);border:1px dashed var(--line-strong);
+    width:100%;padding:10px;border-radius:6px;cursor:pointer;
+    color:var(--ink-soft);font-family:inherit;font-size:13px;transition:all .15s;
+  }
+  .add-terminal-btn:hover{
+    border-color:var(--brasa);color:var(--brasa);background:var(--brasa-tint);
+  }
+
+  /* Desglose visible del cálculo del efectivo teórico */
+  .arq-desglose{
+    margin-top:12px;background:var(--bg);
+    border:1px solid var(--line);border-radius:6px;
+    padding:10px 14px;font-size:13px;
+  }
+  .arq-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:4px 0;border-bottom:1px dashed var(--line);
+  }
+  .arq-row:last-child{border-bottom:none}
+  .arq-lbl{color:var(--ink-soft);font-family:monospace;font-size:12px}
+  .arq-val{font-variant-numeric:tabular-nums;font-weight:500}
+  .arq-row.arq-tot{
+    margin-top:4px;padding-top:8px;border-top:2px solid var(--line-strong);
+    border-bottom:none;
+  }
+  .arq-row.arq-tot .arq-lbl,
+  .arq-row.arq-tot .arq-val{
+    font-weight:700;color:var(--ink);font-size:14px;
+  }
+  .small{font-size:12px}
+  .bdg{display:inline-block;background:var(--brasa);color:white;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+
+  /* Footer info */
+  .meta{font-size:11px;color:var(--ink-soft);text-align:center;margin-top:30px;border-top:1px solid var(--line);padding-top:14px}
+
+  /* Ícono de ayuda contextual */
+  .info-icon{
+    background:var(--bg);border:1px solid var(--line);
+    width:18px;height:18px;border-radius:50%;
+    font-size:11px;line-height:1;cursor:pointer;
+    color:var(--ink-soft);font-weight:700;font-family:serif;
+    padding:0;display:inline-flex;align-items:center;justify-content:center;
+    transition:all .15s;flex-shrink:0;
+    margin-left:6px;vertical-align:middle;
+  }
+  .info-icon:hover,.info-icon:focus{
+    background:var(--brasa-tint);border-color:var(--brasa);
+    color:var(--brasa-deep);outline:none;
+  }
+  .info-icon.active{background:var(--brasa);color:white;border-color:var(--brasa)}
+
+  /* Tooltip flotante */
+  .tooltip{
+    position:absolute;z-index:200;
+    background:var(--ink);color:white;
+    padding:10px 30px 10px 14px;border-radius:8px;
+    font-size:13px;line-height:1.45;
+    max-width:320px;width:max-content;
+    box-shadow:0 8px 24px rgba(0,0,0,.25);
+    pointer-events:auto;
+    animation:tipIn .12s ease-out;
+  }
+  .tooltip::after{
+    content:'';position:absolute;
+    top:-6px;left:var(--arrow-x,20px);
+    width:0;height:0;
+    border-left:6px solid transparent;
+    border-right:6px solid transparent;
+    border-bottom:6px solid var(--ink);
+  }
+  .tooltip.below::after{top:auto;bottom:-6px;border-bottom:none;border-top:6px solid var(--ink)}
+  .tooltip-close{
+    position:absolute;top:4px;right:6px;
+    background:transparent;border:none;color:rgba(255,255,255,.6);
+    cursor:pointer;font-size:14px;padding:2px 6px;line-height:1;
+  }
+  .tooltip-close:hover{color:white}
+  .tooltip strong{color:var(--brasa-tint)}
+  @keyframes tipIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+  /* ── Topbar handoff (oscuro · cluster con flame + meta + pill empresa) ── */
+  .brand-cluster{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brand-flame{display:flex;align-items:center;gap:9px}
+  .brand-flame svg{display:block;flex-shrink:0}
+  .brand-flame .wordmark{
+    font-family:'DM Sans',sans-serif;font-weight:800;font-size:18px;
+    letter-spacing:.02em;color:#c89a4a;line-height:1;
+  }
+  .brand-sep-v{width:1px;height:30px;background:rgba(246,241,232,.15);flex-shrink:0}
+  .brand-eyebrow{
+    font-family:var(--font-mono);font-size:10px;letter-spacing:.22em;
+    color:rgba(246,241,232,.5);text-transform:uppercase;font-weight:500;
+    display:block;line-height:1.2;
+  }
+  .brand-name{
+    font-family:var(--font-serif);font-style:italic;font-weight:500;
+    font-size:22px;letter-spacing:-.01em;color:#f6f1e8;line-height:1.1;
+    margin-top:3px;
+  }
+  .brand-empresa{
+    font-family:'DM Sans',sans-serif;font-weight:600;font-size:10px;
+    color:#c89a4a;
+    padding:5px 12px;
+    background:rgba(200,154,74,.12);border:1px solid rgba(200,154,74,.4);
+    letter-spacing:.18em;text-transform:uppercase;
+  }
+  .fecha-lbl{
+    margin:0;font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;
+    color:rgba(246,241,232,.55);text-transform:uppercase;font-weight:500;
+  }
+  .save-indicator{
+    font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;font-weight:500;
+    display:inline-flex;align-items:center;gap:5px;
+    padding:6px 10px;border-radius:6px;
+    background:rgba(30,127,92,.18);color:#7dd3a8;
+    border:1px solid rgba(30,127,92,.35);
+    transition:all .2s;user-select:none;text-transform:uppercase;
+  }
+  .save-indicator.saving{background:rgba(200,154,74,.15);color:#c89a4a;border-color:rgba(200,154,74,.4)}
+  .save-indicator.error{background:rgba(196,50,42,.15);color:#e04826;border-color:rgba(196,50,42,.4)}
+  /* Banner de recuperación de backup local (anti-pérdida) */
+  .lb-recover{
+    display:none;margin:12px auto;max-width:1180px;
+    padding:14px 18px;border-radius:10px;
+    background:rgba(185,122,27,.10);border:1px solid rgba(185,122,27,.4);
+    color:#7a5400;font-size:14px;line-height:1.5;
+    box-shadow:0 2px 8px rgba(185,122,27,.08);
+  }
+  .lb-recover.show{display:block}
+  .lb-recover-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .lb-recover-msg{flex:1;min-width:240px}
+  .lb-recover-msg strong{color:#5a3e00}
+  .lb-recover-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .lb-recover-actions .btn{font-size:13px;padding:6px 14px}
+  .lb-recover-actions .btn-restore{
+    background:var(--verde);color:#fff;border-color:var(--verde);
+  }
+  .lb-recover-actions .btn-restore:hover{background:#196d4f;border-color:#196d4f}
+  .lb-recover-actions .btn-discard{
+    background:transparent;color:var(--rojo);border-color:var(--rojo);
+  }
+  .lb-recover-actions .btn-discard:hover{background:rgba(159,43,30,.06)}
+  /* Modal de Histórico de Cambios (T2 fase 2) */
+  .audit-overlay{
+    display:none;position:fixed;inset:0;z-index:1000;
+    background:rgba(28,28,28,.55);backdrop-filter:blur(2px);
+    align-items:flex-start;justify-content:center;padding:40px 20px;
+    overflow-y:auto;
+  }
+  .audit-overlay.show{display:flex}
+  .audit-modal{
+    background:var(--bg-card);border-radius:12px;
+    box-shadow:0 12px 40px rgba(0,0,0,.18);
+    max-width:720px;width:100%;
+    max-height:calc(100vh - 80px);overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .audit-head{
+    padding:18px 22px;border-bottom:1px solid var(--ink-divider);
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    flex-shrink:0;
+  }
+  .audit-head h3{margin:0;font-size:17px;color:var(--ink)}
+  .audit-head-sub{font-size:12px;color:var(--ink-soft);margin-top:2px}
+  .audit-close{
+    background:transparent;border:none;font-size:22px;color:var(--ink-soft);
+    cursor:pointer;padding:4px 10px;line-height:1;border-radius:6px;
+  }
+  .audit-close:hover{background:rgba(0,0,0,.05);color:var(--rojo)}
+  .audit-body{padding:14px 22px 22px;overflow-y:auto;flex:1;min-height:0}
+  .audit-empty{padding:30px 0;text-align:center;color:var(--ink-soft);font-size:14px}
+  .audit-row{
+    padding:11px 0;border-bottom:1px solid rgba(0,0,0,.06);
+    display:flex;flex-direction:column;gap:4px;
+  }
+  .audit-row:last-child{border-bottom:none}
+  .audit-row-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .audit-accion{
+    font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;
+    text-transform:uppercase;font-weight:600;
+    padding:2px 8px;border-radius:4px;
+  }
+  .audit-accion-crear  {background:rgba(30,127,92,.12); color:var(--verde)}
+  .audit-accion-editar {background:rgba(28,28,28,.06);  color:var(--ink-soft)}
+  .audit-accion-cerrar {background:rgba(185,122,27,.12); color:#7a5400}
+  .audit-accion-reabrir{background:rgba(159,43,30,.10); color:var(--rojo)}
+  .audit-usuario{font-size:13.5px;color:var(--ink);font-weight:500}
+  .audit-rol{font-size:11px;color:var(--ink-soft);font-style:italic}
+  .audit-when{font-size:12px;color:var(--ink-soft);margin-left:auto}
+  .audit-secciones{font-size:12.5px;color:var(--ink-soft);line-height:1.5}
+  .audit-secciones strong{color:var(--ink);font-weight:500}
+  .audit-sec-tag{
+    display:inline-block;padding:1px 8px;margin:2px 3px 2px 0;
+    border-radius:4px;background:rgba(184,71,42,.08);color:#8a3517;
+    font-size:11px;font-family:var(--font-mono);
+  }
+  .btn-logout{color:rgba(246,241,232,.65) !important}
+  .btn-logout:hover{
+    background:rgba(196,50,42,.12) !important;
+    border-color:#c4322a !important;color:#e04826 !important;
+  }
+  /* Modal de auditoría: definir fallbacks de tokens no declarados */
+  .audit-modal{background:#fffdf8}
+  .audit-head{border-bottom-color:var(--line)}
+  .audit-overlay{background:rgba(12,9,7,.55)}
+
+  /* ── Restricciones de visibilidad por rol ── */
+  /* Cajera: solo ve Mix POS (sin columna Host/Δ) y Corte de Caja. Nada más. */
+  body.role-cajera .card:not(.cajera-only){display:none !important}
+  body.role-cajera .hide-cajera{display:none !important}
+  body.role-cajera .mix-table th:nth-child(2),
+  body.role-cajera .mix-table th:nth-child(4),
+  body.role-cajera .mix-table td:nth-child(2),
+  body.role-cajera .mix-table td:nth-child(4){display:none !important}
+  /* Notice para cajera */
+  body.role-cajera .cajera-notice{
+    display:block;background:var(--brasa-tint);border-left:3px solid var(--brasa);
+    padding:12px 16px;border-radius:6px;margin-bottom:18px;
+    font-size:13px;color:var(--ink);
+  }
+  .cajera-notice{display:none}
+  body.role-cajera .cajera-notice strong{color:var(--brasa-deep)}
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="head-row">
+    <div class="brand-cluster">
+      <div class="brand-flame" aria-label="Fogueira">
+        <svg width="22" height="26" viewBox="0 0 32 38" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="flameGradCo" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e8c46a"/>
+              <stop offset="50%" stop-color="#c89a4a"/>
+              <stop offset="100%" stop-color="#9a7330"/>
+            </linearGradient>
+          </defs>
+          <path d="M16 1.5 C 17 6, 22 9, 23 14 C 24 18, 22 21, 20 22 C 22 24, 24 27, 24 31 C 24 35, 21 37, 16 37 C 11 37, 8 35, 8 31 C 8 28, 10 26, 11 24 C 9 22, 7 19, 8 15 C 9 11, 13 11, 14 7 C 15 5, 16 3, 16 1.5 Z" fill="url(#flameGradCo)"/>
+          <path d="M16 16 C 17 19, 19 21, 19 25 C 19 28, 17 30, 16 30 C 15 30, 13 28, 13 25 C 13 22, 15 19, 16 16 Z" fill="#0c0907" opacity="0.55"/>
+        </svg>
+        <span class="wordmark">FOGUEIRA</span>
+      </div>
+      <div class="brand-sep-v"></div>
+      <div>
+        <div class="brand-eyebrow">Conciliación · Caja</div>
+        <div class="brand-name">Cierre del día</div>
+      </div>
+      <span class="brand-empresa" id="empresaNombre">—</span>
+    </div>
+    <div class="head-actions no-print">
+      <label for="fecha" class="fecha-lbl">Fecha</label>
+      <input type="date" id="fecha">
+      <span class="save-indicator" id="saveIndicator" title="Se guarda automáticamente">✓ Guardado</span>
+      <button class="btn hide-cajera" id="btnAutoFill" title="Tomar todas las bitácoras del día y consolidar Mix Host, horas y folios automáticamente">🔄 Auto-llenar del día</button>
+      <button class="btn" id="btnAuditoria" style="display:none" title="Histórico de cambios sobre esta conciliación (quién y cuándo modificó qué)">📜 Cambios</button>
+      <button class="btn" id="btnPrint">🖨 PDF</button>
+      <a class="btn" href="https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec?p=historico" target="_top">📊 Histórico</a>
+      <a class="btn" href="https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec?p=inicio" target="_top">← Inicio</a>
+      <button class="btn btn-logout" id="btnLogout">Cerrar sesión</button>
+    </div>
+  </div>
+</header>
+
+<!-- Modal: Histórico de cambios (auditoría granular T2 fase 2) -->
+<div class="audit-overlay no-print" id="auditOverlay" role="dialog" aria-modal="true" aria-labelledby="auditTitle">
+  <div class="audit-modal">
+    <div class="audit-head">
+      <div>
+        <h3 id="auditTitle">📜 Histórico de cambios</h3>
+        <div class="audit-head-sub" id="auditSubtitle">—</div>
+      </div>
+      <button class="audit-close" id="auditClose" type="button" aria-label="Cerrar">×</button>
+    </div>
+    <div class="audit-body" id="auditBody">
+      <div class="audit-empty">Cargando…</div>
+    </div>
+  </div>
+</div>
+
+<!-- Banner de recuperación de captura local sin guardar (Fase 1 anti-pérdida) -->
+<div class="lb-recover no-print" id="lbRecover" role="alert" aria-live="polite">
+  <div class="lb-recover-row">
+    <div class="lb-recover-msg">
+      <strong>♻ Captura local sin guardar detectada</strong><br>
+      Tienes captura de esta fecha hecha hace <span id="lbRecoverAgo">—</span> que no llegó a guardarse en el servidor (probablemente porque se cayó la red o se cerró la pestaña). ¿Quieres recuperarla?
+    </div>
+    <div class="lb-recover-actions">
+      <button class="btn btn-restore" id="lbBtnRestore" type="button">♻ Recuperar</button>
+      <button class="btn btn-discard" id="lbBtnDiscard" type="button">🗑 Descartar local</button>
+    </div>
+  </div>
+</div>
+
+<nav class="tabs">
+  <div class="tabs-inner">
+    <button class="tab-btn active" data-tab="apertura">Apertura</button>
+    <button class="tab-btn" data-tab="cierre">Cierre <span class="bdg" style="background:var(--brasa-deep)">PROFUNDO</span></button>
+    <button class="tab-btn hide-cajera" data-tab="resumen">Resumen <span class="badge" id="flagBadge" style="display:none">0</span></button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- Aviso visible solo para cajera -->
+  <div class="cajera-notice">
+    <strong>Modo cajera:</strong> tu vista está reducida. En <em>Apertura</em> y <em>Cierre</em>, captura solo la columna <strong>POS</strong> del Mix de comensales. En <em>Cierre profundo</em>, llena el <strong>Corte de Caja</strong> (denominaciones, tarjetas y cortesías). El resto lo administra la administradora.
+  </div>
+
+
+  <!-- ============================ APERTURA ============================ -->
+  <section class="panel active" id="panel-apertura">
+    <h2 class="section-title">Corte de Apertura<button class="info-icon no-print" data-tip="<strong>Apertura</strong> = corte de la <strong>primera mitad del día</strong> (brunch o comida). Se llena al terminar ese servicio. Es un corte rápido de 5 secciones: periodo, mix de comensales, cobros y propinas, eventos de control y firmas. Si Fogueira no opera al mediodía, esta pestaña queda vacía." type="button">i</button></h2>
+    <p class="section-sub">Conciliación rápida del servicio de apertura (brunch / comida según horario operativo).</p>
+
+    <div class="card">
+      <h3><span class="num">01</span> Periodo y servicio</h3>
+      <div class="grid g4">
+        <div><label>Hora desde</label><input type="time" data-k="ap_hora_desde"></div>
+        <div><label>Hora hasta</label><input type="time" data-k="ap_hora_hasta"></div>
+        <div>
+          <label>Tipo de servicio</label>
+          <select data-k="ap_servicio">
+            <option value="">—</option>
+            <option>Buffet completo</option><option>Desayuno</option><option>Comida</option>
+          </select>
+        </div>
+        <div><label>Tarifa base aplicada ($)<button class="info-icon no-print" data-tip="Precio base del buffet adulto vigente para este servicio. Se usa como referencia para calcular venta teórica y validar que el ingreso por buffet sea razonable." type="button">i</button></label><input type="number" min="0" step="1" data-k="ap_tarifa_base" placeholder="ej. 600"></div>
+      </div>
+      <div style="margin-top:12px">
+        <label>Folio(s) de bitácora del host conciliados<button class="info-icon no-print" data-tip="Folio FOG-AAAA-#### de la bitácora del host correspondiente a este servicio. Si hubo cambio de host se acumulan (ej: <em>FOG-2026-0001, FOG-2026-0002</em>). Se llena solo al cargar el JSON." type="button">i</button></label>
+        <input type="text" data-k="ap_folios_bitacora" placeholder="Ej. FOG-2026-0001, FOG-2026-0002">
+        <p class="help">Anota los folios de la bitácora del host que corresponden a este servicio. Si cargas el JSON con el botón de abajo, se llena automáticamente.</p>
+      </div>
+    </div>
+
+    <div class="card cajera-only">
+      <h3><span class="num">02</span> Mix de comensales — Host vs POS<button class="info-icon no-print" data-tip="Compara cuántos comensales <strong>contó el host</strong> al ingreso (columna izquierda) vs cuántos <strong>cobró el POS</strong> (columna derecha), desglosado por tarifa. La columna Δ muestra la diferencia. <strong>Si |Δ| > 2 en cualquier tarifa, se enciende bandera roja</strong>. La columna Host se prellena automáticamente al cargar el JSON de la bitácora." type="button">i</button></h3>
+      <div class="table-wrap">
+        <table class="data mix-table">
+          <thead><tr><th>Tarifa</th><th class="num-cell">Host (bitácora)</th><th class="num-cell">POS</th><th class="num-cell">Δ</th></tr></thead>
+          <tbody id="ap_mix_tbody">
+            <tr><td>Adulto</td><td><input type="number" min="0" data-k="ap_mix_adulto_host" data-mix-host="adulto"></td><td><input type="number" min="0" data-k="ap_mix_adulto_pos" data-mix-pos="adulto"></td><td class="delta" id="ap_mix_adulto_delta">0</td></tr>
+            <tr><td>Niño (5–12)</td><td><input type="number" min="0" data-k="ap_mix_nino_host" data-mix-host="nino"></td><td><input type="number" min="0" data-k="ap_mix_nino_pos" data-mix-pos="nino"></td><td class="delta" id="ap_mix_nino_delta">0</td></tr>
+            <tr><td>Tercera edad</td><td><input type="number" min="0" data-k="ap_mix_3era_host" data-mix-host="3era"></td><td><input type="number" min="0" data-k="ap_mix_3era_pos" data-mix-pos="3era"></td><td class="delta" id="ap_mix_3era_delta">0</td></tr>
+            <tr><td>Promoción / día especial</td><td><input type="number" min="0" data-k="ap_mix_promo_host" data-mix-host="promo"></td><td><input type="number" min="0" data-k="ap_mix_promo_pos" data-mix-pos="promo"></td><td class="delta" id="ap_mix_promo_delta">0</td></tr>
+            <tr><td>Cortesía</td><td><input type="number" min="0" data-k="ap_mix_corte_host" data-mix-host="corte"></td><td><input type="number" min="0" data-k="ap_mix_corte_pos" data-mix-pos="corte"></td><td class="delta" id="ap_mix_corte_delta">0</td></tr>
+            <tr style="background:var(--bg);font-weight:600">
+              <td>TOTAL</td>
+              <td class="num-cell" id="ap_total_host">0</td>
+              <td class="num-cell" id="ap_total_pos">0</td>
+              <td class="delta" id="ap_total_delta">0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="help">Bandera roja si |Δ| &gt; 2 comensales en cualquier tarifa o en total.</p>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">03</span> Cobros y propinas del servicio<button class="info-icon no-print" data-tip="Captura los <strong>totales cobrados en el bloque</strong> separados por método de pago (efectivo, tarjeta, transferencia) y las propinas. El sistema calcula automáticamente el % de propina sobre tarjeta — el rango sano es entre 8% y 20%; fuera de ese rango se levanta bandera." type="button">i</button></h3>
+      <div class="grid g3">
+        <div><label>Efectivo</label><input type="number" min="0" step=".01" data-k="ap_cobro_efectivo"></div>
+        <div><label>Tarjeta</label><input type="number" min="0" step=".01" data-k="ap_cobro_tarjeta"></div>
+        <div><label>Transferencia</label><input type="number" min="0" step=".01" data-k="ap_cobro_transfer"></div>
+        <div><label>Propina tarjeta</label><input type="number" min="0" step=".01" data-k="ap_propina_tar"></div>
+        <div><label>% Propina tarjeta (auto)</label><input type="text" id="ap_pct_propina" readonly style="background:var(--bg)"></div>
+        <div></div>
+      </div>
+      <p class="help">Rango esperado de propina con tarjeta: 8% – 20% sobre cobros con tarjeta. <strong>Las propinas en efectivo no se concilian</strong> — la mesera las recibe directo, no llegan a caja.</p>
+
+      <div class="divider"></div>
+      <h4 style="margin:0 0 10px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">
+        Comisión de meseros al fondo de piso
+        <button class="info-icon no-print" data-tip="<strong>Cómo funciona:</strong><br><br>Cada mesero le debe al fondo de servicio el <strong>7% sobre la venta</strong> (tarjeta o efectivo). Ese 7% se reparte entre todo el personal de piso al cierre del día.<br><br>Adicionalmente, cuando el cliente paga propina con tarjeta, el banco descuenta <strong>5% + IVA 16%</strong> como comisión por procesar la propina — eso NO entra al fondo, lo retiene el banco.<br><br>Como las propinas tarjeta llegan al banco con 1-2 días de delay, se retira un equivalente del efectivo del cajón el mismo día para entregárselas al encargado de piso." type="button">i</button>
+      </h4>
+
+      <p class="help" style="margin-bottom:10px"><strong>Aporte al fondo de servicio</strong> (7% sobre las ventas — esto se reparte entre el personal de piso):</p>
+      <div class="grid g3">
+        <div><label>7% sobre venta tarjeta (auto)</label><input type="text" id="ap_com_7tar" readonly style="background:var(--bg)"></div>
+        <div><label>7% sobre venta efectivo (auto)</label><input type="text" id="ap_com_7efe" readonly style="background:var(--bg)"></div>
+        <div><label>Total fondo del servicio (auto)</label><input type="text" id="ap_com_total" readonly style="background:var(--bg);font-weight:600"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <p class="help" style="margin-bottom:10px"><strong>Costo bancario sobre propina tarjeta</strong> (no entra al fondo — el banco lo retiene como comisión):</p>
+      <div class="grid g3">
+        <div><label>5% sobre propina tarjeta (auto)</label><input type="text" id="ap_com_5propTar" readonly style="background:var(--bg)"></div>
+        <div><label>16% IVA sobre el 5% (auto)</label><input type="text" id="ap_com_iva" readonly style="background:var(--bg)"></div>
+        <div><label>Total comisión banco (auto)</label><input type="text" id="ap_com_banco" readonly style="background:var(--bg);font-weight:600"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <p class="help" style="margin-bottom:10px"><strong>Entrega de propina tarjeta al encargado de piso</strong> (se retira efectivo del cajón equivalente, porque el banco liquida con delay):</p>
+      <div class="grid g3">
+        <div><label>Propina tarjeta del servicio (auto)</label><input type="text" id="ap_propTar_lbl" readonly style="background:var(--bg)"></div>
+        <div><label>Efectivo retirado para entrega</label><input type="number" min="0" step=".01" data-k="ap_retiro_propinas"></div>
+        <div><label>Δ Retiro vs propina (auto)</label><input type="text" id="ap_retiro_delta" readonly style="background:var(--bg)"></div>
+      </div>
+      <p class="help">Tolerancia: ± $10 (redondeos). Si Δ es mayor, indica faltante en caja o pago de menos al personal — bandera roja.</p>
+
+      <div style="margin-top:12px">
+        <label>Recibe (encargado de piso)</label>
+        <input type="text" data-k="ap_com_recibe" placeholder="Nombre del encargado de piso">
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">04</span> Eventos de control<button class="info-icon no-print" data-tip="Tres eventos que requieren autorización formal: <strong>cancelaciones</strong> (tickets cancelados después de cobrar), <strong>no-sales</strong> (apertura del cajón sin venta — bandera si > 2/día) y <strong>cortesías</strong>. Toda cancelación o cortesía debe tener el nombre de quien autoriza (típicamente Mónica). Sin autorización, son hallazgos." type="button">i</button></h3>
+      <div class="grid g3">
+        <div><label># Cancelaciones</label><input type="number" min="0" data-k="ap_canc_num"></div>
+        <div><label>$ Cancelado</label><input type="number" min="0" step=".01" data-k="ap_canc_monto"></div>
+        <div><label>Autorizó (Mónica / otro)</label><input type="text" data-k="ap_canc_autor" placeholder="Nombre"></div>
+        <div><label># No-sales (cajón sin venta)</label><input type="number" min="0" data-k="ap_nosales"></div>
+        <div><label># Cortesías</label><input type="number" min="0" data-k="ap_corte_num"></div>
+        <div><label>Autorizó cortesías</label><input type="text" data-k="ap_corte_autor" placeholder="Nombre"></div>
+      </div>
+      <div style="margin-top:12px">
+        <label>Motivo / observaciones</label>
+        <textarea data-k="ap_obs" placeholder="Detalle de cancelaciones, cortesías, incidentes…"></textarea>
+      </div>
+    </div>
+
+    <!-- Card de "Mi firma como Cajero": solo visible cuando rol === 'cajera' -->
+    <div class="card no-print" id="cajeroSellosCard" style="display:none">
+      <h3 style="font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:22px;margin:0 0 12px;color:var(--ink)">
+        🖋️ Mis firmas como Cajero
+      </h3>
+      <p class="section-sub">Sella tu apertura cuando contaste el fondo, y tu cierre cuando entregaste el corte. Quedan firmados a tu nombre con la hora exacta.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
+        <div style="padding:14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--paper)">
+          <div style="font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;font-weight:500;margin-bottom:6px">Apertura</div>
+          <div id="cajSelloAperturaInfo" style="font-size:13px;color:var(--muted);margin-bottom:8px">Sin sellar</div>
+          <button class="btn btn-primary" id="btnCajSellarApertura" type="button">✓ Sellar mi apertura</button>
+        </div>
+        <div style="padding:14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--paper)">
+          <div style="font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;font-weight:500;margin-bottom:6px">Cierre</div>
+          <div id="cajSelloCierreInfo" style="font-size:13px;color:var(--muted);margin-bottom:8px">Sin sellar</div>
+          <button class="btn btn-primary" id="btnCajSellarCierre" type="button">✓ Sellar mi cierre</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">05</span> Tablero de sellos del servicio</h3>
+      <p class="section-sub">Cada persona sella desde su propio módulo con su sesión autenticada. Aquí solo ves quién ya selló y a quién falta. Si necesitas firmar tú por alguien (ej. cajero ausente), usa el botón de override y queda auditado.</p>
+      <div id="sellosTablero" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:12px">
+        <div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);font-size:13px">Cargando sellos…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ CIERRE ============================ -->
+  <section class="panel" id="panel-cierre">
+    <h2 class="section-title">Corte de Cierre · Conciliación profunda<button class="info-icon no-print" data-tip="<strong>Cierre</strong> = corte de la <strong>segunda mitad del día</strong> (cena) <strong>+ todo lo que se revisa una sola vez al final del día</strong>. Por eso lleva 13 secciones: las 5 del bloque de cena, más el arqueo ciego de caja, cierre de terminal, folios de tickets, extras a la carta, apps de delivery, CFDI, control de barra y evidencia fotográfica. Es la conciliación profunda del día completo." type="button">i</button></h2>
+    <p class="section-sub">Consolida el día completo. Incluye arqueo ciego de caja, cierre de terminal, folios, extras a la carta, apps, CFDI y barra buffet.</p>
+
+    <div class="card">
+      <h3><span class="num">01</span> Periodo y servicio</h3>
+      <div class="grid g4">
+        <div><label>Hora desde</label><input type="time" data-k="ci_hora_desde"></div>
+        <div><label>Hora hasta</label><input type="time" data-k="ci_hora_hasta"></div>
+        <div>
+          <label>Tipo de servicio</label>
+          <select data-k="ci_servicio">
+            <option value="">—</option>
+            <option>Buffet completo</option><option>Desayuno</option><option>Comida</option>
+          </select>
+        </div>
+        <div><label>Tarifa base aplicada ($)<button class="info-icon no-print" data-tip="Precio base del buffet adulto vigente para este servicio (cena o día especial)." type="button">i</button></label><input type="number" min="0" step="1" data-k="ci_tarifa_base"></div>
+      </div>
+      <div style="margin-top:12px">
+        <label>Folio(s) de bitácora del host conciliados<button class="info-icon no-print" data-tip="Folio FOG-AAAA-#### de la bitácora del host correspondiente a este servicio. Si hubo cambio de host se acumulan (ej: <em>FOG-2026-0001, FOG-2026-0002</em>). Se llena solo al cargar el JSON." type="button">i</button></label>
+        <input type="text" data-k="ci_folios_bitacora" placeholder="Ej. FOG-2026-0003, FOG-2026-0004">
+        <p class="help">Anota los folios de la bitácora del host que corresponden a este servicio. Si cargas el JSON con el botón de abajo, se llena automáticamente.</p>
+      </div>
+    </div>
+
+    <div class="card cajera-only">
+      <h3><span class="num">02</span> Mix de comensales del servicio — Host vs POS<button class="info-icon no-print" data-tip="Igual que en Apertura, pero para el servicio de cena. Compara comensales contados por el host vs cobrados en POS, por tarifa. Carga el JSON de la bitácora del host del bloque de cena con el botón de abajo." type="button">i</button></h3>
+      <div class="table-wrap">
+        <table class="data mix-table">
+          <thead><tr><th>Tarifa</th><th class="num-cell">Host</th><th class="num-cell">POS</th><th class="num-cell">Δ</th></tr></thead>
+          <tbody>
+            <tr><td>Adulto</td><td><input type="number" min="0" data-k="ci_mix_adulto_host"></td><td><input type="number" min="0" data-k="ci_mix_adulto_pos"></td><td class="delta" id="ci_mix_adulto_delta">0</td></tr>
+            <tr><td>Niño (5–12)</td><td><input type="number" min="0" data-k="ci_mix_nino_host"></td><td><input type="number" min="0" data-k="ci_mix_nino_pos"></td><td class="delta" id="ci_mix_nino_delta">0</td></tr>
+            <tr><td>Tercera edad</td><td><input type="number" min="0" data-k="ci_mix_3era_host"></td><td><input type="number" min="0" data-k="ci_mix_3era_pos"></td><td class="delta" id="ci_mix_3era_delta">0</td></tr>
+            <tr><td>Promoción / día especial</td><td><input type="number" min="0" data-k="ci_mix_promo_host"></td><td><input type="number" min="0" data-k="ci_mix_promo_pos"></td><td class="delta" id="ci_mix_promo_delta">0</td></tr>
+            <tr><td>Cortesía</td><td><input type="number" min="0" data-k="ci_mix_corte_host"></td><td><input type="number" min="0" data-k="ci_mix_corte_pos"></td><td class="delta" id="ci_mix_corte_delta">0</td></tr>
+            <tr style="background:var(--bg);font-weight:600">
+              <td>TOTAL</td>
+              <td class="num-cell" id="ci_total_host">0</td>
+              <td class="num-cell" id="ci_total_pos">0</td>
+              <td class="delta" id="ci_total_delta">0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">03</span> Cobros y propinas del servicio<button class="info-icon no-print" data-tip="Captura los <strong>totales cobrados en el bloque</strong> separados por método de pago (efectivo, tarjeta, transferencia) y las propinas. El sistema calcula automáticamente el % de propina sobre tarjeta — el rango sano es entre 8% y 20%; fuera de ese rango se levanta bandera." type="button">i</button></h3>
+      <div class="grid g3">
+        <div><label>Efectivo</label><input type="number" min="0" step=".01" data-k="ci_cobro_efectivo"></div>
+        <div><label>Tarjeta</label><input type="number" min="0" step=".01" data-k="ci_cobro_tarjeta"></div>
+        <div><label>Transferencia</label><input type="number" min="0" step=".01" data-k="ci_cobro_transfer"></div>
+        <div><label>Propina tarjeta</label><input type="number" min="0" step=".01" data-k="ci_propina_tar"></div>
+        <div><label>% Propina tarjeta (auto)</label><input type="text" id="ci_pct_propina" readonly style="background:var(--bg)"></div>
+        <div></div>
+      </div>
+      <p class="help">Rango esperado de propina con tarjeta: 8% – 20%. <strong>Las propinas en efectivo no se concilian</strong> — la mesera las recibe directo, no llegan a caja.</p>
+
+      <div class="divider"></div>
+      <h4 style="margin:0 0 10px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">
+        Comisión de meseros al fondo de piso
+        <button class="info-icon no-print" data-tip="<strong>Cómo funciona:</strong><br><br>Cada mesero le debe al fondo de servicio el <strong>7% sobre la venta</strong> (tarjeta o efectivo). Ese 7% se reparte entre todo el personal de piso al cierre del día.<br><br>Adicionalmente, cuando el cliente paga propina con tarjeta, el banco descuenta <strong>5% + IVA 16%</strong> como comisión por procesar la propina — eso NO entra al fondo, lo retiene el banco.<br><br>Como las propinas tarjeta llegan al banco con 1-2 días de delay, se retira un equivalente del efectivo del cajón el mismo día para entregárselas al encargado de piso." type="button">i</button>
+      </h4>
+
+      <p class="help" style="margin-bottom:10px"><strong>Aporte al fondo de servicio</strong> (7% sobre las ventas — esto se reparte entre el personal de piso):</p>
+      <div class="grid g3">
+        <div><label>7% sobre venta tarjeta (auto)</label><input type="text" id="ci_com_7tar" readonly style="background:var(--bg)"></div>
+        <div><label>7% sobre venta efectivo (auto)</label><input type="text" id="ci_com_7efe" readonly style="background:var(--bg)"></div>
+        <div><label>Total fondo del servicio (auto)</label><input type="text" id="ci_com_total" readonly style="background:var(--bg);font-weight:600"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <p class="help" style="margin-bottom:10px"><strong>Costo bancario sobre propina tarjeta</strong> (no entra al fondo — el banco lo retiene como comisión):</p>
+      <div class="grid g3">
+        <div><label>5% sobre propina tarjeta (auto)</label><input type="text" id="ci_com_5propTar" readonly style="background:var(--bg)"></div>
+        <div><label>16% IVA sobre el 5% (auto)</label><input type="text" id="ci_com_iva" readonly style="background:var(--bg)"></div>
+        <div><label>Total comisión banco (auto)</label><input type="text" id="ci_com_banco" readonly style="background:var(--bg);font-weight:600"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <p class="help" style="margin-bottom:10px"><strong>Entrega de propina tarjeta al encargado de piso</strong> (se retira efectivo del cajón equivalente, porque el banco liquida con delay):</p>
+      <div class="grid g3">
+        <div><label>Propina tarjeta del servicio (auto)</label><input type="text" id="ci_propTar_lbl" readonly style="background:var(--bg)"></div>
+        <div><label>Efectivo retirado para entrega</label><input type="number" min="0" step=".01" data-k="ci_retiro_propinas"></div>
+        <div><label>Δ Retiro vs propina (auto)</label><input type="text" id="ci_retiro_delta" readonly style="background:var(--bg)"></div>
+      </div>
+      <p class="help">Tolerancia: ± $10 (redondeos). Si Δ es mayor, indica faltante en caja o pago de menos al personal — bandera roja.</p>
+
+      <div style="margin-top:12px">
+        <label>Recibe (encargado de piso)</label>
+        <input type="text" data-k="ci_com_recibe" placeholder="Nombre del encargado de piso">
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">04</span> Eventos de control del día completo<button class="info-icon no-print" data-tip="Igual que en Apertura, pero <strong>acumulado del día completo</strong> (apertura + cierre). Captura aquí los totales del día, no solo los del bloque de cena." type="button">i</button></h3>
+      <div class="grid g3">
+        <div><label># Cancelaciones (día)</label><input type="number" min="0" data-k="ci_canc_num"></div>
+        <div><label>$ Cancelado (día)</label><input type="number" min="0" step=".01" data-k="ci_canc_monto"></div>
+        <div><label>Autorizó</label><input type="text" data-k="ci_canc_autor"></div>
+        <div><label># No-sales (día)</label><input type="number" min="0" data-k="ci_nosales"></div>
+        <div><label># Cortesías (día)</label><input type="number" min="0" data-k="ci_corte_num"></div>
+        <div><label>Autorizó cortesías</label><input type="text" data-k="ci_corte_autor"></div>
+      </div>
+    </div>
+
+    <div class="card cajera-only">
+      <h3><span class="num">05</span> Corte de Caja <span class="pill brasa">CIERRE</span><button class="info-icon no-print" data-tip="<strong>Corte de caja</strong> según el formato físico que llena la cajera al cierre del día. Cuatro secciones: (1) <strong>Desglose de efectivo</strong> por denominación + retiros + comisión, (2) <strong>Tarjetas bancarias</strong> separadas por tipo (Débito/Mastercard/AMEX/Visa), (3) <strong>Resumen de totales</strong> automático, (4) <strong>Cortesías</strong> con folio. Se sigue el principio de arqueo ciego — la cajera cuenta y captura SIN ver primero el teórico." type="button">i</button></h3>
+      <p class="help" style="margin-bottom:12px">La cajera cuenta y captura el desglose <strong>sin consultar primero el teórico</strong>. La diferencia se calcula al final.</p>
+
+      <h4 style="margin:0 0 10px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">Encabezado</h4>
+      <div class="grid g4">
+        <div><label>Encargado</label><input type="text" data-k="ci_corte_encargado" placeholder="Ej. Carlos"></div>
+        <div><label>Nombre del cajero</label><input type="text" data-k="ci_corte_cajero" placeholder="Nombre"></div>
+        <div><label>Fondo asignado ($)</label><input type="number" min="0" step=".01" data-k="ci_corte_fondo" placeholder="3000"></div>
+        <div><label>Fecha del reporte</label><input type="text" id="ci_corte_fecha_label" readonly style="background:var(--bg)"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h4 style="margin:0 0 10px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">Desglose de efectivo final</h4>
+      <div class="table-wrap">
+        <table class="data">
+          <thead>
+            <tr>
+              <th>Concepto</th>
+              <th class="num-cell" style="width:90px">Cantidad</th>
+              <th class="num-cell" style="width:140px">Importe ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Retiros</td><td class="num-cell">—</td><td><input type="number" min="0" step=".01" data-k="ci_corte_retiros"></td></tr>
+            <tr><td>$1,000</td><td><input type="number" min="0" data-k="ci_corte_d1000_cant" data-denom="1000"></td><td class="num-cell" id="ci_corte_d1000_imp">$0.00</td></tr>
+            <tr><td>$500</td><td><input type="number" min="0" data-k="ci_corte_d500_cant" data-denom="500"></td><td class="num-cell" id="ci_corte_d500_imp">$0.00</td></tr>
+            <tr><td>$200</td><td><input type="number" min="0" data-k="ci_corte_d200_cant" data-denom="200"></td><td class="num-cell" id="ci_corte_d200_imp">$0.00</td></tr>
+            <tr><td>$100</td><td><input type="number" min="0" data-k="ci_corte_d100_cant" data-denom="100"></td><td class="num-cell" id="ci_corte_d100_imp">$0.00</td></tr>
+            <tr><td>$50</td><td><input type="number" min="0" data-k="ci_corte_d50_cant" data-denom="50"></td><td class="num-cell" id="ci_corte_d50_imp">$0.00</td></tr>
+            <tr><td>$20</td><td><input type="number" min="0" data-k="ci_corte_d20_cant" data-denom="20"></td><td class="num-cell" id="ci_corte_d20_imp">$0.00</td></tr>
+            <tr><td>$10</td><td><input type="number" min="0" data-k="ci_corte_d10_cant" data-denom="10"></td><td class="num-cell" id="ci_corte_d10_imp">$0.00</td></tr>
+            <tr><td>$5</td><td><input type="number" min="0" data-k="ci_corte_d5_cant" data-denom="5"></td><td class="num-cell" id="ci_corte_d5_imp">$0.00</td></tr>
+            <tr><td>$2</td><td><input type="number" min="0" data-k="ci_corte_d2_cant" data-denom="2"></td><td class="num-cell" id="ci_corte_d2_imp">$0.00</td></tr>
+            <tr><td>$1</td><td><input type="number" min="0" data-k="ci_corte_d1_cant" data-denom="1"></td><td class="num-cell" id="ci_corte_d1_imp">$0.00</td></tr>
+            <tr><td>Comisión</td><td class="num-cell">—</td><td><input type="number" min="0" step=".01" data-k="ci_corte_comision"></td></tr>
+            <tr style="background:var(--bg);font-weight:600"><td>TOTAL EFECTIVO FINAL</td><td>—</td><td class="num-cell" id="ci_corte_efe_total">$0.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="divider"></div>
+
+      <h4 style="margin:0 0 10px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">Tarjetas bancarias</h4>
+      <div class="grid g4">
+        <div><label>T. Débito ($)</label><input type="number" min="0" step=".01" data-k="ci_corte_tar_debito"></div>
+        <div><label>T.C. Mastercard ($)</label><input type="number" min="0" step=".01" data-k="ci_corte_tar_master"></div>
+        <div><label>T.C. AMEX ($)</label><input type="number" min="0" step=".01" data-k="ci_corte_tar_amex"></div>
+        <div><label>T.C. Visa ($)</label><input type="number" min="0" step=".01" data-k="ci_corte_tar_visa"></div>
+      </div>
+      <div class="grid g3" style="margin-top:10px">
+        <div><label>Total tarjeta (auto)</label><input type="text" id="ci_corte_tar_total" readonly style="background:var(--bg);font-weight:600"></div>
+        <div style="grid-column:span 2"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h4 style="margin:0 0 10px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">Resumen de totales del día</h4>
+      <div class="table-wrap">
+        <table class="data">
+          <tbody>
+            <tr><td>Efectivo final</td><td class="num-cell" id="ci_corte_res_efe">$0.00</td></tr>
+            <tr><td>T. Débito</td><td class="num-cell" id="ci_corte_res_debito">$0.00</td></tr>
+            <tr><td>T.C. Mastercard</td><td class="num-cell" id="ci_corte_res_master">$0.00</td></tr>
+            <tr><td>T.C. AMEX</td><td class="num-cell" id="ci_corte_res_amex">$0.00</td></tr>
+            <tr><td>T.C. Visa</td><td class="num-cell" id="ci_corte_res_visa">$0.00</td></tr>
+            <tr style="background:var(--bg);font-weight:600;font-size:16px"><td>GRAN TOTAL DEL DÍA</td><td class="num-cell" id="ci_corte_gran_total">$0.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="divider"></div>
+
+      <h4 style="margin:0 0 10px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">Cortesías del día (detalle)</h4>
+      <p class="help" style="margin-top:0;margin-bottom:10px">Detalle de cada cortesía servida con folio del ticket. El total agregado se compara contra el # cortesías de Eventos de control.</p>
+      <div class="table-wrap">
+        <table class="data" id="ci_cort_tbl">
+          <thead>
+            <tr>
+              <th>Nombre / Concepto</th>
+              <th style="width:120px">Folio</th>
+              <th style="width:140px" class="num-cell">Importe ($)</th>
+              <th style="width:34px" class="no-print"></th>
+            </tr>
+          </thead>
+          <tbody id="ci_cort_tbody"></tbody>
+          <tfoot>
+            <tr style="background:var(--bg);font-weight:600"><td>TOTAL CORTESÍAS</td><td>—</td><td class="num-cell" id="ci_cort_total">$0.00</td><td class="no-print"></td></tr>
+          </tfoot>
+        </table>
+      </div>
+      <button class="add-row-btn no-print" id="btnAddCortesia" type="button">+ Agregar cortesía</button>
+
+      <div class="divider"></div>
+
+      <h4 style="margin:0 0 10px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">
+        Conciliación del cajón
+        <button class="info-icon no-print" data-tip="<strong>Fórmula contable del cajón:</strong><br><br>+ Fondo asignado<br>+ Cobros efectivo (Apertura + Cierre)<br>− Retiro propinas tarjeta (Apertura + Cierre) — sale del cajón para entregar al encargado de piso<br>− Depósito 1 (venta del día)<br>− Depósito 2 (comisiones bancarias)<br>= <strong>Efectivo teórico que debería estar en el cajón</strong><br><br>El aporte del 7% al fondo de servicio entra y sale del cajón el mismo día (lo aportan los meseros, se reparte al personal al cierre), por eso netea a cero y no aparece." type="button">i</button>
+      </h4>
+      <div class="grid g3">
+        <div><label>Efectivo contado (suma desglose)</label><input type="text" id="ci_arq_contado_lbl" readonly style="background:var(--bg)"></div>
+        <div><label>Efectivo teórico (calculado)</label><input type="text" id="ci_arq_teorico" readonly style="background:var(--bg);font-weight:600"></div>
+        <div><label>Δ Arqueo (auto)</label><input type="text" id="ci_arq_delta" readonly style="background:var(--bg)"></div>
+      </div>
+
+      <div id="ci_arq_desglose" class="arq-desglose">
+        <div class="arq-row"><span class="arq-lbl">+ Fondo asignado</span><span class="arq-val" id="arq_d_fondo">$0.00</span></div>
+        <div class="arq-row"><span class="arq-lbl">+ Cobros efectivo Apertura</span><span class="arq-val" id="arq_d_efe_ap">$0.00</span></div>
+        <div class="arq-row"><span class="arq-lbl">+ Cobros efectivo Cierre</span><span class="arq-val" id="arq_d_efe_ci">$0.00</span></div>
+        <div class="arq-row"><span class="arq-lbl">− Retiro propinas tarjeta Apertura</span><span class="arq-val" id="arq_d_ret_ap">$0.00</span></div>
+        <div class="arq-row"><span class="arq-lbl">− Retiro propinas tarjeta Cierre</span><span class="arq-val" id="arq_d_ret_ci">$0.00</span></div>
+        <div class="arq-row"><span class="arq-lbl">− Depósito 1 (venta)</span><span class="arq-val" id="arq_d_dep1">$0.00</span></div>
+        <div class="arq-row"><span class="arq-lbl">− Depósito 2 (comisiones bancarias)</span><span class="arq-val" id="arq_d_dep2">$0.00</span></div>
+        <div class="arq-row arq-tot"><span class="arq-lbl">= Efectivo teórico</span><span class="arq-val" id="arq_d_teorico">$0.00</span></div>
+      </div>
+
+      <div class="grid g3" style="margin-top:14px">
+        <div><label>Faltante / sobrante asumido por<button class="info-icon no-print" data-tip="Si hay diferencia entre contado y teórico (Δ ≠ 0), nombre de quien asume la responsabilidad: típicamente el cajero del turno." type="button">i</button></label><input type="text" data-k="ci_arq_resp"></div>
+        <div style="grid-column:span 2"></div>
+      </div>
+      <div style="margin-top:12px">
+        <label>Observaciones del corte</label>
+        <textarea data-k="ci_arq_obs"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">06</span> Cierre de terminal bancaria<button class="info-icon no-print" data-tip="<strong>¿Qué es el cierre de lote?</strong><br><br>Durante el día, cada cobro con tarjeta queda <em>autorizado</em> en la terminal pero NO liquidado. El <strong>cierre de lote</strong> es la operación física que el cajero hace al final del turno desde la terminal misma — agrupa todas las operaciones del día y le dice al banco &quot;procesa estas y deposítamelas&quot;.<br><br><strong>Cómo se hace:</strong><br>1. En la terminal, menú principal → opción <em>Cierre</em> o <em>Cierre de día</em>.<br>2. Confirmar.<br>3. La terminal imprime un ticket de cierre con: # operaciones, monto total, hora.<br><br><strong>Si tienes varias terminales (Banco A + Banco B), cada una se cierra y se concilia por separado</strong> — agrega una fila por terminal en la tabla." type="button">i</button></h3>
+
+      <div class="terminales-wrap">
+        <table class="terminales-tbl" id="ci_term_tbl">
+          <thead>
+            <tr>
+              <th style="min-width:140px">Banco / Adquirente<button class="info-icon no-print" data-tip="Banco que opera la terminal (BBVA, Banamex, Santander, Banorte, Mercado Pago, Clip, etc.). Útil para escalar diferencias al adquirente correcto si hay reclamación." type="button">i</button></th>
+              <th style="width:120px">Total lote ($)<button class="info-icon no-print" data-tip="Monto total impreso en el ticket de cierre de esta terminal." type="button">i</button></th>
+              <th style="width:80px"># ops<button class="info-icon no-print" data-tip="Cantidad de operaciones procesadas en este cierre de lote (impreso en el mismo ticket)." type="button">i</button></th>
+              <th style="width:90px">Hora cierre<button class="info-icon no-print" data-tip="Hora exacta en que la terminal imprimió el ticket. Si hay cobros pero la hora queda vacía, se levanta bandera roja por cierre no realizado en esta terminal." type="button">i</button></th>
+              <th style="width:80px">Vouch fís<button class="info-icon no-print" data-tip="Tickets impresos por la terminal y firmados físicamente por el cliente." type="button">i</button></th>
+              <th style="width:80px">Vouch dig<button class="info-icon no-print" data-tip="Operaciones con firma digital o sin firma (chip+PIN, contactless)." type="button">i</button></th>
+              <th style="width:90px">Δ Ops vs Vouch</th>
+              <th style="width:34px" class="no-print"></th>
+            </tr>
+          </thead>
+          <tbody id="ci_term_tbody"></tbody>
+          <tfoot>
+            <tr>
+              <td>TOTAL</td>
+              <td id="ci_term_lote_sum">$0.00</td>
+              <td id="ci_term_ops_sum">0</td>
+              <td>—</td>
+              <td id="ci_term_vfis_sum">0</td>
+              <td id="ci_term_vdig_sum">0</td>
+              <td>—</td>
+              <td class="no-print"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <button class="add-terminal-btn no-print" id="btnAddTerminal" type="button">+ Agregar terminal</button>
+
+      <div class="divider"></div>
+      <div class="grid g3">
+        <div><label>Total cobros tarjeta POS<button class="info-icon no-print" data-tip="Suma total de cobros con tarjeta del reporte del POS del día completo. Es agregado — el POS no separa por terminal. Debe coincidir con la suma de los lotes de todas las terminales." type="button">i</button></label><input type="number" min="0" step=".01" data-k="ci_term_pos"></div>
+        <div><label>Σ Lotes vs POS (auto)<button class="info-icon no-print" data-tip="Diferencia entre la suma de los lotes de todas las terminales y el total de cobros con tarjeta del POS. Debe ser cero (centavos por redondeo aceptables)." type="button">i</button></label><input type="text" id="ci_term_delta" readonly style="background:var(--bg)"></div>
+        <div></div>
+      </div>
+      <p class="help">Cada terminal se concilia individualmente: cierre realizado, ops vs vouchers cuadran. La suma de lotes se concilia contra el total de cobros tarjeta del POS.</p>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">07</span> Folios de tickets<button class="info-icon no-print" data-tip="Captura el <strong>folio inicial y final</strong> de los tickets emitidos en el día y la <strong>cantidad real de tickets emitidos</strong>. El sistema valida: (folio_final − folio_inicial + 1) debe ser igual a tickets_emitidos. Si hay saltos (ej. 100 tickets esperados pero solo 95 emitidos), enciende bandera — significa que se imprimieron tickets que no se contabilizaron." type="button">i</button></h3>
+      <div class="grid g4">
+        <div><label>Folio desde</label><input type="number" min="0" data-k="ci_folio_desde"></div>
+        <div><label>Folio hasta</label><input type="number" min="0" data-k="ci_folio_hasta"></div>
+        <div><label># Tickets emitidos POS</label><input type="number" min="0" data-k="ci_folio_emitidos"></div>
+        <div><label>Δ Folios (auto)</label><input type="text" id="ci_folio_delta" readonly style="background:var(--bg)"></div>
+      </div>
+      <div style="margin-top:12px">
+        <label>Folios cancelados con soporte</label>
+        <textarea data-k="ci_folio_canc" placeholder="Lista de folios cancelados y motivo"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">08</span> Extras a la carta sobre buffet<button class="info-icon no-print" data-tip="Productos que se cobran <strong>aparte del precio del buffet</strong>: bebidas no incluidas, vinos, postres especiales, etc. Captura el monto total por categoría. Sirve para validar contra el inventario de barra y evitar fugas." type="button">i</button></h3>
+      <div class="grid g4">
+        <div><label>Bebidas ($)</label><input type="number" min="0" step=".01" data-k="ci_extra_beb"></div>
+        <div><label>Vinos ($)</label><input type="number" min="0" step=".01" data-k="ci_extra_vino"></div>
+        <div><label>Postres / extras ($)</label><input type="number" min="0" step=".01" data-k="ci_extra_post"></div>
+        <div><label>Total extras (auto)</label><input type="text" id="ci_extra_total" readonly style="background:var(--bg)"></div>
+      </div>
+      <p class="help">Todos los extras llevan comanda y se controlan como restaurante a la carta.</p>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">09</span> Apps de delivery<button class="info-icon no-print" data-tip="Cobros recibidos por plataformas (Rappi, Uber Eats, Didi Food). El monto que aparece aquí <strong>NO debe estar incluido</strong> en los cobros de tarjeta/efectivo del POS — son ingresos por canal separado. Validación cruzada: lo que reporta cada app vs lo que el POS registra como pedido de delivery." type="button">i</button></h3>
+      <div class="grid g4">
+        <div><label>Rappi ($)</label><input type="number" min="0" step=".01" data-k="ci_app_rappi"></div>
+        <div><label>UberEats ($)</label><input type="number" min="0" step=".01" data-k="ci_app_uber"></div>
+        <div><label>DiDi Food ($)</label><input type="number" min="0" step=".01" data-k="ci_app_didi"></div>
+        <div><label>Total apps (auto)</label><input type="text" id="ci_app_total" readonly style="background:var(--bg)"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">10</span> CFDI emitidos<button class="info-icon no-print" data-tip="<strong>CFDI</strong> = facturas electrónicas emitidas en el día. Captura cuántas se emitieron y el monto facturado. Útil para compaginar contra ventas totales: el monto facturado nunca debe exceder los cobros del día." type="button">i</button></h3>
+      <div class="grid g3">
+        <div><label>Total facturado ($)</label><input type="number" min="0" step=".01" data-k="ci_cfdi_total"></div>
+        <div><label># CFDI individuales</label><input type="number" min="0" data-k="ci_cfdi_num"></div>
+        <div><label>Factura global emitida</label>
+          <select data-k="ci_cfdi_global"><option value="">—</option><option>Sí</option><option>No</option><option>Pendiente</option></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">11</span> Charolas servidas — control de cocina<button class="info-icon no-print" data-tip="Conteo físico de las charolas que salieron al servicio, separado en dos áreas: <strong>Cocina</strong> (guarniciones, ensaladas, postres) y <strong>Churrasca</strong> (carnes en espada / rodizio). Cocina y Churrasca registran en vivo desde sus tablets — usa el botón <strong>🍳 Cargar charolas del día</strong> para consolidar los totales aquí." type="button">i</button></h3>
+
+      <div class="row-flex no-print" style="margin-bottom:12px;justify-content:flex-end">
+        <button class="btn" id="btnCargarCharolas" title="Toma todas las charolas registradas hoy desde las tablets de Cocina y Churrasca, y consolida los totales aquí">🍳 Cargar charolas del día</button>
+      </div>
+
+      <h4 style="margin:0 0 10px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">Cocina · guarniciones, ensaladas, postres</h4>
+      <div class="grid g4">
+        <div><label># Charolas salidas</label><input type="number" min="0" data-k="ci_charolas_cocina"></div>
+        <div><label># Reposiciones</label><input type="number" min="0" data-k="ci_repos_cocina"></div>
+        <div><label>Merma al cierre</label><input type="text" data-k="ci_merma_cocina" placeholder="ej. 3 kg arroz"></div>
+        <div><label>Responsable</label><input type="text" data-k="ci_resp_cocina" placeholder="Marco / Sergio"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h4 style="margin:0 0 10px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">Churrasca · carnes en espada / rodizio</h4>
+      <div class="grid g4">
+        <div><label># Charolas salidas</label><input type="number" min="0" data-k="ci_charolas_churrasca"></div>
+        <div><label># Reposiciones</label><input type="number" min="0" data-k="ci_repos_churrasca"></div>
+        <div><label>Merma al cierre</label><input type="text" data-k="ci_merma_churrasca" placeholder="ej. 2 kg picaña"></div>
+        <div><label>Responsable</label><input type="text" data-k="ci_resp_churrasca" placeholder="Nombre"></div>
+      </div>
+
+      <div style="margin-top:12px">
+        <label>Observaciones generales</label>
+        <textarea data-k="ci_charolas_obs" placeholder="Incidencias, productos sobrantes que se aprovechan al día siguiente, comparación con comensales del host…"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">12</span> Depósitos a tesorería del día<button class="info-icon no-print" data-tip="Al cierre del día se hacen <strong>dos depósitos separados</strong> a la tesorería del Grupo Toda: uno por la <strong>venta del día</strong> (efectivo de la operación) y otro por las <strong>comisiones bancarias</strong> (lo que el banco descuenta de los cobros con tarjeta). Cada depósito lleva su monto, hora y nombre de quien recibe en tesorería." type="button">i</button></h3>
+
+      <h4 style="margin:0 0 10px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">Depósito 1 · Por venta del día</h4>
+      <div class="grid g3">
+        <div><label>Monto ($)</label><input type="number" min="0" step=".01" data-k="ci_dep1_monto"></div>
+        <div><label>Hora del depósito</label><input type="time" data-k="ci_dep1_hora"></div>
+        <div><label>Recibe en tesorería</label><input type="text" data-k="ci_dep1_recibe" placeholder="Nombre"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h4 style="margin:0 0 10px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">Depósito 2 · Por comisiones bancarias</h4>
+      <div class="grid g3">
+        <div><label>Monto ($)</label><input type="number" min="0" step=".01" data-k="ci_dep2_monto"></div>
+        <div><label>Hora del depósito</label><input type="time" data-k="ci_dep2_hora"></div>
+        <div><label>Recibe en tesorería</label><input type="text" data-k="ci_dep2_recibe" placeholder="Nombre"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="grid g3">
+        <div><label>Total depositado a tesorería (auto)</label><input type="text" id="ci_dep_total" readonly style="background:var(--bg);font-weight:600"></div>
+        <div style="grid-column:span 2"></div>
+      </div>
+    </div>
+
+    <!-- Firmas legacy quitadas: ahora se firman desde el tablero de sellos en sección 05
+         de Apertura, donde cada usuario sella autenticado con su propia sesión. -->
+  </section>
+
+  <!-- ============================ ROLES ============================ -->
+  <!-- ============================ RESUMEN ============================ -->
+  <section class="panel" id="panel-resumen">
+    <h2 class="section-title">Resumen del día · Banderas rojas<button class="info-icon no-print" data-tip="Vista consolidada del día completo. Calcula automáticamente los KPIs (cobros del día, comensales, deltas, % cancelaciones, etc.) y enciende <strong>banderas rojas</strong> donde hay desviaciones fuera de tolerancia. Si todas las banderas están en verde, el día se cierra como Conforme." type="button">i</button></h2>
+    <p class="section-sub">Cálculos automáticos consolidados y semáforo de control.</p>
+
+    <div class="kpi-row" id="kpiRow"></div>
+
+    <div class="card">
+      <h3><span class="num">01</span> Semáforo de banderas rojas</h3>
+      <ul class="flag-list" id="flagList"></ul>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">02</span> Conclusión del auditor / supervisor</h3>
+      <div>
+        <label>Estatus general del día</label>
+        <select data-k="res_estatus">
+          <option value="">—</option>
+          <option>✅ Conforme</option>
+          <option>⚠ Conforme con observaciones</option>
+          <option>🔴 No conforme — requiere investigación</option>
+        </select>
+      </div>
+      <div style="margin-top:12px">
+        <label>Comentarios y plan de acción</label>
+        <textarea data-k="res_comentarios" rows="5"></textarea>
+      </div>
+      <!-- Firma de cierre legacy quitada: las firmas viven en el tablero de sellos
+           (sección 05 de Apertura), autenticadas por la sesión del usuario. -->
+    </div>
+
+    <div class="meta">
+      Conciliación Fogueira · Grupo Toda del Sureste · Generada por la herramienta interna de auditoría.<br>
+      Fecha del documento: <span id="metaFecha">—</span>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  'use strict';
+
+  var API_URL = 'https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec';
+
+  // ---------- Sesión ----------
+  // Token: URL param > template inyectado > sessionStorage (iOS pierde sessionStorage entre subdominios)
+  function getQuery(name){
+    var m = (location.search.match(new RegExp('[?&]' + name + '=([^&]*)')) || [])[1];
+    return m ? decodeURIComponent(m) : '';
+  }
+  var token = getQuery('t') || '<?!= __tokenInyectado ?>';
+  var user, empresa, sucursales;
+  if (token) {
+    try { sessionStorage.setItem('fogueira_token', token); } catch(e){}
+  } else {
+    try { token = sessionStorage.getItem('fogueira_token'); } catch(e){}
+  }
+  if (!token) { var _a=document.createElement('a');_a.href=API_URL+'?p=acceso';_a.target='_top';document.body.appendChild(_a);_a.click(); return; }
+  try {
+    user = JSON.parse(sessionStorage.getItem('fogueira_user') || 'null');
+    empresa = JSON.parse(sessionStorage.getItem('fogueira_empresa') || 'null');
+    sucursales = JSON.parse(sessionStorage.getItem('fogueira_sucursales') || '[]');
+  } catch(e){}
+  // Verifica rol y configura UI. Se llama inmediatamente si user está en sessionStorage,
+  // o desde el callback de 'me' en init() cuando iOS borró sessionStorage.
+  var _sesionUIAplicada = false;
+  function aplicarSesionUI() {
+    if (_sesionUIAplicada) return true;
+    _sesionUIAplicada = true;
+    var r = String(user.rol || '').toLowerCase();
+    if (['admin','auditoria','cajera'].indexOf(r) === -1) {
+      alert('Tu rol no tiene acceso a la conciliación.');
+      var _b=document.createElement('a');_b.href=API_URL+'?p=inicio';_b.target='_top';document.body.appendChild(_b);_b.click();
+      return false;
+    }
+    if (r === 'cajera') document.body.classList.add('role-cajera');
+    var elEmp = document.getElementById('empresaNombre');
+    if (elEmp) elEmp.textContent = (empresa && empresa.nombre) || 'Sin empresa';
+    (function(){ try { var b=API_URL+'?p=inicio&t='+encodeURIComponent(token||'')+(user?'&urol='+encodeURIComponent(user.rol||'')+'&unom='+encodeURIComponent(user.nombre||user.email||''):''); document.querySelectorAll('a[href*="p=inicio"]').forEach(function(a){a.href=b;}); }catch(e){} })();
+    return true;
+  }
+  if (user && !aplicarSesionUI()) return;
+
+  // ---------- API JSONP ----------
+  function apiCall(params, cb){
+    var cbName = '_jcb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+    var script = document.createElement('script');
+    var cleanup = function(){ try{ delete window[cbName];}catch(e){window[cbName]=undefined;} if(script.parentNode) script.parentNode.removeChild(script); };
+    var t = setTimeout(function(){ cleanup(); cb({ok:false,error:'timeout'}); }, 25000);
+    window[cbName] = function(d){ clearTimeout(t); cleanup(); cb(d); };
+    var qs = Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
+    script.onerror = function(){ clearTimeout(t); cleanup(); cb({ok:false,error:'network'}); };
+    script.src = API_URL + '?' + qs + '&callback=' + cbName;
+    document.body.appendChild(script);
+  }
+
+  // Indicador con UX tranquilizadora: solo muestra "Guardando" si tarda >600ms
+  var savesPendientesC = 0;
+  var savingTimerUIC = null;
+  function setSaveIndicator(estado, msg){
+    var el = document.getElementById('saveIndicator');
+    if (!el) return;
+    if (estado === 'saving') {
+      savesPendientesC++;
+      if (savingTimerUIC) return;
+      savingTimerUIC = setTimeout(function(){
+        savingTimerUIC = null;
+        if (savesPendientesC > 0) {
+          el.classList.remove('error');
+          el.classList.add('saving');
+          el.textContent = '💾 Guardando…';
+        }
+      }, 600);
+    } else if (estado === 'error') {
+      savesPendientesC = Math.max(0, savesPendientesC - 1);
+      if (savesPendientesC === 0) {
+        if (savingTimerUIC) { clearTimeout(savingTimerUIC); savingTimerUIC = null; }
+        el.classList.remove('saving');
+        el.classList.add('error');
+        el.textContent = '⚠ ' + (msg || 'Error');
+      }
+    } else if (estado === 'saved') {
+      savesPendientesC = Math.max(0, savesPendientesC - 1);
+      if (savesPendientesC === 0) {
+        if (savingTimerUIC) { clearTimeout(savingTimerUIC); savingTimerUIC = null; }
+        el.classList.remove('saving','error');
+        el.textContent = '✓ Guardado';
+      }
+    } else if (estado === 'idle') {
+      el.classList.remove('saving','error');
+      el.textContent = '✓ Sin cambios';
+    }
+  }
+
+  // ---------- LocalStorage Backup (Fase 1 anti-pérdida T2) ----------
+  // Idea: cada cambio de input se persiste INSTANTÁNEO a localStorage (sin red).
+  // Cuando el backend confirma save OK, se limpia el backup local.
+  // Al cargar una fecha, si hay backup local que difiere del backend → ofrecer recuperación.
+  // Esto da paridad con BitacoraFilas: en BitacoraFilas cada fila se guarda al server independiente;
+  // aquí cada cambio se guarda al storage local independiente. Si la red falla o el navegador
+  // se cierra, no se pierde nada — al volver a entrar el banner permite recuperar.
+  function lbKey(fecha){
+    var suc = (sucursales[0] && sucursales[0].id) || 'def';
+    var emp = (empresa && empresa.id) || 'def';
+    return 'fogueira_concil_lb__' + emp + '__' + suc + '__' + (fecha || '');
+  }
+  function lbSave(){
+    if (!initialLoadDone) return;
+    var fechaEl = document.getElementById('fecha');
+    var fecha = fechaEl && fechaEl.value;
+    if (!fecha) return;
+    try {
+      var snapshot = {
+        ts: Date.now(),
+        state: state,
+        conciliacionId: conciliacionId,
+        conciliacionEstado: conciliacionEstado,
+        userEmail: (user && user.email) || ''
+      };
+      localStorage.setItem(lbKey(fecha), JSON.stringify(snapshot));
+    } catch(e) {
+      // Si localStorage falla (quota llena, modo privado, etc.), seguimos sin backup local
+      // El save al servidor sigue funcionando como antes.
+    }
+  }
+  function lbClear(fecha){
+    try { localStorage.removeItem(lbKey(fecha)); } catch(e){}
+  }
+  function lbGet(fecha){
+    try {
+      var raw = localStorage.getItem(lbKey(fecha));
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch(e) { return null; }
+  }
+  function lbAgo(ts){
+    var diff = Math.max(0, Math.round((Date.now() - ts) / 1000));
+    if (diff < 60) return diff + ' segundos';
+    if (diff < 3600) return Math.round(diff/60) + ' minutos';
+    if (diff < 86400) return Math.round(diff/3600) + ' horas';
+    return Math.round(diff/86400) + ' días';
+  }
+  // Compara dos payloads "lógicamente" — robusto al orden de keys.
+  // Si entre sesiones el backend re-serializa el JSON, el orden puede cambiar; un stringify
+  // ingenuo daría falso positivo. Por eso comparamos key-by-key con keys ordenadas.
+  function lbDiffers(a, b){
+    try {
+      a = a || {}; b = b || {};
+      var ka = Object.keys(a).sort();
+      var kb = Object.keys(b).sort();
+      if (ka.length !== kb.length) return true;
+      for (var i = 0; i < ka.length; i++) {
+        if (ka[i] !== kb[i]) return true;
+        var va = a[ka[i]], vb = b[ka[i]];
+        if (typeof va === 'object' && va !== null) {
+          // arrays / sub-objetos del payload (cortesias, terminales): serializar para comparar
+          if (JSON.stringify(va) !== JSON.stringify(vb)) return true;
+        } else {
+          // valores primitivos: comparar como string para tolerar 5 vs "5"
+          if (String(va == null ? '' : va) !== String(vb == null ? '' : vb)) return true;
+        }
+      }
+      return false;
+    } catch(e) { return true; }
+  }
+  function lbShowBanner(backup, fecha){
+    var banner = document.getElementById('lbRecover');
+    var ago = document.getElementById('lbRecoverAgo');
+    if (!banner || !ago) return;
+    ago.textContent = lbAgo(backup.ts);
+    banner.classList.add('show');
+    var btnR = document.getElementById('lbBtnRestore');
+    var btnD = document.getElementById('lbBtnDiscard');
+    btnR.onclick = function(){
+      // Aplicar el state local y forzar save al servidor
+      state = backup.state || {};
+      if (backup.conciliacionId) conciliacionId = backup.conciliacionId;
+      if (backup.conciliacionEstado) conciliacionEstado = backup.conciliacionEstado;
+      applyStateToInputs();
+      recalcAll();
+      banner.classList.remove('show');
+      // Marcar como dirty y disparar save al servidor de inmediato
+      initialLoadDone = true;
+      doSave();
+    };
+    btnD.onclick = function(){
+      if (!confirm('Vas a descartar la captura local que no se guardó. ¿Estás seguro? (Si dudas, mejor "Recuperar".)')) return;
+      lbClear(fecha);
+      banner.classList.remove('show');
+    };
+  }
+  function lbHideBanner(){
+    var banner = document.getElementById('lbRecover');
+    if (banner) banner.classList.remove('show');
+  }
+
+  // ---------- State & backend ----------
+  var state = {};
+  var conciliacionId = null;
+  var conciliacionEstado = 'abierta';
+  var saveTimer = null;
+  var maxSaveTimerC = null;
+  var saveRetryTimerC = null;
+  var saveRetryCountC = 0;
+  var initialLoadDone = false;
+
+  // Doble timer: corto se reinicia con cada cambio (200ms),
+  // límite garantiza save sí o sí cada 2 segundos aunque siga capturando.
+  // Anti-pérdida (T2 fase 1): cada cambio se persiste también a localStorage de inmediato,
+  // sin esperar al debounce. Si la red cae o se cierra el navegador, al recargar la página
+  // el banner de recuperación permite restaurar la captura.
+  function scheduleSave(){
+    if (!initialLoadDone) return;
+    lbSave();                 // backup local instantáneo
+    setSaveIndicator('saving');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(doSave, 200);
+    if (!maxSaveTimerC) {
+      maxSaveTimerC = setTimeout(function(){ maxSaveTimerC = null; doSave(); }, 2000);
+    }
+  }
+  function doSave(estadoOverride){
+    clearTimeout(saveTimer); saveTimer = null;
+    clearTimeout(maxSaveTimerC); maxSaveTimerC = null;
+    var fecha = document.getElementById('fecha').value;
+    if (!fecha) { setSaveIndicator('error','Sin fecha'); return; }
+    var data = {
+      id: conciliacionId,
+      fecha: fecha,
+      sucursal_id: (sucursales[0] && sucursales[0].id) || '',
+      estado: estadoOverride || conciliacionEstado || 'abierta',
+      payload: state
+    };
+    apiCall({ action:'conciliacion_save', token: token, data: JSON.stringify(data) }, function(res){
+      if (res.ok) {
+        if (!conciliacionId) conciliacionId = res.id;
+        if (estadoOverride) conciliacionEstado = estadoOverride;
+        setSaveIndicator('saved');
+        saveRetryCountC = 0;
+        // Server confirmó: el backup local ya cumplió su función, lo borramos.
+        lbClear(fecha);
+      } else {
+        // Reintentos INFINITOS en silencio. Backoff: 2s, 5s, 10s, 20s, 40s, después cada 60s.
+        // Mientras tanto, el localStorage tiene el snapshot reciente como red de seguridad.
+        saveRetryCountC++;
+        var esperas = [2000, 5000, 10000, 20000, 40000];
+        var espera = esperas[Math.min(saveRetryCountC - 1, esperas.length - 1)] || 60000;
+        clearTimeout(saveRetryTimerC);
+        saveRetryTimerC = setTimeout(function(){ doSave(estadoOverride); }, espera);
+      }
+    });
+  }
+  function save(){ scheduleSave(); }   // alias para no tocar todas las llamadas existentes
+
+  // Save de EMERGENCIA al cerrar/ocultar la pestaña (sendBeacon = se garantiza envío)
+  window.addEventListener('pagehide', function(){
+    if (!initialLoadDone) return;
+    var fecha = document.getElementById('fecha').value;
+    if (!fecha) return;
+    try {
+      var data = {
+        id: conciliacionId, fecha: fecha,
+        sucursal_id: (sucursales[0] && sucursales[0].id) || '',
+        estado: conciliacionEstado || 'abierta', payload: state
+      };
+      var url = API_URL + '?action=conciliacion_save&token=' + encodeURIComponent(token) +
+                '&data=' + encodeURIComponent(JSON.stringify(data));
+      navigator.sendBeacon && navigator.sendBeacon(url);
+    } catch(e) {}
+  });
+  // visibilitychange en hidden: también disparar save (iOS background)
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'hidden' && initialLoadDone) doSave();
+  });
+
+  function load(){
+    var fecha = document.getElementById('fecha').value;
+    if (!fecha) return;
+    initialLoadDone = false;
+    lbHideBanner();
+    setSaveIndicator('saving');
+    apiCall({ action:'conciliacion_get', token: token, fecha: fecha,
+              sucursal_id: (sucursales[0] && sucursales[0].id) || '' }, function(res){
+      if (res.ok) {
+        if (res.conciliacion) {
+          conciliacionId = res.conciliacion.id;
+          conciliacionEstado = res.conciliacion.estado || 'abierta';
+          state = res.conciliacion.payload || {};
+        } else {
+          conciliacionId = null;
+          conciliacionEstado = 'abierta';
+          state = {};
+        }
+        applyStateToInputs();
+        recalcAll();
+        setSaveIndicator('idle');
+        // Anti-pérdida: si hay un backup local que difiere del backend, ofrecer recuperar.
+        // Si coincide (o no hay), simplemente continuamos.
+        var backup = lbGet(fecha);
+        if (backup && backup.state && lbDiffers(backup.state, state)) {
+          lbShowBanner(backup, fecha);
+        } else if (backup) {
+          // Backup coincide con backend → el server ya tiene todo, limpiamos localStorage.
+          lbClear(fecha);
+        }
+      } else {
+        setSaveIndicator('error', res.error);
+      }
+      initialLoadDone = true;
+    });
+  }
+  function applyStateToInputs(){
+    var inputs = document.querySelectorAll('[data-k]');
+    inputs.forEach(function(el){
+      var k = el.getAttribute('data-k');
+      if (state[k] !== undefined && state[k] !== null) {
+        el.value = state[k];
+      } else {
+        el.value = '';
+      }
+    });
+    // (Stamps legacy quitados — los sellos ahora viven en el tablero autenticado de sellos.)
+    // Tablas dinámicas
+    renderTerminales();
+    renderCortesias();
+  }
+
+  // ---------- Helpers ----------
+  function num(v){ var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+  function fmt(n){ return (Math.round(n*100)/100).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function fmtMoney(n){ return '$' + fmt(n); }
+  function setText(id,t){ var el=document.getElementById(id); if(el) el.textContent=t; }
+  function setVal(id,v){ var el=document.getElementById(id); if(el) el.value=v; }
+  function deltaClass(d){ return Math.abs(d) > 0.001 ? 'delta bad' : 'delta good'; }
+
+  // ---------- Calculations ----------
+  function recalcMix(prefix){
+    var keys = ['adulto','nino','3era','promo','corte'];
+    var totalH = 0, totalP = 0;
+    keys.forEach(function(k){
+      var h = num(state[prefix+'_mix_'+k+'_host']);
+      var p = num(state[prefix+'_mix_'+k+'_pos']);
+      var d = h - p;
+      totalH += h; totalP += p;
+      var dEl = document.getElementById(prefix+'_mix_'+k+'_delta');
+      if (dEl) {
+        dEl.textContent = (d>0?'+':'') + d;
+        dEl.className = 'delta ' + (Math.abs(d)>2 ? 'bad' : (d===0 ? 'good' : ''));
+      }
+    });
+    var dt = totalH - totalP;
+    setText(prefix+'_total_host', totalH);
+    setText(prefix+'_total_pos', totalP);
+    var totDel = document.getElementById(prefix+'_total_delta');
+    if (totDel) {
+      totDel.textContent = (dt>0?'+':'') + dt;
+      totDel.className = 'delta ' + (Math.abs(dt)>2 ? 'bad' : 'good');
+    }
+    return { host: totalH, pos: totalP, delta: dt };
+  }
+
+  function recalcPropinaPct(prefix){
+    var pTar = num(state[prefix+'_propina_tar']);
+    var cTar = num(state[prefix+'_cobro_tarjeta']);
+    var pct = cTar > 0 ? (pTar / cTar * 100) : 0;
+    setVal(prefix+'_pct_propina', cTar>0 ? pct.toFixed(2)+'%' : '—');
+    return pct;
+  }
+
+  // Comisión que pagan los meseros al fondo de piso (por servicio).
+  // Solo el 7% sobre la venta entra al fondo de servicio (se reparte al personal de piso).
+  // El 5% + IVA es comisión bancaria por procesar propina tarjeta — NO entra al fondo, lo retiene el banco.
+  // Adicionalmente: como la propina tarjeta llega al banco con delay, se retira efectivo del cajón
+  // equivalente a la propina tarjeta para entregárselo al encargado de piso el mismo día.
+  function recalcComisionMeseros(prefix){
+    var ventaTar = num(state[prefix+'_cobro_tarjeta']);
+    var ventaEfe = num(state[prefix+'_cobro_efectivo']);
+    var propTar  = num(state[prefix+'_propina_tar']);
+    var c7tar = ventaTar * 0.07;
+    var c7efe = ventaEfe * 0.07;
+    var c5pt  = propTar  * 0.05;
+    var iva   = c5pt * 0.16;
+    var totalFondo = c7tar + c7efe;        // Solo el 7% va al fondo de servicio
+    var totalBanco = c5pt + iva;           // 5% + IVA lo retiene el banco como comisión
+    setVal(prefix+'_com_7tar',     fmtMoney(c7tar));
+    setVal(prefix+'_com_7efe',     fmtMoney(c7efe));
+    setVal(prefix+'_com_total',    fmtMoney(totalFondo));
+    setVal(prefix+'_com_5propTar', fmtMoney(c5pt));
+    setVal(prefix+'_com_iva',      fmtMoney(iva));
+    setVal(prefix+'_com_banco',    fmtMoney(totalBanco));
+
+    // Retiro de efectivo para entrega de propina tarjeta al encargado de piso
+    var retiro = num(state[prefix+'_retiro_propinas']);
+    var deltaRetiro = retiro - propTar;
+    setVal(prefix+'_propTar_lbl', fmtMoney(propTar));
+    var deltaEl = document.getElementById(prefix+'_retiro_delta');
+    if (deltaEl) {
+      if (retiro === 0 && propTar === 0) {
+        deltaEl.value = '—';
+        deltaEl.style.color = '';
+        deltaEl.style.fontWeight = '';
+      } else {
+        deltaEl.value = (deltaRetiro>0?'+':'') + fmtMoney(deltaRetiro);
+        deltaEl.style.color = Math.abs(deltaRetiro) > 10 ? 'var(--rojo)' : 'var(--verde)';
+        deltaEl.style.fontWeight = Math.abs(deltaRetiro) > 10 ? '600' : '500';
+      }
+    }
+    return {
+      c7tar:c7tar, c7efe:c7efe, c5pt:c5pt, iva:iva,
+      fondo: totalFondo, banco: totalBanco,
+      propTar: propTar, retiro: retiro, deltaRetiro: deltaRetiro
+    };
+  }
+
+  // ===== Tabla dinámica de terminales bancarias =====
+  // state.ci_terminales = [{banco, lote, ops, hora, vfis, vdig}, ...]
+  // Cada terminal se concilia individualmente. La SUMA de lotes se compara contra POS.
+
+  function ensureTerminalesArray(){
+    if (!Array.isArray(state.ci_terminales)) state.ci_terminales = [];
+    // Migración: si hay datos del schema viejo (campo único), crear primera entrada
+    var hadOld = state.ci_term_lote || state.ci_term_ops || state.ci_term_hora ||
+                 state.ci_term_vouch_fis || state.ci_term_vouch_dig || state.ci_term_banco;
+    if (hadOld && state.ci_terminales.length === 0) {
+      state.ci_terminales.push({
+        banco: state.ci_term_banco || '',
+        lote: state.ci_term_lote || '',
+        ops: state.ci_term_ops || '',
+        hora: state.ci_term_hora || '',
+        vfis: state.ci_term_vouch_fis || '',
+        vdig: state.ci_term_vouch_dig || ''
+      });
+      // Limpiar el schema viejo para no duplicar
+      ['ci_term_lote','ci_term_ops','ci_term_hora','ci_term_vouch_fis','ci_term_vouch_dig','ci_term_banco'].forEach(function(k){
+        delete state[k];
+      });
+    }
+  }
+
+  function renderTerminales(){
+    ensureTerminalesArray();
+    var tbody = document.getElementById('ci_term_tbody');
+    if (!tbody) return;
+    if (state.ci_terminales.length === 0) {
+      // Garantizar al menos una fila vacía
+      state.ci_terminales.push({banco:'',lote:'',ops:'',hora:'',vfis:'',vdig:''});
+    }
+    var html = state.ci_terminales.map(function(t, i){
+      var ops = num(t.ops);
+      var vouch = num(t.vfis) + num(t.vdig);
+      var dops = (ops > 0 || vouch > 0) ? ops - vouch : 0;
+      var dopsClass = (ops === 0 && vouch === 0) ? '' : (Math.abs(dops) > 0 ? 'bad' : 'good');
+      var dopsTxt = (ops === 0 && vouch === 0) ? '—' : ((dops>0?'+':'') + dops);
+      return '<tr>' +
+        '<td><input class="banco" type="text" data-trow="'+i+'" data-tcol="banco" value="'+escAttr(t.banco)+'" placeholder="Ej. BBVA"></td>' +
+        '<td><input type="number" min="0" step=".01" data-trow="'+i+'" data-tcol="lote" value="'+escAttr(t.lote)+'"></td>' +
+        '<td><input type="number" min="0" data-trow="'+i+'" data-tcol="ops" value="'+escAttr(t.ops)+'"></td>' +
+        '<td><input type="time" data-trow="'+i+'" data-tcol="hora" value="'+escAttr(t.hora)+'"></td>' +
+        '<td><input type="number" min="0" data-trow="'+i+'" data-tcol="vfis" value="'+escAttr(t.vfis)+'"></td>' +
+        '<td><input type="number" min="0" data-trow="'+i+'" data-tcol="vdig" value="'+escAttr(t.vdig)+'"></td>' +
+        '<td><span class="term-ops-delta '+dopsClass+'">'+dopsTxt+'</span></td>' +
+        '<td class="no-print"><button type="button" class="term-row-del" data-tdel="'+i+'" title="Eliminar terminal">×</button></td>' +
+        '</tr>';
+    }).join('');
+    tbody.innerHTML = html;
+  }
+
+  function escAttr(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+  function addTerminal(){
+    ensureTerminalesArray();
+    state.ci_terminales.push({banco:'',lote:'',ops:'',hora:'',vfis:'',vdig:''});
+    renderTerminales();
+    save();
+    recalcAll();
+    // Foco al banco de la nueva fila
+    var inputs = document.querySelectorAll('#ci_term_tbody input.banco');
+    if (inputs.length > 0) inputs[inputs.length-1].focus();
+  }
+
+  function removeTerminal(idx){
+    ensureTerminalesArray();
+    if (state.ci_terminales.length <= 1) {
+      // No eliminar si es la única; mejor limpiar
+      state.ci_terminales[0] = {banco:'',lote:'',ops:'',hora:'',vfis:'',vdig:''};
+    } else {
+      var t = state.ci_terminales[idx] || {};
+      var label = t.banco ? '"'+t.banco+'"' : 'la terminal sin nombre';
+      if (!confirm('¿Eliminar '+label+'? Se perderán todos sus datos.')) return;
+      state.ci_terminales.splice(idx, 1);
+    }
+    renderTerminales();
+    save();
+    recalcAll();
+  }
+
+  function bindTerminales(){
+    var tbody = document.getElementById('ci_term_tbody');
+    if (!tbody) return;
+    tbody.addEventListener('input', function(e){
+      var inp = e.target.closest('input[data-trow]');
+      if (!inp) return;
+      var idx = parseInt(inp.getAttribute('data-trow'), 10);
+      var col = inp.getAttribute('data-tcol');
+      if (!state.ci_terminales[idx]) state.ci_terminales[idx] = {banco:'',lote:'',ops:'',hora:'',vfis:'',vdig:''};
+      state.ci_terminales[idx][col] = inp.value;
+      save();
+      recalcAll();
+      // Re-render solo el Δ de esta fila para evitar perder foco
+      var row = inp.closest('tr');
+      if (row && (col === 'ops' || col === 'vfis' || col === 'vdig')) {
+        var t = state.ci_terminales[idx];
+        var ops = num(t.ops);
+        var vouch = num(t.vfis) + num(t.vdig);
+        var dops = (ops > 0 || vouch > 0) ? ops - vouch : 0;
+        var dopsClass = (ops === 0 && vouch === 0) ? '' : (Math.abs(dops) > 0 ? 'bad' : 'good');
+        var dopsTxt = (ops === 0 && vouch === 0) ? '—' : ((dops>0?'+':'') + dops);
+        var span = row.querySelector('.term-ops-delta');
+        if (span) {
+          span.textContent = dopsTxt;
+          span.className = 'term-ops-delta '+dopsClass;
+        }
+      }
+    });
+    tbody.addEventListener('click', function(e){
+      var del = e.target.closest('button[data-tdel]');
+      if (!del) return;
+      var idx = parseInt(del.getAttribute('data-tdel'), 10);
+      removeTerminal(idx);
+    });
+    document.getElementById('btnAddTerminal').addEventListener('click', addTerminal);
+  }
+
+  // ===== Tabla dinámica de cortesías del día =====
+  // state.ci_cortesias = [{nombre, folio, importe}, ...]
+  function ensureCortesiasArray(){
+    if (!Array.isArray(state.ci_cortesias)) state.ci_cortesias = [];
+  }
+  function renderCortesias(){
+    ensureCortesiasArray();
+    var tbody = document.getElementById('ci_cort_tbody');
+    if (!tbody) return;
+    if (state.ci_cortesias.length === 0) {
+      state.ci_cortesias.push({nombre:'', folio:'', importe:''});
+    }
+    var html = state.ci_cortesias.map(function(c, i){
+      return '<tr>' +
+        '<td><input class="cort-nombre" type="text" data-crow="'+i+'" data-ccol="nombre" value="'+escAttr(c.nombre)+'" placeholder="Ej. Pollo Tempura"></td>' +
+        '<td><input type="text" data-crow="'+i+'" data-ccol="folio" value="'+escAttr(c.folio)+'" placeholder="ej. 1548"></td>' +
+        '<td><input type="number" min="0" step=".01" data-crow="'+i+'" data-ccol="importe" value="'+escAttr(c.importe)+'"></td>' +
+        '<td class="no-print"><button type="button" class="term-row-del" data-cdel="'+i+'" title="Eliminar cortesía">×</button></td>' +
+        '</tr>';
+    }).join('');
+    tbody.innerHTML = html;
+  }
+  function addCortesia(){
+    ensureCortesiasArray();
+    state.ci_cortesias.push({nombre:'', folio:'', importe:''});
+    renderCortesias();
+    save();
+    recalcAll();
+    var inputs = document.querySelectorAll('#ci_cort_tbody input.cort-nombre');
+    if (inputs.length > 0) inputs[inputs.length-1].focus();
+  }
+  function removeCortesia(idx){
+    ensureCortesiasArray();
+    if (state.ci_cortesias.length <= 1) {
+      state.ci_cortesias[0] = {nombre:'', folio:'', importe:''};
+    } else {
+      var c = state.ci_cortesias[idx] || {};
+      var label = c.nombre ? '"'+c.nombre+'"' : 'la cortesía sin nombre';
+      if (!confirm('¿Eliminar '+label+'?')) return;
+      state.ci_cortesias.splice(idx, 1);
+    }
+    renderCortesias();
+    save();
+    recalcAll();
+  }
+  function bindCortesias(){
+    var tbody = document.getElementById('ci_cort_tbody');
+    if (!tbody) return;
+    tbody.addEventListener('input', function(e){
+      var inp = e.target.closest('input[data-crow]');
+      if (!inp) return;
+      var idx = parseInt(inp.getAttribute('data-crow'), 10);
+      var col = inp.getAttribute('data-ccol');
+      if (!state.ci_cortesias[idx]) state.ci_cortesias[idx] = {nombre:'', folio:'', importe:''};
+      state.ci_cortesias[idx][col] = inp.value;
+      save();
+      recalcAll();
+    });
+    tbody.addEventListener('click', function(e){
+      var del = e.target.closest('button[data-cdel]');
+      if (!del) return;
+      var idx = parseInt(del.getAttribute('data-cdel'), 10);
+      removeCortesia(idx);
+    });
+    var btn = document.getElementById('btnAddCortesia');
+    if (btn) btn.addEventListener('click', addCortesia);
+  }
+
+  function recalcCierre(){
+    // === Corte de caja: desglose de denominaciones, tarjetas, resumen, cortesías ===
+    var DENOMS = [1000,500,200,100,50,20,10,5,2,1];
+    var sumDenoms = 0;
+    DENOMS.forEach(function(d){
+      var cant = num(state['ci_corte_d'+d+'_cant']);
+      var imp = cant * d;
+      sumDenoms += imp;
+      setText('ci_corte_d'+d+'_imp', fmtMoney(imp));
+    });
+    var retiros  = num(state.ci_corte_retiros);
+    var comisionCorte = num(state.ci_corte_comision);
+    var efeFinal = retiros + sumDenoms + comisionCorte;
+    setText('ci_corte_efe_total', fmtMoney(efeFinal));
+    // Tarjetas del corte
+    var tDeb = num(state.ci_corte_tar_debito);
+    var tMas = num(state.ci_corte_tar_master);
+    var tAme = num(state.ci_corte_tar_amex);
+    var tVis = num(state.ci_corte_tar_visa);
+    var tarTotal = tDeb + tMas + tAme + tVis;
+    setVal('ci_corte_tar_total', fmtMoney(tarTotal));
+    // Resumen y gran total
+    setText('ci_corte_res_efe', fmtMoney(efeFinal));
+    setText('ci_corte_res_debito', fmtMoney(tDeb));
+    setText('ci_corte_res_master', fmtMoney(tMas));
+    setText('ci_corte_res_amex', fmtMoney(tAme));
+    setText('ci_corte_res_visa', fmtMoney(tVis));
+    setText('ci_corte_gran_total', fmtMoney(efeFinal + tarTotal));
+    // Cortesías (tabla dinámica)
+    ensureCortesiasArray();
+    var totCort = 0;
+    state.ci_cortesias.forEach(function(c){ totCort += num(c.importe); });
+    setText('ci_cort_total', fmtMoney(totCort));
+    // Depósitos a tesorería
+    var dep1 = num(state.ci_dep1_monto);
+    var dep2 = num(state.ci_dep2_monto);
+    setVal('ci_dep_total', fmtMoney(dep1 + dep2));
+
+    // === Conciliación del cajón: efectivo teórico ===
+    // Fórmula: + Fondo asignado + Cobros efectivo (ap+ci) − Retiro propinas tarjeta (ap+ci) − Depósito 1 − Depósito 2.
+    // El aporte del 7% al fondo de servicio entra y sale del cajón el mismo día → netea a cero, no aparece.
+    var fondo = num(state.ci_corte_fondo);
+    var efeAp = num(state.ap_cobro_efectivo);
+    var efeCi = num(state.ci_cobro_efectivo);
+    var retAp = num(state.ap_retiro_propinas);
+    var retCi = num(state.ci_retiro_propinas);
+    var teorico = fondo + efeAp + efeCi - retAp - retCi - dep1 - dep2;
+    state.ci_arq_teorico = teorico;
+    setVal('ci_arq_teorico', fmtMoney(teorico));
+    setVal('ci_arq_contado_lbl', fmtMoney(efeFinal));
+    setText('arq_d_fondo', fmtMoney(fondo));
+    setText('arq_d_efe_ap', fmtMoney(efeAp));
+    setText('arq_d_efe_ci', fmtMoney(efeCi));
+    setText('arq_d_ret_ap', '−' + fmtMoney(retAp));
+    setText('arq_d_ret_ci', '−' + fmtMoney(retCi));
+    setText('arq_d_dep1', '−' + fmtMoney(dep1));
+    setText('arq_d_dep2', '−' + fmtMoney(dep2));
+    setText('arq_d_teorico', fmtMoney(teorico));
+
+    // Δ Arqueo = efectivo final del corte − teórico
+    var arqDelta = efeFinal - teorico;
+    var arqDeltaEl = document.getElementById('ci_arq_delta');
+    if (arqDeltaEl) {
+      if (efeFinal === 0 && teorico === 0) {
+        arqDeltaEl.value = '—';
+        arqDeltaEl.style.color = '';
+      } else {
+        arqDeltaEl.value = (arqDelta>0?'+':'') + fmtMoney(arqDelta);
+        var absD = Math.abs(arqDelta);
+        arqDeltaEl.style.color = absD > 200 ? 'var(--rojo)' : (absD > 0 ? 'var(--ambar)' : 'var(--verde)');
+        arqDeltaEl.style.fontWeight = absD > 0 ? '600' : '500';
+      }
+    }
+
+    // === Terminales (tabla dinámica) ===
+    ensureTerminalesArray();
+    var sumLote = 0, sumOps = 0, sumVfis = 0, sumVdig = 0;
+    var problemasPorTerminal = [];
+    state.ci_terminales.forEach(function(t, i){
+      var lote = num(t.lote);
+      var ops = num(t.ops);
+      var vouch = num(t.vfis) + num(t.vdig);
+      var hora = (t.hora || '').trim();
+      var banco = (t.banco || '').trim() || ('Terminal '+(i+1));
+      sumLote += lote; sumOps += ops; sumVfis += num(t.vfis); sumVdig += num(t.vdig);
+      if (lote > 0 && !hora) {
+        problemasPorTerminal.push({tipo:'cierre', banco: banco, detalle: 'Lote $'+fmt(lote)+' sin hora de cierre.'});
+      }
+      if ((ops > 0 || vouch > 0) && Math.abs(ops - vouch) > 0) {
+        problemasPorTerminal.push({tipo:'ops', banco: banco, detalle: ops+' ops · '+vouch+' vouchers · Δ '+(ops-vouch>0?'+':'')+(ops-vouch)});
+      }
+    });
+    setText('ci_term_lote_sum', fmtMoney(sumLote));
+    setText('ci_term_ops_sum', sumOps);
+    setText('ci_term_vfis_sum', sumVfis);
+    setText('ci_term_vdig_sum', sumVdig);
+    var termDelta = sumLote - num(state.ci_term_pos);
+    var termDeltaEl = document.getElementById('ci_term_delta');
+    if (termDeltaEl) {
+      if (sumLote === 0 && num(state.ci_term_pos) === 0) {
+        termDeltaEl.value = '—';
+        termDeltaEl.style.color = '';
+      } else {
+        termDeltaEl.value = (termDelta>0?'+':'') + fmtMoney(termDelta);
+        termDeltaEl.style.color = Math.abs(termDelta) > 0.5 ? 'var(--rojo)' : 'var(--verde)';
+        termDeltaEl.style.fontWeight = Math.abs(termDelta) > 0.5 ? '600' : '500';
+      }
+    }
+
+    // Folios
+    var fd = num(state.ci_folio_desde), fh = num(state.ci_folio_hasta), fe = num(state.ci_folio_emitidos);
+    var fDelta = (fh > 0 || fd > 0) ? (fh - fd + 1) - fe : 0;
+    setVal('ci_folio_delta', fDelta);
+    // Extras
+    var extra = num(state.ci_extra_beb) + num(state.ci_extra_vino) + num(state.ci_extra_post);
+    setVal('ci_extra_total', fmtMoney(extra));
+    // Apps
+    var apps = num(state.ci_app_rappi) + num(state.ci_app_uber) + num(state.ci_app_didi);
+    setVal('ci_app_total', fmtMoney(apps));
+    return { arqDelta: arqDelta, termDelta: termDelta, fDelta: fDelta, extra: extra, apps: apps,
+             sumLote: sumLote, sumOps: sumOps, problemasPorTerminal: problemasPorTerminal,
+             arqTeorico: teorico, arqContado: efeFinal, totCort: totCort };
+  }
+
+  function recalcAll(){
+    // Try/catch granular: si una sección falla, las otras siguen calculando.
+    // Errores quedan registrados en consola para diagnóstico (F12 → Console).
+    function intentar(fn, nombre, fallback){
+      try { return fn(); }
+      catch(e){
+        console.error('[recalcAll] error en ' + nombre + ':', e && e.message, e && e.stack);
+        return fallback;
+      }
+    }
+    var apMix = intentar(function(){ return recalcMix('ap'); }, 'recalcMix(ap)', { host:0, pos:0, delta:0 });
+    var ciMix = intentar(function(){ return recalcMix('ci'); }, 'recalcMix(ci)', { host:0, pos:0, delta:0 });
+    var apPct = intentar(function(){ return recalcPropinaPct('ap'); }, 'recalcPropinaPct(ap)', 0);
+    var ciPct = intentar(function(){ return recalcPropinaPct('ci'); }, 'recalcPropinaPct(ci)', 0);
+    var apCom = intentar(function(){ return recalcComisionMeseros('ap'); }, 'recalcComisionMeseros(ap)', { c7tar:0,c7efe:0,c5pt:0,iva:0,fondo:0,banco:0,propTar:0,retiro:0,deltaRetiro:0,total:0 });
+    var ciCom = intentar(function(){ return recalcComisionMeseros('ci'); }, 'recalcComisionMeseros(ci)', { c7tar:0,c7efe:0,c5pt:0,iva:0,fondo:0,banco:0,propTar:0,retiro:0,deltaRetiro:0,total:0 });
+    var ci = intentar(function(){ return recalcCierre(); }, 'recalcCierre', { arqDelta:0, termDelta:0, fDelta:0, extra:0, apps:0, sumLote:0, sumOps:0, problemasPorTerminal:[], arqTeorico:0, arqContado:0, totCort:0 });
+    // Asegurar que apCom y ciCom siempre tengan .total — algunas versiones del fallback lo omitían
+    if (apCom && apCom.total === undefined) apCom.total = (apCom.c7tar||0) + (apCom.c7efe||0);
+    if (ciCom && ciCom.total === undefined) ciCom.total = (ciCom.c7tar||0) + (ciCom.c7efe||0);
+
+    // Totales del día
+    var cobrosDia = num(state.ap_cobro_efectivo) + num(state.ap_cobro_tarjeta) + num(state.ap_cobro_transfer)
+                  + num(state.ci_cobro_efectivo) + num(state.ci_cobro_tarjeta) + num(state.ci_cobro_transfer);
+    var comensalesHostDia = apMix.host + ciMix.host;
+    var comensalesPosDia = apMix.pos + ciMix.pos;
+    var deltaComenDia = comensalesHostDia - comensalesPosDia;
+    var cancNumDia = num(state.ap_canc_num) + num(state.ci_canc_num);
+    var cancMontoDia = num(state.ap_canc_monto) + num(state.ci_canc_monto);
+    var pctCanc = cobrosDia > 0 ? (cancMontoDia / cobrosDia * 100) : 0;
+    var nosalesDia = num(state.ap_nosales) + num(state.ci_nosales);
+    var corteDia = num(state.ap_corte_num) + num(state.ci_corte_num);
+    var cobroProm = comensalesPosDia > 0 ? cobrosDia / comensalesPosDia : 0;
+    // Propinas del día: solo tarjeta (las propinas en efectivo no llegan a caja, no se concilian)
+    var propTarDia = num(state.ap_propina_tar) + num(state.ci_propina_tar);
+    var pctPropTotal = cobrosDia > 0 ? (propTarDia / cobrosDia * 100) : 0;
+    var propinaProm = comensalesPosDia > 0 ? propTarDia / comensalesPosDia : 0;
+    // Total del fondo de meseros del día (apertura + cierre)
+    var fondoMeserosDia = apCom.total + ciCom.total;
+
+    renderKPIs({
+      cobrosDia: cobrosDia,
+      comensalesHostDia: comensalesHostDia,
+      comensalesPosDia: comensalesPosDia,
+      deltaComenDia: deltaComenDia,
+      arqDelta: ci.arqDelta,
+      termDelta: ci.termDelta,
+      pctCanc: pctCanc,
+      nosalesDia: nosalesDia,
+      corteDia: corteDia,
+      cobroProm: cobroProm,
+      apPct: apPct, ciPct: ciPct,
+      fDelta: ci.fDelta,
+      propinaProm: propinaProm,
+      pctPropTotal: pctPropTotal
+    });
+
+    renderFlags({
+      apMix: apMix, ciMix: ciMix,
+      apPct: apPct, ciPct: ciPct,
+      arqDelta: ci.arqDelta,
+      termDelta: ci.termDelta,
+      pctCanc: pctCanc,
+      nosalesDia: nosalesDia,
+      fDelta: ci.fDelta,
+      apCorteNum: num(state.ap_corte_num),
+      apCorteAutor: state.ap_corte_autor,
+      ciCorteNum: num(state.ci_corte_num),
+      ciCorteAutor: state.ci_corte_autor,
+      apCanc: num(state.ap_canc_num),
+      apCancAutor: state.ap_canc_autor,
+      ciCanc: num(state.ci_canc_num),
+      ciCancAutor: state.ci_canc_autor,
+      apCom: apCom, ciCom: ciCom,
+      pctPropTotal: pctPropTotal,
+      cobrosDia: cobrosDia,
+      problemasTerminal: ci.problemasPorTerminal || []
+    });
+  }
+
+  function renderKPIs(d){
+    var kpis = [
+      { lbl:'Cobros del día', val: fmtMoney(d.cobrosDia), cls:'' },
+      { lbl:'Comensales POS', val: d.comensalesPosDia, cls:'' },
+      { lbl:'Cobro promedio / comensal', val: fmtMoney(d.cobroProm), cls:'' },
+      { lbl:'Propina prom. / comensal', val: fmtMoney(d.propinaProm), cls: (d.propinaProm>0 && d.propinaProm<10) ? 'warn' : '' },
+      { lbl:'Δ Host vs POS', val: (d.deltaComenDia>0?'+':'')+d.deltaComenDia, cls: Math.abs(d.deltaComenDia)>2 ? 'alert' : 'ok' },
+      { lbl:'Δ Arqueo ciego', val: fmtMoney(d.arqDelta), cls: Math.abs(d.arqDelta)>200 ? 'alert' : (Math.abs(d.arqDelta)>0?'warn':'ok') },
+      { lbl:'Δ Terminal vs POS', val: fmtMoney(d.termDelta), cls: Math.abs(d.termDelta)>0.5 ? 'alert' : 'ok' },
+      { lbl:'% Cancelaciones', val: d.pctCanc.toFixed(2)+'%', cls: d.pctCanc>3 ? 'alert' : 'ok' },
+      { lbl:'No-sales día', val: d.nosalesDia, cls: d.nosalesDia>2 ? 'alert' : 'ok' },
+      { lbl:'Cortesías día', val: d.corteDia, cls: '' },
+      { lbl:'Δ Folios', val: d.fDelta, cls: Math.abs(d.fDelta)>0 ? 'alert' : 'ok' }
+    ];
+    var html = kpis.map(function(k){
+      return '<div class="kpi '+k.cls+'"><div class="lbl">'+k.lbl+'</div><div class="val">'+k.val+'</div></div>';
+    }).join('');
+    document.getElementById('kpiRow').innerHTML = html;
+  }
+
+  function renderFlags(f){
+    var checks = [];
+    // Δ comensales
+    var dApAbs = Math.abs(f.apMix.delta), dCiAbs = Math.abs(f.ciMix.delta);
+    checks.push({
+      fired: dApAbs>2 || dCiAbs>2,
+      title: 'Δ Comensales (Host vs POS) > 2',
+      detail: 'Apertura: '+(f.apMix.delta>0?'+':'')+f.apMix.delta+' · Cierre: '+(f.ciMix.delta>0?'+':'')+f.ciMix.delta+'. Umbral: ±2.'
+    });
+    // Δ arqueo
+    checks.push({
+      fired: Math.abs(f.arqDelta)>200,
+      title: 'Δ Arqueo ciego > $200',
+      detail: 'Diferencia: '+fmtMoney(f.arqDelta)+'. Umbral: ±$200.'
+    });
+    // Δ terminal
+    checks.push({
+      fired: Math.abs(f.termDelta)>0.5,
+      title: 'Δ Cierre de lote terminal vs POS',
+      detail: 'Diferencia: '+fmtMoney(f.termDelta)+'. Debería ser cero o cercano.'
+    });
+    // % cancelaciones
+    checks.push({
+      fired: f.pctCanc>3,
+      title: '% Cancelaciones > 3% de cobros',
+      detail: 'Actual: '+f.pctCanc.toFixed(2)+'%. Umbral: 3%.'
+    });
+    // No-sales
+    checks.push({
+      fired: f.nosalesDia>2,
+      title: 'No-sales (cajón sin venta) > 2 en el día',
+      detail: 'Actual: '+f.nosalesDia+'. Umbral: 2.'
+    });
+    // Cortesía sin autorización
+    var corteSinAut = (f.apCorteNum>0 && !(f.apCorteAutor||'').trim()) || (f.ciCorteNum>0 && !(f.ciCorteAutor||'').trim());
+    checks.push({
+      fired: corteSinAut,
+      title: 'Cortesías registradas sin autorización documentada',
+      detail: 'Toda cortesía requiere nombre de quien autoriza (Mónica u otro autorizado).'
+    });
+    // Cancelación sin autorización
+    var cancSinAut = (f.apCanc>0 && !(f.apCancAutor||'').trim()) || (f.ciCanc>0 && !(f.ciCancAutor||'').trim());
+    checks.push({
+      fired: cancSinAut,
+      title: 'Cancelaciones registradas sin autorización documentada',
+      detail: 'Toda cancelación requiere nombre de quien autoriza.'
+    });
+    // Propinas tarjeta fuera de rango (BAJA o ALTA, con detalle)
+    function detallePct(label, pct){
+      if (!(pct > 0)) return label+': —';
+      var dir = pct < 8 ? 'BAJA · sospecha de no captura' : (pct > 20 ? 'ALTA · sospecha de inflado' : 'OK');
+      return label+': '+pct.toFixed(2)+'% ('+dir+')';
+    }
+    var apOut = f.apPct > 0 && (f.apPct<8 || f.apPct>20);
+    var ciOut = f.ciPct > 0 && (f.ciPct<8 || f.ciPct>20);
+    checks.push({
+      fired: apOut || ciOut,
+      title: '% Propinas con tarjeta fuera de rango 8–20%',
+      detail: detallePct('Apertura', f.apPct) + ' · ' + detallePct('Cierre', f.ciPct)
+    });
+
+    // Propina con tarjeta del día fuera de rango 3-15% del cobro del día
+    // (rango más bajo que antes porque las propinas en efectivo NO entran al cálculo)
+    var pctOut = f.cobrosDia > 0 && (f.pctPropTotal < 3 || f.pctPropTotal > 15);
+    checks.push({
+      fired: pctOut,
+      title: '% Propina tarjeta del día fuera de rango 3–15% sobre cobros',
+      detail: f.cobrosDia > 0
+        ? 'Propina tarjeta / cobros del día = '+f.pctPropTotal.toFixed(2)+'%. ' + (f.pctPropTotal<3?'BAJA · revisar capturas faltantes.':'ALTA · revisar inflado.')
+        : 'Sin cobros capturados.'
+    });
+
+    // Δ Retiro de efectivo vs Propina tarjeta del servicio (debe ser 0 ± $10)
+    function detalleRetiro(label, com){
+      if (com.retiro === 0 && com.propTar === 0) return label+': sin captura';
+      var dir = com.deltaRetiro > 10 ? 'FALTANTE en caja' : (com.deltaRetiro < -10 ? 'PERSONAL recibió de menos' : 'OK');
+      return label+': retiro '+fmtMoney(com.retiro)+' vs propina tarjeta '+fmtMoney(com.propTar)+' = Δ '+fmtMoney(com.deltaRetiro)+' ('+dir+')';
+    }
+    var apRetOut = Math.abs(f.apCom.deltaRetiro) > 10 && (f.apCom.retiro > 0 || f.apCom.propTar > 0);
+    var ciRetOut = Math.abs(f.ciCom.deltaRetiro) > 10 && (f.ciCom.retiro > 0 || f.ciCom.propTar > 0);
+    checks.push({
+      fired: apRetOut || ciRetOut,
+      title: 'Δ Retiro de efectivo vs Propina tarjeta del servicio',
+      detail: detalleRetiro('Apertura', f.apCom) + ' · ' + detalleRetiro('Cierre', f.ciCom)
+    });
+    // Banderas individuales por terminal (cierre no realizado, ops vs vouchers)
+    var probsT = f.problemasTerminal || [];
+    var probsCierre = probsT.filter(function(p){return p.tipo==='cierre'});
+    var probsOps = probsT.filter(function(p){return p.tipo==='ops'});
+    checks.push({
+      fired: probsCierre.length > 0,
+      title: 'Cierre de lote bancario no realizado',
+      detail: probsCierre.length > 0
+        ? probsCierre.map(function(p){return p.banco+': '+p.detalle}).join(' · ') + ' — Sin cierre, las operaciones quedan abiertas y el depósito se retrasa.'
+        : 'Todas las terminales con lote tienen hora de cierre registrada.'
+    });
+    checks.push({
+      fired: probsOps.length > 0,
+      title: 'Δ Operaciones del lote vs Vouchers (por terminal)',
+      detail: probsOps.length > 0
+        ? probsOps.map(function(p){return p.banco+': '+p.detalle}).join(' · ') + ' — Revisar vouchers extraviados o no impresos.'
+        : 'Operaciones y vouchers cuadran en todas las terminales.'
+    });
+    // Folios
+    checks.push({
+      fired: Math.abs(f.fDelta)>0,
+      title: 'Saltos en folios consecutivos',
+      detail: 'Δ: '+f.fDelta+'. (folio_hasta − folio_desde + 1) debe igualar # tickets emitidos.'
+    });
+
+    var fired = checks.filter(function(c){return c.fired});
+    var html = checks.map(function(c){
+      return '<li class="'+(c.fired?'fired':'ok')+'">'+
+        '<span class="flag-icon">'+(c.fired?'🔴':'✅')+'</span>'+
+        '<div class="flag-body"><div class="flag-title">'+c.title+'</div>'+
+        '<div class="flag-detail">'+c.detail+'</div></div></li>';
+    }).join('');
+    document.getElementById('flagList').innerHTML = html;
+    var badge = document.getElementById('flagBadge');
+    if (fired.length>0) { badge.textContent = fired.length; badge.style.display='inline-block'; }
+    else { badge.style.display='none'; }
+  }
+
+  // ---------- Wire inputs ----------
+  // ---------- Cargar JSON de bitácora del host ----------
+  // Lee el JSON exportado por la bitácora del host y prellena los campos del servicio (apertura o cierre)
+  function loadBitacoraJSON(target, jsonObj){
+    if (!jsonObj || !jsonObj.state) {
+      alert('El archivo no parece ser una bitácora del host válida (falta state).');
+      return false;
+    }
+    var bs = jsonObj.state;
+    var meta = bs.meta || {};
+    var rows = Array.isArray(bs.rows) ? bs.rows : [];
+    var cierre = bs.cierre || {};
+
+    // Sumar mix de comensales desde las filas (filas Canceladas NO suman)
+    var sums = { adulto:0, nino:0, '3era':0, promo:0, corte:0 };
+    rows.forEach(function(r){
+      if (r.estado === 'Cancelada') return;
+      sums.adulto += num(r.adulto);
+      sums.nino += num(r.nino);
+      sums['3era'] += num(r['3era']);
+      sums.promo += num(r.promo);
+      sums.corte += num(r.corte);
+    });
+
+    // Hora desde = primera hora_ent no vacía; hora hasta = última hora_sal no vacía (excluye canceladas)
+    var rowsActivas = rows.filter(function(r){ return r.estado !== 'Cancelada'; });
+    var horasEnt = rowsActivas.map(function(r){ return r.hora_ent || ''; }).filter(Boolean).sort();
+    var horasSal = rowsActivas.map(function(r){ return r.hora_sal || ''; }).filter(Boolean).sort();
+    var horaDesde = horasEnt.length ? horasEnt[0] : '';
+    var horaHasta = horasSal.length ? horasSal[horasSal.length-1] : (cierre.hora || '');
+
+    // Tipo de servicio: si el JSON tiene "Brunch"/"Comida" y target es "ci", solo aceptar si está en las opciones del select
+    var tipoServ = meta.servicio || '';
+
+    // Mapear a las claves de state según el target (ap o ci)
+    var p = target; // 'ap' o 'ci'
+    var updates = {};
+    updates[p+'_hora_desde'] = horaDesde;
+    updates[p+'_hora_hasta'] = horaHasta;
+    updates[p+'_servicio'] = tipoServ;
+    updates[p+'_tarifa_base'] = meta.t_adulto || '';
+    updates[p+'_mix_adulto_host'] = sums.adulto;
+    updates[p+'_mix_nino_host'] = sums.nino;
+    updates[p+'_mix_3era_host'] = sums['3era'];
+    updates[p+'_mix_promo_host'] = sums.promo;
+    updates[p+'_mix_corte_host'] = sums.corte;
+
+    // Nombres de firma desde la bitácora: solo el TEXTO del nombre, NUNCA el sello.
+    // El sello debe registrarse al momento de validar la conciliación, no copiarse del momento del cierre del servicio.
+    // Si el auditor decide que firma alguien distinto, edita el nombre antes de sellar.
+    var bitFirmas = bs.firmas || {};
+    var nombreHostBit = (bitFirmas.firma_host && bitFirmas.firma_host.nombre) || '';
+    var nombreCajBit  = (bitFirmas.firma_caj  && bitFirmas.firma_caj.nombre)  || '';
+    if (nombreHostBit) updates[p+'_firma_host'] = nombreHostBit;
+    if (nombreCajBit)  updates[p+'_firma_caj']  = nombreCajBit;
+
+    // Folio: acumular si ya hay folios capturados en el campo
+    var folioNuevo = (meta.folio || jsonObj.folio || '').trim();
+    if (folioNuevo) {
+      var folioActual = (state[p+'_folios_bitacora'] || '').trim();
+      if (folioActual) {
+        // Evitar duplicar si ya existe
+        var folios = folioActual.split(',').map(function(s){ return s.trim(); });
+        if (folios.indexOf(folioNuevo) === -1) {
+          updates[p+'_folios_bitacora'] = folioActual + ', ' + folioNuevo;
+        } else {
+          updates[p+'_folios_bitacora'] = folioActual;
+        }
+      } else {
+        updates[p+'_folios_bitacora'] = folioNuevo;
+      }
+    }
+
+    // Cortesías: si la bitácora tiene cortesías sin autorización (excluyendo canceladas), advertir al auditor
+    var corteSinAut = rows.filter(function(r){ return r.estado !== 'Cancelada' && num(r.corte) > 0 && !(r.autoriza||'').trim(); }).length;
+
+    // Aplicar al state respetando lo que ya esté capturado por el auditor:
+    // - Para campos vacíos, escribir el valor de la bitácora.
+    // - Para campos con valor, solo escribir si el target principal (mix_host) es claramente "fuente bitácora"
+    //   (los hosts son los que aportan ese dato, así que sobreescribimos).
+    // Mix de host, servicio, tarifa: SIEMPRE sobrescribir (la bitácora es la fuente de verdad).
+    // Hora desde/hasta: sobrescribir solo si está vacío (Mónica puede ajustar manualmente).
+    var alwaysOverride = [
+      p+'_mix_adulto_host', p+'_mix_nino_host', p+'_mix_3era_host',
+      p+'_mix_promo_host', p+'_mix_corte_host', p+'_folios_bitacora',
+      p+'_servicio', p+'_tarifa_base'
+    ];
+    Object.keys(updates).forEach(function(k){
+      var force = alwaysOverride.indexOf(k) !== -1;
+      var current = (state[k] === undefined || state[k] === null) ? '' : String(state[k]);
+      if (force || !current) {
+        state[k] = updates[k];
+      }
+    });
+
+    applyStateToInputs();
+    recalcAll();
+    save();
+
+    // Construir mensaje de confirmación
+    var totalCom = sums.adulto + sums.nino + sums['3era'] + sums.promo + sums.corte;
+    var msg = 'Bitácora cargada: ' + (folioNuevo || '(sin folio)') + '\n';
+    msg += 'Total comensales (Host): ' + totalCom + '\n';
+    msg += 'Adulto ' + sums.adulto + ' · Niño ' + sums.nino + ' · 3ra ' + sums['3era']
+         + ' · Promo ' + sums.promo + ' · Cortesía ' + sums.corte;
+    if (corteSinAut > 0) {
+      msg += '\n\n⚠ Atención: ' + corteSinAut + ' fila(s) con cortesía SIN nombre de quien autoriza. Revisar antes de validar.';
+    }
+    alert(msg);
+    return true;
+  }
+
+  function bindInputs(){
+    document.querySelectorAll('[data-k]').forEach(function(el){
+      el.addEventListener('input', function(){
+        state[el.getAttribute('data-k')] = el.value;
+        recalcAll();
+        save();
+      });
+    });
+    // Stamp buttons
+    document.querySelectorAll('[data-stamp]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var key = btn.getAttribute('data-stamp');
+        var stampKey = key + '_stamp';
+        var nameKey = key === 'res_firma' ? 'res_firma_nombre' : key;
+        var name = (state[nameKey] || '').trim();
+        if (!name) { alert('Captura primero el nombre antes de sellar.'); return; }
+        var now = new Date();
+        var iso = now.toLocaleString('es-MX',{dateStyle:'short',timeStyle:'short'});
+        state[stampKey] = name + ' · ' + iso;
+        document.getElementById(stampKey).textContent = 'Sellado: ' + state[stampKey];
+        save();
+      });
+    });
+  }
+
+  // ---------- Tabs ----------
+  function bindTabs(){
+    document.querySelectorAll('.tab-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+        document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+        btn.classList.add('active');
+        var t = btn.getAttribute('data-tab');
+        var panel = document.getElementById('panel-'+t);
+        if (panel) panel.classList.add('active');
+        window.scrollTo({top:0, behavior:'smooth'});
+      });
+    });
+  }
+
+  // ---------- Header actions ----------
+  function bindHeader(){
+    var fechaEl = document.getElementById('fecha');
+    fechaEl.addEventListener('change', function(){
+      load();
+      updateMetaFecha();
+    });
+    // (Botones legacy "Cargar bitácora JSON" eliminados — el sistema usa "Auto-llenar del día"
+    //  que carga las bitácoras directamente desde el backend, sin archivos manuales.)
+    document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+    document.getElementById('btnLogout').addEventListener('click', function(){
+      if (!confirm('¿Cerrar sesión?')) return;
+      try { sessionStorage.clear(); } catch(e){}
+      var _a=document.createElement('a');_a.href=API_URL + '?p=acceso';_a.target='_top';document.body.appendChild(_a);_a.click();
+    });
+    var btnAuto = document.getElementById('btnAutoFill');
+    if (btnAuto) btnAuto.addEventListener('click', autoFillFromDayBitacoras);
+    var btnChar = document.getElementById('btnCargarCharolas');
+    if (btnChar) btnChar.addEventListener('click', cargarCharolasDelDia);
+  }
+
+  // ---------- Cargar charolas del día (sección 11) ----------
+  // Consolida los registros de Cocina y Churrasca de la fecha actual:
+  // - # Charolas (suma de cantidades tipo='charola' por área)
+  // - # Reposiciones (suma tipo='reposicion')
+  // - Merma (descripciones de tipo='merma' concatenadas con sus cantidades)
+  // - Responsable (emails únicos que registraron, sin el dominio)
+  function cargarCharolasDelDia(){
+    var fecha = document.getElementById('fecha').value;
+    if (!fecha) { alert('Selecciona primero una fecha.'); return; }
+    var btn = document.getElementById('btnCargarCharolas');
+    if (btn) { btn.disabled = true; btn.textContent = '🍳 Cargando…'; }
+    setSaveIndicator('saving');
+    apiCall({ action:'charolas_list', token: token, fecha: fecha,
+              sucursal_id: (sucursales[0] && sucursales[0].id) || '' }, function(res){
+      if (btn) { btn.disabled = false; btn.textContent = '🍳 Cargar charolas del día'; }
+      if (!res.ok) {
+        setSaveIndicator('error', res.error);
+        alert('No se pudo cargar: ' + (res.error || ''));
+        return;
+      }
+      var charolas = res.charolas || [];
+      if (!charolas.length) {
+        setSaveIndicator('idle');
+        alert('No hay registros de charolas para ' + fecha + '.\n\nPide a Cocina y Churrasca que registren desde sus tablets.');
+        return;
+      }
+      ['cocina','churrasca'].forEach(function(area){
+        var delArea = charolas.filter(function(c){ return c.area === area; });
+        var charolaCnt = 0, reposCnt = 0;
+        var mermas = [];
+        var emails = {};
+        delArea.forEach(function(c){
+          var qty = Number(c.cantidad) || 1;
+          if (c.tipo === 'charola') charolaCnt += qty;
+          else if (c.tipo === 'reposicion') reposCnt += qty;
+          else if (c.tipo === 'merma') {
+            var label = (c.descripcion || '').trim();
+            mermas.push((qty > 1 ? qty + ' ' : '') + (label || 'sin descripción'));
+          }
+          if (c.responsable_email) emails[c.responsable_email] = true;
+        });
+        var responsables = Object.keys(emails).map(function(e){ return e.split('@')[0]; }).join(' / ');
+
+        state['ci_charolas_'+area] = charolaCnt || '';
+        state['ci_repos_'+area]    = reposCnt   || '';
+        state['ci_merma_'+area]    = mermas.join(', ');
+        // Solo escribir responsable si está vacío (no sobrescribir captura manual)
+        if (!state['ci_resp_'+area] && responsables) state['ci_resp_'+area] = responsables;
+      });
+      applyStateToInputs();
+      recalcAll();
+      save();
+      setSaveIndicator('saved');
+      var totC = state.ci_charolas_cocina || 0, totCH = state.ci_charolas_churrasca || 0;
+      alert('Charolas consolidadas:\n• Cocina: ' + totC + ' charolas\n• Churrasca: ' + totCH + ' charolas\n\nReposiciones, mermas y responsables también se llenaron.');
+    });
+  }
+
+  // ---------- Auto-llenar desde bitácoras del día ----------
+  // Toma todas las bitácoras de la fecha seleccionada y consolida en la conciliación:
+  // - Hora desde / hasta (mín hora_ent / máx hora_sal de filas no canceladas)
+  // - Folios (concatenados)
+  // - Mix Host por tarifa (suma de filas no canceladas)
+  // Brunch/Comida → Apertura. Cena → Cierre. Día especial → Apertura por default.
+  // Solo sobrescribe lo que viene de bitácora; NO toca POS, cobros, propinas, etc.
+  function autoFillFromDayBitacoras(){
+    var fecha = document.getElementById('fecha').value;
+    if (!fecha) { alert('Selecciona primero una fecha.'); return; }
+    var btn = document.getElementById('btnAutoFill');
+    if (btn) { btn.disabled = true; btn.textContent = '🔄 Cargando…'; }
+    setSaveIndicator('saving');
+
+    apiCall({ action:'bitacora_list', token: token, fecha: fecha,
+              sucursal_id: (sucursales[0] && sucursales[0].id) || '' }, function(res){
+      if (!res.ok) {
+        setSaveIndicator('error', res.error);
+        if (btn) { btn.disabled = false; btn.textContent = '🔄 Auto-llenar del día'; }
+        return;
+      }
+      var bits = res.bitacoras || [];
+      if (!bits.length) {
+        alert('No hay bitácoras registradas para ' + fecha + '.\n\nPide al host que cierre los servicios del día y vuelve a intentar.');
+        setSaveIndicator('idle');
+        if (btn) { btn.disabled = false; btn.textContent = '🔄 Auto-llenar del día'; }
+        return;
+      }
+      var resultados = new Array(bits.length);
+      var pending = bits.length;
+      bits.forEach(function(b, i){
+        apiCall({ action:'bitacora_get', token: token, id: b.id }, function(getRes){
+          resultados[i] = getRes.ok ? getRes.bitacora : null;
+          pending--;
+          if (pending === 0) consolidar(resultados);
+        });
+      });
+    });
+
+    function consolidar(bitacoras){
+      var grupos = { ap: [], ci: [] };
+      bitacoras.forEach(function(b){
+        if (!b) return;
+        var serv = String(b.servicio || '').toLowerCase();
+        // Clasificación por servicio:
+        //   - "comida"  → ci (Cierre profundo, segundo servicio del día en V-D)
+        //   - "desayuno" → ap (Apertura, primer servicio del día en V-D)
+        //   - "buffet completo" o cualquier otro → ap (único servicio del día Lun-Jue)
+        //   - retro-compatibilidad: si dice "cena" también va a ci.
+        var target = (/comida|cena/.test(serv)) ? 'ci' : 'ap';
+        grupos[target].push(b);
+      });
+      // Cargar tablero de sellos de la primera bitácora encontrada (típico = una sola)
+      var primera = bitacoras.find(function(b){ return b && b.id; });
+      if (primera) {
+        cargarTableroSellos(primera.id);
+        actualizarCajeroSelloUI(primera.id); // card propio del cajero
+      }
+
+      ['ap','ci'].forEach(function(target){
+        var grupo = grupos[target];
+        if (!grupo.length) return;
+        var sums = { adulto:0, nino:0, '3era':0, promo:0, corte:0 };
+        var horasEnt = [], horasSal = [], folios = [];
+        var servicio = '', tarifa = '';
+        grupo.forEach(function(b){
+          var st = b.payload || {};
+          (st.rows || []).forEach(function(r){
+            if (r.estado === 'Cancelada') return;
+            sums.adulto += num(r.adulto);
+            sums.nino   += num(r.nino);
+            sums['3era']+= num(r['3era']);
+            sums.promo  += num(r.promo);
+            sums.corte  += num(r.corte);
+            if (r.hora_ent) horasEnt.push(r.hora_ent);
+            if (r.hora_sal) horasSal.push(r.hora_sal);
+          });
+          var meta = st.meta || {};
+          if (b.folio) folios.push(b.folio);
+          if (!servicio && meta.servicio) servicio = meta.servicio;
+          if (!tarifa && meta.t_adulto) tarifa = meta.t_adulto;
+        });
+        horasEnt.sort(); horasSal.sort();
+        // Sobreescribir SIEMPRE los datos que vienen de bitácora (la bitácora es fuente de verdad)
+        state[target+'_hora_desde']      = horasEnt[0] || '';
+        state[target+'_hora_hasta']      = horasSal.length ? horasSal[horasSal.length-1] : '';
+        state[target+'_folios_bitacora'] = folios.join(', ');
+        state[target+'_mix_adulto_host'] = sums.adulto;
+        state[target+'_mix_nino_host']   = sums.nino;
+        state[target+'_mix_3era_host']   = sums['3era'];
+        state[target+'_mix_promo_host']  = sums.promo;
+        state[target+'_mix_corte_host']  = sums.corte;
+        // Servicio y tarifa: sobrescribir SIEMPRE con lo que el host capturó (single source of truth)
+        if (servicio) state[target+'_servicio']    = servicio;
+        if (tarifa)   state[target+'_tarifa_base'] = tarifa;
+      });
+
+      applyStateToInputs();
+      recalcAll();
+      save();
+      setSaveIndicator('saved');
+
+      var btn = document.getElementById('btnAutoFill');
+      if (btn) { btn.disabled = false; btn.textContent = '🔄 Auto-llenar del día'; }
+
+      alert('Bitácoras consolidadas:\n• Apertura: ' + grupos.ap.length + '\n• Cierre: ' + grupos.ci.length +
+            '\n\nSe llenaron Mix Host, hora desde/hasta y folios. POS y cobros quedan intactos.');
+    }
+  }
+
+  function updateMetaFecha(){
+    var f = document.getElementById('fecha').value;
+    setText('metaFecha', f || '—');
+    setVal('ci_corte_fecha_label', f || '—');
+  }
+
+  // ---------- Tooltips contextuales ----------
+  var activeTip = null;
+  var activeTipTrigger = null;
+
+  function closeTooltip(){
+    if (activeTip) { activeTip.remove(); activeTip = null; }
+    if (activeTipTrigger) { activeTipTrigger.classList.remove('active'); activeTipTrigger = null; }
+  }
+
+  function openTooltip(triggerEl){
+    closeTooltip();
+    var tipText = triggerEl.getAttribute('data-tip');
+    if (!tipText) return;
+    var tip = document.createElement('div');
+    tip.className = 'tooltip';
+    tip.innerHTML = tipText + '<button class="tooltip-close" aria-label="Cerrar" type="button">×</button>';
+    document.body.appendChild(tip);
+    var rect = triggerEl.getBoundingClientRect();
+    var tipRect = tip.getBoundingClientRect();
+    var scrollY = window.scrollY || window.pageYOffset;
+    var scrollX = window.scrollX || window.pageXOffset;
+    var top = rect.bottom + scrollY + 10;
+    var left = rect.left + scrollX + (rect.width/2) - 20;
+    var maxLeft = scrollX + window.innerWidth - tipRect.width - 12;
+    if (left > maxLeft) left = maxLeft;
+    if (left < scrollX + 12) left = scrollX + 12;
+    if (rect.bottom + tipRect.height + 20 > window.innerHeight) {
+      top = rect.top + scrollY - tipRect.height - 10;
+      tip.classList.add('below');
+    }
+    var arrowX = (rect.left + scrollX + rect.width/2) - left - 6;
+    arrowX = Math.max(10, Math.min(arrowX, tipRect.width - 22));
+    tip.style.setProperty('--arrow-x', arrowX + 'px');
+    tip.style.top = top + 'px';
+    tip.style.left = left + 'px';
+    activeTip = tip;
+    activeTipTrigger = triggerEl;
+    triggerEl.classList.add('active');
+    tip.querySelector('.tooltip-close').addEventListener('click', function(e){
+      e.stopPropagation();
+      closeTooltip();
+    });
+  }
+
+  function bindTooltips(){
+    document.addEventListener('click', function(e){
+      var trigger = e.target.closest('.info-icon[data-tip]');
+      if (trigger) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (activeTipTrigger === trigger) closeTooltip();
+        else openTooltip(trigger);
+        return;
+      }
+      if (activeTip && !e.target.closest('.tooltip')) closeTooltip();
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape') closeTooltip();
+    });
+    window.addEventListener('scroll', closeTooltip, { passive: true });
+    window.addEventListener('resize', closeTooltip);
+  }
+
+  // ============= Card de sello propio para CAJERO =============
+  function actualizarCajeroSelloUI(bitacora_id){
+    var card = document.getElementById('cajeroSellosCard');
+    var rolUser = String((user && user.rol) || '').toLowerCase();
+    if (!card) return;
+    if (rolUser !== 'cajera') { card.style.display = 'none'; return; }
+    if (!bitacora_id) { card.style.display = 'none'; return; }
+    card.style.display = '';
+    apiCall({ action:'sellos_estado', token: token, bitacora_id: bitacora_id }, function(res){
+      if (!res.ok) return;
+      var ap = res.tablero.find(function(s){ return s.momento==='apertura' && s.rol==='cajera'; });
+      var ci = res.tablero.find(function(s){ return s.momento==='cierre' && s.rol==='cajera'; });
+      var infoAp = document.getElementById('cajSelloAperturaInfo');
+      var infoCi = document.getElementById('cajSelloCierreInfo');
+      var btnAp = document.getElementById('btnCajSellarApertura');
+      var btnCi = document.getElementById('btnCajSellarCierre');
+      if (ap && ap.sellado) {
+        infoAp.innerHTML = '✓ Sellado por <strong>' + esc(ap.por||'') + '</strong><br><span style="color:var(--muted);font-size:11.5px">' + (ap.sellado_at ? new Date(ap.sellado_at).toLocaleString('es-MX') : '') + '</span>';
+        infoAp.style.color = 'var(--good)';
+        if (btnAp) { btnAp.disabled = true; btnAp.textContent = '✓ Ya sellaste apertura'; }
+      } else {
+        infoAp.textContent = 'Sin sellar';
+        if (btnAp) { btnAp.disabled = false; btnAp.textContent = '✓ Sellar mi apertura'; }
+      }
+      if (ci && ci.sellado) {
+        infoCi.innerHTML = '✓ Sellado por <strong>' + esc(ci.por||'') + '</strong><br><span style="color:var(--muted);font-size:11.5px">' + (ci.sellado_at ? new Date(ci.sellado_at).toLocaleString('es-MX') : '') + '</span>';
+        infoCi.style.color = 'var(--good)';
+        if (btnCi) { btnCi.disabled = true; btnCi.textContent = '✓ Ya sellaste cierre'; }
+      } else {
+        infoCi.textContent = 'Sin sellar';
+        if (btnCi) { btnCi.disabled = false; btnCi.textContent = '✓ Sellar mi cierre'; }
+      }
+    });
+  }
+  function sellarComoCajero(momento, bitacora_id){
+    if (!bitacora_id) { alert('Primero carga una bitácora del día.'); return; }
+    var labelMomento = momento === 'apertura' ? 'apertura' : 'cierre';
+    if (!confirm('¿Confirmas sellar tu ' + labelMomento + ' como Cajero? Quedará firmado a tu nombre con la hora exacta y no se puede deshacer.')) return;
+    apiCall({ action:'sello_save', token: token,
+              data: JSON.stringify({ bitacora_id: bitacora_id, momento: momento, rol_esperado: 'cajera' }) }, function(res){
+      if (res.ok) { actualizarCajeroSelloUI(bitacora_id); cargarTableroSellos(bitacora_id); }
+      else alert('No se pudo: ' + (res.error || 'Error'));
+    });
+  }
+  // Bindings de los botones del cajero
+  document.addEventListener('DOMContentLoaded', function(){
+    var btnAp = document.getElementById('btnCajSellarApertura');
+    var btnCi = document.getElementById('btnCajSellarCierre');
+    if (btnAp) btnAp.addEventListener('click', function(){ sellarComoCajero('apertura', BITACORA_ACTUAL_ID); });
+    if (btnCi) btnCi.addEventListener('click', function(){ sellarComoCajero('cierre', BITACORA_ACTUAL_ID); });
+  });
+
+  // ============= Tablero de sellos del servicio (read-only + override admin) =============
+  // Se llama cuando se carga una bitácora desde el bindBitacoraLoader.
+  var BITACORA_ACTUAL_ID = null;
+  function cargarTableroSellos(bitacora_id){
+    BITACORA_ACTUAL_ID = bitacora_id;
+    var tab = document.getElementById('sellosTablero');
+    if (!tab) return;
+    if (!bitacora_id) {
+      tab.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);font-size:13px">Carga una bitácora del día desde la sección 01 para ver los sellos.</div>';
+      return;
+    }
+    apiCall({ action:'sellos_estado', token: token, bitacora_id: bitacora_id }, function(res){
+      if (!res.ok) { tab.innerHTML = '<div style="color:var(--bad);padding:14px">Error: ' + esc(res.error||'') + '</div>'; return; }
+      tab.innerHTML = (res.tablero || []).map(function(s){
+        var cardStyle = s.sellado
+          ? 'border:1px solid var(--good);background:rgba(30,127,92,.05)'
+          : 'border:1px dashed var(--line);background:#fff';
+        var icon = s.sellado ? '✓' : '○';
+        var iconColor = s.sellado ? 'var(--good)' : 'var(--muted)';
+        var info = s.sellado
+          ? '<div style="font-size:13px;color:var(--ink);font-weight:500">' + esc(s.por) + '</div>' +
+            '<div style="font-size:11.5px;color:var(--muted);margin-top:3px">' + (s.sellado_at ? new Date(s.sellado_at).toLocaleString('es-MX') : '') + '</div>' +
+            (s.es_override ? '<div style="font-size:11px;color:var(--warn);margin-top:6px;font-style:italic">⚠ Override: ' + esc(s.motivo_override) + '</div>' : '')
+          : '<div style="font-size:12.5px;color:var(--muted);margin-bottom:8px">Aún no se ha sellado</div>' +
+            '<button class="btn no-print" data-momento="'+esc(s.momento)+'" data-rol="'+esc(s.rol)+'" style="font-size:12px;padding:6px 12px">Firmar yo (override)</button>';
+        return '<div style="' + cardStyle + ';border-radius:var(--r-md);padding:14px">' +
+          '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px">' +
+            '<span style="font-size:18px;color:'+iconColor+';font-weight:600;line-height:1">' + icon + '</span>' +
+            '<div style="font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;font-weight:600;flex:1">' + esc(s.label) + '</div>' +
+          '</div>' +
+          info +
+        '</div>';
+      }).join('');
+      // Bindings de los botones de override
+      tab.querySelectorAll('button[data-rol]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var momento = btn.getAttribute('data-momento');
+          var rol = btn.getAttribute('data-rol');
+          firmarOverride(bitacora_id, momento, rol);
+        });
+      });
+      // Si soy gerente_administrativo y aún no he sellado mi cierre, hacerlo evidente.
+      var miSelloAdmin = res.tablero.find(function(s){ return s.momento==='cierre' && s.rol==='gerente_administrativo'; });
+      var rolUser = String((user && user.rol) || '').toLowerCase();
+      if (miSelloAdmin && !miSelloAdmin.sellado && (rolUser === 'admin' || rolUser === 'gerente_administrativo')) {
+        // Botón especial para mi propio sello
+        var btnPropio = document.createElement('button');
+        btnPropio.className = 'btn btn-primary no-print';
+        btnPropio.style.cssText = 'margin-top:14px;display:block;width:100%;padding:14px;font-size:14px';
+        btnPropio.textContent = '🖋️ Sellar mi cierre como Administradora';
+        btnPropio.addEventListener('click', function(){
+          if (!confirm('¿Confirmas sellar tu cierre como Administradora? Quedará firmado a tu nombre y con la hora exacta. No se puede deshacer.')) return;
+          apiCall({ action:'sello_save', token: token,
+                    data: JSON.stringify({ bitacora_id: bitacora_id, momento:'cierre', rol_esperado:'gerente_administrativo' }) }, function(r){
+            if (r.ok) cargarTableroSellos(bitacora_id);
+            else alert('No se pudo: ' + (r.error || 'Error'));
+          });
+        });
+        tab.parentNode.appendChild(btnPropio);
+      }
+    });
+  }
+  function firmarOverride(bitacora_id, momento, rol){
+    var rolUser = String((user && user.rol) || '').toLowerCase();
+    if (rolUser !== 'admin' && rolUser !== 'gerente_administrativo') {
+      alert('Solo Administrador o Gerente Administrativo pueden hacer override de un sello.'); return;
+    }
+    var motivo = prompt('Vas a firmar como ' + rol + ' (' + momento + ').\n\nEscribe el motivo (mínimo 5 caracteres). Esta acción queda auditada con tu nombre.');
+    if (motivo === null) return;
+    motivo = String(motivo).trim();
+    if (motivo.length < 5) { alert('Motivo demasiado corto. NO se selló.'); return; }
+    apiCall({ action:'sello_save', token: token,
+              data: JSON.stringify({ bitacora_id: bitacora_id, momento: momento, rol_esperado: rol, motivo_override: motivo }) }, function(res){
+      if (res.ok) cargarTableroSellos(bitacora_id);
+      else alert('No se pudo sellar: ' + (res.error || 'Error'));
+    });
+  }
+
+  // ---------- Histórico de cambios (T2 fase 2 — auditoría granular) ----------
+  // Solo visible para roles de control: admin, auditoria, gerente_administrativo.
+  // Cajera y gerente_restaurante NO acceden a este histórico (no es información operativa, es de control).
+  function bindAuditoria(){
+    var btn = document.getElementById('btnAuditoria');
+    if (!btn) return;
+    var rolesAud = ['admin','auditoria','gerente_administrativo'];
+    if (rolesAud.indexOf(rol) === -1) return;  // queda hidden por style="display:none" del HTML
+    btn.style.display = '';
+    btn.addEventListener('click', openAuditoria);
+    var closeBtn = document.getElementById('auditClose');
+    var overlay  = document.getElementById('auditOverlay');
+    if (closeBtn) closeBtn.addEventListener('click', closeAuditoria);
+    if (overlay)  overlay.addEventListener('click', function(e){
+      // click en el fondo (overlay) cierra; click en el modal NO cierra
+      if (e.target === overlay) closeAuditoria();
+    });
+    // Cerrar con Escape
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape') closeAuditoria();
+    });
+  }
+  function openAuditoria(){
+    var fecha = document.getElementById('fecha').value;
+    if (!fecha) { alert('Selecciona primero una fecha.'); return; }
+    var sub = document.getElementById('auditSubtitle');
+    var body = document.getElementById('auditBody');
+    if (sub) sub.textContent = 'Conciliación · ' + fecha;
+    if (body) body.innerHTML = '<div class="audit-empty">Cargando…</div>';
+    document.getElementById('auditOverlay').classList.add('show');
+    var params = { action:'conciliacion_auditoria_list', token: token, fecha: fecha };
+    if (conciliacionId) params.conciliacion_id = conciliacionId;
+    apiCall(params, function(res){
+      if (!res.ok) {
+        body.innerHTML = '<div class="audit-empty">⚠ ' + escAttr(res.error || 'Error al cargar histórico') + '</div>';
+        return;
+      }
+      renderAuditoria(res.auditoria || []);
+    });
+  }
+  function closeAuditoria(){
+    var ov = document.getElementById('auditOverlay');
+    if (ov) ov.classList.remove('show');
+  }
+  // Etiquetas legibles por sección (las del backend son snake_case, las mostramos en humano)
+  var SECCION_LABELS = {
+    apertura:        'Apertura',
+    cierre_general:  'Cierre',
+    corte_caja:      'Corte de caja',
+    arqueo:          'Arqueo',
+    depositos:       'Depósitos',
+    cfdi:            'CFDI',
+    apps:            'Apps / delivery',
+    extras:          'Extras / mermas / charolas',
+    cortesias:       'Cortesías',
+    terminales:      'Terminales',
+    cancelaciones:   'Cancelaciones',
+    folios:          'Folios',
+    resumen:         'Resumen',
+    otros:           'Otros'
+  };
+  var ACCION_LABELS = { crear:'Creó', editar:'Editó', cerrar:'Cerró', reabrir:'Reabrió' };
+  function fmtCuandoAud(iso){
+    if (!iso) return '—';
+    try {
+      var d = new Date(iso);
+      var hoy = new Date();
+      var sameDay = d.toDateString() === hoy.toDateString();
+      var hh = String(d.getHours()).padStart(2,'0');
+      var mm = String(d.getMinutes()).padStart(2,'0');
+      if (sameDay) return 'Hoy ' + hh + ':' + mm;
+      var f = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      return f + ' ' + hh + ':' + mm;
+    } catch(e) { return iso; }
+  }
+  function renderAuditoria(items){
+    var body = document.getElementById('auditBody');
+    if (!body) return;
+    if (!items.length) {
+      body.innerHTML = '<div class="audit-empty">Sin cambios registrados todavía para esta fecha.<br><span style="font-size:12px">El registro empezó al subir el deploy v127.</span></div>';
+      return;
+    }
+    var html = items.map(function(it){
+      var seccionesHtml = (it.secciones_modificadas || []).map(function(s){
+        return '<span class="audit-sec-tag">' + escAttr(SECCION_LABELS[s] || s) + '</span>';
+      }).join('');
+      if (!seccionesHtml && it.accion === 'crear') seccionesHtml = '<span class="audit-sec-tag">primer save</span>';
+      var accionLbl = ACCION_LABELS[it.accion] || it.accion;
+      return (
+        '<div class="audit-row">' +
+          '<div class="audit-row-head">' +
+            '<span class="audit-accion audit-accion-' + escAttr(it.accion) + '">' + escAttr(accionLbl) + '</span>' +
+            '<span class="audit-usuario">' + escAttr(it.usuario_nombre || it.usuario_email) + '</span>' +
+            '<span class="audit-rol">(' + escAttr(it.usuario_rol) + ')</span>' +
+            '<span class="audit-when">' + escAttr(fmtCuandoAud(it.ts)) + '</span>' +
+          '</div>' +
+          (seccionesHtml ? '<div class="audit-secciones"><strong>Secciones:</strong> ' + seccionesHtml + '</div>' : '') +
+        '</div>'
+      );
+    }).join('');
+    body.innerHTML = html;
+  }
+
+  // ---------- Init ----------
+  function init(){
+    var fechaEl = document.getElementById('fecha');
+    // Si vino una fecha en URL (?fecha=YYYY-MM-DD), úsala — sirve para acceso desde el histórico.
+    var fechaURL = (location.search.match(/[?&]fecha=([^&]*)/)||[])[1];
+    if (fechaURL) {
+      fechaEl.value = decodeURIComponent(fechaURL);
+    } else {
+      var d = new Date();
+      var iso = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      fechaEl.value = iso;
+    }
+    bindInputs();
+    bindTabs();
+    bindHeader();
+    bindTooltips();
+    bindTerminales();
+    bindCortesias();
+    bindAuditoria();
+    load();
+    updateMetaFecha();
+    cargarTableroSellos(null); // mensaje inicial "carga una bitácora"
+    // Validar token + recuperar sesión si iOS borró sessionStorage
+    apiCall({ action:'me', token: token }, function(res){
+      if (!res.ok) {
+        try { sessionStorage.clear(); } catch(e){}
+        alert('Tu sesión expiró. Vuelve a iniciar sesión.');
+        var _a=document.createElement('a');_a.href=API_URL+'?p=acceso';_a.target='_top';document.body.appendChild(_a);_a.click();
+        return;
+      }
+      user = res.user || user;
+      empresa = res.empresa || empresa || null;
+      sucursales = res.sucursales || sucursales || [];
+      try {
+        sessionStorage.setItem('fogueira_user', JSON.stringify(user));
+        sessionStorage.setItem('fogueira_empresa', JSON.stringify(empresa));
+        sessionStorage.setItem('fogueira_sucursales', JSON.stringify(sucursales));
+      } catch(e){}
+      if (!aplicarSesionUI()) return;
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
