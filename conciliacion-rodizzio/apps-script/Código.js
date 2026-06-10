@@ -7924,8 +7924,10 @@ function _auditCompradorEstado(empresaId) {
 }
 
 // Recetas con avisos por ÁREA: cantidad/costo absurdo (lineas_sospechosas>0 || costo_total>3000).
-// Pendiente acumulado del chef (cocina/churrasca), igual que el comprador con el catálogo. v369.
-// Devuelve { cocina:{sosp:N, recetas:[...]}, churrasca:{...} }. Reusa _reporteRentabilidadCore.
+// Pendiente acumulado del responsable del área, igual que el comprador con el catálogo. v369.
+// v373: cubre las 5 áreas (cocina/churrasca/barra/cava/panaderia) para barman/panadero.
+// Devuelve { cocina:{sosp:N, recetas:[...]}, barra:{...}, ... }. Reusa _reporteRentabilidadCore.
+var AUDIT_RECETAS_AREAS = ['cocina','churrasca','barra','cava','panaderia'];
 function _auditRecetasConAvisoPorArea(empresaId) {
   var out = {};
   try {
@@ -7933,7 +7935,7 @@ function _auditRecetasConAvisoPorArea(empresaId) {
     (rep.recetas || []).forEach(function(r){
       if (r.activa === false || r.es_subreceta) return;
       var area = String(r.area||'').toLowerCase();
-      if (area !== 'cocina' && area !== 'churrasca') return;
+      if (AUDIT_RECETAS_AREAS.indexOf(area) === -1) return;
       var problema = (Number(r.lineas_sospechosas)||0) > 0 || (Number(r.costo_total)||0) > 3000;
       if (!problema) return;
       if (!out[area]) out[area] = { sosp:0, recetas:[] };
@@ -8054,22 +8056,63 @@ function _auditoriaMatutinaCore(empresaId, fecha, suc) {
     });
   }
 
-  // Chefs (cocina/churrasca): recetas de su área con cantidad/costo absurdo por corregir
-  // (deuda que arrastra, no por día). Atribuido a cada usuario activo del rol del área. v369.
+  // Responsables "tipo chef" por rol: recetas de su(s) área(s) con cantidad/costo absurdo
+  // por corregir (deuda que arrastra, no por día). v369; v373 suma barman (barra+cava) y
+  // panadero (panaderia) — espeja _areasDeRol (recetario_handlers.gs). Si el rol aún no
+  // tiene usuarios (barman/panadero pendientes de Luis), simplemente no atribuye a nadie.
   var recetasAviso = _auditRecetasConAvisoPorArea(empresaId);
-  ['cocina','churrasca'].forEach(function(area){
-    var info = recetasAviso[area];
-    if (!info || !info.sosp) return;
-    var chefs = rowsToObjects(getSheet('Usuarios')).filter(function(x){
-      return x.empresa_id === empresaId && esActivo(x.activo) && String(x.rol||'').toLowerCase() === area;
+  var ROL_AREAS_RECETAS = { cocina:['cocina'], churrasca:['churrasca'], barman:['barra','cava'], panadero:['panaderia'] };
+  Object.keys(ROL_AREAS_RECETAS).forEach(function(rol){
+    var areasRol = ROL_AREAS_RECETAS[rol];
+    var sosp = 0, ejemplosArr = [];
+    areasRol.forEach(function(area){
+      var info = recetasAviso[area];
+      if (!info || !info.sosp) return;
+      sosp += info.sosp;
+      ejemplosArr = ejemplosArr.concat(info.recetas || []);
     });
-    var ejemplos = info.recetas.length ? ' (ej. ' + info.recetas.slice(0,2).join(', ') + ')' : '';
-    chefs.forEach(function(c){
+    if (!sosp) return;
+    var resp = rowsToObjects(getSheet('Usuarios')).filter(function(x){
+      return x.empresa_id === empresaId && esActivo(x.activo) && String(x.rol||'').toLowerCase() === rol;
+    });
+    var etiqueta = areasRol.join('/');
+    var ejemplos = ejemplosArr.length ? ' (ej. ' + ejemplosArr.slice(0,2).join(', ') + ')' : '';
+    resp.forEach(function(c){
       var em = String(c.email||'').toLowerCase();
-      ensure(em, c.nombre, area);
-      addPend(em, c.nombre, area, info.sosp + ' receta(s) de ' + area + ' con cantidad o costo absurdo por corregir' + ejemplos + '.', 'alta');
+      ensure(em, c.nombre, areasRol[0]);
+      addPend(em, c.nombre, areasRol[0], sosp + ' receta(s) de ' + etiqueta + ' con cantidad o costo absurdo por corregir' + ejemplos + '.', 'alta');
     });
   });
+
+  // Host (v373): servicios de días pasados que quedaron 'abierta' (sin cerrar). Deuda
+  // acumulada atribuida al DUEÑO de cada bitácora (host_email) — no necesita agenda.
+  // Mismo criterio que abiertas_pasadas de handleBitacoraList (sucursal vacía = global).
+  var hoyLog = diaLogicoRestaurante();
+  var abiertasPorHost = {};
+  rowsToObjects(getSheet('Bitacoras')).forEach(function(b){
+    if (b.empresa_id !== empresaId) return;
+    if (suc && b.sucursal_id && b.sucursal_id !== suc) return;
+    if (String(b.estado||'') !== 'abierta') return;
+    var fb = fechaToString(b.fecha);
+    if (!fb || fb >= hoyLog) return;
+    var emH = String(b.host_email||'').toLowerCase().trim();
+    if (!emH) return;
+    if (!abiertasPorHost[emH]) abiertasPorHost[emH] = [];
+    abiertasPorHost[emH].push((b.folio || b.id) + ' del ' + fb);
+  });
+  if (Object.keys(abiertasPorHost).length) {
+    var nombresIdx = {};
+    rowsToObjects(getSheet('Usuarios')).forEach(function(x){
+      if (x.empresa_id === empresaId) nombresIdx[String(x.email||'').toLowerCase()] = x.nombre || x.email;
+    });
+    Object.keys(abiertasPorHost).forEach(function(emH){
+      var lista = abiertasPorHost[emH];
+      var ej = lista.slice(0,3).join(', ') + (lista.length > 3 ? '…' : '');
+      var nomH = nombresIdx[emH] || emH;
+      ensure(emH, nomH, 'host');
+      addPend(emH, nomH, 'host', lista.length + ' servicio(s) de días pasados sin cerrar en Bitácora (' + ej + '). Ábrelo y ciérralo.', 'critica');
+    });
+  }
 
   var personasArr = Object.keys(personas).map(function(k){
     var pe = personas[k];
