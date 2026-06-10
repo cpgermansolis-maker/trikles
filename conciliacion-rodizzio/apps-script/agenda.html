@@ -1,0 +1,565 @@
+<? var __tokenInyectado = '';
+try { __tokenInyectado = (queryParams && queryParams.t) ? String(queryParams.t) : ''; } catch(e){} ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda de responsables · Fogueira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0c0907; --ember:#c4322a; --ember-deep:#8a1f17; --cream:#f6f1e8; --gold:#c89a4a;
+    --paper:#fbf8f2; --line:#e4dccd; --muted:#8a7f70; --good:#1E7F5C; --bad:#8a1f17; --warn:#9a6e1a;
+    --font-serif:'Cormorant Garamond',serif; --font-sans:'DM Sans',system-ui,sans-serif; --font-mono:'DM Mono',monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5}
+  a{color:inherit}
+  header.app{background:var(--ink);color:var(--cream);padding:14px 22px}
+  .head-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;max-width:1200px;margin:0 auto}
+  .brand{display:flex;align-items:baseline;gap:10px}
+  .brand .wordmark{font-family:var(--font-serif);font-style:italic;font-size:22px;letter-spacing:.02em}
+  .brand .sub{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:rgba(246,241,232,.6)}
+  .head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .head-actions .empn{font-size:12px;color:rgba(246,241,232,.5)}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-family:var(--font-sans);font-size:12.5px;font-weight:500;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;text-decoration:none;transition:all .15s}
+  .btn:hover{border-color:var(--gold)}
+  .head-actions .btn{background:rgba(246,241,232,.05);color:var(--cream);border-color:rgba(246,241,232,.18)}
+  .btn-primary{background:var(--ember);color:#fff;border-color:var(--ember)}
+  .btn-primary:hover{background:var(--ember-deep);border-color:var(--ember-deep)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-sm{padding:5px 10px;font-size:11.5px}
+  main{max-width:1200px;margin:0 auto;padding:26px 22px 60px}
+  .page-head h1{font-family:var(--font-serif);font-style:italic;font-weight:600;font-size:34px;margin:0 0 4px}
+  .page-head .desc{color:var(--muted);font-size:13.5px;margin-bottom:20px}
+  .card{background:#fff;border:1px solid var(--line);padding:18px 20px;margin-bottom:22px}
+  .card h2{font-family:var(--font-serif);font-style:italic;font-weight:600;font-size:22px;margin:0 0 10px}
+  .nav-week{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .nav-week .rango{font-family:var(--font-mono);font-size:12px;letter-spacing:.04em;color:var(--ink);text-transform:uppercase}
+  .nav-week .ctrls{display:flex;gap:8px;align-items:center}
+  .alert{padding:9px 13px;font-size:13px;margin-bottom:12px}
+  .alert.error{background:rgba(196,50,42,.08);border-left:3px solid var(--ember);color:var(--ember-deep)}
+  .alert.ok{background:rgba(30,127,92,.08);border-left:3px solid var(--good);color:var(--good)}
+  .alert.warn{background:rgba(154,110,26,.1);border-left:3px solid var(--warn);color:var(--warn)}
+  .grid-wrap{overflow-x:auto}
+  table.grid{width:100%;border-collapse:collapse;font-size:12.5px;min-width:760px}
+  table.grid th,table.grid td{border:1px solid var(--line);padding:7px 8px;vertical-align:top}
+  table.grid th{background:var(--paper);font-family:var(--font-mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center}
+  table.grid th.dia.hoy{background:rgba(200,154,74,.2);color:var(--ink)}
+  table.grid th.persona-h{text-align:left;width:180px}
+  td.persona{text-align:left;font-weight:600}
+  td.persona small{display:block;font-weight:400;font-family:var(--font-mono);font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  tr.area-sep td{background:var(--ink);color:var(--cream);font-family:var(--font-serif);font-style:italic;font-size:16px;padding:6px 10px;border-color:var(--ink)}
+  td.celda{text-align:center;cursor:default;min-width:74px}
+  td.celda.editable{cursor:pointer}
+  td.celda.editable:hover{background:var(--paper)}
+  .estado{display:inline-block;font-family:var(--font-mono);font-size:11px;padding:2px 7px;border:1px solid var(--line);min-width:24px}
+  .estado.planeado{background:rgba(30,127,92,.1);border-color:var(--good);color:var(--good)}
+  .estado.cubre{background:rgba(200,154,74,.18);border-color:var(--gold);color:var(--ink)}
+  .estado.descansa{background:var(--paper);border-color:var(--line);color:var(--muted)}
+  .estado.falta{background:rgba(196,50,42,.1);border-color:var(--ember);color:var(--ember-deep)}
+  .estado.vacio{color:var(--line);border:1px dashed var(--line)}
+  .leyenda{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11.5px;color:var(--muted)}
+  .leyenda span b{color:var(--ink)}
+  /* Modales */
+  .backdrop{position:fixed;inset:0;background:rgba(12,9,7,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:18px}
+  .backdrop.show{display:flex}
+  .modal{background:#fff;border:1px solid var(--line);max-width:520px;width:100%;max-height:90vh;overflow:auto;padding:22px 24px}
+  .modal h3{font-family:var(--font-serif);font-style:italic;font-size:24px;margin:0 0 4px}
+  .modal .sub{color:var(--muted);font-size:12.5px;margin-bottom:14px}
+  .fld{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+  .fld label{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .fld input,.fld select{padding:9px 11px;font-family:var(--font-sans);font-size:14px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+  .fld input:focus,.fld select:focus{outline:none;border-color:var(--gold)}
+  .dias-pick{display:flex;gap:6px;flex-wrap:wrap}
+  .dias-pick label{display:inline-flex;align-items:center;gap:4px;font-family:var(--font-sans);font-size:12.5px;letter-spacing:0;text-transform:none;color:var(--ink);border:1px solid var(--line);padding:6px 9px;cursor:pointer}
+  .dias-pick label.on{background:rgba(30,127,92,.1);border-color:var(--good)}
+  .dias-pick input{display:none}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+  .pat-list{margin:0 0 14px;padding:0;list-style:none}
+  .pat-list li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .pat-list li .pname{font-weight:600;flex:1}
+  .pat-list li .pdias{font-family:var(--font-mono);font-size:11px;color:var(--muted)}
+  .pill{display:inline-block;font-size:10.5px;padding:1px 7px;background:var(--paper);border:1px solid var(--line);white-space:nowrap}
+  .empty-state{text-align:center;color:var(--muted);padding:26px 12px}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--cream);padding:11px 20px;font-size:13.5px;opacity:0;pointer-events:none;transition:all .25s;z-index:200;max-width:90vw;text-align:center}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.error{background:var(--ember-deep)}
+  @media(max-width:640px){ .page-head h1{font-size:28px} .modal{padding:18px} }
+</style>
+</head>
+<body>
+<header class="app">
+  <div class="head-row">
+    <div class="brand">
+      <span class="wordmark">FOGUEIRA</span>
+      <span class="sub">Agenda de responsables</span>
+    </div>
+    <div class="head-actions">
+      <span class="empn" id="empresaNombre">—</span>
+      <a class="btn" id="btnInicio" href="#" target="_top">← Inicio</a>
+      <button class="btn" id="btnLogout" type="button">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="page-head">
+    <h1>Agenda de responsables del día</h1>
+    <div class="desc">Quién es responsable por área cada día. Se arma de una <b>plantilla semanal</b> (titular/suplente por persona) y le pones encima los <b>descansos, faltas y coberturas</b> de cada día. Áreas: cajera, cocina y churrasca.</div>
+  </div>
+
+  <div class="card">
+    <div class="nav-week">
+      <h2 style="margin:0">Semana</h2>
+      <div class="ctrls">
+        <button class="btn btn-sm" id="btnPrev" type="button">‹ Anterior</button>
+        <span class="rango" id="rangoSemana">—</span>
+        <button class="btn btn-sm" id="btnNext" type="button">Siguiente ›</button>
+        <button class="btn btn-sm" id="btnHoy" type="button">Hoy</button>
+        <button class="btn btn-primary btn-sm" id="btnPlantilla" type="button" style="display:none">Editar plantilla base</button>
+      </div>
+    </div>
+    <div id="gAlert"></div>
+    <div class="grid-wrap">
+      <table class="grid">
+        <thead><tr id="gHead"><th class="persona-h">Persona / Área</th></tr></thead>
+        <tbody id="gBody"><tr><td class="empty-state">Cargando…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="leyenda">
+      <span><span class="estado planeado">T</span> &nbsp;<b>Titular</b> (plantilla)</span>
+      <span><span class="estado planeado">S</span> &nbsp;<b>Suplente</b> (plantilla)</span>
+      <span><span class="estado cubre">Cu</span> &nbsp;<b>Cubre</b> (excepción)</span>
+      <span><span class="estado descansa">⛱</span> &nbsp;<b>Descansa</b></span>
+      <span><span class="estado falta">✕</span> &nbsp;<b>Falta</b></span>
+    </div>
+  </div>
+</main>
+
+<!-- Modal: excepción de un día (clic en una celda) -->
+<div class="backdrop" id="excBackdrop">
+  <div class="modal">
+    <h3>Cambiar un día</h3>
+    <div class="sub" id="excSub">—</div>
+    <div class="fld">
+      <label>¿Qué pasa este día?</label>
+      <select id="excEstado">
+        <option value="">— Sin cambio (usa la plantilla) —</option>
+        <option value="descansa">Descansa (día libre planeado)</option>
+        <option value="falta">Falta (no se presentó)</option>
+        <option value="cubre">Cubre (cubre el turno de alguien más)</option>
+      </select>
+    </div>
+    <div class="fld">
+      <label>Motivo (opcional)</label>
+      <input type="text" id="excMotivo" maxlength="300" placeholder="Ej. vacaciones, incapacidad, cambio de turno…">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="excBorrar" type="button" style="display:none;color:var(--ember)" title="Borra la excepción y el día vuelve a lo que diga la plantilla">🗑 Quitar excepción</button>
+      <button class="btn" id="excCancel" type="button">Cancelar</button>
+      <button class="btn btn-primary" id="excSave" type="button">Guardar día</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: plantilla base por persona -->
+<div class="backdrop" id="patBackdrop">
+  <div class="modal">
+    <h3>Plantilla base semanal</h3>
+    <div class="sub">Fija qué días recurrentes es responsable cada persona. Esto se repite cada semana; los descansos/coberturas puntuales se ponen luego en la cuadrícula.</div>
+    <div id="patAlert"></div>
+    <ul class="pat-list" id="patList"></ul>
+    <h3 style="font-size:19px">Agregar / editar asignación</h3>
+    <div class="fld">
+      <label>Persona</label>
+      <select id="patPersona"></select>
+    </div>
+    <div class="fld">
+      <label>Tipo</label>
+      <select id="patTipo">
+        <option value="titular">Titular</option>
+        <option value="suplente">Suplente</option>
+      </select>
+    </div>
+    <div class="fld">
+      <label>Días que es responsable</label>
+      <div class="dias-pick" id="patDias"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="patCerrar" type="button">Cerrar</button>
+      <button class="btn btn-primary" id="patGuardar" type="button">Guardar asignación</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+  var API_URL = 'https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec';
+
+  function getQuery(name){ var m=(location.search.match(new RegExp('[?&]'+name+'=([^&]*)'))||[])[1]; return m?decodeURIComponent(m):''; }
+  var token = getQuery('t') || '<?!= __tokenInyectado ?>';
+  var user, empresa, sucursales;
+  if (token) { try { sessionStorage.setItem('fogueira_token', token); } catch(e){} }
+  if (!token) { try { token = sessionStorage.getItem('fogueira_token'); } catch(e){} }
+  if (!token) { (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})(); return; }
+  try {
+    user = JSON.parse(sessionStorage.getItem('fogueira_user') || 'null');
+    empresa = JSON.parse(sessionStorage.getItem('fogueira_empresa') || 'null');
+    sucursales = JSON.parse(sessionStorage.getItem('fogueira_sucursales') || '[]');
+  } catch(e){}
+
+  var ROLES_LEE   = ['admin','auditoria','gerente_administrativo','gerente_restaurante'];
+  var ROLES_EDITA = ['admin','gerente_administrativo','gerente_restaurante'];
+  var AREAS = ['cajera','cocina','churrasca'];
+  var AREA_LBL = { cajera:'Cajera', cocina:'Cocina', churrasca:'Churrasca' };
+  var DOW_LBL = ['', 'Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  var rol = '', puedeEditar = false, _sesionUIAplicada = false;
+  var semanaInicio = null;   // 'yyyy-MM-dd' del lunes visible
+  var datos = null;          // última respuesta del backend
+  var excCtx = null;         // contexto del modal de excepción
+
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function escAttr(s){ return esc(s).replace(/"/g,'&quot;'); }
+  function toast(msg,tipo){ var t=document.getElementById('toast'); t.textContent=msg; t.className='toast show'+(tipo==='error'?' error':''); setTimeout(function(){ t.classList.remove('show'); }, 2600); }
+
+  // ----- fechas locales (NUNCA toISOString) -----
+  function pad(n){ return ('0'+n).slice(-2); }
+  function isoDe(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function dDeIso(iso){ var p=String(iso).split('-'); return new Date(parseInt(p[0],10),parseInt(p[1],10)-1,parseInt(p[2],10)); }
+  function dowDeIso(iso){ var js=dDeIso(iso).getDay(); return js===0?7:js; } // 1=Lun..7=Dom
+  function sumaDias(iso,n){ var d=dDeIso(iso); d.setDate(d.getDate()+n); return isoDe(d); }
+  function lunesDe(iso){ return sumaDias(iso, -(dowDeIso(iso)-1)); }
+  function hoyIso(){ return isoDe(new Date()); }
+  function fechaCorta(iso){ var d=dDeIso(iso); return pad(d.getDate())+'/'+pad(d.getMonth()+1); }
+
+  // ----- API JSONP + carga robusta -----
+  function apiCall(params, cb){
+    var cbName='_jcb_'+Date.now()+'_'+Math.floor(Math.random()*10000);
+    var s=document.createElement('script');
+    var cleanup=function(){ try{delete window[cbName];}catch(e){window[cbName]=undefined;} if(s.parentNode)s.parentNode.removeChild(s); };
+    var t=setTimeout(function(){ cleanup(); cb({ok:false,error:'timeout'}); }, 25000);
+    window[cbName]=function(d){ clearTimeout(t); cleanup(); cb(d); };
+    var qs=Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
+    s.onerror=function(){ clearTimeout(t); cleanup(); cb({ok:false,error:'network'}); };
+    s.src=API_URL+'?'+qs+'&callback='+cbName; document.body.appendChild(s);
+  }
+  function _esErrTransitorio(res){ if(!res)return true; if(res.ok)return false; var e=String(res.error||'').toLowerCase(); return e==='network'||e.indexOf('timeout')!==-1; }
+  function apiCallReintento(params, cb, intentos){
+    intentos=(intentos==null)?2:intentos;
+    apiCall(params, function(res){
+      if(res&&res.ok){ cb(res); return; }
+      if(intentos>0&&_esErrTransitorio(res)){ setTimeout(function(){ apiCallReintento(params,cb,intentos-1); },1200); return; }
+      cb(res);
+    });
+  }
+  function _errorTabla(msg, onRetry){
+    var tb=document.getElementById('gBody'); if(!tb)return;
+    var tr=document.createElement('tr'); var td=document.createElement('td');
+    td.colSpan=8; td.className='empty-state';
+    var p=document.createElement('div'); p.textContent=msg||'No se pudo cargar.'; p.style.marginBottom='12px';
+    var b=document.createElement('button'); b.type='button'; b.className='btn'; b.textContent='↻ Reintentar';
+    b.onclick=function(){ tb.innerHTML='<tr><td class="empty-state">Cargando…</td></tr>'; onRetry(); };
+    td.appendChild(p); td.appendChild(b); tr.appendChild(td); tb.innerHTML=''; tb.appendChild(tr);
+  }
+  function setAlert(id,msg,tipo){ var a=document.getElementById(id); if(!msg){ a.innerHTML=''; return; } a.innerHTML='<div class="alert '+(tipo||'error')+'">'+esc(msg)+'</div>'; }
+
+  // ----- Sesión / UI -----
+  function urlInicio(){ return API_URL+'?p=inicio&t='+encodeURIComponent(token||'')+(user?'&urol='+encodeURIComponent(user.rol||'')+'&unom='+encodeURIComponent(user.nombre||user.email||''):''); }
+
+  function aplicarSesionUI(){
+    if(_sesionUIAplicada) return true;
+    _sesionUIAplicada=true;
+    rol=String(user?user.rol:'').trim().toLowerCase();
+    var puedeVer = ROLES_LEE.indexOf(rol)!==-1
+      || (rol==='gerente_administrativo') || (rol==='gerente_restaurante');
+    if(!puedeVer){
+      alert('Tu rol no tiene acceso a la Agenda de responsables.');
+      (function(_u){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sin acceso</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Esta pantalla no es para tu rol</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Toca el botón de abajo para ir a tu inicio, donde verás las pantallas que sí puedes usar.</p><a href="'+_u+'" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">← Ir a mi inicio</a></div>';document.body.appendChild(_o);})(urlInicio());
+      return false;
+    }
+    puedeEditar = (ROLES_EDITA.indexOf(rol)!==-1);
+    document.getElementById('empresaNombre').textContent=(empresa&&empresa.nombre)||'—';
+    document.getElementById('btnInicio').href=urlInicio();
+    if(puedeEditar) document.getElementById('btnPlantilla').style.display='inline-flex';
+    // Branding dinámico (solo sobrescribe si hay empresa_config)
+    (function(){ if(!token)return; var cb='_brand_'+Date.now(); window[cb]=function(d){ try{delete window[cb];}catch(e){} if(!d||!d.ok||!d.branding||d.origen!=='empresa_config')return; var b=d.branding,rs=document.documentElement.style; if(b.color_primario)rs.setProperty('--gold',b.color_primario); if(b.color_secundario)rs.setProperty('--ink',b.color_secundario); if(b.color_acento)rs.setProperty('--ember',b.color_acento); if(b.color_fondo)rs.setProperty('--cream',b.color_fondo); if(b.nombre_comercial)document.querySelectorAll('.brand .wordmark').forEach(function(w){ w.textContent=String(b.nombre_comercial).toUpperCase(); }); }; var s=document.createElement('script'); s.src=API_URL+'?action=empresa_branding_get&token='+encodeURIComponent(token)+'&callback='+cb; s.async=true; document.head.appendChild(s); })();
+    return true;
+  }
+
+  // ----- Cargar semana -----
+  function cargar(){
+    var desde = semanaInicio, hasta = sumaDias(semanaInicio, 6);
+    document.getElementById('rangoSemana').textContent = fechaCorta(desde)+' — '+fechaCorta(hasta);
+    document.getElementById('gBody').innerHTML='<tr><td class="empty-state">Cargando…</td></tr>';
+    apiCallReintento({ action:'agenda_responsables_get', token:token, desde:desde, hasta:hasta }, function(res){
+      if(!res||!res.ok){ _errorTabla((res&&res.error&&!_esErrTransitorio(res))?res.error:'No se pudo cargar la agenda. Revisa tu internet.', cargar); return; }
+      datos = res;
+      if(typeof res.puede_editar==='boolean') puedeEditar = res.puede_editar && (ROLES_EDITA.indexOf(rol)!==-1);
+      render();
+    });
+  }
+
+  // estado por persona+area+fecha
+  function asignacionDe(fecha, area, email){
+    var dia = (datos.dias||[]).filter(function(d){ return d.fecha===fecha; })[0];
+    if(!dia) return null;
+    var hit=null;
+    (dia.asignaciones||[]).forEach(function(a){
+      if(a.area===area && String(a.usuario_email||'').toLowerCase()===email) hit=a;
+    });
+    return hit;
+  }
+  function celdaHtml(a){
+    if(!a) return '<span class="estado vacio">·</span>';
+    if(a.estado==='descansa') return '<span class="estado descansa" title="Descansa">⛱</span>';
+    if(a.estado==='falta')    return '<span class="estado falta" title="Falta">✕</span>';
+    if(a.estado==='cubre')    return '<span class="estado cubre" title="Cubre">Cu</span>';
+    // planeado (plantilla)
+    var l = (a.tipo==='suplente')?'S':'T';
+    return '<span class="estado planeado" title="'+(a.tipo==='suplente'?'Suplente':'Titular')+'">'+l+'</span>';
+  }
+
+  function render(){
+    // cabecera de días
+    var desde = semanaInicio;
+    var head = '<th class="persona-h">Persona / Área</th>';
+    var hoy = hoyIso();
+    for(var i=0;i<7;i++){
+      var iso = sumaDias(desde,i);
+      head += '<th class="dia'+(iso===hoy?' hoy':'')+'">'+DOW_LBL[i+1]+'<br><span style="font-family:var(--font-mono);font-size:11px">'+fechaCorta(iso)+'</span></th>';
+    }
+    document.getElementById('gHead').innerHTML = head;
+
+    // personas por área
+    var personas = datos.personas||[];
+    var body = '';
+    var totalCols = 8;
+    AREAS.forEach(function(area){
+      var gente = personas.filter(function(p){ return p.rol===area; });
+      // incluir además a quien tenga asignación en esta área aunque su rol no coincida (cobertura)
+      var emailsConAsig = {};
+      (datos.dias||[]).forEach(function(d){ (d.asignaciones||[]).forEach(function(a){ if(a.area===area) emailsConAsig[String(a.usuario_email||'').toLowerCase()]=a.usuario_nombre||a.usuario_email; }); });
+      gente.forEach(function(p){ delete emailsConAsig[p.usuario_email]; });
+      Object.keys(emailsConAsig).forEach(function(em){ gente.push({ usuario_email:em, usuario_nombre:emailsConAsig[em], rol:area }); });
+
+      body += '<tr class="area-sep"><td colspan="'+totalCols+'">'+AREA_LBL[area]+'</td></tr>';
+      if(!gente.length){
+        body += '<tr><td colspan="'+totalCols+'" class="empty-state" style="padding:14px">Sin personas con rol '+esc(AREA_LBL[area])+'. '+(puedeEditar?'Crea usuarios o asigna en la plantilla.':'')+'</td></tr>';
+        return;
+      }
+      gente.forEach(function(p){
+        var row = '<td class="persona">'+esc(p.usuario_nombre||p.usuario_email)+'<small>'+esc(AREA_LBL[area])+'</small></td>';
+        for(var i=0;i<7;i++){
+          var iso = sumaDias(desde,i);
+          var a = asignacionDe(iso, area, p.usuario_email);
+          var cls = 'celda'+(puedeEditar?' editable':'');
+          row += '<td class="'+cls+'" data-fecha="'+iso+'" data-area="'+area+'" data-email="'+escAttr(p.usuario_email)+'" data-nombre="'+escAttr(p.usuario_nombre||p.usuario_email)+'">'+celdaHtml(a)+'</td>';
+        }
+        body += '<tr>'+row+'</tr>';
+      });
+    });
+    document.getElementById('gBody').innerHTML = body;
+
+    if(puedeEditar){
+      document.getElementById('gBody').querySelectorAll('td.celda.editable').forEach(function(td){
+        td.addEventListener('click', function(){ abrirExcepcion(td); });
+      });
+    }
+  }
+
+  // ----- Modal excepción -----
+  function abrirExcepcion(td){
+    var fecha=td.getAttribute('data-fecha'), area=td.getAttribute('data-area');
+    var email=td.getAttribute('data-email'), nombre=td.getAttribute('data-nombre');
+    var a = asignacionDe(fecha, area, email);
+    excCtx = { fecha:fecha, area:area, email:email, nombre:nombre };
+    document.getElementById('excSub').textContent = nombre+' · '+AREA_LBL[area]+' · '+DOW_LBL[dowDeIso(fecha)]+' '+fechaCorta(fecha);
+    var estadoSel = (a && (a.estado==='descansa'||a.estado==='falta'||a.estado==='cubre')) ? a.estado : '';
+    document.getElementById('excEstado').value = estadoSel;
+    document.getElementById('excMotivo').value = (a && a.motivo) ? a.motivo : '';
+    // El botón de quitar solo aparece si el día YA tiene una excepción guardada.
+    document.getElementById('excBorrar').style.display = (a && a.origen==='excepcion') ? 'inline-block' : 'none';
+    document.getElementById('excBackdrop').classList.add('show');
+  }
+  function cerrarExcepcion(){ document.getElementById('excBackdrop').classList.remove('show'); excCtx=null; }
+  function guardarExcepcion(){
+    if(!excCtx) return;
+    var estado = document.getElementById('excEstado').value;
+    if(!estado){ toast('Elige un estado (descansa, falta o cubre) para guardar el día.','error'); return; }
+    var data = { excepcion:{
+      fecha:excCtx.fecha, area:excCtx.area, usuario_email:excCtx.email, usuario_nombre:excCtx.nombre,
+      estado:estado, motivo:document.getElementById('excMotivo').value||'',
+      sucursal_id:(sucursales&&sucursales[0]&&sucursales[0].id)||''
+    }};
+    var btn=document.getElementById('excSave'); var txt=btn.textContent; btn.disabled=true; btn.textContent='Guardando…';
+    apiCall({ action:'agenda_responsables_set', token:token, data:JSON.stringify(data) }, function(res){
+      btn.disabled=false; btn.textContent=txt;
+      if(!res||!res.ok){ toast((res&&res.error)||'No se pudo guardar','error'); return; }
+      toast('✓ Día actualizado'); cerrarExcepcion(); cargar();
+    });
+  }
+  function borrarExcepcion(){
+    if(!excCtx) return;
+    if(!confirm('¿Quitar la excepción de '+excCtx.nombre+' este día? El día vuelve a lo que diga la plantilla.')) return;
+    var data = { excepcion_borrar:{ fecha:excCtx.fecha, area:excCtx.area, usuario_email:excCtx.email } };
+    var btn=document.getElementById('excBorrar'); var txt=btn.textContent; btn.disabled=true; btn.textContent='Quitando…';
+    apiCall({ action:'agenda_responsables_set', token:token, data:JSON.stringify(data) }, function(res){
+      btn.disabled=false; btn.textContent=txt;
+      if(!res||!res.ok){ toast((res&&res.error)||'No se pudo quitar','error'); return; }
+      toast('✓ Excepción quitada'); cerrarExcepcion(); cargar();
+    });
+  }
+
+  // ----- Modal plantilla -----
+  var patSeleccion = null; // patron id que se está editando (o null = nuevo)
+  function abrirPlantilla(){
+    setAlert('patAlert','');
+    // poblar select de personas
+    var sel=document.getElementById('patPersona');
+    sel.innerHTML = (datos.personas||[]).map(function(p){
+      return '<option value="'+escAttr(p.usuario_email)+'" data-area="'+escAttr(p.rol)+'" data-nombre="'+escAttr(p.usuario_nombre||p.usuario_email)+'">'+esc(p.usuario_nombre||p.usuario_email)+' · '+esc(AREA_LBL[p.rol]||p.rol)+'</option>';
+    }).join('');
+    // días checkboxes
+    var dp=document.getElementById('patDias');
+    dp.innerHTML = [1,2,3,4,5,6,7].map(function(n){
+      return '<label data-d="'+n+'"><input type="checkbox" value="'+n+'">'+DOW_LBL[n]+'</label>';
+    }).join('');
+    dp.querySelectorAll('label').forEach(function(l){
+      l.addEventListener('click', function(ev){ ev.preventDefault(); var cb=l.querySelector('input'); cb.checked=!cb.checked; l.classList.toggle('on',cb.checked); });
+    });
+    renderPatList();
+    document.getElementById('patBackdrop').classList.add('show');
+  }
+  function cerrarPlantilla(){ document.getElementById('patBackdrop').classList.remove('show'); patSeleccion=null; }
+  function renderPatList(){
+    var pat = (datos.patron||[]);
+    if(!pat.length){ document.getElementById('patList').innerHTML='<li style="color:var(--muted);border:none">Sin asignaciones aún. Agrega la primera abajo.</li>'; return; }
+    document.getElementById('patList').innerHTML = pat.map(function(r){
+      var dias = String(r.dias_semana||'').split(',').filter(Boolean).map(function(n){ return DOW_LBL[parseInt(n,10)]||''; }).join(' ');
+      return '<li>'
+        +'<span class="pname">'+esc(r.usuario_nombre||r.usuario_email)+' <span class="pill">'+esc(AREA_LBL[r.area]||r.area)+'</span> '+(r.tipo==='suplente'?'<span class="pill">suplente</span>':'')+'</span>'
+        +'<span class="pdias">'+esc(dias||'(sin días)')+'</span>'
+        +'<button class="btn btn-sm" type="button" data-edit="'+escAttr(r.id)+'">Editar</button>'
+        +'<button class="btn btn-sm" type="button" data-baja="'+escAttr(r.id)+'">Quitar</button>'
+        +'</li>';
+    }).join('');
+    document.getElementById('patList').querySelectorAll('[data-edit]').forEach(function(b){
+      b.addEventListener('click', function(){ cargarEnFormPat(b.getAttribute('data-edit')); });
+    });
+    document.getElementById('patList').querySelectorAll('[data-baja]').forEach(function(b){
+      b.addEventListener('click', function(){ bajaPatron(b.getAttribute('data-baja')); });
+    });
+  }
+  function cargarEnFormPat(id){
+    var r = (datos.patron||[]).filter(function(x){ return x.id===id; })[0];
+    if(!r) return;
+    patSeleccion = id;
+    document.getElementById('patPersona').value = r.usuario_email;
+    document.getElementById('patTipo').value = r.tipo||'titular';
+    var setD = {}; String(r.dias_semana||'').split(',').forEach(function(n){ setD[parseInt(n,10)]=true; });
+    document.getElementById('patDias').querySelectorAll('label').forEach(function(l){
+      var n=parseInt(l.getAttribute('data-d'),10); var cb=l.querySelector('input');
+      cb.checked=!!setD[n]; l.classList.toggle('on',!!setD[n]);
+    });
+    setAlert('patAlert','Editando una asignación existente. Guarda para actualizarla.','warn');
+  }
+  function guardarPatron(){
+    var sel=document.getElementById('patPersona'); var opt=sel.options[sel.selectedIndex];
+    if(!opt){ setAlert('patAlert','Elige una persona.'); return; }
+    var email = sel.value;
+    var area = opt.getAttribute('data-area');
+    var nombre = opt.getAttribute('data-nombre');
+    if(AREAS.indexOf(area)===-1){ setAlert('patAlert','Esa persona no tiene un rol operativo (cajera/cocina/churrasca).'); return; }
+    var dias=[];
+    document.getElementById('patDias').querySelectorAll('input:checked').forEach(function(cb){ dias.push(cb.value); });
+    if(!dias.length){ setAlert('patAlert','Marca al menos un día.'); return; }
+    var fila = { area:area, usuario_email:email, usuario_nombre:nombre,
+      tipo:document.getElementById('patTipo').value, dias_semana:dias.join(','),
+      activo:true, sucursal_id:(sucursales&&sucursales[0]&&sucursales[0].id)||'' };
+    if(patSeleccion) fila.id = patSeleccion;
+    var btn=document.getElementById('patGuardar'); var txt=btn.textContent; btn.disabled=true; btn.textContent='Guardando…';
+    apiCall({ action:'agenda_responsables_set', token:token, data:JSON.stringify({ patron:[fila] }) }, function(res){
+      btn.disabled=false; btn.textContent=txt;
+      if(!res||!res.ok){ setAlert('patAlert',(res&&res.error)||'No se pudo guardar.'); return; }
+      patSeleccion=null;
+      // recargar datos y refrescar lista + cuadrícula
+      apiCallReintento({ action:'agenda_responsables_get', token:token, desde:semanaInicio, hasta:sumaDias(semanaInicio,6) }, function(r2){
+        if(r2&&r2.ok){ datos=r2; renderPatList(); render(); }
+        setAlert('patAlert','Asignación guardada.','ok');
+        toast('✓ Plantilla actualizada');
+        // limpiar form de días
+        document.getElementById('patDias').querySelectorAll('label').forEach(function(l){ l.classList.remove('on'); l.querySelector('input').checked=false; });
+      });
+    });
+  }
+  function bajaPatron(id){
+    var r = (datos.patron||[]).filter(function(x){ return x.id===id; })[0];
+    if(!r) return;
+    if(!confirm('¿Quitar la asignación recurrente de '+(r.usuario_nombre||r.usuario_email)+' ('+(AREA_LBL[r.area]||r.area)+')? Se da de baja (no afecta historial).')) return;
+    var fila = { id:id, area:r.area, usuario_email:r.usuario_email, usuario_nombre:r.usuario_nombre,
+      tipo:r.tipo, dias_semana:r.dias_semana, activo:false };
+    apiCall({ action:'agenda_responsables_set', token:token, data:JSON.stringify({ patron:[fila] }) }, function(res){
+      if(!res||!res.ok){ setAlert('patAlert',(res&&res.error)||'No se pudo quitar.'); return; }
+      apiCallReintento({ action:'agenda_responsables_get', token:token, desde:semanaInicio, hasta:sumaDias(semanaInicio,6) }, function(r2){
+        if(r2&&r2.ok){ datos=r2; renderPatList(); render(); }
+        toast('Asignación quitada');
+      });
+    });
+  }
+
+  // ----- Wiring (diferido a DOMContentLoaded) -----
+  function wire(){
+    document.getElementById('btnLogout').addEventListener('click', function(){
+      if(!confirm('¿Cerrar sesión?')) return;
+      try{ sessionStorage.clear(); }catch(e){}
+      (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+    });
+    document.getElementById('btnPrev').addEventListener('click', function(){ semanaInicio=sumaDias(semanaInicio,-7); cargar(); });
+    document.getElementById('btnNext').addEventListener('click', function(){ semanaInicio=sumaDias(semanaInicio,7); cargar(); });
+    document.getElementById('btnHoy').addEventListener('click', function(){ semanaInicio=lunesDe(hoyIso()); cargar(); });
+    document.getElementById('btnPlantilla').addEventListener('click', abrirPlantilla);
+    document.getElementById('excCancel').addEventListener('click', cerrarExcepcion);
+    document.getElementById('excSave').addEventListener('click', guardarExcepcion);
+    document.getElementById('excBorrar').addEventListener('click', borrarExcepcion);
+    document.getElementById('patCerrar').addEventListener('click', cerrarPlantilla);
+    document.getElementById('patGuardar').addEventListener('click', guardarPatron);
+    document.getElementById('excBackdrop').addEventListener('click', function(e){ if(e.target===this) cerrarExcepcion(); });
+    document.getElementById('patBackdrop').addEventListener('click', function(e){ if(e.target===this) cerrarPlantilla(); });
+  }
+
+  // ----- Init (resiliente) -----
+  function iniciar(){
+    apiCallReintento({ action:'me', token:token }, function(res){
+      if(!res||!res.ok){
+        if(_esErrTransitorio(res)){ _errorTabla('No se pudo conectar con el servidor. Tu sesión sigue activa.', iniciar); return; }
+        try{ sessionStorage.clear(); }catch(e){}
+        alert('Tu sesión expiró.');
+        (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+        return;
+      }
+      user=res.user||user; empresa=res.empresa||empresa||null; sucursales=res.sucursales||sucursales||[];
+      try{
+        sessionStorage.setItem('fogueira_token',token);
+        sessionStorage.setItem('fogueira_user',JSON.stringify(user));
+        sessionStorage.setItem('fogueira_empresa',JSON.stringify(empresa));
+        sessionStorage.setItem('fogueira_sucursales',JSON.stringify(sucursales||[]));
+      }catch(e){}
+      if(!aplicarSesionUI()) return;
+      semanaInicio = lunesDe(hoyIso());
+      cargar();
+    });
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', function(){ wire(); iniciar(); });
+  else { wire(); iniciar(); }
+})();
+</script>
+</body>
+</html>
