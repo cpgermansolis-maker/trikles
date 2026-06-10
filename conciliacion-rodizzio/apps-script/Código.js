@@ -124,6 +124,7 @@ var ACCIONES_WRITE_OBSERVADOR_BLOQUEADAS = {
   'telegram_enviar_auditoria': true,
   'telegram_prueba': true,
   'telegram_desvincular': true,
+  'telegram_reparar_webhook': true,
   // Agenda de responsables del día (Fase 1) — upsert de plantilla / excepción
   'agenda_responsables_set': true
 };
@@ -7409,6 +7410,7 @@ function handleRequest(e) {
       case 'telegram_enviar_auditoria': result = handleTelegramEnviarAuditoria(params); break;
       case 'telegram_prueba':           result = handleTelegramPrueba(params);          break;
       case 'telegram_desvincular':      result = handleTelegramDesvincular(params);     break;
+      case 'telegram_reparar_webhook':  result = handleTelegramRepararWebhook(params);  break;
       case 'reservas_create':    result = handleReservasCreate(params);    break;
       case 'reserva_publica_get':    result = handleReservaPublicaGet(params);    break;
       case 'reserva_publica_cancel': result = handleReservaPublicaCancel(params); break;
