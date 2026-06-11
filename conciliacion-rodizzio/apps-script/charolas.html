@@ -1,0 +1,2005 @@
+﻿<? var __tokenInyectado = '';
+try { __tokenInyectado = (queryParams && queryParams.t) ? String(queryParams.t) : ''; } catch(e){}
+var __areaParam = '';
+try { __areaParam = (queryParams && queryParams.area) ? String(queryParams.area).toLowerCase() : ''; } catch(e){} ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charolas · Fogueira</title>
+<base target="_top">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzOCc+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSdmZycgeDE9JzAnIHkxPScwJyB4Mj0nMCcgeTI9JzEnPjxzdG9wIG9mZnNldD0nMCUnIHN0b3AtY29sb3I9JyNlOGM0NmEnLz48c3RvcCBvZmZzZXQ9JzUwJScgc3RvcC1jb2xvcj0nI2M4OWE0YScvPjxzdG9wIG9mZnNldD0nMTAwJScgc3RvcC1jb2xvcj0nIzlhNzMzMCcvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGQ9J00xNiAxLjUgQyAxNyA2LDIyIDksMjMgMTQgQyAyNCAxOCwyMiAyMSwyMCAyMiBDIDIyIDI0LDI0IDI3LDI0IDMxIEMgMjQgMzUsMjEgMzcsMTYgMzcgQyAxMSAzNyw4IDM1LDggMzEgQyA4IDI4LDEwIDI2LDExIDI0IEMgOSAyMiw3IDE5LDggMTUgQyA5IDExLDEzIDExLDE0IDcgQyAxNSA1LDE2IDMsMTYgMS41WicgZmlsbD0ndXJsKCNmZyknLz48cGF0aCBkPSdNMTYgMTYgQyAxNyAxOSwxOSAyMSwxOSAyNSBDIDE5IDI4LDE3IDMwLDE2IDMwIEMgMTUgMzAsMTMgMjgsMTMgMjUgQyAxMyAyMiwxNSAxOSwxNiAxNlonIGZpbGw9JyMwYzA5MDcnIG9wYWNpdHk9Jy41NScvPjwvc3ZnPg==">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500;1,600&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* ══════════════════════════════════════════════════════════
+   oac-tokens.css — Sistema de diseño OAC
+   Paleta, tipografía, escalas y primitivos UI
+   Cargar al inicio del <head> en cada página OAC
+   ══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Paleta handoff oficial Fogueira (v154) ── */
+  --ink:        #0c0907;
+  --ink-soft:   #1a1310;
+  --ink-mid:    #2a201b;
+  --ember:      #c4322a;
+  --ember-hot:  #e04826;
+  --ember-deep: #8a1f17;
+  --cream:      #f6f1e8;
+  --cream-warm: #efe5d2;
+  --cream-line: #e4d9c2;
+  --bone:       #fffdf8;
+  --slate:      #2b3a4e;
+  --slate-soft: #5d6c80;
+  --smoke:      #8a8278;
+  --gold:       #c89a4a;
+  --gold-soft:  #e8c46a;
+
+  /* ── Aliases legacy → handoff ── */
+  --navy:    var(--ink);
+  --navy-2:  var(--ink-soft);
+  --sky:     var(--gold);
+  --sky-2:   rgba(200,154,74,.18);
+  --mist:    var(--cream-line);
+  --muted:   var(--slate-soft);
+  --line:    var(--cream-line);
+  --paper:   var(--cream-warm);
+  --accent:  var(--ember);
+  --good:    #1E7F5C;
+  --warn:    var(--gold);
+  --bad:     var(--ember-deep);
+  --purple:  #7C5BD9;
+
+  /* ── Tipografía handoff ── */
+  --font-sans:  'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-mono:  'DM Mono', ui-monospace, 'SF Mono', monospace;
+
+  /* ── Radios ── */
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 7px;
+  --r-xl: 10px;
+  --r-2xl: 12px;
+  --r-3xl: 14px;
+
+  /* ── Sombras ── */
+  --shadow-card-hover: 0 12px 28px -16px rgba(14,42,78,.18);
+  --shadow-hero:       0 40px 80px -30px rgba(14,42,78,.35);
+  --shadow-feature:    0 30px 60px -25px rgba(14,42,78,.4);
+  --shadow-modal:      0 20px 60px -20px rgba(14,42,78,.4);
+
+  /* ── Trans ── */
+  --t-fast: .15s ease;
+  --t-base: .2s ease;
+
+  /* ══════════════════════════════════════════════════════════
+     Legacy aliases — apuntan a equivalentes OAC.
+     Permite que inline styles antiguos (style="color:var(--orange)")
+     en el HTML/JS rendericen con paleta OAC sin tener que reescribirlos.
+     ══════════════════════════════════════════════════════════ */
+  --orange: #E07A3E;            /* → accent */
+  --orange2: #c66830;
+  --ora-l: rgba(224,122,62,.08);
+  --green: #1E7F5C;             /* → good */
+  --red: #9F2B1E;               /* → bad */
+  --blue: #0E2A4E;              /* → navy */
+  --yellow: #B97A1B;            /* → warn */
+  --gray: #5A6A7E;              /* → muted */
+  --light: #5A6A7E;             /* (era texto claro sobre dark) → muted */
+  --white: #0A1A30;             /* (era texto blanco sobre dark) → ink */
+  --dark: #fff;
+  --bg: #fff;
+  --bg2: #fff;
+  --card: #fff;
+  --card2: #FAFBFC;             /* → paper */
+  --border: #E6E9EE;            /* → line */
+  --border2: #E6E9EE;
+  --panel: #fff;
+}
+
+/* ══ Reset suave ══ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: #fff;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+img, svg { display: block; max-width: 100%; }
+
+/* ══ Helpers de tipografía ══ */
+.mono  { font-family: var(--font-mono); }
+.serif { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ══ Logo OAC (SVG inline) — usar siempre estas medidas ══ */
+.oac-logo { display: inline-flex; align-items: center; gap: 11px; }
+.oac-logo .lt { display: flex; flex-direction: column; line-height: 1.02; }
+.oac-logo .a  { font-weight: 600; letter-spacing: -.02em; font-size: 18px; color: var(--ink); }
+.oac-logo .b  { font-family: var(--font-mono); font-size: 9px; letter-spacing: .16em; color: var(--muted); text-transform: uppercase; margin-top: 3px; }
+
+/* ══ Botones ══ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: var(--r-lg);
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -.005em;
+  transition: all var(--t-fast);
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn.lg { padding: 14px 22px; font-size: 15px; border-radius: var(--r-xl); }
+.btn.primary  { background: var(--navy); color: #fff; }
+.btn.primary:hover { background: var(--navy-2); }
+.btn.ghost    { color: var(--ink); background: transparent; }
+.btn.ghost:hover { background: var(--paper); }
+.btn.outline  { color: var(--ink); border: 1px solid var(--line); background: transparent; }
+.btn.outline:hover { border-color: var(--navy); color: var(--navy); }
+.btn.accent   { background: var(--accent); color: #fff; }
+.btn.danger   { background: var(--bad); color: #fff; }
+.btn.danger:hover { opacity: .9; }
+
+/* ══ Inputs ══ */
+.input, input.oac, select.oac, textarea.oac {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--ink);
+  width: 100%;
+  outline: none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.input:focus, input.oac:focus, select.oac:focus, textarea.oac:focus {
+  border-color: var(--sky);
+  box-shadow: 0 0 0 3px var(--sky-2);
+}
+
+/* ══ Card estándar ══ */
+.card-oac {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-2xl);
+  padding: 24px;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.card-oac:hover { border-color: var(--navy); box-shadow: var(--shadow-card-hover); }
+
+/* ══ KPI estándar ══ */
+.kpi-oac {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.kpi-oac .lab {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .12em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.kpi-oac .val {
+  font-size: 28px;
+  letter-spacing: -.02em;
+  font-weight: 500;
+  line-height: 1.05;
+  color: var(--ink);
+}
+.kpi-oac .val .em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* ══ Status colors ══ */
+.is-good { color: var(--good); }
+.is-warn { color: var(--warn); }
+.is-bad  { color: var(--bad); }
+.is-navy { color: var(--navy); }
+.is-sky  { color: var(--sky); }
+.bg-paper { background: var(--paper); }
+.bg-navy  { background: var(--navy); color: #fff; }
+.bg-sky   { background: var(--sky-2); }
+
+/* ══ Topbar OAC (compartido) ══ */
+.oac-topbar {
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.oac-topbar-inner {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.oac-topbar .nav {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+.oac-topbar .nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--ink);
+  border-radius: var(--r-md);
+  font-weight: 500;
+  letter-spacing: -.005em;
+  text-decoration: none;
+}
+.oac-topbar .nav a:hover { background: var(--paper); }
+.oac-topbar .nav a.active { background: var(--navy); color: #fff; }
+.oac-topbar .tools { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.oac-topbar .icon-btn {
+  width: 34px; height: 34px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+}
+.oac-topbar .icon-btn:hover { border-color: var(--navy); color: var(--navy); }
+
+/* ══ Hamburger (mobile) ══ */
+.oac-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.oac-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--navy);
+  border-radius: 2px;
+  transition: var(--t-base);
+}
+.oac-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.oac-hamburger.open span:nth-child(2) { opacity: 0; }
+.oac-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.oac-mobile-nav {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(255,255,255,.98);
+  backdrop-filter: blur(10px);
+  z-index: 350;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 60px 16px 24px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.oac-mobile-nav.open { display: flex; }
+.oac-mobile-nav a, .oac-mobile-nav button {
+  width: min(280px, 86vw);
+  padding: 14px 22px;
+  border-radius: var(--r-xl);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.oac-mobile-nav a:hover, .oac-mobile-nav button:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+.oac-mobile-nav .close-btn {
+  position: absolute;
+  top: 18px; right: 18px;
+  width: auto;
+  padding: 8px 12px;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .1em;
+}
+
+/* ══ Responsive ══ */
+@media (max-width: 768px) {
+  .oac-topbar .nav,
+  .oac-topbar .tools { display: none; }
+  .oac-hamburger { display: flex; }
+  .oac-topbar-inner { padding: 12px 16px; gap: 12px; }
+}
+
+</style>
+
+<style>
+  :root{
+    --brand:        var(--ember);
+    --brand-deep:   var(--ember-deep);
+    --brand-tint:   rgba(196,50,42,.08);
+  }
+  body{background:var(--cream)}
+
+  /* ── Topbar oscuro (handoff Fogueira) ── */
+  header.app{
+    background:var(--ink);color:var(--cream);
+    border-bottom:1px solid rgba(200,154,74,.22);
+    position:sticky;top:0;z-index:30;
+  }
+  .head-row{
+    max-width:1480px;margin:0 auto;padding:14px 22px;
+    display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  }
+  .brand-cluster{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brand-flame{display:flex;align-items:center;gap:9px}
+  .brand-flame svg{display:block;flex-shrink:0}
+  .brand-flame .wordmark{
+    font-family:'DM Sans',sans-serif;font-weight:800;font-size:18px;
+    letter-spacing:.02em;color:var(--gold);line-height:1;
+  }
+  .brand-sep-v{width:1px;height:30px;background:rgba(246,241,232,.15);flex-shrink:0}
+  .brand-eyebrow{
+    font-family:var(--font-mono);font-size:10px;letter-spacing:.22em;
+    color:rgba(246,241,232,.5);text-transform:uppercase;font-weight:500;
+    display:block;line-height:1.2;
+  }
+  .brand-name{
+    font-family:var(--font-serif);font-style:italic;font-weight:500;
+    font-size:22px;letter-spacing:-.01em;color:var(--cream);line-height:1.1;
+    margin-top:3px;
+  }
+  .brand-empresa{
+    font-family:'DM Sans',sans-serif;font-weight:600;font-size:10px;
+    color:var(--gold);padding:5px 12px;
+    background:rgba(200,154,74,.12);border:1px solid rgba(200,154,74,.4);
+    letter-spacing:.18em;text-transform:uppercase;
+  }
+  .head-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .fecha-display{
+    font-family:var(--font-mono);font-size:11.5px;letter-spacing:.1em;
+    color:var(--cream);padding:7px 12px;
+    background:rgba(246,241,232,.06);border-radius:6px;
+    border:1px solid rgba(246,241,232,.18);text-transform:uppercase;
+  }
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:9px 14px;border-radius:var(--r-md);
+    font-family:var(--font-sans);font-size:12.5px;font-weight:500;
+    border:1px solid var(--line);background:#fff;color:var(--ink);
+    cursor:pointer;transition:all var(--t-fast);text-decoration:none;
+  }
+  .btn:hover{background:var(--paper);border-color:var(--brand)}
+  /* Botones del topbar: outline cream sobre fondo oscuro */
+  .head-actions .btn{
+    background:rgba(246,241,232,.04);color:var(--cream);
+    border-color:rgba(246,241,232,.18);
+  }
+  .head-actions .btn:hover{
+    background:rgba(200,154,74,.12);border-color:var(--gold);color:var(--cream);
+  }
+  .btn-logout{color:rgba(246,241,232,.65) !important}
+  .btn-logout:hover{
+    background:rgba(196,50,42,.12) !important;
+    border-color:var(--ember) !important;color:var(--ember-hot) !important;
+  }
+
+  /* Main */
+  main{max-width:1480px;margin:0 auto;padding:24px 22px}
+
+  /* Sección por área */
+  .area-section{
+    background:#fff;border:1px solid var(--line);
+    border-radius:var(--r-2xl);padding:28px 24px;margin-bottom:18px;
+  }
+  .area-head{margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:14px}
+  .area-head .area-eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;font-weight:500;margin-bottom:5px}
+  .area-head h2{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:30px;letter-spacing:-.015em;margin:0;color:var(--ink)}
+  .area-head .desc{font-size:13px;color:var(--muted);margin-top:4px}
+
+  /* KPIs */
+  .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+  .kpi{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-xl);padding:14px 16px}
+  .kpi .lbl{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;font-weight:500}
+  .kpi .val{font-family:var(--font-sans);font-size:28px;font-weight:500;letter-spacing:-.02em;line-height:1.05;color:var(--ink);margin-top:4px;font-variant-numeric:tabular-nums}
+
+  /* Botones grandes (orientado a tablet) */
+  .quick-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:14px}
+  .btn-big{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    padding:22px 16px;border-radius:var(--r-2xl);
+    font-family:var(--font-sans);font-size:15px;font-weight:600;
+    border:2px solid var(--line);background:#fff;color:var(--ink);
+    cursor:pointer;transition:all var(--t-fast);
+    min-height:96px;
+  }
+  .btn-big .ico{font-size:30px;line-height:1}
+  .btn-big:active{transform:scale(.97)}
+  .btn-big.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .btn-big.primary:hover{background:var(--brand-deep);border-color:var(--brand-deep)}
+  .btn-big.secondary{border-color:var(--line-strong, #C9CFD8)}
+  .btn-big.secondary:hover{border-color:var(--brand);color:var(--brand)}
+  .btn-big.warn{border-color:rgba(185,122,27,.4);color:var(--warn)}
+  .btn-big.warn:hover{background:rgba(185,122,27,.08);border-color:var(--warn)}
+
+  .detail-link{margin:6px 0 18px;text-align:center;font-size:13px;color:var(--muted)}
+  .detail-link a{color:var(--brand);text-decoration:none;cursor:pointer;border-bottom:1px dashed var(--brand-tint);padding-bottom:1px}
+  .detail-link a:hover{border-bottom-color:var(--brand)}
+
+  /* Buscador de platillos: reemplaza el muro de botones cuando hay muchas recetas vinculadas
+     (con 40+ vinculaciones la lista de botones tapaba toda la pantalla — el chef escribe y toca). */
+  .charola-buscador{margin-bottom:14px}
+  .cb-input{
+    width:100%;box-sizing:border-box;
+    padding:16px 18px;font-family:var(--font-sans);font-size:16px;
+    border:2px solid var(--brand);border-radius:var(--r-2xl);
+    background:#fff;color:var(--ink);
+  }
+  .cb-input::placeholder{color:var(--muted)}
+  .cb-input:focus{outline:none;border-color:var(--brand-deep)}
+  .cb-results{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+  .cb-row{
+    display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+    padding:16px 18px;border:2px solid var(--line);border-radius:var(--r-2xl);
+    background:#fff;color:var(--ink);
+    font-family:var(--font-sans);font-size:15px;font-weight:600;
+    cursor:pointer;transition:all var(--t-fast);
+  }
+  .cb-row:active{transform:scale(.98)}
+  .cb-row:hover{border-color:var(--brand);color:var(--brand)}
+  .cb-row .ico{font-size:24px;line-height:1;flex-shrink:0}
+  .cb-hint{padding:14px 8px;text-align:center;color:var(--muted);font-size:13px}
+
+  /* Lista de registros */
+  .registros-head{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin:18px 0 10px;font-weight:500}
+  .registros{border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden}
+  .registro-row{
+    display:grid;grid-template-columns:60px 110px 1fr 60px 130px 50px;
+    gap:10px;align-items:center;
+    padding:10px 14px;border-bottom:1px solid var(--line);
+    font-size:13.5px;
+  }
+  .registro-row:last-child{border-bottom:none}
+  .registro-row:nth-child(even){background:var(--paper)}
+  .reg-hora{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+  .reg-tipo{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:3px 8px;border-radius:4px;display:inline-block;text-align:center}
+  .reg-tipo.charola{background:rgba(30,127,92,.12);color:var(--good)}
+  .reg-tipo.reposicion{background:rgba(184,71,42,.12);color:var(--brand-deep)}
+  .reg-tipo.merma{background:rgba(185,122,27,.12);color:var(--warn)}
+  .reg-desc{color:var(--ink)}
+  .reg-desc.empty{color:var(--muted);font-style:italic;font-size:12.5px}
+  .reg-cant{text-align:right;font-family:var(--font-mono);font-weight:600;font-variant-numeric:tabular-nums}
+  .reg-resp{font-family:var(--font-mono);font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .reg-del{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px 8px;border-radius:4px}
+  .reg-del:hover{background:rgba(159,43,30,.08);color:var(--bad)}
+  .registros .empty-state{padding:24px;text-align:center;color:var(--muted);font-size:13px}
+  @media(max-width:720px){
+    .registro-row{grid-template-columns:60px 90px 1fr 50px 40px;font-size:13px}
+    .registro-row .reg-resp{display:none}
+  }
+
+  /* Modal */
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(12,9,7,.65);
+    z-index:300;display:none;align-items:flex-start;justify-content:center;
+    padding:24px 16px;overflow-y:auto;
+  }
+  .modal-backdrop.open{display:flex}
+  .modal{background:#fff;border-radius:var(--r-2xl);max-width:520px;width:100%;box-shadow:var(--shadow-modal);margin:auto;animation:mdIn .2s ease-out}
+  /* Grid de la vinculación Charola↔Receta: 2 columnas en compu, 1 apilada en móvil (Mónica v303/v304) */
+  .vcr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;align-items:start}
+  .vcr-grid > div{min-width:0}
+  @media(max-width:560px){ .vcr-grid{grid-template-columns:1fr} }
+  @keyframes mdIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .modal-head{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+  .modal-head h2{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:22px;margin:0}
+  .modal-head .modal-sub{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+  .modal-close{background:var(--paper);border:1px solid var(--line);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+  .modal-close:hover{background:rgba(159,43,30,.08);color:var(--bad);border-color:var(--bad)}
+  .modal-body{padding:20px 24px}
+  .modal-foot{padding:14px 24px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;background:var(--paper);border-radius:0 0 var(--r-2xl) var(--r-2xl)}
+  .form-row{margin-bottom:14px}
+  .form-row label{display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;font-weight:500;margin-bottom:5px}
+  .form-row input,.form-row select{width:100%;border:1px solid var(--line);background:#fff;padding:10px 12px;border-radius:var(--r-md);font-family:var(--font-sans);font-size:15px;color:var(--ink)}
+  .form-row input:focus,.form-row select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-tint)}
+  .alert{padding:10px 14px;border-radius:var(--r-md);font-size:13px;margin-bottom:14px}
+  .alert.error{background:rgba(159,43,30,.07);border-left:3px solid var(--bad);color:var(--bad)}
+
+  /* Toast (registro instantáneo) */
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:var(--good);color:#fff;padding:12px 22px;border-radius:30px;
+    font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.2);
+    z-index:400;opacity:0;transition:opacity .2s;pointer-events:none;
+  }
+  .toast.show{opacity:1}
+  .toast.error{background:var(--bad)}
+
+  /* ── Tooltip system ─────────────────────────────────────────── */
+  .btn-big-wrap{ position:relative; }
+  .btn-big-wrap .btn-big{ width:100%; }
+  .tip-trigger{
+    position:absolute; top:6px; right:8px;
+    width:20px; height:20px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-family:var(--font-mono); font-weight:700;
+    cursor:pointer; border-radius:50%; z-index:5;
+    background:rgba(200,154,74,.25); color:var(--gold);
+    border:1px solid rgba(200,154,74,.4);
+    line-height:1; user-select:none; transition:background .15s; padding:0;
+  }
+  .tip-trigger:hover{ background:rgba(200,154,74,.45) }
+  .kpi-tip{ display:inline-flex; align-items:center; gap:4px; cursor:pointer; }
+  .kpi-tip .tip-icon{ font-size:9px; font-family:var(--font-mono); color:var(--muted); opacity:.65; }
+  .kpi-tip:hover .tip-icon{ opacity:1 }
+  .lbl-tip{
+    display:inline-flex; align-items:center; gap:5px; cursor:pointer;
+    font-size:10px; font-family:var(--font-mono);
+    color:var(--muted); letter-spacing:.08em;
+    border-bottom:1px dashed var(--line);
+  }
+  /* Combobox typeahead */
+  .combo-wrap{ position:relative; }
+  .combo-list{
+    display:none; position:absolute; top:100%; left:0; right:0; z-index:600;
+    background:#fff; border:1px solid var(--brand); border-top:none;
+    border-radius:0 0 var(--r-md) var(--r-md);
+    max-height:220px; overflow-y:auto; box-shadow:0 4px 12px rgba(12,9,7,.12);
+  }
+  .combo-item{
+    padding:10px 13px; cursor:pointer; font-size:14px;
+    font-family:var(--font-sans); color:var(--ink); border-bottom:1px solid var(--line);
+  }
+  .combo-item:last-child{ border-bottom:none; }
+  .combo-item:hover, .combo-item.hi{ background:var(--paper); color:var(--brand); }
+  /* Panel de tooltip — bloque estático que aparece/desaparece */
+  .tip-panel{
+    background:var(--ink); color:var(--cream);
+    border-left:3px solid var(--gold);
+    padding:12px 14px 14px;
+    margin:0 0 14px;
+  }
+  .tip-panel .ti-title{
+    font-family:var(--font-mono); font-size:9px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--gold); margin-bottom:7px;
+  }
+  .tip-panel .ti-body{ font-size:13px; line-height:1.6; color:rgba(246,241,232,.88); }
+  .tip-panel .ti-body strong{ color:var(--cream) }
+
+  /* ── Header compacto en tablet/móvil: gana espacio vertical sin ocultar nada ──
+     (Va al final del <style> para que no lo pisen reglas posteriores; sin !important.) */
+  @media (max-width: 1024px){
+    .head-row{ padding:7px 12px; gap:8px; }
+    .brand-cluster{ gap:9px; }
+    .brand-flame .wordmark{ font-size:15px; }
+    .brand-flame svg{ height:22px; width:auto; }
+    .brand-sep-v{ height:22px; }
+    .brand-eyebrow{ font-size:9px; letter-spacing:.16em; }
+    .brand-name{ font-size:15px; margin-top:1px; }
+    .brand-empresa{ font-size:9px; padding:3px 8px; letter-spacing:.1em; }
+    .head-actions{ gap:6px; }
+    .head-actions input[type=date], .head-actions select{ padding:5px 8px; font-size:12px; }
+    .head-actions .btn, .btn{ padding:6px 10px; font-size:12px; }
+  }
+  @media (max-width: 600px){
+    .brand-name{ font-size:14px; }
+    .brand-empresa{ display:none; }
+    .head-row{ padding:6px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="head-row">
+    <div class="brand-cluster">
+      <div class="brand-flame" aria-label="Fogueira">
+        <svg width="22" height="26" viewBox="0 0 32 38" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="flameGradC" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e8c46a"/>
+              <stop offset="50%" stop-color="#c89a4a"/>
+              <stop offset="100%" stop-color="#9a7330"/>
+            </linearGradient>
+          </defs>
+          <path d="M16 1.5 C 17 6, 22 9, 23 14 C 24 18, 22 21, 20 22 C 22 24, 24 27, 24 31 C 24 35, 21 37, 16 37 C 11 37, 8 35, 8 31 C 8 28, 10 26, 11 24 C 9 22, 7 19, 8 15 C 9 11, 13 11, 14 7 C 15 5, 16 3, 16 1.5 Z" fill="url(#flameGradC)"/>
+          <path d="M16 16 C 17 19, 19 21, 19 25 C 19 28, 17 30, 16 30 C 15 30, 13 28, 13 25 C 13 22, 15 19, 16 16 Z" fill="#0c0907" opacity="0.55"/>
+        </svg>
+        <span class="wordmark">FOGUEIRA</span>
+      </div>
+      <div class="brand-sep-v"></div>
+      <div>
+        <div class="brand-eyebrow" id="brandEyebrow">Charolas · Servicio</div>
+        <div class="brand-name" id="brandName">Cargando…</div>
+      </div>
+      <span class="brand-empresa" id="empresaNombre">—</span>
+    </div>
+    <div class="head-actions">
+      <span class="fecha-display" id="fechaDisplay">—</span>
+      <button class="btn" id="btnCharolasRecetas" style="display:none">Recetas ↔ Charolas</button>
+      <a class="btn" href="https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec?p=inicio" target="_top">← Inicio</a>
+      <button class="btn btn-logout" id="btnLogout">Cerrar sesión</button>
+    </div>
+  </div>
+</header>
+
+<main id="mainContent">
+  <!-- Las secciones por área se inyectan via JS según el rol -->
+</main>
+
+<!-- Modal: registro detallado -->
+<div class="modal-backdrop" id="detalleModal" role="dialog" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2 id="dmTitle">Nuevo registro</h2>
+        <div class="modal-sub" id="dmSub">—</div>
+      </div>
+      <button class="modal-close" id="dmClose" type="button">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="dmAlert"></div>
+      <div class="form-row">
+        <label for="dm_receta">Receta vinculada <span class="lbl-tip" data-tip-key="modal_receta">ⓘ ¿para qué sirve?</span></label>
+        <select id="dm_receta">
+          <option value="">— Sin receta (no descuenta inventario) —</option>
+        </select>
+        <div style="margin-top:6px;font-size:11px;color:var(--muted);font-family:var(--font-mono)">
+          ¿No está la receta? →
+          <button type="button" id="linkRecetas" style="background:none;border:none;color:var(--gold);font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;cursor:pointer;padding:0;text-transform:uppercase;font-weight:600">+ Proponer receta nueva</button>
+          (propón la nueva receta, admin la aprueba)
+        </div>
+      </div>
+      <div class="form-row" id="dm_insumos_row" style="display:none">
+        <label>Insumos <span id="dm_insumos_hint" style="text-transform:none;letter-spacing:0;color:var(--muted)">(se descontarán al guardar — informativo)</span></label>
+        <div id="dm_insumos_lista" style="background:var(--paper);padding:10px 14px;border-radius:6px;font-size:13px;color:var(--ink);max-height:240px;overflow-y:auto;border:1px solid var(--line)"></div>
+      </div>
+      <div class="form-row">
+        <label for="dm_cantidad">Cantidad <span class="lbl-tip" data-tip-key="modal_cantidad">ⓘ ¿cómo contar?</span></label>
+        <input type="number" id="dm_cantidad" min="1" step="1" value="1">
+      </div>
+      <div class="form-row" id="dm_causa_row" style="display:none">
+        <label for="dm_causa">Causa de la merma</label>
+        <select id="dm_causa">
+          <option value="">— Elige una causa —</option>
+          <option value="Sobrante al cierre del turno">Sobrante al cierre del turno</option>
+          <option value="Se quemó / temperatura incorrecta">Se quemó / temperatura incorrecta</option>
+          <option value="No pasó control de calidad">No pasó control de calidad</option>
+          <option value="Sobreproducción (se preparó de más)">Sobreproducción (se preparó de más)</option>
+          <option value="Se cayó / accidente en cocina">Se cayó / accidente en cocina</option>
+          <option value="Tiempo límite superado en turno">Tiempo límite superado en turno</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+      <div class="form-row" id="dm_causa_otro_row" style="display:none">
+        <label for="dm_causa_otro">Describe la causa</label>
+        <input type="text" id="dm_causa_otro" placeholder="Escribe la causa específica…" maxlength="120">
+      </div>
+      <div id="dm_preview_descuento" style="display:none;font-size:12.5px;color:var(--muted);background:var(--paper);padding:8px 12px;border-radius:6px;margin-top:6px"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="dmCancel" type="button">Cancelar</button>
+      <button class="btn" id="dmSave" type="button" style="background:var(--brand);color:#fff;border-color:var(--brand)">Registrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="vincCharolasModal" role="dialog" aria-hidden="true">
+  <div class="modal" style="max-width:950px;">
+    <div class="modal-head">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <h2 id="vcrTitle">Recetas ↔ Charolas</h2>
+          <button type="button" data-tip-key="vincular_charola" style="background:none;border:none;color:var(--gold);font-size:16px;cursor:pointer;padding:0 4px;line-height:1;flex-shrink:0;position:static">ⓘ</button>
+        </div>
+        <div class="modal-sub">Asignar recetas por defecto a charolas para facilitar el registro y el descuente de inventario.</div>
+      </div>
+      <button class="modal-close" id="vcrClose" type="button">×</button>
+    </div>
+    <div class="modal-body" id="vcrBody">
+      <form id="vcrForm">
+        <div id="vcrAlert"></div>
+        <div class="vcr-grid">
+          <div style="background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;">
+            <div style="font-weight:700;margin-bottom:10px">Nueva vinculación</div>
+            <input type="hidden" id="vcrEditarId">
+            <div class="form-row">
+              <label>Charola</label>
+              <div class="combo-wrap">
+                <input type="text" id="vcrCharolaTxt" placeholder="Escribe para buscar…" autocomplete="off">
+                <input type="hidden" id="vcrCharola">
+                <div class="combo-list" id="comboCharolaList"></div>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>Receta</label>
+              <div class="combo-wrap">
+                <input type="text" id="vcrRecetaTxt" placeholder="Escribe para buscar…" autocomplete="off">
+                <input type="hidden" id="vcrReceta">
+                <div class="combo-list" id="comboRecetaList"></div>
+              </div>
+            </div>
+          <div class="form-row"><label for="vcrPorciones">Porciones</label><input type="number" id="vcrPorciones" min="1" step="1" value="1"></div>
+          <div class="form-row"><label for="vcrObservaciones">Observaciones</label><textarea id="vcrObservaciones" rows="3" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:var(--r-md);font-family:var(--font-sans);font-size:14px"></textarea></div>
+          <div class="form-row" style="display:flex;align-items:center;gap:10px"><input type="checkbox" id="vcrActivo" checked><label for="vcrActivo" style="margin:0;font-size:14px">Activo</label></div>
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px"><button class="btn" id="vcrCancel" type="button">Cancelar</button><button class="btn primary" id="vcrGuardar" type="button">Guardar</button></div>
+        </div>
+        <div style="background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;overflow:auto;max-height:520px;">
+          <div style="font-weight:700;margin-bottom:10px">Vinculaciones existentes</div>
+          <div class="tabla-wrap" style="max-height:450px;overflow:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <thead><tr style="border-bottom:1px solid var(--line)"><th style="text-align:left;padding:8px">Charola</th><th style="text-align:left;padding:8px">Receta</th><th style="text-align:left;padding:8px">Área</th><th style="text-align:right;padding:8px">Porciones</th><th style="text-align:center;padding:8px">Activo</th><th style="text-align:center;padding:8px">Acción</th></tr></thead>
+              <tbody id="vcrTableBody"><tr><td colspan="6" class="empty-state">Carga el modal para ver las vinculaciones</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- Modal: proponer nueva receta desde Charolas -->
+<div class="modal-backdrop" id="nrModal" role="dialog" aria-hidden="true" style="z-index:9999">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-head">
+      <div>
+        <h2>Nueva receta</h2>
+        <div class="modal-sub" id="nrSub">EL CAMBIO SE ENVIARÁ PARA AUTORIZACIÓN DEL GERENTE ADMINISTRATIVO. NO APLICA AL INSTANTE.</div>
+      </div>
+      <button class="modal-close" id="nrClose" type="button">×</button>
+    </div>
+    <div class="modal-body" style="overflow-y:auto;max-height:68vh">
+      <div class="form-row">
+        <label for="nr_nombre">Nombre <span class="lbl-tip" data-tip-key="nr_nombre">ⓘ consejos</span></label>
+        <input type="text" id="nr_nombre" placeholder="Ej: Ensalada de la casa" maxlength="120">
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div class="form-row" style="flex:1;min-width:140px">
+          <label for="nr_area">Área <span class="lbl-tip" data-tip-key="nr_area">ⓘ ¿qué es?</span></label>
+          <select id="nr_area">
+            <option value="cocina">Cocina</option>
+            <option value="churrasca">Churrasca</option>
+          </select>
+        </div>
+        <div class="form-row" style="flex:1;min-width:140px">
+          <label for="nr_cat">Categoría culinaria</label>
+          <input type="text" id="nr_cat" placeholder="Ej: Ensalada" maxlength="60">
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div class="form-row" style="flex:1;min-width:100px">
+          <label for="nr_rendimiento">Rendimiento <span class="lbl-tip" data-tip-key="nr_rendimiento">ⓘ ¿qué es?</span></label>
+          <input type="number" id="nr_rendimiento" min="0.1" step="0.1" value="1">
+        </div>
+        <div class="form-row" style="flex:1;min-width:100px">
+          <label for="nr_unidad">Unidad</label>
+          <input type="text" id="nr_unidad" value="porciones" maxlength="30">
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="nr_instrucciones">Instrucciones <span class="lbl-tip" data-tip-key="nr_instrucciones">ⓘ ¿por qué importan?</span></label>
+        <textarea id="nr_instrucciones" rows="4" placeholder="1.- Paso uno…&#10;2.- Paso dos…" style="resize:vertical"></textarea>
+      </div>
+      <div class="form-row">
+        <label>Ingredientes <span class="lbl-tip" data-tip-key="nr_ingredientes">ⓘ ¿cuántos?</span></label>
+        <div class="tabla-wrap" style="max-height:220px;overflow:auto">
+          <table class="lineas-table" id="nrLineasTbl" style="font-size:13px">
+            <thead><tr>
+              <th style="width:42%">Ingrediente</th>
+              <th style="width:13%" class="num">Cantidad</th>
+              <th style="width:13%">Unidad</th>
+              <th style="width:12%" class="num">Merma %</th>
+              <th style="width:8%"></th>
+            </tr></thead>
+            <tbody id="nrLineasBody">
+              <tr><td colspan="5" class="empty-state" style="font-size:12px;color:var(--muted)">Agrega al menos un ingrediente</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <button class="btn btn-sm" id="nrAddIng" type="button" style="margin-top:8px">+ Ingrediente</button>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--line);padding:14px 20px">
+      <button class="btn" id="nrCancel" type="button">Cancelar</button>
+      <button class="btn primary" id="nrEnviar" type="button">📤 Enviar para autorización</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+  var API_URL = 'https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec';
+
+  // ---------- Sesión ----------
+  function getQuery(name){
+    var m = (location.search.match(new RegExp('[?&]' + name + '=([^&]*)')) || [])[1];
+    return m ? decodeURIComponent(m) : '';
+  }
+  var token = getQuery('t') || '<?!= __tokenInyectado ?>';
+  var user, empresa, sucursales;
+  if (token) { try { sessionStorage.setItem('fogueira_token', token); } catch(e){} }
+  if (!token) { try { token = sessionStorage.getItem('fogueira_token'); } catch(e){} }
+  if (!token) { (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})(); return; }
+  try {
+    user = JSON.parse(sessionStorage.getItem('fogueira_user') || 'null');
+    empresa = JSON.parse(sessionStorage.getItem('fogueira_empresa') || 'null');
+    sucursales = JSON.parse(sessionStorage.getItem('fogueira_sucursales') || '[]');
+  } catch(e){}
+  // __areaParam inyectado server-side. Si la URL trae ?area=cocina/churrasca filtra la vista (admin/auditoría).
+  var AREA_PARAM = '<?= __areaParam ?>';
+  var AREAS_VISIBLES, rol = '', ES_SUPERVISOR = false, PUEDE_OVERRIDE = false;
+  var _sesionUIAplicada = false;
+  function aplicarSesionUI() {
+    if (_sesionUIAplicada) return true;
+    _sesionUIAplicada = true;
+    // .trim() defensivo: un rol con espacio sobrante ("churrasca ") rompería `rol === area`
+    // y le escondería la tarjeta de firmas al chef sin razón aparente.
+    rol = String(user ? user.rol : '').trim().toLowerCase();
+    // Supervisores: ven la tarjeta de firmas como ESTADO para vigilar el cierre.
+    // gerente_administrativo hereda admin en el backend (rolEs) — el gate debe espejarlo.
+    ES_SUPERVISOR = (rol === 'admin' || rol === 'gerente_administrativo' || rol === 'auditoria');
+    // Override de sellos (firmar POR el responsable, con motivo auditado): espejo de handleSelloSave.
+    // auditoria NO — es solo lectura; el backend la rechazaría igual.
+    PUEDE_OVERRIDE = (rol === 'admin' || rol === 'gerente_administrativo');
+    if (['cocina','churrasca','admin','gerente_administrativo','auditoria'].indexOf(rol) === -1) {
+      alert('Tu rol no tiene acceso a esta vista.');
+      (function(_u){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sin acceso</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Esta pantalla no es para tu rol</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Toca el botón de abajo para ir a tu inicio, donde verás las pantallas que sí puedes usar.</p><a href="'+_u+'" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">← Ir a mi inicio</a></div>';document.body.appendChild(_o);})(API_URL+'?p=inicio&t='+encodeURIComponent(token||''));
+      return false;
+    }
+    (function(){ try { var b=API_URL+'?p=inicio&t='+encodeURIComponent(token||'')+(user?'&urol='+encodeURIComponent(user.rol||'')+'&unom='+encodeURIComponent(user.nombre||user.email||''):''); document.querySelectorAll('a[href*="p=inicio"]').forEach(function(a){a.href=b;}); }catch(e){} })();
+    document.getElementById('empresaNombre').textContent = (empresa && empresa.nombre) || 'Sin empresa';
+    if (rol === 'cocina') AREAS_VISIBLES = ['cocina'];
+    else if (rol === 'churrasca') AREAS_VISIBLES = ['churrasca'];
+    else if (AREA_PARAM === 'cocina') AREAS_VISIBLES = ['cocina'];
+    else if (AREA_PARAM === 'churrasca') AREAS_VISIBLES = ['churrasca'];
+    else AREAS_VISIBLES = ['cocina','churrasca'];
+    var titulo = AREAS_VISIBLES.length === 2 ? 'Cocina y Churrasca' :
+                 AREAS_VISIBLES[0] === 'cocina' ? 'Cocina' : 'Churrasca';
+    document.getElementById('brandName').textContent = titulo;
+    document.getElementById('brandEyebrow').textContent = 'Charolas · ' +
+      (AREAS_VISIBLES.length === 2 ? 'Servicio' : (AREAS_VISIBLES[0] === 'cocina' ? 'Cocina' : 'Churrasca'));
+    var btnVinc = document.getElementById('btnCharolasRecetas');
+    if (btnVinc) {
+      if (['admin','gerente_administrativo','cocina','churrasca'].indexOf(rol) !== -1) btnVinc.style.display = 'inline-flex';
+      else btnVinc.style.display = 'none';
+    }
+    (function(){ if (!token) return; var _cb='_brand_'+Date.now(); window[_cb]=function(d){ try{delete window[_cb];}catch(e){} if(!d||!d.ok||!d.branding||d.origen!=='empresa_config') return; var b=d.branding,rs=document.documentElement.style; if(b.color_primario) rs.setProperty('--gold',b.color_primario); if(b.color_secundario) rs.setProperty('--ink',b.color_secundario); if(b.color_acento) rs.setProperty('--ember',b.color_acento); if(b.color_fondo) rs.setProperty('--cream',b.color_fondo); if(b.nombre_comercial) document.querySelectorAll('.brand-flame .wordmark').forEach(function(w){ w.textContent=String(b.nombre_comercial).toUpperCase(); }); }; var _s=document.createElement('script'); _s.src=API_URL+'?action=empresa_branding_get&token='+encodeURIComponent(token)+'&callback='+_cb; _s.async=true; document.head.appendChild(_s); })();
+    return true;
+  }
+  if (user && !aplicarSesionUI()) return;
+
+  // ---------- Fecha (siempre hoy, local) ----------
+  function todayLocalISO(){
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  function nowHHMM(){
+    var d = new Date();
+    return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  }
+  function fmtFechaLarga(iso){
+    var p = String(iso || '').split('-');
+    if (p.length < 3) return iso;
+    var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    return Number(p[2]) + ' · ' + meses[Number(p[1])-1] + ' · ' + p[0];
+  }
+  var FECHA = todayLocalISO();
+  document.getElementById('fechaDisplay').textContent = fmtFechaLarga(FECHA);
+
+  // ---------- API JSONP ----------
+  function apiCall(params, cb){
+    var cbName = '_jcb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+    var script = document.createElement('script');
+    var cleanup = function(){ try{ delete window[cbName];}catch(e){window[cbName]=undefined;} if(script.parentNode) script.parentNode.removeChild(script); };
+    var t = setTimeout(function(){ cleanup(); cb({ok:false,error:'timeout'}); }, 20000);
+    window[cbName] = function(d){ clearTimeout(t); cleanup(); cb(d); };
+    var qs = Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
+    script.onerror = function(){ clearTimeout(t); cleanup(); cb({ok:false,error:'network'}); };
+    script.src = API_URL + '?' + qs + '&callback=' + cbName;
+    document.body.appendChild(script);
+  }
+
+  // ---------- Carga robusta (reintento + recuperación visible) ----------
+  // Un parpadeo de red o un redeploy momentáneo NO debe dejar la pantalla colgada ni
+  // sacar al chef a login. apiCallReintento reintenta 2× los fallos transitorios
+  // (network/timeout). SOLO usar en lecturas idempotentes, NUNCA en guardados (doble submit).
+  function _esErrTransitorio(res){
+    if (!res) return true;
+    if (res.ok) return false;
+    var e = String(res.error || '').toLowerCase();
+    return e === 'network' || e.indexOf('timeout') !== -1;
+  }
+  function apiCallReintento(params, cb, intentos){
+    intentos = (intentos == null) ? 2 : intentos;
+    apiCall(params, function(res){
+      if (res && res.ok) { cb(res); return; }
+      if (intentos > 0 && _esErrTransitorio(res)) {
+        setTimeout(function(){ apiCallReintento(params, cb, intentos - 1); }, 1200);
+        return;
+      }
+      cb(res); // fallo final → el caller decide cómo mostrarlo
+    });
+  }
+
+  // ---------- Toast ----------
+  var toastTimer = null;
+  function toast(msg, type){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (type === 'error' ? ' error' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 1800);
+  }
+
+  // ---------- Render UI por área ----------
+  function labelArea(a){ return a === 'cocina' ? 'Cocina' : 'Churrasca'; }
+  function descArea(a){
+    return a === 'cocina'
+      ? 'Guarniciones · ensaladas · postres'
+      : 'Carnes en espada · rodizio';
+  }
+
+  function buildBtns(area){
+    var vincsArea = (vincCache || []).filter(function(v){ return (v.area === area || v.area === 'ambas') && v.activo !== false; });
+    var charolaUI;
+    if (vincsArea.length > 0) {
+      // Buscador: el chef escribe el platillo y aparecen los que coinciden (tocables).
+      // Antes se pintaba un botón por receta vinculada; con 40+ recetas el muro tapaba toda
+      // la pantalla y había que deslizar hasta abajo (reporte de Xochitl, 2026-06-11).
+      charolaUI =
+        '<div class="charola-buscador">' +
+          '<input type="text" class="cb-input" id="cbInput-' + esc(area) + '" data-area="' + esc(area) + '" placeholder="🔍 Escribe el platillo que serviste…" autocomplete="off">' +
+          '<div class="cb-results" id="cbResults-' + esc(area) + '"></div>' +
+        '</div>';
+    } else {
+      charolaUI =
+        '<div class="quick-actions"><div class="btn-big-wrap"><button class="btn-big primary" data-quick="charola" data-area="' + area + '"><span class="ico">🍽</span><span>+ Charola servida</span></button><button type="button" class="tip-trigger" data-tip-key="charola">ⓘ</button></div></div>';
+    }
+    return charolaUI +
+      '<div class="quick-actions">' +
+        '<div class="btn-big-wrap"><button class="btn-big secondary" data-quick="reposicion" data-area="' + area + '"><span class="ico">↻</span><span>+ Reposición</span></button><button type="button" class="tip-trigger" data-tip-key="reposicion">ⓘ</button></div>' +
+        '<div class="btn-big-wrap"><button class="btn-big warn" data-quick="merma" data-area="' + area + '"><span class="ico">🗑</span><span>+ Merma</span></button><button type="button" class="tip-trigger" data-tip-key="merma">ⓘ</button></div>' +
+      '</div>' +
+      '<div class="detail-link"><a data-detail="' + area + '">+ Registro con descripción específica</a></div>';
+  }
+
+  function renderUI(){
+    var main = document.getElementById('mainContent');
+    main.innerHTML = AREAS_VISIBLES.map(function(area){
+      var puedeRegistrar = (rol === area) || rol === 'admin' || rol === 'gerente_administrativo' || rol === 'auditoria';
+      var btns = puedeRegistrar
+        ? buildBtns(area)
+        : '<div class="detail-link" style="text-align:center;color:var(--muted)">Solo lectura — el rol que registra es ' + labelArea(area) + '</div>';
+      // Card de sellos: el rol del área FIRMA; admin/auditoría la ven como SUPERVISIÓN (solo estado).
+      var esRolArea = (rol === area);
+      var verSellos = esRolArea || ES_SUPERVISOR;
+      var _slotSello = function(area, momento, etiqueta, infoId){
+        var control = esRolArea
+          ? '<div class="btn-big-wrap"><button class="btn-big primary" data-sello="' + momento + '" data-rol="' + area + '" style="padding:8px 14px;font-size:13px">✓ Sellar ' + etiqueta.toLowerCase() + '</button><button type="button" class="tip-trigger" data-tip-key="sello_' + momento + '">ⓘ</button></div>'
+          : PUEDE_OVERRIDE
+            ? '<div style="font-size:11px;color:var(--muted);margin-bottom:6px">Supervisión — firma el responsable de ' + labelArea(area) + '.</div>' +
+              '<button class="btn-big secondary" data-sello-override="' + momento + '" data-rol="' + area + '" style="padding:7px 12px;font-size:12px">🔐 Firmar por ' + labelArea(area) + ' (override)</button>'
+            : '<div style="font-size:11px;color:var(--muted)">Supervisión — firma el responsable de ' + labelArea(area) + '.</div>';
+        return '<div style="padding:12px;border:1px solid var(--line);border-radius:var(--r-md);background:#fff">' +
+          '<div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;font-weight:500;margin-bottom:6px">' + etiqueta + '</div>' +
+          '<div id="' + infoId + '-' + area + '" style="font-size:12.5px;color:var(--muted);margin-bottom:8px">Sin sellar</div>' +
+          control +
+        '</div>';
+      };
+      var tituloSellos = esRolArea ? ('🖋️ Mis firmas como ' + labelArea(area)) : ('🖋️ Firmas de ' + labelArea(area) + ' · supervisión');
+      var cardSellos = verSellos
+        ? '<div class="card no-print" style="margin-bottom:18px;padding:16px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--paper)">' +
+            '<div style="font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:18px;color:var(--ink);margin-bottom:10px">' + tituloSellos + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
+              _slotSello(area, 'apertura', 'Apertura', 'selloApInfo') +
+              _slotSello(area, 'cierre', 'Cierre', 'selloCiInfo') +
+            '</div>' +
+          '</div>'
+        : '';
+      return '<section class="area-section" data-area="' + area + '">' +
+        '<div class="area-head">' +
+          '<div class="area-eyebrow">Área</div>' +
+          '<h2>' + labelArea(area) + '</h2>' +
+          '<div class="desc">' + descArea(area) + '</div>' +
+        '</div>' +
+        cardSellos +
+        '<div class="kpi-row" id="kpis-' + area + '"></div>' +
+        btns +
+        '<div class="registros-head">Registros del día (más reciente arriba)</div>' +
+        '<div class="registros" id="lista-' + area + '"><div class="empty-state">Cargando…</div></div>' +
+      '</section>';
+    }).join('');
+    // Bindings de los botones de sello
+    document.querySelectorAll('button[data-sello]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var momento = btn.getAttribute('data-sello');
+        var rolEsp = btn.getAttribute('data-rol');
+        sellarChef(momento, rolEsp);
+      });
+    });
+    document.querySelectorAll('button[data-sello-override]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        sellarOverride(btn.getAttribute('data-sello-override'), btn.getAttribute('data-rol'));
+      });
+    });
+    // Cargar estado actual de sellos
+    actualizarSellosChef();
+
+    // Botones genéricos (reposición / merma / charola sin vinculación)
+    document.querySelectorAll('button[data-quick]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var tipo = btn.getAttribute('data-quick');
+        var area = btn.getAttribute('data-area');
+        openDetalleModal(area, tipo);
+      });
+    });
+    // Botones dinámicos por receta (generados desde vinculaciones)
+    document.querySelectorAll('button[data-vinc-receta]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var area = btn.getAttribute('data-area');
+        var recetaId = btn.getAttribute('data-vinc-receta');
+        var porciones = Number(btn.getAttribute('data-vinc-porciones')) || 1;
+        openDetalleModal(area, 'charola', recetaId, porciones);
+      });
+    });
+    // El link "+ Registro con descripción específica" ya no se necesita pero se deja por compatibilidad.
+    document.querySelectorAll('a[data-detail]').forEach(function(a){
+      a.addEventListener('click', function(e){
+        e.preventDefault();
+        openDetalleModal(a.getAttribute('data-detail'), 'charola');
+      });
+    });
+    // Buscadores de platillos (uno por área con vinculaciones)
+    wireBuscadores();
+  }
+
+  // Normaliza para comparar sin acentos ni mayúsculas
+  function _normTxt(s){ return String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  // Conecta cada buscador: al escribir, filtra las recetas vinculadas del área y pinta filas tocables.
+  function wireBuscadores(){
+    document.querySelectorAll('.cb-input').forEach(function(input){
+      var area = input.getAttribute('data-area');
+      var results = document.getElementById('cbResults-' + area);
+      if (!results) return;
+      var vincsArea = (vincCache || []).filter(function(v){ return (v.area === area || v.area === 'ambas') && v.activo !== false; });
+      vincsArea.sort(function(a, b){ return String(a.receta_nombre || '').localeCompare(String(b.receta_nombre || '')); });
+      function render(q){
+        var nq = _normTxt(q).trim();
+        if (!nq) { results.innerHTML = ''; return; }
+        var matches = vincsArea.filter(function(v){ return _normTxt(v.receta_nombre).indexOf(nq) !== -1; });
+        if (!matches.length) {
+          results.innerHTML = '<div class="cb-hint">Sin coincidencias. Si el platillo no está, usa «+ Registro con descripción específica» abajo.</div>';
+          return;
+        }
+        results.innerHTML = matches.map(function(v){
+          return '<button type="button" class="cb-row" data-vinc-receta="' + esc(v.receta_id) + '" data-vinc-porciones="' + (Number(v.porciones) || 1) + '" data-area="' + esc(area) + '">' +
+            '<span class="ico">🍽</span><span>' + esc(v.receta_nombre || 'Charola') + '</span></button>';
+        }).join('');
+        results.querySelectorAll('.cb-row').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            openDetalleModal(area, 'charola', btn.getAttribute('data-vinc-receta'), Number(btn.getAttribute('data-vinc-porciones')) || 1);
+          });
+        });
+      }
+      input.addEventListener('input', function(){ render(input.value); });
+    });
+  }
+
+  // ---------- Modal único de registro ----------
+  // Estado: dmArea (cocina/churrasca) + dmTipo (charola/reposicion/merma) — vienen del botón clicado.
+  var dmArea = null, dmTipo = null;
+  function tituloPorTipo(tipo, area){
+    var t = tipo === 'reposicion' ? 'Reposición' : tipo === 'merma' ? 'Merma' : 'Charola servida';
+    return t + ' · ' + labelArea(area);
+  }
+  function openDetalleModal(area, tipo, recetaIdPreset, porcionesPreset){
+    dmArea = area;
+    dmTipo = tipo || 'charola';
+    document.getElementById('dmTitle').textContent = 'Nueva ' + (dmTipo === 'reposicion' ? 'reposición' : dmTipo === 'merma' ? 'merma' : 'charola servida');
+    document.getElementById('dmSub').textContent = labelArea(area) + ' · ' + descArea(area);
+    // Mermas permiten medios (0.5) — charolas y reposiciones solo enteros
+    var esMerma = (dmTipo === 'merma');
+    var cantEl = document.getElementById('dm_cantidad');
+    cantEl.step = esMerma ? '0.5' : '1';
+    cantEl.min  = esMerma ? '0.5' : '1';
+    cantEl.value = porcionesPreset || 1;
+    document.getElementById('dm_receta').value = '';
+    document.getElementById('dm_insumos_row').style.display = 'none';
+    document.getElementById('dm_insumos_lista').innerHTML = '';
+    document.getElementById('dm_preview_descuento').style.display = 'none';
+    document.getElementById('dm_causa_row').style.display = esMerma ? '' : 'none';
+    document.getElementById('dm_causa_otro_row').style.display = 'none';
+    document.getElementById('dm_causa').value = '';
+    document.getElementById('dm_causa_otro').value = '';
+    document.getElementById('dmAlert').innerHTML = '';
+    cargarRecetasParaSelect(area, recetaIdPreset || '');
+    document.getElementById('detalleModal').classList.add('open');
+    setTimeout(function(){ document.getElementById('dm_receta').focus(); }, 60);
+  }
+  function closeDetalleModal(){ document.getElementById('detalleModal').classList.remove('open'); dmArea = null; dmTipo = null; }
+  function saveDetalleModal(){
+    if (!dmArea || !dmTipo) return;
+    var esMerma = (dmTipo === 'merma');
+    var cantidad = esMerma
+      ? (parseFloat(document.getElementById('dm_cantidad').value) || 0.5)
+      : (parseInt(document.getElementById('dm_cantidad').value, 10) || 1);
+    if (cantidad < (esMerma ? 0.5 : 1)) cantidad = esMerma ? 0.5 : 1;
+    var recetaId = document.getElementById('dm_receta').value;
+    // Descripción base: nombre de receta si existe
+    var descripcion = '';
+    if (recetaId) {
+      var rec = (recetasCache || []).find(function(r){ return r.id === recetaId; });
+      if (rec) descripcion = rec.nombre;
+    }
+    // Para mermas: incluir causa en descripción
+    if (esMerma) {
+      var causa = document.getElementById('dm_causa').value;
+      if (causa === 'Otro') causa = document.getElementById('dm_causa_otro').value.trim() || 'Otro';
+      if (causa) descripcion = descripcion ? descripcion + ' · ' + causa : causa;
+    }
+    // Guardado (MUTACIÓN): NO se reintenta solo (evita doble registro). Bloqueamos el botón
+    // mientras guarda y damos un mensaje claro si la conexión falla.
+    var btnG = document.getElementById('dmSave');
+    var txtG = btnG ? btnG.textContent : '';
+    if (btnG) { btnG.disabled = true; btnG.textContent = 'Guardando…'; }
+    document.getElementById('dmAlert').innerHTML = '';
+    apiCall({ action:'charolas_create', token: token, data: JSON.stringify({
+      area: dmArea, tipo: dmTipo, fecha: FECHA, hora: nowHHMM(),
+      cantidad: cantidad, descripcion: descripcion, receta_id: recetaId
+    })}, function(res){
+      if (btnG) { btnG.disabled = false; btnG.textContent = txtG; }
+      if (res && res.ok) {
+        closeDetalleModal();
+        var labelTipo = dmTipo === 'reposicion' ? 'Reposición' : dmTipo === 'merma' ? 'Merma' : 'Charola';
+        var msg = '+' + cantidad + ' ' + labelTipo + ' · ' + labelArea(dmArea);
+        if (res.descuento && res.descuento.descontados > 0) {
+          msg += ' · 📉 ' + res.descuento.descontados + (dmTipo === 'merma' ? ' insumos perdidos' : ' insumos descontados');
+        }
+        toast(msg);
+        loadCharolas();
+      } else {
+        var e = String((res && res.error) || '').toLowerCase();
+        var esConex = (e === 'network' || e.indexOf('timeout') !== -1 || e.indexOf('sin conex') !== -1 || e.indexOf('tiempo de espera') !== -1);
+        var msgErr = esConex
+          ? 'Falló la conexión al guardar. Revisa tu internet y vuelve a intentar (toca Registrar otra vez).'
+          : ((res && res.error) || 'No se pudo guardar');
+        document.getElementById('dmAlert').innerHTML = '<div class="alert error">' + msgErr + '</div>';
+      }
+    });
+  }
+  // Cargar recetas vinculables (sub-recetas activas) cuando se abre el modal
+  // Cache de TODAS las recetas (sin filtro server-side) — filtramos en cliente por área.
+  // Esto resuelve el bug de "primera vez carga churrasca, segunda vez cocina ve 0 recetas".
+  var recetasCache = null;
+  var vincCache = null;
+  function cargarRecetasParaSelect(area, recetaIdPreset){
+    if (recetasCache) { actualizarSelectRecetas(recetasCache, area, recetaIdPreset); return; }
+    apiCall({ action:'recetas_list', token: token, solo_activas: '1' }, function(res){
+      if (res.ok) { recetasCache = res.recetas; actualizarSelectRecetas(recetasCache, area, recetaIdPreset); }
+    });
+  }
+  function actualizarSelectRecetas(recetas, area, recetaIdPreset){
+    var sel = document.getElementById('dm_receta');
+    sel.innerHTML = '<option value="">— Sin receta (no descuenta inventario) —</option>';
+    var filtradas = recetas.filter(function(r){ return r.area === area || r.area === 'ambas'; });
+    filtradas.sort(function(a, b){ return String(a.nombre).localeCompare(String(b.nombre)); });
+    filtradas.forEach(function(r){
+      var opt = document.createElement('option');
+      opt.value = r.id;
+      opt.textContent = r.nombre + (r.es_elaborado ? ' [sub-receta]' : '');
+      sel.appendChild(opt);
+    });
+    if (recetaIdPreset) {
+      sel.value = recetaIdPreset;
+      if (sel.value) actualizarPreviewReceta();
+    }
+  }
+  // Cuando se selecciona una receta:
+  //  - Hace fetch de receta_get para obtener los ingredientes con sus cantidades y nombres
+  //  - Renderiza la lista de insumos (read-only) que se van a descontar
+  //  - Muestra preview con mensaje según tipo (charola/reposición = vendido; merma = pérdida)
+  function actualizarPreviewReceta(){
+    var sel = document.getElementById('dm_receta');
+    var preview = document.getElementById('dm_preview_descuento');
+    var insumosRow = document.getElementById('dm_insumos_row');
+    var insumosLista = document.getElementById('dm_insumos_lista');
+    if (!sel.value) {
+      preview.style.display = 'none';
+      insumosRow.style.display = 'none';
+      return;
+    }
+    var rec = (recetasCache || []).find(function(r){ return r.id === sel.value; });
+    if (!rec) { preview.style.display = 'none'; insumosRow.style.display = 'none'; return; }
+    // Tanto churrasca como cocina descuentan ahora (los insumos que estén marcados como
+    // inventariables; el resto solo queda registrado). No toca las existencias del SR12.
+    var hintEl = document.getElementById('dm_insumos_hint');
+    if (hintEl) hintEl.textContent = '(se descontarán al guardar — informativo)';
+    var msj;
+    if (dmTipo === 'merma') {
+      msj = '<strong>' + rec.nombre + '</strong> · al guardar se descontarán del inventario los insumos inventariados <strong style="color:var(--bad)">como pérdida</strong> (merma — no fue al cliente)';
+    } else {
+      msj = '<strong>' + rec.nombre + '</strong> · al guardar se descontarán del inventario los insumos inventariados de esta receta';
+    }
+    preview.style.display = '';
+    preview.innerHTML = msj;
+    // Cargar insumos de la receta (cache por receta para no repetir fetch)
+    insumosRow.style.display = '';
+    insumosLista.innerHTML = '<span style="color:var(--muted);font-size:12px">Cargando insumos…</span>';
+    if (recetaInsumosCache[rec.id]) {
+      renderInsumos(recetaInsumosCache[rec.id]);
+    } else {
+      apiCallReintento({ action: 'receta_get', token: token, id: rec.id }, function(res){
+        if (res && res.ok && res.lineas) {
+          recetaInsumosCache[rec.id] = res.lineas;
+          renderInsumos(res.lineas);
+        } else {
+          insumosLista.innerHTML = '<span style="color:var(--bad);font-size:12px">No se pudieron cargar los insumos (revisa tu internet). Puedes registrar igual — esta lista es solo informativa.</span>';
+        }
+      });
+    }
+  }
+  var recetaInsumosCache = {};
+  function renderInsumos(lineas){
+    var lista = document.getElementById('dm_insumos_lista');
+    var cantidad = parseInt(document.getElementById('dm_cantidad').value, 10) || 1;
+    var rec = (recetasCache || []).find(function(r){ return r.id === document.getElementById('dm_receta').value; });
+    var rendimiento = rec && rec.rendimiento ? Number(rec.rendimiento) : 1;
+    if (!lineas.length) { lista.innerHTML = '<span style="color:var(--muted);font-size:12px">Esta receta no tiene insumos.</span>'; return; }
+    var html = '<table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr style="border-bottom:1px solid var(--line)"><th style="text-align:left;padding:4px 6px;color:var(--muted);font-weight:600;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase">Insumo</th><th style="text-align:right;padding:4px 6px;color:var(--muted);font-weight:600;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase">Por receta</th><th style="text-align:right;padding:4px 6px;color:var(--muted);font-weight:600;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase">A descontar</th></tr></thead><tbody>';
+    lineas.forEach(function(l){
+      var cantPorReceta = Number(l.cantidad) || 0;
+      var aDescontar = (cantPorReceta / rendimiento) * cantidad;
+      var nombre = l.referencia_nombre || '(sin nombre)';
+      var unidad = l.unidad || '';
+      var subBadge = l.tipo === 'subreceta' ? ' <span style="background:rgba(64,138,191,.12);color:#1F3A66;padding:1px 5px;border-radius:3px;font-size:10px">sub</span>' : '';
+      html += '<tr><td style="padding:4px 6px">' + nombre + subBadge + '</td>' +
+              '<td style="text-align:right;padding:4px 6px;font-family:var(--font-mono);font-size:11.5px">' + cantPorReceta.toFixed(4) + ' ' + unidad + '</td>' +
+              '<td style="text-align:right;padding:4px 6px;font-family:var(--font-mono);font-weight:600">' + aDescontar.toFixed(4) + ' ' + unidad + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    if (rendimiento !== 1 || cantidad !== 1) {
+      html += '<div style="margin-top:6px;font-size:11px;color:var(--muted)">Cálculo: cantidad receta ÷ rendimiento (' + rendimiento + ') × charolas (' + cantidad + ')</div>';
+    }
+    lista.innerHTML = html;
+  }
+  document.getElementById('dm_receta').addEventListener('change', actualizarPreviewReceta);
+  document.getElementById('dm_cantidad').addEventListener('input', function(){
+    // Si hay receta seleccionada, recalcular insumos cuando cambia cantidad
+    if (document.getElementById('dm_receta').value) {
+      var rec = (recetasCache || []).find(function(r){ return r.id === document.getElementById('dm_receta').value; });
+      if (rec && recetaInsumosCache[rec.id]) renderInsumos(recetaInsumosCache[rec.id]);
+    }
+  });
+  document.getElementById('dmClose').addEventListener('click', closeDetalleModal);
+  document.getElementById('dmCancel').addEventListener('click', closeDetalleModal);
+  document.getElementById('dmSave').addEventListener('click', saveDetalleModal);
+  document.getElementById('detalleModal').addEventListener('click', function(e){ if (e.target === this) closeDetalleModal(); });
+  document.getElementById('dm_causa').addEventListener('change', function(){
+    document.getElementById('dm_causa_otro_row').style.display = this.value === 'Otro' ? '' : 'none';
+    if (this.value !== 'Otro') document.getElementById('dm_causa_otro').value = '';
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') {
+      if (document.getElementById('nrModal').classList.contains('open')) { closeNrModal(); return; }
+      if (document.getElementById('detalleModal').classList.contains('open')) closeDetalleModal();
+      if (document.getElementById('vincCharolasModal').classList.contains('open')) closeVincCharolasModal();
+    }
+    if (e.key === 'Enter' && document.activeElement && document.activeElement.tagName !== 'TEXTAREA') {
+      if (document.getElementById('detalleModal').classList.contains('open')) {
+        saveDetalleModal();
+      } else if (document.getElementById('vincCharolasModal').classList.contains('open')) {
+        saveVincCharolas();
+      }
+    }
+  });
+
+  // ---------- Vinculación Charolas ↔ Recetas ----------
+  var vincCharolasState = { vinculaciones: null, recetas: null, charolas: null, editarId: null };
+  function openVincCharolasModal(){
+    document.getElementById('vcrAlert').innerHTML = '';
+    document.getElementById('vcrGuardar').disabled = true;
+    var _aLbl = (AREAS_VISIBLES && AREAS_VISIBLES.length === 1) ? (AREAS_VISIBLES[0] === 'cocina' ? ' · Cocina' : ' · Churrasca') : '';
+    document.getElementById('vcrTitle').textContent = 'Cargar vinculación Charola ↔ Receta' + _aLbl;
+    document.getElementById('vcrForm').reset();
+    document.getElementById('vcrCharolaTxt').value = '';
+    document.getElementById('vcrCharola').value = '';
+    document.getElementById('vcrRecetaTxt').value = '';
+    document.getElementById('vcrReceta').value = '';
+    document.getElementById('vcrActivo').checked = true;
+    document.getElementById('vcrEditarId').value = '';
+    document.getElementById('vcrTableBody').innerHTML = '<tr><td colspan="6" class="empty-state">Cargando…</td></tr>';
+    document.getElementById('vincCharolasModal').classList.add('open');
+    apiCall({ action:'charolas_recetas_list', token: token }, function(res){
+      if (!res.ok) {
+        document.getElementById('vcrTableBody').innerHTML = '<tr><td colspan="6" class="empty-state" style="color:var(--bad)">' + esc(res.error || 'Error al cargar') + '</td></tr>';
+        return;
+      }
+      // Filtrar al ÁREA que se está capturando (obs. Estefanía): un chef de Cocina no debe ver
+      // recetas/vinculaciones de Churrasca (ni viceversa) para no equivocar la captura mientras
+      // se familiarizan. AREAS_VISIBLES = ['cocina'] | ['churrasca'] | ambas (admin/auditoría sin ?area).
+      var _enArea = function(a){ return (AREAS_VISIBLES || []).indexOf(String(a || '')) !== -1; };
+      vincCharolasState.vinculaciones = (res.vinculaciones || []).filter(function(v){ return _enArea(v.area); });
+      vincCharolasState.recetas = (res.recetas || []).filter(function(r){ return _enArea(r.area); });
+      vincCharolasState.charolas = (res.charolas || []).filter(function(c){ return _enArea(c.area); });
+      renderVincCharolasForm();
+      renderVincCharolasTable();
+      document.getElementById('vcrGuardar').disabled = false;
+    });
+  }
+  function closeVincCharolasModal(){ document.getElementById('vincCharolasModal').classList.remove('open'); }
+  function renderVincCharolasForm(){
+    // Los comboboxes son event-driven; ordenar los datos para que las sugerencias salgan ordenadas
+    if (vincCharolasState.charolas) vincCharolasState.charolas.sort(function(a,b){ return String(a.nombre||'').localeCompare(String(b.nombre||'')); });
+    if (vincCharolasState.recetas)  vincCharolasState.recetas.sort(function(a,b){ return String(a.nombre||'').localeCompare(String(b.nombre||'')); });
+  }
+  function renderVincCharolasTable(){
+    var rows = vincCharolasState.vinculaciones || [];
+    var tbody = document.getElementById('vcrTableBody');
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No hay vinculaciones registradas.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map(function(r){
+      return '<tr>' +
+        '<td>' + esc(r.charola_nombre || r.charola_id) + '</td>' +
+        '<td>' + esc(r.receta_nombre || r.receta_id) + '</td>' +
+        '<td>' + esc(r.area||'') + '</td>' +
+        '<td class="num">' + (r.porciones || 0) + '</td>' +
+        '<td>' + (r.activo ? 'Sí' : 'No') + '</td>' +
+        '<td><button type="button" class="btn btn-sm" data-vcr-edit="' + esc(r.id) + '">Editar</button></td>' +
+      '</tr>';
+    }).join('');
+    tbody.querySelectorAll('button[data-vcr-edit]').forEach(function(btn){
+      btn.addEventListener('click', function(){ loadVincCharolasForEdit(this.getAttribute('data-vcr-edit')); });
+    });
+  }
+  function loadVincCharolasForEdit(id){
+    var row = (vincCharolasState.vinculaciones || []).find(function(r){ return r.id === id; });
+    if (!row) return;
+    document.getElementById('vcrEditarId').value = row.id;
+    // Comboboxes: llenar texto visible + id oculto
+    var chNombre = (vincCharolasState.charolas||[]).find(function(x){ return x.id===row.charola_id; });
+    var recNombre = (vincCharolasState.recetas||[]).find(function(x){ return x.id===row.receta_id; });
+    document.getElementById('vcrCharolaTxt').value = chNombre ? chNombre.nombre : row.charola_id;
+    document.getElementById('vcrCharola').value = row.charola_id;
+    document.getElementById('vcrRecetaTxt').value = recNombre ? recNombre.nombre : row.receta_id;
+    document.getElementById('vcrReceta').value = row.receta_id;
+    document.getElementById('vcrPorciones').value = row.porciones || 0;
+    document.getElementById('vcrObservaciones').value = row.observaciones || '';
+    document.getElementById('vcrActivo').checked = !!row.activo;
+    document.getElementById('vcrTitle').textContent = 'Editar vinculación';
+  }
+  function saveVincCharolas(){
+    var charolaId = document.getElementById('vcrCharola').value;
+    var recetaId = document.getElementById('vcrReceta').value;
+    var porciones = parseFloat(document.getElementById('vcrPorciones').value);
+    var observaciones = document.getElementById('vcrObservaciones').value.trim();
+    var activo = document.getElementById('vcrActivo').checked;
+    if (!charolaId) { document.getElementById('vcrAlert').innerHTML = '<div class="alert error">Selecciona una charola.</div>'; return; }
+    if (!recetaId) { document.getElementById('vcrAlert').innerHTML = '<div class="alert error">Selecciona una receta.</div>'; return; }
+    if (!(porciones > 0)) { document.getElementById('vcrAlert').innerHTML = '<div class="alert error">Porciones debe ser mayor que 0.</div>'; return; }
+    document.getElementById('vcrGuardar').disabled = true;
+    apiCall({ action:'charola_receta_set', token: token, charola_id: charolaId, receta_id: recetaId, porciones: porciones, observaciones: observaciones, activo: activo ? '1' : '0' }, function(res){
+      document.getElementById('vcrGuardar').disabled = false;
+      if (!res.ok) { document.getElementById('vcrAlert').innerHTML = '<div class="alert error">' + esc(res.error || 'Error') + '</div>'; return; }
+      toast(res.mensaje || 'Guardado');
+      openVincCharolasModal();
+    });
+  }
+  document.getElementById('btnCharolasRecetas').addEventListener('click', openVincCharolasModal);
+  document.getElementById('vcrClose').addEventListener('click', closeVincCharolasModal);
+  document.getElementById('vcrCancel').addEventListener('click', closeVincCharolasModal);
+  document.getElementById('vcrGuardar').addEventListener('click', saveVincCharolas);
+  document.getElementById('vincCharolasModal').addEventListener('click', function(e){ if (e.target === this) closeVincCharolasModal(); });
+
+  // Combobox typeahead para vinculación
+  function setupCombo(txtId, hiddenId, listId, getItems){
+    var txt    = document.getElementById(txtId);
+    var hidden = document.getElementById(hiddenId);
+    var list   = document.getElementById(listId);
+    function showSuggestions(q){
+      var items = (getItems()||[]).filter(function(x){
+        return !q || String(x.nombre||'').toLowerCase().indexOf(q.toLowerCase()) !== -1;
+      });
+      if (!items.length){ list.style.display = 'none'; return; }
+      list.innerHTML = items.map(function(x){
+        return '<div class="combo-item" data-id="'+esc(x.id)+'" data-nm="'+esc(x.nombre||x.id)+'">'+esc(x.nombre||x.id)+'</div>';
+      }).join('');
+      list.querySelectorAll('.combo-item').forEach(function(it){
+        it.addEventListener('mousedown', function(e){
+          e.preventDefault();
+          txt.value    = it.getAttribute('data-nm');
+          hidden.value = it.getAttribute('data-id');
+          list.style.display = 'none';
+        });
+      });
+      list.style.display = 'block';
+    }
+    txt.addEventListener('input', function(){ hidden.value = ''; showSuggestions(this.value); });
+    txt.addEventListener('focus', function(){ showSuggestions(this.value); });
+    txt.addEventListener('blur',  function(){ setTimeout(function(){ list.style.display='none'; }, 200); });
+  }
+  setupCombo('vcrCharolaTxt','vcrCharola','comboCharolaList', function(){ return vincCharolasState.charolas; });
+  setupCombo('vcrRecetaTxt', 'vcrReceta', 'comboRecetaList',  function(){ return vincCharolasState.recetas; });
+
+  // ---------- Cargar charolas del día ----------
+  // ============= Sellos por chef (cocina/churrasca) =============
+  // El sello necesita anclarse a UNA bitácora del día. Tomamos la primera abierta encontrada.
+  var BITACORA_DEL_DIA = null;
+  function obtenerBitacoraDelDia(cb){
+    if (BITACORA_DEL_DIA) { cb(BITACORA_DEL_DIA); return; }
+    apiCall({ action:'bitacora_list', token: token, fecha: FECHA }, function(res){
+      if (res.ok && res.bitacoras && res.bitacoras.length) {
+        var abierta = res.bitacoras.find(function(b){ return b.estado !== 'cerrada'; });
+        BITACORA_DEL_DIA = (abierta || res.bitacoras[0]).id;
+      }
+      cb(BITACORA_DEL_DIA);
+    });
+  }
+  // Cuando el host aún no ha abierto el servicio del día: la firma no tiene a qué anclarse.
+  // En vez de frenar de golpe, mostramos un estado de espera suave y desactivamos los botones
+  // de sellar (la captura de charolas sigue libre — no depende de la bitácora).
+  function mostrarEsperaServicio(){
+    var msg = '⏳ El host aún no ha abierto el servicio de hoy.'
+            + '<br><span style="font-size:11px">Puedes capturar charolas; podrás firmar en cuanto el host abra el servicio.</span>';
+    AREAS_VISIBLES.forEach(function(area){
+      if (rol !== area && !ES_SUPERVISOR) return;
+      var infoAp = document.getElementById('selloApInfo-' + area);
+      var infoCi = document.getElementById('selloCiInfo-' + area);
+      if (infoAp) { infoAp.innerHTML = msg; infoAp.style.color = 'var(--gold)'; }
+      if (infoCi) { infoCi.innerHTML = msg; infoCi.style.color = 'var(--gold)'; }
+      var bAp = document.querySelector('button[data-sello="apertura"][data-rol="' + area + '"]');
+      var bCi = document.querySelector('button[data-sello="cierre"][data-rol="' + area + '"]');
+      if (bAp) { bAp.disabled = true; bAp.textContent = '⏳ Esperando al host'; }
+      if (bCi) { bCi.disabled = true; bCi.textContent = '⏳ Esperando al host'; }
+      document.querySelectorAll('button[data-sello-override][data-rol="' + area + '"]').forEach(function(b){
+        b.disabled = true; b.textContent = '⏳ Esperando al host';
+      });
+    });
+  }
+
+  function actualizarSellosChef(){
+    obtenerBitacoraDelDia(function(bitId){
+      if (!bitId) { mostrarEsperaServicio(); return; }
+      apiCall({ action:'sellos_estado', token: token, bitacora_id: bitId }, function(res){
+        if (!res.ok) return;
+        AREAS_VISIBLES.forEach(function(area){
+          if (rol !== area && !ES_SUPERVISOR) return; // área del usuario, o supervisión (admin/auditoría)
+          var ap = res.tablero.find(function(s){ return s.momento==='apertura' && s.rol===area; });
+          var ci = res.tablero.find(function(s){ return s.momento==='cierre' && s.rol===area; });
+          var infoAp = document.getElementById('selloApInfo-' + area);
+          var infoCi = document.getElementById('selloCiInfo-' + area);
+          if (infoAp && ap) {
+            if (ap.sellado) {
+              infoAp.innerHTML = '✓ Sellado por <strong>' + (ap.por||'—') + '</strong>' + (ap.es_override ? ' <span style="font-size:11px;color:var(--ember)">· override</span>' : '') + '<br><span style="font-size:11px">' + (ap.sellado_at ? new Date(ap.sellado_at).toLocaleString('es-MX') : '') + '</span>';
+              infoAp.style.color = 'var(--good)';
+              var bAp = document.querySelector('button[data-sello="apertura"][data-rol="' + area + '"]');
+              if (bAp) { bAp.disabled = true; bAp.textContent = '✓ Ya sellaste apertura'; }
+              var oAp = document.querySelector('button[data-sello-override="apertura"][data-rol="' + area + '"]');
+              if (oAp) { oAp.disabled = true; oAp.textContent = '✓ Apertura sellada'; }
+            }
+          }
+          if (infoCi && ci) {
+            if (ci.sellado) {
+              infoCi.innerHTML = '✓ Sellado por <strong>' + (ci.por||'—') + '</strong>' + (ci.es_override ? ' <span style="font-size:11px;color:var(--ember)">· override</span>' : '') + '<br><span style="font-size:11px">' + (ci.sellado_at ? new Date(ci.sellado_at).toLocaleString('es-MX') : '') + '</span>';
+              infoCi.style.color = 'var(--good)';
+              var bCi = document.querySelector('button[data-sello="cierre"][data-rol="' + area + '"]');
+              if (bCi) { bCi.disabled = true; bCi.textContent = '✓ Ya sellaste cierre'; }
+              var oCi = document.querySelector('button[data-sello-override="cierre"][data-rol="' + area + '"]');
+              if (oCi) { oCi.disabled = true; oCi.textContent = '✓ Cierre sellado'; }
+            }
+          }
+        });
+      });
+    });
+  }
+  function sellarChef(momento, rolEsp){
+    var lbl = momento === 'apertura' ? 'apertura' : 'cierre';
+    obtenerBitacoraDelDia(function(bitId){
+      if (!bitId) {
+        toast('El host aún no abre el servicio; podrás firmar tu ' + lbl + ' en cuanto lo abra.');
+        mostrarEsperaServicio();
+        return;
+      }
+      if (!confirm('¿Confirmas sellar tu ' + lbl + ' como ' + (rolEsp === 'cocina' ? 'Cocina' : 'Churrasca') + '? Quedará firmado a tu nombre con la hora exacta y no se puede deshacer.')) return;
+      apiCall({ action:'sello_save', token: token,
+                data: JSON.stringify({ bitacora_id: bitId, momento: momento, rol_esperado: rolEsp }) }, function(res){
+        if (res.ok) actualizarSellosChef();
+        else alert('No se pudo: ' + (res.error || 'Error'));
+      });
+    });
+  }
+  // Override admin: firmar POR el responsable del área cuando a él le es imposible firmar.
+  // El backend (handleSelloSave) exige admin/gerente_administrativo + motivo ≥5 caracteres y
+  // lo registra en la hoja Sellos con es_override=true — excepción documentada, no atajo.
+  function sellarOverride(momento, rolEsp){
+    var lbl = momento === 'apertura' ? 'apertura' : 'cierre';
+    var areaLbl = labelArea(rolEsp);
+    obtenerBitacoraDelDia(function(bitId){
+      if (!bitId) {
+        toast('El host aún no abre el servicio de hoy; no hay a qué anclar la firma.');
+        mostrarEsperaServicio();
+        return;
+      }
+      var motivo = prompt('Vas a firmar la ' + lbl + ' de ' + areaLbl + ' POR el responsable (override).\n' +
+        'Solo se usa cuando al responsable le es IMPOSIBLE firmar. Quedará auditado a tu nombre.\n\n' +
+        'Escribe el motivo (mínimo 5 caracteres):');
+      if (motivo === null) return;
+      motivo = motivo.trim();
+      if (motivo.length < 5) { alert('El motivo debe tener al menos 5 caracteres.'); return; }
+      if (!confirm('¿Confirmas el override de ' + lbl + ' de ' + areaLbl + '?\nMotivo: ' + motivo + '\n\nQuedará registrado en auditoría a tu nombre y no se puede deshacer.')) return;
+      apiCall({ action:'sello_save', token: token,
+                data: JSON.stringify({ bitacora_id: bitId, momento: momento, rol_esperado: rolEsp, motivo_override: motivo }) }, function(res){
+        if (res.ok) { toast('Override registrado y auditado.'); actualizarSellosChef(); }
+        else alert('No se pudo: ' + (res.error || 'Error'));
+      });
+    });
+  }
+
+  function loadCharolas(){
+    apiCallReintento({ action:'charolas_list', token: token, fecha: FECHA,
+              sucursal_id: (sucursales[0] && sucursales[0].id) || '' }, function(res){
+      if (!res.ok) {
+        AREAS_VISIBLES.forEach(function(area, idx){
+          var lista = document.getElementById('lista-' + area);
+          if (!lista) return;
+          lista.innerHTML = '';
+          var d = document.createElement('div');
+          d.className = 'empty-state'; d.style.color = 'var(--bad)'; d.style.textAlign = 'center';
+          var p = document.createElement('div'); p.textContent = (res && res.error) ? ('Error al cargar: ' + res.error) : 'No se pudo cargar. Revisa tu internet.'; p.style.marginBottom = '10px';
+          d.appendChild(p);
+          if (idx === 0) { var b = document.createElement('button'); b.type='button'; b.className='btn'; b.textContent='↻ Reintentar'; b.onclick = loadCharolas; d.appendChild(b); }
+          lista.appendChild(d);
+        });
+        return;
+      }
+      var charolas = res.charolas || [];
+      AREAS_VISIBLES.forEach(function(area){ renderArea(area, charolas.filter(function(c){ return c.area === area; })); });
+    });
+  }
+
+  function renderArea(area, charolas){
+    // Ordenar por hora descendente (más reciente arriba)
+    charolas = charolas.slice().sort(function(a,b){ return (b.hora || '').localeCompare(a.hora || ''); });
+
+    // KPIs
+    var totales = { charola:0, reposicion:0, merma:0 };
+    charolas.forEach(function(c){
+      var tipo = String(c.tipo || '').toLowerCase();
+      if (totales[tipo] !== undefined) totales[tipo] += Number(c.cantidad) || 1;
+    });
+    var kpiHtml =
+      '<div class="kpi"><div class="lbl"><span class="kpi-tip" data-tip-key="kpi_charola">Charolas servidas <span class="tip-icon">ⓘ</span></span></div><div class="val">' + totales.charola + '</div></div>' +
+      '<div class="kpi"><div class="lbl"><span class="kpi-tip" data-tip-key="kpi_reposicion">Reposiciones <span class="tip-icon">ⓘ</span></span></div><div class="val">' + totales.reposicion + '</div></div>' +
+      '<div class="kpi"><div class="lbl"><span class="kpi-tip" data-tip-key="kpi_merma">Mermas <span class="tip-icon">ⓘ</span></span></div><div class="val">' + totales.merma + '</div></div>';
+    var kpiEl = document.getElementById('kpis-' + area);
+    kpiEl.innerHTML = kpiHtml;
+
+    // Lista
+    var lista = document.getElementById('lista-' + area);
+    if (!charolas.length) {
+      lista.innerHTML = '<div class="empty-state">Aún no hay registros de hoy. Toca un botón arriba para empezar.</div>';
+      return;
+    }
+    lista.innerHTML = charolas.map(function(c){
+      var puedeBorrar = rol === 'admin' || rol === 'auditoria' || c.responsable_email === user.email;
+      var desc = c.descripcion ? esc(c.descripcion) : '<span class="reg-desc empty">(sin descripción)</span>';
+      var tipoLabel = c.tipo === 'reposicion' ? 'Repos.' : c.tipo === 'merma' ? 'Merma' : 'Charola';
+      return '<div class="registro-row">' +
+        '<span class="reg-hora">' + esc(c.hora || '') + '</span>' +
+        '<span class="reg-tipo ' + esc(c.tipo) + '">' + tipoLabel + '</span>' +
+        '<span class="reg-desc">' + desc + '</span>' +
+        '<span class="reg-cant">×' + (Number(c.cantidad) || 1) + '</span>' +
+        '<span class="reg-resp" title="' + esc(c.responsable_email || '') + '">' + esc((c.responsable_email || '').split('@')[0]) + '</span>' +
+        (puedeBorrar
+          ? '<button class="reg-del" title="Eliminar" data-id="' + c.id + '" type="button">×</button>'
+          : '<span></span>') +
+      '</div>';
+    }).join('');
+    lista.querySelectorAll('.reg-del').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        if (!confirm('¿Eliminar este registro?')) return;
+        var id = btn.getAttribute('data-id');
+        apiCall({ action:'charolas_delete', token: token, id: id }, function(res){
+          if (res.ok) { toast('Eliminado'); loadCharolas(); }
+          else toast(res.error || 'No se pudo eliminar', 'error');
+        });
+      });
+    });
+  }
+
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // ---------- Logout ----------
+  document.getElementById('btnLogout').addEventListener('click', function(){
+    if (!confirm('¿Cerrar sesión?')) return;
+    sessionStorage.clear();
+    (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+  });
+
+  // ═══════════════════════════════════════════════════════════════════
+  // TOOLTIPS — contenido explicativo por área
+  // ═══════════════════════════════════════════════════════════════════
+  var TIPS = {
+    charola: {
+      title: '¿Cuándo registrar una charola?',
+      body:  'Cada vez que una charola de comida <strong>sale de tu área al salón</strong>, aunque el servicio esté lleno y salgan varias a la vez. Si salieron 3 al mismo tiempo, usa cantidad = 3 en un solo registro.<br><br>' +
+             'Cada charola no registrada aparece como <strong>faltante sin explicación</strong> en el inventario al cierre del día.'
+    },
+    reposicion: {
+      title: '¿Qué es una reposición?',
+      body:  'Es cuando una charola que <strong>ya estaba en el salón se recarga</strong> y vuelve a salir. No es una charola nueva — es la misma recargada.<br><br>' +
+             'Registrarla es igual de importante: también consume ingredientes. Sin el registro, el inventario queda corto y la diferencia aparece sin causa al cierre.'
+    },
+    merma: {
+      title: '¿Qué va en Merma?',
+      body:  'Todo lo que <strong>no llegó al cliente</strong>: se cayó, se quemó, se preparó de más, no cumplió calidad, sobró al cierre.<br><br>' +
+             'Las mermas son parte normal de la operación. El problema es no registrarlas: sin registro, el sistema no puede distinguir merma de faltante, y eso genera sospechas innecesarias sobre el área.<br><br>' +
+             '<strong>Una merma registrada te protege a ti y a tu equipo.</strong>'
+    },
+    sello_apertura: {
+      title: 'Tu firma de apertura',
+      body:  'Certifica que empezaste a trabajar y a registrar <strong>desde el inicio del servicio</strong>. El sistema usa este sello para validar que los registros del día son completos desde el principio.<br><br>' +
+             'Sella al inicio de tu turno, antes de que salga la primera charola.<br><br>' +
+             '⏳ <strong>Primero el host abre el servicio del día.</strong> Hasta que el host no lo abra, no hay servicio al cual pegarle tu firma — verás el botón en <em>"Esperando al host"</em> y eso <strong>no es un error</strong>. En cuanto el host abra, se activa y ya puedes firmar. (Tus charolas sí las puedes capturar desde antes, no esperan a nadie.)'
+    },
+    sello_cierre: {
+      title: 'Tu firma de cierre',
+      body:  'Confirma que <strong>terminaste el servicio</strong> y que no van a salir más charolas del día. Después de tu sello, los registros quedan como evidencia oficial del área.<br><br>' +
+             'Sella cuando estés seguro de que el servicio terminó en tu área. No se puede deshacer.<br><br>' +
+             '⏳ <strong>Recuerda:</strong> la firma se ancla al servicio que abre el host. Si todavía no hay servicio abierto, verás <em>"Esperando al host"</em> — no es error, solo falta que el host abra. Las charolas sí las puedes capturar sin esperar.'
+    },
+    kpi_charola: {
+      title: 'Total de charolas servidas',
+      body:  'Cuántas charolas salieron hoy al salón. Este número debe cuadrar con el consumo de ingredientes: si el número es alto pero el inventario no bajó lo suficiente, hay una diferencia que el sistema marcará al cierre.'
+    },
+    kpi_reposicion: {
+      title: 'Total de reposiciones',
+      body:  'Cuántas reposiciones se hicieron hoy. Son charolas recargadas que volvieron al salón — también consumen ingredientes y se suman al consumo total del área.'
+    },
+    kpi_merma: {
+      title: 'Total de mermas registradas',
+      body:  'Cuántas unidades no llegaron al cliente hoy. El sistema las registra para que la diferencia de inventario tenga explicación y no quede como "faltante sin causa" al cierre del día.'
+    },
+    modal_receta: {
+      title: '¿Para qué vincular una receta?',
+      body:  'Al seleccionar la receta, el sistema <strong>descuenta automáticamente los ingredientes</strong> del inventario cuando guardas el registro.<br><br>' +
+             'Sin receta, la charola queda registrada pero los ingredientes no se descuentan — habrá diferencia en el inventario al cierre del día.'
+    },
+    modal_cantidad: {
+      title: '¿Cómo contar?',
+      body:  'Número de charolas del mismo tipo que salieron al mismo tiempo. Puedes agrupar: si salieron 3 charolas iguales de una vez, pon cantidad = 3 en un solo registro en vez de hacer 3 filas separadas.'
+    },
+    vincular_charola: {
+      title: 'Guía: cómo vincular charolas',
+      body:  'Lo que vinculas aquí se convierte en los <strong>botones que ven los chefs</strong> en su pantalla. El chef solo toca el botón de lo que sirvió; el nombre y el descuento de inventario salen de la receta. <strong>Lo que no vincules, no le aparece al chef.</strong><br><br>' +
+             '<strong>Paso a paso:</strong><br>' +
+             '1. En <strong>Charola</strong>: escribe y elige el platillo o espada.<br>' +
+             '2. En <strong>Receta</strong>: elige <strong>el mismo platillo</strong>. (Las dos cajas muestran tu misma lista de recetas; elige lo mismo en ambas. La Receta es la que descuenta inventario y da el nombre del botón.)<br>' +
+             '3. En <strong>Porciones</strong>: pon <strong>1</strong> para las espadas del rodizio. Solo es el número que le aparece pre-cargado al chef; él ajusta cuántas sacó.<br>' +
+             '4. Deja <strong>Activo</strong> ✅ y toca <strong>Guardar</strong>. Repite por cada espada o platillo.<br><br>' +
+             '<strong>Para editar:</strong> en la lista de la derecha toca <strong>Editar</strong>. Para retirar una sin borrarla, quítale la palomita de Activo.<br><br>' +
+             '⚠️ <strong>Para que SÍ descuente inventario</strong> (no solo registrar), la receta debe: tener el <strong>peso real por espada con rendimiento = 1</strong>, estar en la <strong>misma unidad que el inventario</strong> (todo en kg — el sistema no convierte) y la carne marcada como <strong>inventariable</strong>. Si falta una de las tres, la charola se registra pero no baja inventario.'
+    },
+    nr_nombre: {
+      title: '¿Cómo nombrar la receta?',
+      body:  'Usa el nombre como lo conoce todo el equipo. Ejemplo: "Ensalada de la casa", "Picaña al carbón".<br><br>' +
+             'Antes de proponer una nueva, verifica en el recetario que no exista ya con otro nombre — evita duplicados.'
+    },
+    nr_area: {
+      title: '¿Qué es el área?',
+      body:  '<strong>Cocina</strong>: todo lo que prepara Sergio — salsas, ensaladas, guarniciones, postres.<br><br>' +
+             '<strong>Churrasca</strong>: cortes, marinadas y preparaciones de la parrilla.<br><br>' +
+             'Elige la zona que es responsable principal de esta receta.'
+    },
+    nr_rendimiento: {
+      title: '¿Qué es el rendimiento?',
+      body:  'Cuántas porciones rinde la receta completa tal como está escrita. Ejemplo: si la receta alcanza para 10 porciones, escribe 10.<br><br>' +
+             'El sistema usa esto para calcular el <strong>costo por porción</strong> (costo total de ingredientes ÷ rendimiento).'
+    },
+    nr_instrucciones: {
+      title: '¿Por qué documentar instrucciones?',
+      body:  'El paso a paso para preparar la receta. Si no las capturas ahora, puedes agregarlas después cuando edites la receta desde el Recetario.<br><br>' +
+             'Una receta con instrucciones claras puede prepararla cualquier miembro del equipo — no depende de que tú estés presente.'
+    },
+    nr_ingredientes: {
+      title: 'Ingredientes de la receta',
+      body:  'Lista los ingredientes que van en la receta. Escribe para buscar en el catálogo y selecciona del menú que aparece.<br><br>' +
+             '<strong>Merma %</strong>: cuánto se pierde al preparar (cáscara, recortes, cocción). Si no sabes, deja 0 — el admin puede ajustarlo después.<br><br>' +
+             'Se requiere al menos 1 ingrediente para enviar la propuesta.'
+    }
+  };
+
+  // ─── Tooltip inline ───────────────────────────────────────────────
+  // Se inserta EN EL DOM pegado al elemento tocado, fuera de grids.
+  var _tipEl = document.createElement('div');
+  _tipEl.className = 'tip-panel';
+  var _tipActive = null;
+
+  function tipHide(){
+    if (_tipEl.parentNode) _tipEl.parentNode.removeChild(_tipEl);
+    _tipActive = null;
+  }
+
+  document.addEventListener('click', function(e){
+    var trigger = e.target.closest('[data-tip-key]');
+    if (trigger) {
+      if (_tipActive === trigger){ tipHide(); return; }
+      var key = trigger.getAttribute('data-tip-key');
+      var tip = TIPS[key];
+      if (!tip) return;
+      // Reconstruir contenido
+      _tipEl.innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">' +
+          '<div>' +
+            '<div class="ti-title">' + tip.title + '</div>' +
+            '<div class="ti-body">'  + tip.body  + '</div>' +
+          '</div>' +
+          '<button type="button" style="background:none;border:none;color:rgba(246,241,232,.45);font-size:20px;cursor:pointer;line-height:1;padding:0 2px;flex-shrink:0" onclick="(function(e){e.stopPropagation();' +
+            '_tipActive=null;var p=document.querySelector(\'.tip-panel\');if(p&&p.parentNode)p.parentNode.removeChild(p);})(event)">×</button>' +
+        '</div>';
+      // Ancla: insertar FUERA del grid/flex, junto al contenido visible
+      var inModal = !!trigger.closest('.modal-backdrop');
+      var anchor = inModal
+        ? (trigger.closest('label') || trigger.parentElement || trigger)
+        : (trigger.closest('.quick-actions') || trigger.closest('.kpi-row') || trigger.closest('.btn-big-wrap') || trigger);
+      anchor.insertAdjacentElement('afterend', _tipEl);
+      _tipActive = trigger;
+      return;
+    }
+    // Clic fuera de cualquier tip y fuera del modal → cerrar
+    if (_tipEl.parentNode && !_tipEl.contains(e.target) && !e.target.closest('.modal-backdrop')){
+      tipHide();
+    }
+  });
+
+  // ---------- Polling para mantener actualizado entre tablets ----------
+  var pollTimer = null;
+  function startPolling(){
+    pollTimer = setInterval(loadCharolas, 30000); // cada 30s
+  }
+
+  // ---------- Init ----------
+  // Reintenta los parpadeos de red SIN tirar la sesión: un blip ya no saca al chef a login;
+  // muestra un botón "Reintentar" reinvocable en lugar de dejar la pantalla colgada.
+  function iniciarCharolas(){
+  apiCallReintento({ action:'me', token: token }, function(res){
+    if (!res.ok) {
+      if (_esErrTransitorio(res)) {
+        var mc = document.getElementById('mainContent');
+        if (mc) {
+          mc.innerHTML = '<div class="empty-state" style="padding:40px 16px;text-align:center"><div style="margin-bottom:12px">No se pudo conectar con el servidor. Revisa tu internet. Tu sesión sigue activa.</div><button class="btn" type="button" id="btnReintentarCharolas">↻ Reintentar</button></div>';
+          var rb = document.getElementById('btnReintentarCharolas');
+          if (rb) rb.onclick = function(){ mc.innerHTML = '<div class="empty-state" style="padding:40px 16px;text-align:center">Cargando…</div>'; iniciarCharolas(); };
+        } else { toast('Sin conexión — reintenta', 'error'); }
+        return;
+      }
+      sessionStorage.clear();
+      alert('Tu sesión expiró.');
+      (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+      return;
+    }
+    // Actualizar user/empresa/sucursales (recuperación iOS: sessionStorage estaba vacío)
+    user = res.user || user;
+    empresa = res.empresa || empresa || null;
+    sucursales = res.sucursales || sucursales || [];
+    try {
+      sessionStorage.setItem('fogueira_token', token);
+      sessionStorage.setItem('fogueira_user', JSON.stringify(user));
+      sessionStorage.setItem('fogueira_empresa', JSON.stringify(empresa));
+      sessionStorage.setItem('fogueira_sucursales', JSON.stringify(sucursales));
+    } catch(e){}
+    if (!aplicarSesionUI()) return;
+    // Pre-cargar vinculaciones y recetas antes de pintar la UI para que los botones dinámicos aparezcan desde el primer render
+    apiCallReintento({ action:'charolas_recetas_list', token: token }, function(vRes){
+      if (vRes.ok) {
+        vincCache = (vRes.vinculaciones || []).filter(function(v){ return v.activo !== false; });
+        recetasCache = vRes.recetas && vRes.recetas.length ? vRes.recetas : null;
+      }
+      renderUI();
+      loadCharolas();
+      startPolling();
+    });
+  });
+  }
+  iniciarCharolas();
+
+  // ── MODAL: NUEVA RECETA (proponer desde Charolas) ───────────────────────
+  var nrIngCache = null;
+  var nrLineas   = [];
+
+  function openNuevaRecetaModal(){
+    // nrModal se abre ENCIMA de detalleModal (z-index:400 > 300) sin cerrar detalleModal.
+    // dmArea sigue válido porque detalleModal permanece abierto.
+    var areaFinal = dmArea || (rol === 'cocina' ? 'cocina' : rol === 'churrasca' ? 'churrasca' : 'cocina');
+    nrLineas = [];
+    document.getElementById('nr_nombre').value = '';
+    document.getElementById('nr_cat').value = '';
+    document.getElementById('nr_rendimiento').value = '1';
+    document.getElementById('nr_unidad').value = 'porciones';
+    document.getElementById('nr_instrucciones').value = '';
+    var areaSelect = document.getElementById('nr_area');
+    areaSelect.value = areaFinal;
+    areaSelect.disabled = true; // fijado al área de la charola — no editable desde este flujo
+    var areaLabel = areaFinal === 'cocina' ? 'Cocina' : 'Churrasca';
+    document.getElementById('nrSub').textContent = 'Área: ' + areaLabel + ' · El cambio se enviará para autorización. No aplica al instante.';
+    renderNrLineas();
+    var nrEl = document.getElementById('nrModal');
+    document.body.appendChild(nrEl); // mover al final del DOM — garantiza estar encima de todo
+    nrEl.style.zIndex = '9999';
+    nrEl.classList.add('open');
+    nrEl.style.display = 'flex';
+    if (!nrIngCache) {
+      apiCall({ action:'ingredientes_list', token: token }, function(res){
+        if (res.ok) nrIngCache = res.ingredientes || [];
+      });
+    }
+  }
+
+  // Listener directo sobre el botón (más confiable que delegación en document).
+  document.getElementById('linkRecetas').addEventListener('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    openNuevaRecetaModal();
+  });
+
+  function renderNrLineas(){
+    var tbody = document.getElementById('nrLineasBody');
+    if (!nrLineas.length){
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state" style="font-size:12px;color:var(--muted)">Agrega al menos un ingrediente</td></tr>';
+      return;
+    }
+    tbody.innerHTML = nrLineas.map(function(l, i){
+      return '<tr>' +
+        '<td><div class="combo-wrap" style="position:relative">' +
+          '<input type="text" class="nr-ing-txt" data-idx="'+i+'" value="'+esc(l.nombre||'')+'" placeholder="Escribe para buscar…" autocomplete="off" style="width:100%;font-size:12px">' +
+          '<input type="hidden" class="nr-ing-id" data-idx="'+i+'" value="'+esc(l.id||'')+'">' +
+          '<div class="combo-list" id="nrCombo-'+i+'"></div>' +
+        '</div></td>' +
+        '<td><input type="number" class="nr-cant" data-idx="'+i+'" value="'+(l.cantidad||1)+'" min="0.001" step="0.001" style="width:100%;font-size:12px"></td>' +
+        '<td><input type="text" class="nr-unid" data-idx="'+i+'" value="'+esc(l.unidad||'kg')+'" style="width:100%;font-size:12px"></td>' +
+        '<td><input type="number" class="nr-merma" data-idx="'+i+'" value="'+(l.merma_pct||0)+'" min="0" max="99" step="0.1" style="width:100%;font-size:12px"></td>' +
+        '<td><button type="button" data-nrdel="'+i+'" style="background:none;border:none;color:var(--bad);cursor:pointer;font-size:16px;padding:0 4px">✗</button></td>' +
+      '</tr>';
+    }).join('');
+    nrLineas.forEach(function(_, i){ setupNrCombo(i); });
+    tbody.querySelectorAll('[data-nrdel]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        nrLineas.splice(parseInt(this.getAttribute('data-nrdel')), 1);
+        renderNrLineas();
+      });
+    });
+    tbody.querySelectorAll('.nr-cant,.nr-unid,.nr-merma').forEach(function(inp){
+      inp.addEventListener('change', function(){
+        var i = parseInt(this.getAttribute('data-idx'));
+        if (this.classList.contains('nr-cant'))  nrLineas[i].cantidad  = parseFloat(this.value) || 1;
+        if (this.classList.contains('nr-unid'))  nrLineas[i].unidad    = this.value;
+        if (this.classList.contains('nr-merma')) nrLineas[i].merma_pct = parseFloat(this.value) || 0;
+      });
+    });
+  }
+
+  function setupNrCombo(idx){
+    var txt  = document.querySelector('.nr-ing-txt[data-idx="'+idx+'"]');
+    var hid  = document.querySelector('.nr-ing-id[data-idx="'+idx+'"]');
+    var list = document.getElementById('nrCombo-'+idx);
+    if (!txt || !hid || !list) return;
+    function showSug(q){
+      var items = (nrIngCache || []).filter(function(x){
+        return !q || String(x.nombre||'').toLowerCase().indexOf(q.toLowerCase()) !== -1;
+      }).slice(0, 20);
+      if (!items.length){ list.style.display = 'none'; return; }
+      list.innerHTML = items.map(function(x){
+        return '<div class="combo-item" data-id="'+esc(x.id)+'" data-nm="'+esc(x.nombre||x.id)+'">'+esc(x.nombre||x.id)+'</div>';
+      }).join('');
+      list.querySelectorAll('.combo-item').forEach(function(it){
+        it.addEventListener('mousedown', function(e){
+          e.preventDefault();
+          txt.value = it.getAttribute('data-nm');
+          hid.value = it.getAttribute('data-id');
+          nrLineas[idx].nombre = txt.value;
+          nrLineas[idx].id     = hid.value;
+          list.style.display   = 'none';
+        });
+      });
+      list.style.display = 'block';
+    }
+    txt.addEventListener('input', function(){ hid.value=''; nrLineas[idx].id=''; nrLineas[idx].nombre=this.value; showSug(this.value); });
+    txt.addEventListener('focus', function(){ showSug(this.value); });
+    txt.addEventListener('blur',  function(){ setTimeout(function(){ list.style.display='none'; }, 200); });
+  }
+
+  document.getElementById('nrAddIng').addEventListener('click', function(){
+    nrLineas.push({ id:'', nombre:'', cantidad:1, unidad:'kg', merma_pct:0 });
+    renderNrLineas();
+    var inputs = document.querySelectorAll('.nr-ing-txt');
+    if (inputs.length) inputs[inputs.length-1].focus();
+  });
+
+  function closeNrModal(){ var m=document.getElementById('nrModal'); m.classList.remove('open'); m.style.display=''; document.getElementById('nr_area').disabled=false; }
+  document.getElementById('nrClose').addEventListener('click',  closeNrModal);
+  document.getElementById('nrCancel').addEventListener('click', closeNrModal);
+  document.getElementById('nrModal').addEventListener('click',  function(e){ if (e.target === this) closeNrModal(); });
+
+  document.getElementById('nrEnviar').addEventListener('click', function(){
+    var nombre = document.getElementById('nr_nombre').value.trim();
+    if (!nombre){ toast('Escribe el nombre de la receta', 'error'); return; }
+    var lineasValidas = nrLineas.filter(function(l){ return l.id; });
+    if (!lineasValidas.length){ toast('Agrega al menos un ingrediente y selecciónalo del menú', 'error'); return; }
+    for (var i = 0; i < lineasValidas.length; i++){
+      if (!(lineasValidas[i].cantidad > 0)){ toast('Revisa la cantidad del ingrediente ' + (i+1), 'error'); return; }
+      if (!lineasValidas[i].unidad){ toast('Agrega la unidad del ingrediente ' + (i+1), 'error'); return; }
+    }
+    var payload = lineasValidas.map(function(l){
+      return { tipo:'ingrediente', referencia_id: l.id, cantidad: l.cantidad, unidad: l.unidad, merma_pct: l.merma_pct||0, es_decoracion: false };
+    });
+    var btn = document.getElementById('nrEnviar');
+    btn.disabled = true;
+    apiCall({
+      action: 'receta_proponer_cambio', token: token,
+      tipo_cambio: 'crear',
+      receta_id: '',
+      nombre: nombre,
+      area: document.getElementById('nr_area').value,
+      categoria_culinaria: document.getElementById('nr_cat').value.trim(),
+      rendimiento: parseFloat(document.getElementById('nr_rendimiento').value) || 1,
+      unidad_rendimiento: document.getElementById('nr_unidad').value.trim() || 'porciones',
+      instrucciones: document.getElementById('nr_instrucciones').value.trim(),
+      uso_aplicacion: '',
+      decoracion: '',
+      lineas: JSON.stringify(payload)
+    }, function(res){
+      btn.disabled = false;
+      if (res.ok){
+        toast('✓ Receta enviada para autorización');
+        closeNrModal();
+      } else {
+        toast(res.error || 'Error al enviar', 'error');
+      }
+    });
+  });
+
+})();
+</script>
+
+</body>
+</html>

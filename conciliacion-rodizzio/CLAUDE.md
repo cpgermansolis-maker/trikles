@@ -1,355 +1,124 @@
 # CLAUDE.md — Conciliación Fogueira
 
-Sistema de control de caja, conciliación operativa y reservaciones para el restaurante buffet/rodizio **Fogueira** del **Grupo Toda del Sureste**. Desarrollado como módulo independiente (no dentro de OAC), pensado para venderse a múltiples restaurantes.
+Sistema de control de caja, conciliación, recetario y reservaciones para el restaurante buffet/rodizio **Fogueira** (Grupo Toda del Sureste, Oaxaca). Módulo independiente de OAC, pensado para venderse a varios restaurantes (multi-empresa desde el diseño). **Arquitectura:** frontend HTML estático + backend Apps Script + Google Sheets (sin Firebase, sin SQL directo). Dueño: Germán Solís (cpgermansolis@gmail.com).
 
----
-
-## Qué es el proyecto
-
-- **Cliente**: Fogueira (restaurante buffet/rodizio en Oaxaca)
-- **Dueño técnico**: Germán Solís (cpgermansolis@gmail.com)
-- **Propósito**: reemplazar el flujo manual de caja + reservaciones + recetario con un sistema web basado en Google Apps Script
-- **Arquitectura**: frontend HTML estático + backend Apps Script + Google Sheets (sin Firebase, sin SQL directo)
-- **Multi-empresa desde el diseño** — cada empresa tiene su catálogo, usuarios y branding propios
-
----
+> El detalle histórico por versión vive en **git** y en la memoria de Claude (`pendientes_fogueira.md`, `plan_servicio_barra.md`, etc.). Este archivo es solo lo mínimo para retomar sin romper nada.
 
 ## Identificadores de producción
-
 | Dato | Valor |
 |---|---|
 | Script ID | `1Wja60RtizVgc5KoCAAYQ_cl3f6S9_dLqfFV68Y0MOxHo0mxEqSelqj9Z` |
 | deploymentId (fijo) | `AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA` |
-| URL pública | `https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec` |
-| URL reservas (pública) | `...exec?p=reservar` |
-| Spreadsheet | "Conciliación Restaurante - DB" en Drive de cpgermansolis@gmail.com |
-| Último deploy | v220 (2026-05-20) |
+| URL pública | `https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec` (reservas: `...exec?p=reservar`) |
+| Spreadsheet | "Conciliación Restaurante - DB" (Drive de cpgermansolis@gmail.com) |
+| Último deploy | **v383 (2026-06-11)** |
+| EMPRESA_ID Fogueira | `521aef3c-7df7-49ad-b1af-583a95233cd0` |
 
----
-
-## Estructura del proyecto
-
+## Estructura
 ```
-conciliacion-rodizzio/
-├── apps-script/          ← TODO el código que se despliega
-│   ├── .clasp.json       ← apunta a este proyecto (no al de Trikles)
-│   ├── appsscript.json
-│   ├── recetario.gs      ← código principal + router handleRequest()
-│   ├── recetario_handlers.gs
-│   ├── sr12_handlers.gs
-│   ├── inventario_churrasca_handlers.gs
-│   ├── branding_handlers.gs
-│   └── *.html            ← todas las pantallas del sistema
-├── Inventarios SR12/     ← archivos XLS del POS para importación manual
-├── RecetarioFogueira_PRD/← datos bootstrap del recetario
-├── docs/                 ← checklist supervisión conciliación
-└── CLAUDE.md             ← este archivo
+apps-script/         ← TODO el código desplegable (.clasp.json apunta aquí, NO al padre)
+  Código.js          ← router handleRequest() + switch + MUTATING_ACTIONS + COLUMNAS (fuente de verdad de schemas)
+  recetario.gs       ← bootstraps + lógica recetario (datos embebidos al final, ~27k líneas)
+  recetario_handlers.gs · sr12_handlers.gs · inventario_churrasca_handlers.gs · branding_handlers.gs · barra_handlers.gs
+  *.html             ← todas las pantallas
+Inventarios SR12/    ← XLS del POS (existencias por área: ALMACEN, BARRA, CAVA, COCINA, CHURRASCA, PISO + "Reporte s12 detallado")
+Archivos de SR12/    ← reportes de cancelaciones del POS
+RecetarioFogueira_PRD/ ← fuentes bootstrap recetario
+docs/                ← specs y entregables (cuadre_barra_spec, control_inventario_barra, barra_ayuda_sistema, auditoria_insumos_barra)
+.tmp_xlsx_reader/    ← node + xlsx/pdfplumber para leer XLS/PDF del POS (gen_barra_gs.js, etc.)
 ```
 
----
-
-## Deploy con clasp
-
-**SIEMPRE desde `apps-script/`**, nunca desde el directorio raíz.
-
-```powershell
-cd apps-script
-
-# Solo subir código (sin publicar):
-npx clasp push
-
-# Subir + publicar (mantiene URL fija):
-npx clasp deploy --deploymentId "AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA" --description "vN — descripción"
+## Deploy con clasp (Claude puede hacerlo solo)
+**SIEMPRE desde `apps-script/` con ruta absoluta en el MISMO comando** (Bash no mantiene el cwd; desde el padre sube al proyecto OAC equivocado y se pierde silenciosamente). `clasp login` ya está en el perfil de Germán.
+```bash
+cd /c/Users/user/Documents/GSZ/Trikles/conciliacion-rodizzio/apps-script && npx clasp push
+# luego (mantiene la URL fija):
+npx clasp deploy --deploymentId "AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA" --description "vN — desc"
 ```
+**Siempre `push` ANTES de `deploy`** (deploy solo no sube cambios). **Germán ejecuta manualmente** (editor Apps Script, requieren OAuth): `setupHojas`, `crearPrimerAdmin` y similares; y los botones de bootstrap/admin que disparan funciones que escriben.
+⚠️ **NUNCA dejar archivos temporales en `apps-script/`** (`.tmp*`, scripts de diagnóstico, etc.): clasp empuja TODO `.js`/`.gs`/`.html` de la carpeta y un `.js` con código de navegador (IIFE que toca `location`/`document`) **rompe el backend ENTERO** al cargar (ReferenceError → toda página devuelve "Error" de GAS). Hay `.claspignore` (v335) que ignora `.tmp*`/`node_modules`/`.git`; trabajar los temporales en el directorio PADRE. Verificar el proyecto con `clasp status` **desde `apps-script/`** (desde el padre lista el proyecto OAC equivocado).
 
-**Por qué:** el `.clasp.json` de Fogueira está en `apps-script/`. Desde el padre, clasp sube al proyecto Trikles/OAC que tiene su propio `.clasp.json` arriba en la jerarquía — los cambios se pierden silenciosamente.
+## Reglas de desarrollo (lecciones críticas — romperlas mete bugs)
+- **Comunicación:** `apiCall({action})` JSONP (pantallas internas) o `fetch POST` (públicas: reservar/mireserva). **NUNCA `google.script.run`.** Todo entra a `handleRequest(e)`→`switch(action)`. **Payloads GRANDES (fotos/imágenes base64) van por `fetch POST` (`apiCallPost`), NUNCA JSONP** — la imagen desborda la URL → `error:network` y nunca llega. `handleRequest` ya lee `e.postData.contents` (fix fotos receta v347).
+- **Resiliencia de carga (v333, replicado a las 9 pantallas en v342):** una llamada JSONP que falla por blip de red / redeploy momentáneo NO debe dejar la tabla en "Cargando…" eterno ni un toast que se va solo. Patrón: `apiCallReintento` (reintenta 2× los fallos transitorios network/timeout, **solo lecturas idempotentes**, nunca mutaciones) + `_errorTabla`/`_errorBox` (botón "↻ Reintentar"). En el `me` de init, un fallo **transitorio** NO debe `sessionStorage.clear()`+redirect a login (saca al usuario por un parpadeo) — distinguir transitorio vs auth real. **Ya en las 9 pantallas** (recetas/conciliacion/bitacora/direccion/charolas/historico/reporte_precios/curva_precios/admin/mensajes + mermas). ⚠️ El detector de transitorio depende del idioma del `apiCall`: historico/admin/fetch usan errores en español ("Sin conexión"/"Error de red"/"Tiempo de espera"); el resto usa 'network'/'timeout'. **Bitácora (v351):** delta sync 3s + sync inmediato al volver (`visibilitychange` visible, SOLO lectura).
+- **Endpoint nuevo:** (1) si escribe → `'action':true` en `ACCIONES_WRITE_OBSERVADOR_BLOQUEADAS`/MUTATING (Código.js); (2) `case` en el switch; (3) `function handleX(p)`; (4) botón admin → `window.fn=function(){}` (onclick corre en scope global, no en el IIFE).
+- **Fechas:** NUNCA `toISOString()` (da UTC, rompe MX tras 18:00). Construir con `getFullYear/getMonth/getDate`. **Al LEER de Sheets, toda celda fecha/hora puede volver como `Date` año 1899** → usar SIEMPRE `fechaToString()` / `horaToString()` (Código.js), nunca `String(celda).slice()`. Helpers robustos: `_invDiaStr`, `_cancelDiaRobusto/_cancelHoraRobusta`. (Un valor inesperadamente largo además rompe layouts y esconde controles.)
+- **Día lógico:** 3:00am→2:59am MX (`diaLogicoRestaurante()`); los tokens (SHA-256 de `id+email+díaLógico+SALT`, salt `fogueira-conciliacion-salt-2026`) no caducan a medianoche **PERO SÍ al cambio de día lógico (3am)** — el díaLógico va dentro del hash. ⚠️ **Un link/sesión de AYER da "Sesión inválida" hoy.** Síntoma engañoso: `me` puede pintar la pantalla desde caché/`sessionStorage` (Mi cuenta llena) mientras las llamadas de DATOS (validan en vivo) fallan → "Cargando…" eterno. Para diagnosticar un token sospechoso: forjar `sha256(id|email|díaLógico|[nonce])` con día de hoy/ayer y comparar (caso Luis v365: su token = forge de 2026-06-08). El handler de sesión-expirada NO debe redirigir con `_top` programático (sandbox lo bloquea) → mensaje visible + link login real. **Aplicado en TODAS las pantallas internas** (admin v365 + barrido v366: 62 redirects `?p=acceso` programáticos — `createElement('a')..._top.click()`, `window.top.location` y `location.href` — reemplazados por el overlay "Tu sesión expiró"+botón login real, vía script regex). Quedan SIN tocar las públicas (acceso/reservar/mireserva).
+- **Sesión iOS:** sessionStorage NO sobrevive entre subdominios googleusercontent. `doGet` inyecta el token en el template; la pantalla lee `getQuery('t') || '<?!= __tokenInyectado ?>'`. Query params: `template.queryParams = params`.
+- **Pantalla EN BLANCO en iPhone al abrir una pantalla que tu rol NO tiene (v360):** patrón sistémico. El gate de rol, al rechazar, hacía `alert()` + click programático en un `<a target="_top">` para redirigir a inicio. **iOS/Safari bloquea la navegación `_top` programática sin gesto del usuario** dentro del iframe sandbox de GAS → el redirect NO ocurre, y como el body arranca `display:none` (se revela solo al pasar el gate), queda TODO en blanco (ni "Cargando…" ni rebote a login). En PC/Android sí redirige. **Fix:** en el rechazo, NO redirigir programáticamente — mostrar un mensaje VISIBLE con un link real clickeable (`<a target="_top">`, la navegación CON gesto sí funciona en iOS). bitacora.html usa el `emptyState` (v360); las demás 18 pantallas usan un **overlay `position:fixed` "Esta pantalla no es para tu rol" + botón "← Ir a mi inicio"** inyectado en el branch de rechazo (v361). **Aplicado en las 19 pantallas internas** con gate de rol → inicio: bitacora, charolas, conciliacion, recetas, inventario_churrasca, importar_sr12, importadores, importar_cancelaciones, importar_ventas, importar_compras, reservaciones, admin, sugerencias_sr12, agenda, auditoria, mermas, direccion, reporte_precios, curva_precios. ⚠️ **NO se tocaron** los redirects de `?p=acceso` (sesión ausente → login, comportamiento correcto). El caso de Josué (rol `cocina`) fue que alguien le compartió el link directo de la bitácora; su inicio NO le muestra ese tile y su pantalla correcta (Charolas) siempre funcionó. **Patrón para pantallas NUEVAS:** el gate de rol debe mostrar el overlay, nunca un redirect `_top`/`window.top.location` programático.
+- **bitácora `doSave` NO envía `state.rows`** (las filas viven en `BitacoraFilas`; mandarlas infla la URL JSONP → `error:network`).
+- **CSS:** `@media` sin `!important` va al FINAL del `<style>` (si no, clases posteriores lo pisan).
+- **Roles UI síncronos** (antes del 1er pintado, nunca setTimeout). Leer rol como `String((user&&user.rol)||'').toLowerCase()` ('use strict': variable no declarada lanza ReferenceError y aborta init — síntomas engañan, parece red). **El candado de rol del FRONTEND debe espejar la herencia de `rolEs()` del backend** (`gerente_administrativo`→admin, `gerente_restaurante`→host, `observador`→host): un gate `rol!=='admin'` rechaza a un `gerente_administrativo` que el backend SÍ acepta, y como el redirect dentro del sandbox de GAS falla en silencio, la pantalla queda colgada en "Cargando…" (no rebota). Bug admin.html v359: Luis (gerente_administrativo) no podía abrir Configuración. Las demás pantallas (inicio/importadores/conciliacion) ya validan ambos roles — admin.html era la única estricta.
+- **Sheets es_MX:** columnas con listas CSV ("5,6,7") → `setNumberFormat('@')` al crear, o las corrompe.
+- **Distribución:** NUNCA mandar `.html` por WhatsApp (se rompe en iPhone) → compartir link `?p=...`.
+- **HTML:** definir `esc()` y `escAttr()` si se usan. No conectar listeners a un elemento que está MÁS ABAJO que el `<script>` (getElementById→null→revienta el wiring); diferir a `DOMContentLoaded`. admin.html es un IIFE: cuidar `});` huérfanos (SyntaxError silencia todo el JS). `renderMarkdown`: escapar `& < >` dentro de inline-code. Para mostrar algo cuyo CSS es `display:none`, asignar valor explícito (`'block'`), NUNCA `''` (no anula el none) — v336.
+- **Scopes de OAuth (Drive, UrlFetch…):** agregar el scope a appsscript.json NO basta. El usuario que despliega (USER_DEPLOYING = Germán) debe **RE-AUTORIZAR**: correr desde el editor una función que use el scope y aceptar el consentimiento. El scope `drive` estaba declarado pero nunca consentido (la foto nunca ejecutaba `DriveApp`) → fix: función `autorizarDriveFotos()` en **Código.gs** (el menú de funciones del editor muestra solo las del archivo abierto; recargar el editor tras push) (v349).
+- **PowerShell append a .gs:** `Get-Content|Add-Content` corrompe UTF-8 → usar `[System.IO.File]::AppendAllText($d, txt, [Text.Encoding]::UTF8)`. (Mejor: usar Write/Edit del harness.)
+- **Columna nueva en hoja con schema fijo:** `asegurarHoja` no actualiza hojas existentes → usar `_getOrCreateCol(sh,col)` (self-healing).
+- **API keys terceros** → `PropertiesService.getScriptProperties()` (clave `anthropic_key_{empresa_id}`), NUNCA en el Sheet ni devueltas al front. `UrlFetchApp` requiere scope `script.external_request` en appsscript.json + re-autorización manual.
+- **Costeo de recetas = precio × cantidad × `_unidadFactorBase(unidad_linea, unidad_base)`** (recetario_handlers.gs). El precio (precio_real_unitario) está por `unidad_base`, pero las recetas se capturan en gr/ml → convertir o el costo se infla ×1000. Bug corregido **v316–v317** (salsa $33,361→$147). Hay **3 cálculos** que usan el helper: lista Rentabilidad (`costoReceta`), detalle (`handleRecetaGet`), margen §13 (`handleCostoRecetarioCalc` en Código.js). El helper es ROBUSTO ante el catálogo sucio: **masa≈volumen** (densidad~1) y **`unidad_base` vacía → asume kg/lt**. **Reconoce onzas** (oz/onza=29.57 ml/gr, v352 — la coctelería usa oz; antes no convertía → costo ~34× inflado). ⚠️ **Si las familias NO coinciden devuelve 1** (pieza vs masa/volumen) → un insumo de volumen mal capturado con `unidad_base='pza'` y una receta en ml → multiplica directo sin convertir → costo EXPLOTA (caso real agua mineral $31k). ⚠️ **DEUDA DE DATOS (parcialmente saldada):** `unidad_base` inconsistente + costos corruptos. El SR12 trae el precio de la PRESENTACIÓN ("caja de N pzs"). **`sr12ParsearUnidad` v363 YA maneja compuestas tipo "355ML X CAJA 12PZS" / "150GR X 6PZS"** (multiplica volumen×piezas → costo/ml correcto); solo queda ambiguo "X N CAJAS" SIN piezas (ej "2LT X 8 CAJAS", no sabemos botellas/caja) → manual. **Limpieza barra 2026-06-09 (v363):** 12 insumos-bebida corregidos a mano (pza→lt/kg, precio del SR12 ÷ volumen) → recetas de barra con costo absurdo 18→1; el parser arreglado evita que una re-importación lo vuelva a romper. **Para aplicar el parser nuevo a TODO el catálogo existente: re-subir el reporte de Existencias SR12** (re-corrige unidades/costos compuestos solo). El 🩺 **Diagnóstico de datos** NO atrapa este caso (el insumo se ve normal: "pza"+$11; explota solo al usarse en ml dentro de una receta) → detectarlo por costo de RECETA (`recetario_reporte_rentabilidad`, costo>$3000). **Comprador YA puede editar costo/unidad** (clic directo en la celda; `RECETARIO_ROLES_EDITA_PRECIOS`+`puedeEditarPrecios` += comprador, v354) — el lápiz ✏️ es para VINCULAR SR12, no para el precio.
+- **Áreas de receta multi-rol:** `_areasDeRol(rol)` (recetario_handlers.gs) devuelve ARRAY: cocina/churrasca/panadero = 1 área; **barman = ['barra','cava']**; admin/gerente = [] (ven todas). Usado en handleRecetasList (filtro) y proponer (forzar/validar área). Agregar un rol "tipo chef" toca ~15 lugares (ROLES_VALIDOS, RECETARIO_ROLES_*, notif, recetas.html gate/default-área/edita, tile inicio, select `#u_rol`+etiquetas admin, ROLES_EXENTOS_CERTIFICACION).
+- **Workflow de autorización de recetas YA EXISTE** (no reinventar): chef `handleRecetaProponerCambio`→`RecetasPendientes`→admin `handleRecetaAutorizar/Rechazar`. Tipos: crear/modificar/desactivar/reactivar. Chefs ven solo su área + tab "Mis propuestas"; auditar con IA (`receta_auditar_ia`, Haiku) opcional.
+- **KPIs del cierre = `_banderasDeConciliacion(payload)`** (Código.js) es la FUENTE ÚNICA: expone `banderas[]`, `servicio`, `vacia` y `kpis` (comensales=apMix.pos+ciMix.pos, venta=cobrosDia, cortesías, canceladas, diferencia=arqDelta). `handleConciliacionesList` (Histórico) lo reusa (v356). ⚠️ `calcularKpisConciliacion` quedó **OBSOLETA** — leía `payload.apertura/cierre` y `ap_mix_pos_adulto`/`venta_total` (campos inexistentes) → devolvía 0 en todo (bug Histórico $0). Los campos reales son planos `ap_*`/`ci_*` (ej. `ci_mix_adulto_pos`, `ci_corte_tar_*`, `ci_cobro_*`).
+- **Auditor matutino por rol (v356–v358):** Agenda de turnos (`?p=agenda`, `AgendaPatron`+`AgendaExcepcion`, `agenda_responsables_get/set`) → Motor `auditoria_matutina` (solo lectura: `_auditEsperados` agenda × `_auditOperaron` [ConciliacionAuditoria rol=cajera / Charolas.responsable_email cocina-churrasca] → pendientes por persona + `mensaje_texto`; fallback sin agenda atribuye a quien operó) → Pantalla `?p=auditoria` (autoservicio + "copiar mensaje"). **Necesita la Agenda llena (Gabriel/Luis/Xochitl) para atribuir por persona.** Entrega = **bot de Telegram** (`@FogueiraAvisosBot`, trigger 8am instalado). Para auditar al personal en vivo: forjar token (sha256 `id|email|díaLógico[|nonce]`+SALT, slice 32 + `.id`) + curl a endpoints de lectura (GAS responde 302→seguir el redirect; JSONP envuelto en `cb(...)`).
+  - **Atribución titular-preferente (v377):** helper `_auditResponsables(activos)` → si hay titular(es) activo(s) ellos responden; el suplente SÓLO si no queda titular activo. Aplica a cajera/cocina/churrasca → **quien descansa ese día NO sale culpado**. Cajera con corte ya existente-pero-sin-cerrar: el pendiente va a quien `operaron` (no a todas las programadas). Las "recetas absurdas" (deuda de catálogo, v369/v370) SIGUEN yendo por rol a TODOS del área (intencional, deuda compartida — NO usa titular).
+  - **Áreas:** `AGENDA_AREAS` (cuadrícula de agenda) = `cajera/cocina/churrasca/host` (host v375). `AUDIT_MATUTINA_AREAS` (motor por agenda+charolas) = solo `cajera/cocina/churrasca` — **host NO entra al loop** (no registra charolas); el host se audita aparte por bitácoras `estado='abierta'` de días pasados (v373, no necesita agenda). ⚠️ Por eso agregar host a la agenda NO crea conteo doble. barra/cava/panadería no están en la agenda (sin usuarios de esos roles aún).
 
-**Lo que Claude puede hacer solo**: push + deploy. `clasp login` ya está guardado en el perfil de Germán.
+## Schemas (fuente de verdad = `COLUMNAS` en Código.js)
+- **Ingredientes** (27 cols): id `ING-XXXX`, empresa_id, nombre, aliases, categoria, tipo_abc, es_subreceta_catalogo, dato_incompleto, inventariable, unidad_base, ultimo_costo, costo_promedio, ultimo_costo_estimado(📍), precio_origen, merma×3+merma_pct, factor_rendimiento(+origen), **`precio_real_unitario` col 21** (NO "precio_real_rendido" — ese nombre es del doc viejo), activo, creado/actualizado, **clave_sr12** (vínculo SR12). IDs SR12-importados usan uuid (no ING-XXXX).
+- **Recetas** (23 cols): id `REC-XXXX`, …, **`area` col 5** = `cocina|churrasca|barra|cava|panaderia`, …, activa, …, **`montaje_buffet` col 22** (g/ml por ronda de servicio), **`clave_venta_sr12` col 23** (v332, enlace receta de bebida→producto de venta POS para el Cuadre de Barra).
+- **IngredientesReceta** (10 cols): id `IR-XXXXX`, receta_id, **ingrediente_id Y subreceta_id mutuamente excluyentes** (uno lleno, otro vacío — nunca ambos), cantidad, unidad, merma_extra_pct, es_decoracion, orden, advertencia.
+- Patrón `matchSucursal`: `sucursal_id` vacío = aplica a cualquier sucursal (global).
 
-**Lo que Germán debe ejecutar manualmente** (desde el editor de Apps Script, menú desplegable): `setupHojas`, `crearPrimerAdmin`, `crearPromocionesFogueira` y similares funciones administrativas que requieren OAuth interactivo.
+## Hojas del Spreadsheet
+`Empresas, Sucursales, Usuarios, Tarifas (histórico, nunca sobrescribir), Reservas, Bitacoras (meta+cierre), BitacoraFilas (1 fila=1 registro, anti-pérdida), Conciliaciones (incl. ci_cancelaciones[]), CancelacionesCuestionamientos, PreciosCuestionamientos, TableroMensajes (mensajes dirigidos dirección→responsable, v313), Sellos, Horarios, Configuracion, EmpresaConfig (branding), Ingredientes, Recetas, IngredientesReceta, IngredientesSR12 (espejo POS, tiene familia_sr12 + existencia_barra/cava/cocina/etc.), IngredientesSR12Match, ImportacionesSR12, ImportacionDetalleSR12, ComprasSR12 (+Importaciones), CancelacionesSR12 (+Importaciones), VentasSR12 (+Importaciones, v306), AprobacionesSR12, SugerenciasSR12Descartadas (huérfanos marcados "no aplica" por el sugeridor, v321), Mermas (merma por insumo: valoriza en $ + descuenta a InventarioChurrasca.salida si el insumo está en InventarioChurrascaConfig, v348), AgendaPatron + AgendaExcepcion (agenda de responsables por rol/día — base del auditor matutino, v356), SeguimientoPendientes (registro de días de atraso por persona+pendiente: primera_deteccion/ultima_deteccion/dias_atraso/activo/resuelto_en — v381, lo escribe SOLO la corrida oficial del bot)`. Las hojas SR12 se autocrean al primer import.
 
----
-
-## Reglas de desarrollo
-
-### Patrón de comunicación — apiCall, no google.script.run
-
-El sistema usa JSONP/fetch hacia `/exec`. **Nunca usar `google.script.run`**.
-
-```javascript
-// Pantallas internas (acceso, bitácora, admin, etc.) — JSONP:
-apiCall({ action: 'login', email, password }, function(res) { ... });
-
-// Pantallas públicas (reservar.html, mireserva.html) — fetch POST:
-fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, ... }) })
-```
-
-Todo llega a `handleRequest(e)` → `switch(action)`. Si un handoff externo sugiere `google.script.run`, reemplazar por `apiCall` — no crear endpoints duplicados.
-
-### Fecha local, no toISOString
-
-`new Date().toISOString().slice(0,10)` da UTC y rompe la fecha en México después de las 18:00. Usar siempre:
-
-```javascript
-var d = new Date();
-var fecha = d.getFullYear() + '-' +
-            String(d.getMonth()+1).padStart(2,'0') + '-' +
-            String(d.getDate()).padStart(2,'0');
-```
-
-### Día lógico del restaurante
-
-Empieza a las **3:00 am hora MX** y termina a las 2:59 am del siguiente día. Función `diaLogicoRestaurante()` en backend. Los tokens de sesión se validan con este día — no caducan a medianoche durante operación nocturna.
-
-### CSS — @media queries al final
-
-En los HTMLs, las reglas `@media` sin `!important` deben ir al **final** del bloque `<style>`. Si van antes, las clases que se definen después las sobrescriben.
-
-### Restricciones por rol — sincrónicas
-
-Ocultar UI privilegiada (botones admin, Zona Peligro) **antes del primer pintado**, nunca con `setTimeout`. Usar la clase del `<body>` que se asigna al cargar la sesión.
-
-### Sheets y columnas con listas CSV
-
-En locale `es_MX`, columnas que almacenan strings tipo `"5,6,7"` deben tener `setNumberFormat('@')` al crear la hoja — de lo contrario Sheets los interpreta como números/fechas.
-
-### Subtítulo del topbar — siempre visible
-
-`.topbar-sub` (subtítulo debajo del nombre del módulo) **nunca se oculta en móvil**. Reducir tamaño (`font-size: 0.65rem`) pero mantenerlo visible.
-
-### Distribución a usuarios
-
-**Nunca mandar el `.html` como adjunto por WhatsApp** (se rompe en iPhone). Siempre compartir el link `?p=...` del Apps Script.
-
-### Query params en Apps Script
-
-`location.search` dentro del iframe sandbox de Apps Script no es confiable. Para páginas que necesiten leer params del URL principal, usar en `doGet`:
-
-```javascript
-template.queryParams = params; // después: var Q = <?!= JSON.stringify(queryParams||{}) ?>;
-```
-
-Las demás páginas pueden usar `createHtmlOutputFromFile` (más rápido).
-
----
-
-## Identidad visual Fogueira
-
-**Paleta v2 (oficial 2026-05-13):**
-
-```css
-:root {
-  --ink:   #0c0907;   /* negro cálido */
-  --ember: #c4322a;   /* rojo brasa */
-  --cream: #f6f1e8;   /* crema fondo */
-  --gold:  #c89a4a;   /* dorado */
-}
-```
-
-**Fuentes**: Cormorant Garamond italic (títulos) + DM Sans (cuerpo) + DM Mono (datos)
-
-**Sin border-radius** en ningún elemento.
-
-**Sensación**: fine dining brasileño, premium, sobrio, elegante.
-
-**Logos** (Google Drive público de Germán):
-- `15ihydrIqyPzw3HPMH9YMZvcJ4ETJuB4v` — fondo negro + texto dorado (para login)
-- `1f1FMkTROc29dCMpihRNAGOiN7FxLzdHC` — fondo blanco + texto negro + llama dorada (para topbar)
-
-**Branding dinámico**: cada página carga `empresa_branding_get` al inicio para sobreescribir las vars CSS con los valores de la empresa activa. Solo llamar si hay `empresa_id` disponible — sin parámetro devuelve defaults OAC y sobrescribe Fogueira.
-
----
-
-## Reglas de negocio Fogueira
-
-### Propinas
-- **Efectivo**: no se concilian — la mesera se las queda directo.
-- **Tarjeta**: sí pasan por caja. Se retira efectivo equivalente del cajón el mismo día para entregarlo al personal de piso. El banco liquida con 1-2 días de delay.
-- Comisión que sale del mesero: 7% (fondo de servicio) + 5%+IVA (retención bancaria).
-- Fórmula efectivo teórico: `+ fondo_asignado + cobros_efectivo − retiro_propinas_tarjeta − depósito_1 − depósito_2 = efectivo_teórico`.
-
-### Depósitos a tesorería — son DOS
-1. Depósito de la venta del día (efectivo de la operación).
-2. Depósito de comisiones bancarias.
-
-### Charolas — son dos tipos
-- **Cocina**: guarniciones, ensaladas, postres — responsable Marco/Sergio.
-- **Churrasca**: carnes en espada — responsable separado.
-- Se capturan **en vivo**, no al final del día.
-
-### Tarifas vigentes
-| Servicio | Días | Horario | Adulto | Niño 6-10 | 3a edad |
-|---|---|---|---|---|---|
-| Buffet completo | Lun–Jue | todo el día | $590 | $249 | $590 |
-| Desayuno | Vie–Dom | 00:00–12:59 | $299 | $249 | $299 |
-| Comida | Vie–Dom | 13:00–23:59 | $590 | $249 | $590 |
-
-- 0-5 años → cortesía (autorización "Bebé/niño 0-5")
-- 6-10 años → tarifa niño
-- 11+ → tarifa adulto
-
-### Bitácoras de fin de semana
-El host abre **dos bitácoras separadas** (Desayuno y Comida), no una mezclada. A las 12:30 cierra Desayuno y abre Comida.
-
-### Cupo de reservas online
-- Máximo **50 personas** por servicio (los walk-ins no cuentan).
-- Slots de **15 minutos**.
-- Grupo >10 personas → estado `pendiente_confirmacion`.
-- Tolerancia: 0 pública, 10 min interna. **No auto-cancelar** — el host decide manualmente.
-
-### Roles del sistema (9 activos)
+## Roles del sistema
 | Rol | Acceso |
 |---|---|
-| `host` | solo bitácora |
-| `cocina` | charolas cocina + merma |
-| `churrasca` | charolas churrasca + merma |
-| `cajera` | corte de caja + eventos de control |
-| `encargado_piso` | confirmación de fondo + propinas tarjeta |
+| `host` | bitácora · `cocina`/`churrasca` charolas+merma de su área |
+| `barman` | recetas **Barra + Cava** (propone→aprueba) · `panadero` recetas **Panadería/Repostería** · (ambos exentos de certificación por ahora) |
+| `cajera` | corte de caja + eventos · `encargado_piso` fondo + propinas tarjeta |
 | `gerente_restaurante` | autoriza cortesías + hereda `host` (Gabriel Rodríguez) |
-| `gerente_administrativo` | autoriza cortesías + hereda `admin` (Mónica Solís) |
-| `observador` | solo lectura; `body.solo-lectura` deshabilita inputs |
-| `auditoria` | todo en lectura + sello auditor (Germán) |
-| `admin` | todo + usuarios + configuración |
+| `gerente_administrativo` | autoriza cortesías + hereda `admin` (Mónica/admin operativa histórica) |
+| `gerente_plaza` | SOLO Tablero Directivo (`?p=direccion`) + curva de precios + justificaciones; sin herencia (Mónica Solís) |
+| `observador` | solo lectura (hereda host) · `auditoria` todo en lectura + sello (Germán) |
+| `admin` | todo + usuarios + configuración (Luis Altamirano) |
 
-Solo `gerente_restaurante` y `gerente_administrativo` aparecen en el select "Autorizó" de cortesías. `admin` y `auditoria` NO.
+**Jerarquía (intención 2026-06-03):** Germán = `auditoria` (NO administra usuarios). Mónica = `gerente_plaza` (máxima autoridad, NO opera). **Luis administra usuarios y opera.** ⚠️ **Datos reales en producción (verificado 2026-06-09 vía `users_list`) DIFIEREN de esta intención:** Luis Altamirano (`gteadmin@fogueira.mx`) = **`gerente_administrativo`** (no `admin`); `cpgermansolis@gmail.com` sigue siendo `admin` (no auditoria); Mónica Solís Zurita (`oaxaca@grupotoda.com`), Estefanía (`compras@fogueira.mx`), Yonder (`contraloria@corporativotoda.com`) y Mónica Xochitl = `admin`. Hay un 2º Germán (`auditor.norte@grupotoda.com`) = `auditoria`. Como `gerente_administrativo` hereda admin, no hace falta cambiar el rol de Luis — basta que el frontend respete la herencia (fix v359). Solo `gerente_restaurante`/`gerente_administrativo` aparecen en el select "Autorizó" de cortesías. **Sellos:** cada rol sella desde su pantalla; override solo admin/gerente_admin con motivo ≥5, auditado en `Sellos`.
 
-### Sellos autenticados
-Cada rol sella desde su propia pantalla con su sesión activa. Override (firmar por otro): solo `admin` o `gerente_administrativo`, requiere motivo ≥5 chars, queda auditado en hoja `Sellos`.
+## Identidad visual
+Paleta v2: `--ink #0c0907 · --ember #c4322a · --cream #f6f1e8 · --gold #c89a4a`. Fuentes: Cormorant Garamond italic (títulos) + DM Sans (cuerpo) + DM Mono (datos). **Sin border-radius.** Fine dining brasileño, sobrio. Logos Drive: `15ihydrIqyPzw3HPMH9YMZvcJ4ETJuB4v` (login, fondo negro) · `1f1FMkTROc29dCMpihRNAGOiN7FxLzdHC` (topbar). **Branding dinámico:** cada página llama `empresa_branding_get` para sobreescribir las vars — solo si hay `empresa_id` (sin él devuelve defaults OAC y pisa Fogueira).
 
----
+## Reglas de negocio
+- **Propinas:** efectivo no se concilia (la mesera se las queda); tarjeta sí (se retira efectivo equivalente el mismo día). Comisión mesero 7% + 5%+IVA. Efectivo teórico = `+fondo +cobros_efe −retiro_propinas_tar −depósito1 −depósito2`.
+- **Depósitos a tesorería = DOS:** venta del día + comisiones bancarias.
+- **Charolas:** Cocina (guarniciones/ensaladas/postres, Marco/Sergio) y Churrasca (carnes en espada) — se capturan EN VIVO. **Churrasca Y cocina descuentan inventario** (v346, `handleCharolasCreate` → `_aplicarDescuentoCharola` para ambas áreas) — solo los insumos marcados inventariables en `InventarioChurrascaConfig`. ⚠️ **El descuento SOLO ocurre si la charola está LIGADA a una receta** (`_aplicarDescuentoCharola` necesita `recetaId`) Y esa receta lista un insumo inventariable. **2026-06-09: las vinculaciones charola↔receta (`charola_receta_set`) están VACÍAS en TODAS las áreas → ninguna charola descuenta aún** (cocina registra 205 charolas pero genéricas, sin receta → no bajan inventario). Las espadas tienen su carne en la línea, pero solo **8 carnes** están en la config (faltan Arrachera/Tomahawk/Baby beef/Costilla de res/etc.) y hay 2 catálogos de carne desalineados ("Pierna y muslo deshuesada" vs config). **Tarea asignada a Estefanía** (ligar espadas + alta de carnes + corregir gramajes: miel 500kg→0.5, chile 250kg→250g). **Mermas:** además de la merma de platillo (charola tipo='merma'), existe la **merma por INSUMO** (pantalla `?p=mermas`, hoja Mermas, v348): producto + cantidad + motivo, valorizada en $ y descontada del teórico. NO toca SR12 (el SR12 es "la foto"; charola/merma es "lo teórico"; se COMPARAN, no se pisan).
+- **Tarifas:** Buffet Lun–Jue todo el día $590 adulto / $249 niño 6-10 / $590 3a. Desayuno Vie–Dom 00:00–12:59 $299. Comida Vie–Dom 13:00–23:59 $590. 0-5 cortesía, 11+ tarifa adulto.
+- **Fin de semana:** host abre DOS bitácoras (Desayuno y Comida); a las 12:30 cierra Desayuno y abre Comida. Apertura de la conciliación se llena al CIERRE del 1er servicio.
+- **Reservas online:** máx 50 pax/servicio (walk-ins aparte), slots 15 min, grupo >10 → `pendiente_confirmacion`, NO auto-cancelar. Cancelación pública `?p=mireserva` con token `sha256(id+tel+fecha+SALT)`, hasta 30 min antes.
 
-## Arquitectura de datos (hojas del Spreadsheet)
+## Personas
+Mónica Solís (`gerente_plaza`) · Gabriel Rodríguez (`gerente_restaurante`) · Marco/Sergio (`cocina`) · Sergio (chef, cocina a la carta) · Encargado de barra (`barman`) · Encargado de panadería (`panadero`) · Farid (almacén) · Estefanía Martínez (Supervisora de Operaciones; valida precios 📍, firma oficios) · Raúl/Weslley (compras/ops) · Luis Altamirano (`admin`) · Germán Solís (`auditoria`, dueño).
 
-| Hoja | Propósito |
-|---|---|
-| `Empresas` | catálogo multi-empresa |
-| `Sucursales` | multi-sucursal por empresa |
-| `Usuarios` | usuarios con roles |
-| `Tarifas` | histórico de tarifas (nunca sobrescribir, agregar con `fecha_desde`) |
-| `Reservas` | reservaciones de clientes |
-| `Bitacoras` | registros de servicio (meta + cierre; sin rows) |
-| `BitacoraFilas` | filas individuales de bitácora (guardado por fila para evitar pérdidas) |
-| `Conciliaciones` | conciliaciones de caja |
-| `Sellos` | sellos autenticados por sesión |
-| `Horarios` | 10 renglones por día/servicio |
-| `Configuracion` | parámetros clave-valor por empresa+sucursal |
-| `EmpresaConfig` | config operativa + branding por empresa (cols 1-6 operativas, 7-18 branding) |
-| `Ingredientes` | catálogo de insumos (schema V3, 27 cols) |
-| `IngredientesSR12` | espejo del catálogo POS con existencias |
-| `IngredientesSR12Match` | vínculo Fogueira↔SR12 |
-| `ImportacionesSR12` | log maestro de importaciones |
-| `ImportacionDetalleSR12` | detalle por producto |
-| `Ingredientes_backup_2026-05-12_1055` | backup pre-migración schema V3 |
+## Estado actual y pendientes (detalle en memoria `pendientes_fogueira.md` / `plan_servicio_barra.md`)
+- **Recetario:** ~700 ingredientes (catálogo vivo) + ~275 recetas. Bootstrap base + desayuno/churrasca + espadas, todo ejecutado. Áreas: cocina/churrasca (buffet) + barra/cava/panadería (a la carta).
+- **Integración SR12** (espejo: SR12 manda, Fogueira refleja; cajera sube XLS, POS-agnóstico): importadores de **Existencias** (actualiza costos, auto-crea ING sin-match), **Compras** (historial transaccional, no toca costos vigentes), **Cancelaciones** (prueba independiente del POS). Matching por clave SR12 normalizada (quita ceros) → nombre → containment ≥75% → aliases. Dashboard de precios (`?p=reporte-precios`, CV%/umbrales). Curva de precios por proveedor (`?p=curva-precios`).
+- **Control de fuga (Tablero Directivo `?p=direccion`):** (a) **Cuadre de carne semanal** — kg/comensal por corte vs su mediana (Inicial+Compras−Final ÷ comensales rodizio). (b) **Cancelaciones SR12 vs documentado** — cruza POS vs `ci_cancelaciones` por numcheque=folio; marca las CARAS sin documentar. (c) Cuestionar/responder (Mónica/Germán ↔ Luis/comprador).
+- **★ Servicio de Barra / Productos a la Carta** (oficios de Estefanía): áreas `barra`/`cava`/`panaderia` + roles `barman`/`panadero` ✅ encendidos. Insumos de barra/cava (149) ✅ cargados (botón "🍸 Cargar insumos de barra"). **Falta:** los LISTADOS de recetas por área llegan en documento aparte (cada responsable); Luis crea usuarios barman/panadero; luego el "Cuadre de Barra" (ventas POS × receta vs inventario — spec en `docs/cuadre_barra_spec.md`; falta importador de VENTAS SR12).
+- **Pendiente de Luis (admin):** crear usuarios barman + panadero; documentar cancelaciones en conciliación §07; subir reporte cancelaciones SR12 semanal; responder cuestionamientos; capturar costos §13 (costo_est_buffet/desayuno/comida).
+- **Validar (📍):** Estefanía/Weslley validan precios estimados ING-0493–0528. Adopción de charolas en vivo por cocina/churrasca.
+- **Futuro:** integración con OAC (proyecto principal; ahí se resuelve dominio propio / quitar barra de Google Apps Script). Cocina a la carta. Partir inventario churrasca/cocina. Avisar a quien PREGUNTA cuando le responden.
 
-**Patrón `matchSucursal`**: fila con `sucursal_id` vacío aplica a cualquier sucursal de la empresa (global). Útil para multi-sucursal.
-
----
-
-## Integración SR12 (SoftRestaurant 12)
-
-**Filosofía**: SR12 es el espejo, Fogueira es el reflejo. Los costos del SR12 sobrescriben sin pedir confirmación (excepto sospechosos >50%).
-
-**No hay SQL directo** — la cajera sube archivos XLS manualmente desde el POS. Esto hace el módulo POS-agnóstico para otros clientes.
-
-**Estado actual** (v211):
-- Schema legacy migrado (492 ingredientes alineados a V3). Backup: `Ingredientes_backup_2026-05-12_1055`.
-- Importador funcional (endpoint `sr12_import_aplicar`). Fases A y B completadas.
-- Rol `comprador` ya tiene acceso completo: tile "📥 Importar SR12" visible en su inicio + endpoints habilitados en backend.
-- **Pendiente Fase C**: importar historial de compras SR12 (precios reales por transacción, para análisis de tendencias). Diferente al inventario — es el log cronológico de cada compra con proveedor y precio de factura.
-
-**Reglas de matching** (orden de prioridad):
-1. A1: clave SR12 en `IngredientesSR12Match`
-2. A2: clave SR12 en `Ingredientes.clave_sr12`
-3. B: nombre exacto normalizado
-4. C: containment asimétrico ≥75% con regla del anchor (1ra palabra SR12 en Fog)
-5. D: igual B+C contra `aliases`
-
----
-
-## Backlog pendiente
-
-### Pendiente verificar (esperando confirmación en producción)
-- **nrModal desde detalleModal** (charolas.html v204): el botón abre encima ✅, pero pendiente que Marco o Sergio confirmen que el formulario se llena y envía correctamente (typeahead ingredientes + "Enviar para autorización" crea pendiente en recetas.html).
-
-### Backlog técnico activo
-1. **[PRIORIDAD COMERCIAL] Migrar pantallas internas a `?p=...`** — `bitacora.html` ✅ (v219), `conciliacion.html` ✅ (v220). Pendientes: `charolas.html` → `recetas.html` → resto. Patrón: `doGet` agrega la pantalla a la condición `createTemplateFromFile`; la pantalla agrega header `<?!= __tokenInyectado ?>` + `getQuery` + `aplicarSesionUI()` (deferred si sessionStorage vacío, se llama desde callback de `me`).
-2. **F3 Fase C** — Importador de Compras SR12 (historial de precios reales por transacción). En pausa — requiere archivos de compras de Estefanía/Raúl.
-3. **Branding** — Aplicar identidad Fogueira a las pantallas restantes (orden: `bitacora.html` → `charolas.html` → `recetas.html` → `conciliacion.html` → resto).
-4. **Isotipo Fogueira** — Recortar la llama dorada con fondo transparente para favicon y topbar móvil.
-
-### Completado en sesiones anteriores
-- ✅ Fix curso.html — quiz de capacitación funciona correctamente (v217, 2026-05-20). Tres bugs encadenados resueltos:
-  1. **v212** — Pantalla en blanco al enviar quiz: `quizResultado` solo existía si había preguntas; null-checks en `mostrarResultadoQuiz`; `detalle`/`preguntas` declarados antes del `if (tiene_quiz)` en backend para evitar TypeError; try-catch en `pintarModulo`.
-  2. **v213** — Links en contenido del módulo abrían `createOAuthDialog`: se agregó soporte markdown `[texto](url)` con token inyectado en links internos y `target="_blank"` en externos.
-  3. **v217** — Bug raíz definitivo: el contenido del módulo 5 admin (Troubleshooting) tiene `` `<a href>` `` en backtick code. `renderMarkdown` lo convertía a `<code><a href></code>` — un elemento `<a>` real con `href=""`. El **HTML Adoption Agency Algorithm** mantiene el `<a>` en la lista de "active formatting elements" incluso después de que el `</div>` del `.contenido-md` lo saca del stack, y lo **reconstituye automáticamente** envolviendo el `<div class="quiz-section">` siguiente. Con `<base target="_top">`, cualquier clic navegaba el frame superior a `href=""` (exec URL sin params → `createOAuthDialog`). **Fix**: el inline code de `renderMarkdown` ahora escapa `&`, `<`, `>` dentro del contenido antes de envolverlo en `<code>`, convirtiendo `` `<a href>` `` en `<code>&lt;a href&gt;</code>` — texto, no elemento HTML.
-- ✅ Fix quiz blank screen (v212): `quizResultado` siempre presente en módulos con quiz; null-checks en `mostrarResultadoQuiz` y reintentar; backend `detalle`/`preguntas` declarados fuera del `if` para evitar TypeError en ruta `marcarCompleto`; try-catch en `pintarModulo` para fallos visibles
-- ✅ F3 Fase A — SR12 importado sobre datos limpios
-- ✅ F3 Fase B — Stock SR12 visible en recetas.html
-- ✅ T4 — Editor visual de cursos/preguntas en admin.html (v206)
-- ✅ T2 fase 3 — `conciliacion_auditoria_get` + diff visual en historico.html (v207)
-- ✅ Bug fecha 1899-12-30 — `fechaToString` retorna '' para años < 1970 (v208)
-- ✅ Limpieza — debug block eliminado del dry-run SR12 (v209)
-- ✅ Curso comprador — Módulo 5 actualizado: SR12 ya existe, instrucciones reales (v210)
-- ✅ Fix SyntaxError admin.html — `});` sobrante de v206 roto hasta v211
-
-### Fase del plan general
-1. ✅ Correcciones a HTMLs iniciales
-2. Vista en vivo cocina y churrasca (tablets) — pendiente
-3. ✅ Backend Apps Script + login + permisos + trazabilidad
-4. ✅ Reservaciones tipo OpenTable
-5. ✅ Lector de reportes Excel POS
-6. Integración opcional con OAC (Fase futura)
-
----
-
-## Personas del restaurante
-
-| Nombre | Rol en sistema |
-|---|---|
-| Mónica Solís | `gerente_administrativo` — autoriza cancelaciones/cortesías/descuentos, firma cierre |
-| Gabriel Rodríguez | `gerente_restaurante` — revisa cierre, escalación de banderas |
-| Marco / Sergio | `cocina` — cuenta charolas y mermas |
-| Farid | Almacén |
-| Estefanía / Raúl | Compras |
-| Germán Solís | `auditoria` — arqueos sorpresa, muestreos |
-| Saúl + Elías | IT (futuro, integración POS) |
-
----
-
-## Notas técnicas importantes
-
-### Pérdida de datos en bitácora — RESUELTO (v53-v57)
-Problema: localStorage no sobrevive entre cargas en iframes de Apps Script (subdominios googleusercontent.com aislados en iOS). Solución: cada fila se guarda como registro individual en hoja `BitacoraFilas` con UUID propio. Pérdida máxima posible: 1 fila.
-
-**CRÍTICO**: `doSave` en bitácora.html **NO envía `state.rows`** en el payload. Las filas viven solo en `BitacoraFilas`. Si se enviaran rows, la URL JSONP crece con el número de filas → Apps Script rechaza con `error:"network"` → los meta/cierre/firmas no se persisten.
-
-### Token de sesión
-Stateless, basado en SHA-256 de `id+email+día_lógico+SALT`. Salt: `fogueira-conciliacion-salt-2026`.
-
-### Cancelación pública
-Token determinista: `sha256(id+telefono+fecha+SALT)`. Página `?p=mireserva&id=...&t=...`. Política: hasta 30 minutos antes de la hora reservada.
-
-### fechaToString — fechas inválidas de Sheets
-Cuando Sheets guarda una celda de fecha con valor serial 0 (celda vacía en columna con formato Date), `getValues()` devuelve un objeto `Date` con año 1899. La función `fechaToString` (Código.js) retorna `''` para cualquier fecha con año < 1970 — nunca "1899-12-30". Aplica en todo el sistema, no solo charolas.
-
-### Cursos — bootstrap desde el admin
-Los cursos y el banco de preguntas se inicializan/actualizan desde **Admin → Certificaciones → botones "🎓 Cargar cursos" y "📚 Cargar banco preguntas"**. No requieren ejecutar nada desde el editor de Apps Script. Siempre correr el bootstrap después de modificar `modulosCursoAdmin()`, `modulosCursoComprador()` o similares en Código.js.
-
-### admin.html — IIFE y llaves huérfanas
-El script de admin.html está envuelto en un IIFE `(function(){ ... })();`. Al insertar bloques de código grandes, verificar que no queden `});` sobrantes al final. Un `});` sin par es un `SyntaxError` que silencia TODO el JS de la página (Mi cuenta muestra "—", tablas quedan en "Cargando..." indefinidamente, sin redirección ni alerta). El error aparece como `Uncaught SyntaxError: Unexpected token '}'` en la consola del navegador.
-
-### admin.html — funciones en onclick deben ser `window.xxx`
-Los atributos `onclick="miFuncion()"` en el HTML se ejecutan en el scope global, no dentro del IIFE. Si una función se define como `function miFuncion(){}` dentro del IIFE, el onclick no la encuentra y falla silenciosamente. **Solución**: exponer como `window.miFuncion = function(){}`. Aplica a cualquier función llamada desde `onclick`, `onchange`, o cualquier atributo de evento inline en admin.html.
-
-### renderMarkdown — inline code debe escapar HTML (Adoption Agency Algorithm)
-El inline code de cualquier `renderMarkdown` en el sistema **debe escapar `&`, `<`, `>`** dentro del contenido del backtick antes de envolverlo en `<code>`. Sin escape, un contenido como `` `<a href>` `` crea un elemento `<a href="">` real en el DOM. El **HTML Adoption Agency Algorithm** mantiene ese `<a>` en la lista de "active formatting elements" incluso después de que el `</div>` del contenedor lo saca del stack, y lo **reconstituye automáticamente** envolviendo el siguiente bloque hermano (por ejemplo, la sección de quiz). Con `<base target="_top">`, el resultado es que todo el bloque heredado aparece como hipervínculo subrayado y cualquier clic navega el frame superior.
-
-**Patrón correcto:**
-```javascript
-out = out.replace(/`([^`]+)`/g, function(_, code) {
-  return '<code>' + code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</code>';
-});
-```
-
-### Sesión — sessionStorage no confiable entre páginas en Apps Script
-Apps Script sirve cada página desde un subdominio diferente de `googleusercontent.com`. El sessionStorage se aísla por subdominio: cada navegación entre pantallas puede llegar a un subdominio nuevo y perder la sesión. **Solución aplicada (v219)**: `doGet` sirve la pantalla via `createTemplateFromFile` e inyecta el token. La pantalla lee token de `getQuery('t') || '<?!= __tokenInyectado ?>'`, lo guarda en sessionStorage, y usa `aplicarSesionUI()` deferred (si sessionStorage estaba vacío, se llama desde callback de `me`). Páginas migradas: `mireserva`, `charolas`, `curso`, `bitacora`, `conciliacion`. Pendientes: `recetas`, resto.
+## Changelog reciente (detalle en git + memoria `pendientes_fogueira.md`)
+- **v383 (2026-06-11) — Charolas: override de sellos para supervisores.** Pregunta de Estefanía ("¿por qué no puedo hacer override?"): el backend (`handleSelloSave`) SIEMPRE lo permitió (admin/gte_admin + motivo ≥5 → `es_override=true` en Sellos), pero charolas.html mostraba la tarjeta de firmas a supervisores solo como estado, sin botón. Fix: botón "🔐 Firmar por área (override)" en modo supervisión (`PUEDE_OVERRIDE` = admin/gte_admin; auditoria NO, es read-only) → `prompt` motivo ≥5 + confirm → mismo `sello_save` de siempre. El sello por override se marca "· override" en la tarjeta. Además el gate de charolas ahora acepta `gerente_administrativo` (espejo de `rolEs` — antes Luis ni siquiera podía entrar) en acceso, registro y botón Recetas↔Charolas.
+- **v382 (2026-06-11) — Fusión de insumos duplicados + regla precio=SR12.** **Regla fija (Germán):** el precio real de un insumo lo manda el SR12; Excel/listas = solo referencia; actualizar = re-importar Existencias, NO teclear a mano (memoria `feedback_precios_reales_sr12`). Endpoint nuevo **`ingrediente_fusionar`** (MUTATING, admin/gte_admin): re-apunta TODAS las líneas de `IngredientesReceta` del duplicado→insumo bueno y desactiva el duplicado (atómico, deja rastro `FUSIONADO→` en aliases). Limpieza de carnes churrasca: 4 duplicados manuales (ING-0504/0506/0507/0524, precios redondos inventados $100-$220) fusionados a su gemela del SR12 ("NOMBRE X KG", precio correcto) → 7 líneas de receta re-apuntadas. Backups: hoja `Ingredientes_backup_2026-06-11_1212` + copia completa "...BACKUP pre-fusión duplicados carnes 2026-06-11". ⚠️ **Ambiguos NO tocados** (decisión de Germán pendiente): Pierna y muslo (3 entradas con misma clave_sr12=9003 + "cocida") y Pechuga (su entrada SR12=$160; "cocida" es otro producto). Las entradas "X KG" están en gramos con precio/g (caña $0.088/g=$88/kg) — CORRECTO, no tocar. Bot `/ayuda`: guía `precio_carne` reescrita (precio viene del SR12).
+- **v379–v381 (2026-06-11) — Charolas buscador + guía carne + DÍAS DE ATRASO en el auditor.** **v379:** charolas.html — las vinculaciones charola↔receta YA se cargaron (cocina 45, churrasca 26) y el muro de botones tapaba la pantalla (reporte Xochitl) → reemplazado por un **buscador** (input + filas tocables, sin acentos/mayúsculas; `wireBuscadores`/`_normTxt`). **v380:** bot `/ayuda` — guía dedicada **🥩 Corregir el precio de una carne** (`precio_carne`, admin/churrasca/comprador) + registro de guías en `docs/guias_telegram.md` (espejo de `TG_FAQ`). **v381 (grande):** **registro de días de atraso.** Cada pendiente del auditor lleva `clave` estable + `dias_atraso`; hoja **SeguimientoPendientes** persiste `primera_deteccion` (solo la escribe la corrida oficial del bot, `doWrite=true`; ver=read-only). Días = hoy − primera; si el pendiente trae evidencia de fecha (`desde`, ej. cancelación más vieja) esa es el piso. **Luis (gte_admin) ENTRA al auditor:** cancelaciones §07 sin documentar (`_cancelacionesSr12Core` refactorizado de `handleDireccionCancelacionesSr12`) + barman/panadero faltantes (`_auditGteAdminEstado`). Mensaje y `?p=auditoria` muestran "⏳ N días de atraso". Verificado en vivo: Luis 73 caras = **41 días** (desde 1-may). ⚠️ Los acumulados (huérfanos/recetas) arrancan en 0 hasta el 1er envío oficial del bot.
+- **v375–v378 (2026-06-10 PM) — Agenda host + auditor titular-preferente + Tablero badge mensajes.** **v375/376:** área `host` en la Agenda (faltaba; `AGENDA_AREAS`/`AGENDA_ROLES_OPERATIVOS` += host) + botón "Todos los días" en la plantilla. Cargué esqueleto en vivo: Yazmin+Natali (host tit) + Marcos (churrasca tit), descanso miércoles provisional (Xochitl ajusta lo real). **v377:** auditor matutino atribución titular-preferente (`_auditResponsables`) → deja de culpar a quien descansa; cajera con corte sin cerrar → culpa a quien operó. **v378:** Tablero badge `💬 N` de mensajes por fila en Cuadre/Banderas/SR12 (endpoint `tablero_msg_ref_counts`, frontend `cargarMsgCounts`/`aplicarMsgCounts`). Lecciones → Reglas (auditor matutino). Detalle → memoria.
+- **v363 (2026-06-09) — Costos de barra: limpieza + fix de raíz.** Weslley no podía editar (picaba PRECIO REAL en vez de ÚLTIMO COSTO; ya resuelto por Germán). Al revisar: recetas de barra con costos absurdos ($403k jarra, $40k caipiriñas) por bebidas cargadas como "pza" con precio de CAJA usadas en ml. **Limpieza:** respaldo (copia del Spreadsheet en Drive) → 12 insumos corregidos vía `ingrediente_update` (pza→lt/kg, precio del SR12 ÷ volumen real) + typo "mla"→"ml" en receta Tinto de Verano (vía `receta_proponer_cambio`+`receta_autorizar`, replicando el payload del editor) → barra con costo>$3000: **18→0**. **Fix de raíz:** `sr12ParsearUnidad` ahora maneja presentaciones compuestas (caja N × volumen) — 13/13 tests; evita que una re-importación rompa de nuevo. Pendientes handoff Weslley: confirmar precios bajos (Mezcal Espadín $47/botella, Ciel $11.55 ¿/lt o /2L?); 3 genéricos sin presentación (Agua/Fresa/Brandy). Churrasca/cocina caras = otro tema (gramajes, tarea Estefanía). Backup: "Conciliación Restaurante - DB — BACKUP pre-limpieza barra 2026-06-09".
+- **v362 (2026-06-09) — Guía de vinculación Charola↔Receta dentro del sistema** (botón de ayuda ⓘ en charolas.html). Confirmado: los chefs NO escriben el nombre de la charola; el sistema lo jala de la receta (botones por vinculación; `descripcion = receta.nombre`). El descuento de inventario = `(cantidad_linea ÷ rendimiento) × charolas` SIN conversión de unidad (la unidad de la línea debe igualar la del inventario); `porciones` de la vinculación NO es multiplicador (solo pre-llena); `montaje_buffet` solo se usa en costo §13, no en el descuento.
+- **v359 (2026-06-09) — Fix: Luis (gerente_administrativo) no podía abrir Configuración (`?p=admin`).** Causa: el candado de `aplicarSesionUI()` en admin.html era `rol!=='admin'`, que rechaza a `gerente_administrativo` (rol real de Luis) aunque el backend SÍ lo acepta por herencia `rolEs()`; el redirect del rechazo falla en el sandbox de GAS → pantalla colgada. Fix: gate acepta ambos roles. Lección → Reglas (Roles UI). Backend 100% sano (descartado por curl).
+- **v355–v358 (2026-06-09) — Auditor matutino por rol (nueva visión) + Agenda + fixes.** Construido y desplegado: **Agenda de responsables** (`?p=agenda`), **Motor matutino** (`auditoria_matutina`) y **Pantalla de reporte** (`?p=auditoria`, autoservicio + "copiar mensaje") — ver Reglas arriba. **Fix Histórico** ($0 falsos → reusa `_banderasDeConciliacion.kpis`). **Recetas v355**: claridad PRECIO REAL (se calcula solo, solo-lectura) vs ÚLTIMO COSTO (editable). **Decisión sub-chef:** NO rol nuevo — usuario con el rol del área; titular/suplente lo da la Agenda.
+- _≤ v354: detalle en git + memoria (`pendientes_fogueira.md`). **v360–v366** blindaje del "blanco en iPhone" en iOS (gate de rol rechaza → overlay con link real, NUNCA redirect `_top`/`window.top.location` programático que iOS bloquea — ver lección "Pantalla EN BLANCO"; barrido a 19 pantallas internas + 62 redirects de sesión-expirada). **v367–v374** bot de Telegram (`@FogueiraAvisosBot`, entrega del auditor matutino + `/ayuda` FAQ por rol + `/pendientes`; lección 302+dedup `update_id` — ver `telegram_handlers.gs` y memoria). **v342–v354** (13 deploys): blindaje `apiCallReintento`+`_errorTabla` a 9 pantallas, Tablero Fase 2 (tendencias+presentación), avisos de receta absurda, Mermas F1 (`?p=mermas`), fix fotos (JSONP→`apiCallPost`+re-auth Drive), conversor onzas, comprador edita costo/unidad. **v337–v341** fin de la corrupción "se corrompe al solo ver" en bitácora (host_email del visor pisaba al dueño + guardado forzado al cargar; lección en Reglas-bitácora; limpieza vía `bitacora_limpieza`)._
+- _≤ v329: detalle en git + memoria (`pendientes_fogueira.md`). **v329 "🔒 Salir de todos lados"**: `cerrar_sesiones` (MUTATING) bumpea `token_nonce` por usuario → mata todos sus tokens/links previos al instante (nonce vacío = retro-compatible, nadie se desconecta al desplegar). **v327 fix editor recetas (⚠️ lección):** `handleRecetaGet` devuelve el id de línea en **`referencia_id`** (NO `ingrediente_id`/`subreceta_id`) — leerlo de ahí o las líneas salen en blanco y pierden la referencia al guardar. v328 "Vincular todas las de alta confianza" (lote ≥85%). Combobox de ingredientes (v325); columna PRECIO en la unidad de la línea (v326); fix costeo ×1000 con `_unidadFactorBase` (v316–v317, ya en reglas arriba); parser SR12 + Sugeridor de vínculos (v319–v321); import escribe `precio_real_unitario`+`unidad_base` al matchear (v320, v322); Charolas sellos visibles para supervisión + `rol` con `.trim().toLowerCase()` (v323); Tablero portada ejecutiva semaforizada `viewResumen`/`direccion_resumen` reusa los 6 handlers (v324, ⚠️ umbrales de color viven en `handleDireccionResumen`)._
+- _≤ v313: detalle en git + memoria (`pendientes_fogueira.md`). Hitos: Tablero Directivo + control de fuga en cancelaciones (v275–v278, `direccion.html`); Cuadre de carne semanal (v295); importador+cruce de cancelaciones SR12 (v296–v299); Servicio de Barra → Productos a la Carta = áreas `barra`/`cava`/`panaderia` + roles `barman`/`panadero` (v301–v305); Ventas SR12 + Vista A Barra + **Banderas del cierre** + Mensajes dirigidos del Tablero + aviso-al-que-pregunta (v306–v315). **⚠️ ACOPLE banderas:** las 14 fórmulas viven 1:1 en `conciliacion.html` `renderFlags` y están portadas a `_banderasDeConciliacion` (Código.js) — si cambia un umbral allá, reflejarlo aquí (lo heredan `handleDireccionBanderasCierre` y `handleDireccionResumen`). CFDI §05/10a/10b (v243–v245): BZPAY suma al día pero NO a base CFDI._
