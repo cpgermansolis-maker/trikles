@@ -35,5 +35,9 @@ Sistema multi-empresa en **Google Apps Script**. Backend = `Código.js` (un solo
 - Doble efecto: préstamo desde banco → baja Bancos + sube CxC. Interés → solo sube CxC (no toca banco). Cobro `COBRO_OTRO` → baja CxC y, si es banco, sube Bancos; si es efectivo, entra a caja (conteo).
 - UI: en `bancos.html` (tipos *Préstamo / anticipo* y *Cobro de préstamo*) y en `cuentas.html` (captura por deudor + interés + tabla "Deudores" + botón 🗑 borrar).
 
+## Por dónde retomar
+- **Pendiente:** el cliente Tri-Urban debe registrar el préstamo real a Cineteca (~$1,202, Cuenta 1) desde la app — será la **primera ejecución real** de `guardarPrestamo` en producción (en CORPORATIVO ya se probó OK). Verificar que pega en el KPI de Cuentas por Cobrar y baja Bancos. Se le mandó guía por WhatsApp.
+- **Opcional:** botón borrar movimiento solo está en `cuentas.html`; agregarlo a `bancos.html` si lo piden.
+
 ## Changelog (corto)
-- **jun 2026** — Módulo Préstamos/Deudores por persona con interés (banco/efectivo) + botón borrar movimiento (`borrarCxC`). Fix `saveCxC`→`guardarCxC` en bancos.html. Blindaje: `cuentas.html` ya no mezcla movimientos de banco en deudores.
+- **2026-06-14** — Módulo Préstamos/Deudores por persona con interés (banco/efectivo) + botón borrar movimiento (`borrarCxC`). Fix `saveCxC`→`guardarCxC` en bancos.html. Blindaje: `cuentas.html` ya no mezcla movimientos de banco en deudores. Backend en deploy `@93`.
