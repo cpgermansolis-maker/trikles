@@ -98,6 +98,7 @@ function doGet(e) {
       case 'getCxCClientes':       result = getCxCClientes(p);            break;
       case 'guardarPrestamo':      result = guardarPrestamo(p);           break;
       case 'getDeudores':          result = getDeudores(p);               break;
+      case 'borrarCxC':            result = borrarCxC(p);                 break;
       case 'vaciarEmpresa':        result = vaciarEmpresa(p);             break;
       case 'getCorteEfectivo':   result = getCorteEfectivo(p);      break;
       case 'getCorteCompleto':   result = getCorteCompleto(p);      break;
@@ -204,6 +205,7 @@ function doPost(e) {
       case 'guardar_nomina':  result = guardarNomina(params); break;
       case 'guardarCxC':      result = guardarCxC(params); break;
       case 'guardarPrestamo': result = guardarPrestamo(params); break;
+      case 'borrarCxC':       result = borrarCxC(params); break;
       case 'alta_usuario':    result = altaUsuario(params); break;
       case 'alta_empresa':    result = altaEmpresa(params); break;
       case 'baja_usuario':    result = bajaUsuario(params); break;
@@ -1839,6 +1841,36 @@ function getDeudores(params) {
 
   lista.sort((a, b) => b.restante - a.restante);
   return { success: true, data: lista };
+}
+
+// ── Borrar un movimiento de CxC (para corregir errores) ──
+// Candados: (1) solo borra si la fila pertenece a la empresa indicada,
+//           (2) verifica que el monto coincida para no borrar la fila equivocada
+//               si los índices cambiaron entre la lectura y el borrado.
+function borrarCxC(params) {
+  const empresa = params.empresa || '';
+  const id      = parseInt(params.id, 10);
+  const montoEsperado = (params.monto !== undefined && params.monto !== '') ? parseFloat(params.monto) : null;
+
+  if (!empresa || !id || id < 1) return { success: false, error: 'Datos inválidos' };
+
+  const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = getOrCreateCxC(ss);
+  const sheetRow = id + 1; // fila 1 = encabezado; data row i => fila i+1
+  const lastRow = sheet.getLastRow();
+  if (sheetRow < 2 || sheetRow > lastRow) return { success: false, error: 'Fila fuera de rango (recarga e intenta de nuevo)' };
+
+  const row = sheet.getRange(sheetRow, 1, 1, CXC_HEADERS.length).getValues()[0];
+  if (String(row[0]).toLowerCase() !== empresa.toLowerCase()) {
+    return { success: false, error: 'La fila no pertenece a esta empresa' };
+  }
+  if (montoEsperado !== null && Math.abs((parseFloat(row[3]) || 0) - montoEsperado) > 0.005) {
+    return { success: false, error: 'El movimiento cambió; recarga la página e intenta de nuevo' };
+  }
+
+  const borrado = { tipo: String(row[1]), concepto: String(row[2]), monto: parseFloat(row[3]) || 0 };
+  sheet.deleteRow(sheetRow);
+  return { success: true, borrado };
 }
 
 

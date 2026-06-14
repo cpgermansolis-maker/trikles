@@ -600,10 +600,11 @@ select.fi option{background:#fff;color:var(--ink);}
               <th style="text-align:right">CARGO</th>
               <th style="text-align:right">ABONO</th>
               <th style="text-align:right">SALDO</th>
+              <th style="text-align:center">ACCIÓN</th>
             </tr>
           </thead>
           <tbody id="otro_tbody">
-            <tr><td colspan="7" class="empty">Sin movimientos registrados</td></tr>
+            <tr><td colspan="8" class="empty">Sin movimientos registrados</td></tr>
           </tbody>
         </table>
       </div>
@@ -825,13 +826,28 @@ function renderDeudoresC() {
   </tr>`).join('');
 }
 
+// ── Borrar un movimiento (corregir errores) ──
+async function borrarMovimiento(id, monto) {
+  if (!confirm('¿Borrar este movimiento por ' + fmt(monto) + '?\n\nEsta acción no se puede deshacer.')) return;
+  try {
+    const r = await jsonp({ action: 'borrarCxC', empresa: SESSION.empresa, id, monto });
+    if (r && r.success) {
+      toast('ok', '✓ Movimiento borrado');
+      await cargarOtros();
+      await cargarDeudoresC();
+    } else {
+      toast('err', (r && r.error) || 'No se pudo borrar');
+    }
+  } catch(e) { toast('err', 'Error de conexión'); }
+}
+
 function renderOtros() {
   const tbody = document.getElementById('otro_tbody');
   const tots  = document.getElementById('otro_totales');
   const filtered = filterByPeriod(OTROS_DATA);
 
   if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty">Sin movimientos en el período seleccionado</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="empty">Sin movimientos en el período seleccionado</td></tr>';
     tots.style.display = 'none';
     document.getElementById('otro_cargos').textContent = fmt(0);
     document.getElementById('otro_abonos').textContent = fmt(0);
@@ -885,6 +901,7 @@ function renderOtros() {
       <td style="text-align:right;color:var(--orange)">${(esInicial||esCargo) ? fmt(m.monto) : '—'}</td>
       <td style="text-align:right;color:var(--green)">${esAbono ? fmt(m.monto) : '—'}</td>
       <td style="text-align:right;font-weight:700;color:${saldoAcum > 0 ? 'var(--red)' : 'var(--green)'}">${fmt(saldoAcum)}</td>
+      <td style="text-align:center"><button onclick="borrarMovimiento(${m.id}, ${m.monto})" title="Borrar movimiento" style="background:none;border:none;cursor:pointer;font-size:16px;line-height:1;padding:4px;">🗑️</button></td>
     </tr>`;
   }).join('');
 
