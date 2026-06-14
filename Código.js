@@ -96,6 +96,8 @@ function doGet(e) {
       case 'getCxC':               result = getCxC(p);                    break;
       case 'guardarCxC':           result = guardarCxC(p);                break;
       case 'getCxCClientes':       result = getCxCClientes(p);            break;
+      case 'guardarPrestamo':      result = guardarPrestamo(p);           break;
+      case 'getDeudores':          result = getDeudores(p);               break;
       case 'vaciarEmpresa':        result = vaciarEmpresa(p);             break;
       case 'getCorteEfectivo':   result = getCorteEfectivo(p);      break;
       case 'getCorteCompleto':   result = getCorteCompleto(p);      break;
@@ -110,6 +112,7 @@ function doGet(e) {
       case 'getPuntoEquilibrio': result = getPuntoEquilibrio(p);    break;
       case 'setup':           result = setupSheets();         break;
       case 'resetHojas':      result = resetHojas();          break;
+      case 'prepararDeudores':result = { success: true, message: prepararDeudores() }; break;
       // ── Panel de Control (via GET + JSONP para evitar CORS) ──
       case 'alta_empresa':    result = altaEmpresa(p);        break;
       case 'baja_empresa':      result = bajaEmpresa(p);        break;
@@ -199,6 +202,8 @@ function doPost(e) {
       case 'guardar_captura': result = guardarCaptura(params); break;
       case 'guardar_corte':   result = guardarCorteCaja(params); break;
       case 'guardar_nomina':  result = guardarNomina(params); break;
+      case 'guardarCxC':      result = guardarCxC(params); break;
+      case 'guardarPrestamo': result = guardarPrestamo(params); break;
       case 'alta_usuario':    result = altaUsuario(params); break;
       case 'alta_empresa':    result = altaEmpresa(params); break;
       case 'baja_usuario':    result = bajaUsuario(params); break;
@@ -1580,14 +1585,43 @@ function getNominaRegistros(params) {
 // Tipo: CREDITO_VENTA | OTRO_CARGO | COBRO_CLIENTE | COBRO_OTRO | SALIDA
 // ════════════════════════════════════════════════════════════════════════
 
+// Encabezados de la hoja CxC. Las 3 últimas columnas (Deudor/RefPrestamo/TasaInteres)
+// se agregaron para el módulo de Préstamos por deudor con interés.
+const CXC_HEADERS = ['Empresa','Tipo','Concepto','Monto','FormaPago','Fecha','Notas','Usuario','Deudor','RefPrestamo','TasaInteres'];
+
 function getOrCreateCxC(ss) {
   let sheet = ss.getSheetByName(SHEETS.CXC);
   if (!sheet) {
     sheet = ss.insertSheet(SHEETS.CXC);
-    sheet.appendRow(['Empresa','Tipo','Concepto','Monto','FormaPago','Fecha','Notas','Usuario']);
+    sheet.appendRow(CXC_HEADERS);
     formatHeader(sheet);
+    return sheet;
+  }
+  // Migración NO destructiva: si faltan las columnas nuevas, agregarlas al final
+  // (las filas existentes conservan sus datos; las celdas nuevas quedan vacías).
+  const lastCol = sheet.getLastColumn();
+  if (lastCol < CXC_HEADERS.length) {
+    const faltan = CXC_HEADERS.slice(lastCol);
+    sheet.getRange(1, lastCol + 1, 1, faltan.length).setValues([faltan]);
   }
   return sheet;
+}
+
+// ── Respaldo + preparación de la hoja CxC para Préstamos (correr 1 vez desde el editor) ──
+function prepararDeudores() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SHEETS.CXC);
+  if (!sheet) {
+    getOrCreateCxC(ss);
+    return 'Hoja CxC creada con columnas Deudor/RefPrestamo/TasaInteres.';
+  }
+  // 1) Respaldo con fecha (cultura de respaldos antes de tocar estructura)
+  const fecha = Utilities.formatDate(new Date(), 'America/Mexico_City', 'yyyy-MM-dd_HHmm');
+  const backupName = 'CxC_backup_' + fecha;
+  sheet.copyTo(ss).setName(backupName);
+  // 2) Migración no destructiva (asegura columnas nuevas)
+  getOrCreateCxC(ss);
+  return 'Respaldo creado: ' + backupName + ' · columnas Deudor/RefPrestamo/TasaInteres aseguradas.';
 }
 
 // ── Obtener estado de CxC ──
@@ -1615,6 +1649,9 @@ function getCxC(params) {
       fecha:     fecha,
       notas:     String(row[6] || ''),
       usuario:   String(row[7] || ''),
+      deudor:      String(row[8] || ''),
+      refPrestamo: String(row[9] || ''),
+      tasaInteres: parseFloat(row[10]) || 0,
     });
   }
 
@@ -1679,6 +1716,9 @@ function guardarCxC(params) {
   const formaPago = params.forma_pago || '';
   const notas     = params.notas     || '';
   const usuario   = params.usuario   || '';
+  const deudor      = params.deudor || '';
+  const refPrestamo = params.refPrestamo || params.ref || '';
+  const tasaInteres = parseFloat(params.tasaInteres || params.tasa || 0) || 0;
 
   if (!empresa || !tipo || !monto) {
     return { success: false, error: 'Faltan datos requeridos' };
@@ -1688,7 +1728,7 @@ function guardarCxC(params) {
   const sheet = getOrCreateCxC(ss);
   const fecha = Utilities.formatDate(new Date(), 'America/Mexico_City', 'yyyy-MM-dd');
 
-  sheet.appendRow([empresa, tipo, concepto, monto, formaPago, fecha, notas, usuario]);
+  sheet.appendRow([empresa, tipo, concepto, monto, formaPago, fecha, notas, usuario, deudor, refPrestamo, tasaInteres]);
 
   // Determinar si afecta flujo de efectivo
   // SALDO_INICIAL nunca afecta caja — es solo un punto de partida
@@ -1698,6 +1738,107 @@ function guardarCxC(params) {
     : 'NO_CAJA';
 
   return { success: true, accion: 'guardado', tipo, monto, afectaCaja };
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// PRÉSTAMOS / DEUDORES — doble efecto que aterriza en los KPIs del tablero
+// ────────────────────────────────────────────────────────────────────────
+//  Modelo (todo vive en la hoja CxC):
+//   • Préstamo = 1 fila OTRO_CARGO (principal) con FormaPago = BANCO1/BANCO2/EFECTIVO
+//       - Si es banco: baja el saldo de Bancos (puente forma=BANCO de bancos.html)
+//       - Siempre sube el KPI "Cuentas por Cobrar" del tablero (cuenta OTRO_CARGO)
+//   • Interés (si tasa>0) = 1 fila OTRO_CARGO con FormaPago = INTERES
+//       - NO toca banco ni caja; solo aumenta lo que te deben (KPI CxC)
+//   • Ambas filas comparten Deudor + RefPrestamo (PR-xxxx) para rastrearlas.
+//   • Cobro = 1 fila COBRO_OTRO con FormaPago = BANCO1/BANCO2 (sube banco) o EFECTIVO
+//       - Baja el KPI CxC; si es banco, sube Bancos; si es efectivo, entra a caja (conteo).
+// ════════════════════════════════════════════════════════════════════════
+function guardarPrestamo(params) {
+  const empresa   = params.empresa || '';
+  const deudor    = String(params.deudor || '').trim();
+  const principal = parseFloat(params.monto || params.principal) || 0;
+  const tasa      = parseFloat(params.tasaInteres || params.tasa || 0) || 0;
+  const origen    = String(params.forma_pago || params.origen || '').toUpperCase(); // BANCO1|BANCO2|EFECTIVO
+  const usuario   = params.usuario || '';
+  const concepto  = (params.concepto || ('Préstamo a ' + (deudor || 's/n'))).trim();
+
+  if (!empresa || !deudor || !principal || !origen) {
+    return { success: false, error: 'Faltan datos: empresa, deudor, monto y origen (banco/efectivo) son obligatorios' };
+  }
+  if (['BANCO1','BANCO2','EFECTIVO'].indexOf(origen) === -1) {
+    return { success: false, error: 'Origen inválido (usa BANCO1, BANCO2 o EFECTIVO)' };
+  }
+
+  const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = getOrCreateCxC(ss);
+  const fecha = Utilities.formatDate(new Date(), 'America/Mexico_City', 'yyyy-MM-dd');
+  const ref   = 'PR-' + (new Date().getTime()).toString(36).toUpperCase();
+
+  // Fila principal (cuenta en CxC; si origen es banco, también baja Bancos vía el puente)
+  sheet.appendRow([empresa, 'OTRO_CARGO', concepto, principal, origen, fecha, 'PRESTAMO|' + concepto, usuario, deudor, ref, tasa]);
+
+  // Fila de interés (solo CxC; no toca banco/caja)
+  const interes = Math.round(principal * tasa) / 100;
+  if (interes > 0) {
+    sheet.appendRow([empresa, 'OTRO_CARGO', 'Interés ' + tasa + '% — ' + deudor, interes, 'INTERES', fecha,
+      'INTERES|Interés del préstamo ' + ref, usuario, deudor, ref, tasa]);
+  }
+
+  return {
+    success: true, ref, deudor, principal, tasa, interes,
+    totalACobrar: Math.round((principal + interes) * 100) / 100, origen
+  };
+}
+
+// ── Saldo de deudores agrupado por persona ──
+function getDeudores(params) {
+  const empresa = params.empresa || '';
+  if (!empresa) return { success: false, error: 'Empresa requerida' };
+
+  const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = getOrCreateCxC(ss);
+  const data  = sheet.getDataRange().getValues();
+  const map   = {};
+
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    if (String(row[0]).toLowerCase() !== empresa.toLowerCase()) continue;
+    const tipo = String(row[1] || '');
+    // Solo conceptos de deudores: excluye banco puro (BANCO_*), ventas a crédito, etc.
+    if (tipo !== 'OTRO_CARGO' && tipo !== 'COBRO_OTRO' && tipo !== 'SALDO_INICIAL') continue;
+
+    const deudor = String(row[8] || '').trim() || '(sin deudor)';
+    const monto  = parseFloat(row[3]) || 0;
+    const forma  = String(row[4] || '').toUpperCase();
+    const ref    = String(row[9] || '');
+    const fecha  = row[5] instanceof Date
+      ? Utilities.formatDate(row[5], 'America/Mexico_City', 'yyyy-MM-dd')
+      : String(row[5] || '').slice(0, 10);
+
+    if (!map[deudor]) map[deudor] = { deudor, prestado: 0, interes: 0, pagado: 0, refs: {}, movimientos: [] };
+    const d = map[deudor];
+
+    if (tipo === 'OTRO_CARGO' && forma === 'INTERES') d.interes += monto;
+    else if (tipo === 'OTRO_CARGO' || tipo === 'SALDO_INICIAL') d.prestado += monto;
+    else if (tipo === 'COBRO_OTRO') d.pagado += monto;
+
+    if (ref) d.refs[ref] = true;
+    d.movimientos.push({ fecha, tipo, forma, monto, concepto: String(row[2] || ''), ref });
+  }
+
+  const lista = Object.keys(map).map(k => {
+    const d = map[k];
+    d.totalACobrar = Math.round((d.prestado + d.interes) * 100) / 100;
+    d.prestado = Math.round(d.prestado * 100) / 100;
+    d.interes  = Math.round(d.interes * 100) / 100;
+    d.pagado   = Math.round(d.pagado * 100) / 100;
+    d.restante = Math.round((d.totalACobrar - d.pagado) * 100) / 100;
+    d.refs = Object.keys(d.refs);
+    return d;
+  }).filter(d => d.movimientos.length > 0);
+
+  lista.sort((a, b) => b.restante - a.restante);
+  return { success: true, data: lista };
 }
 
 

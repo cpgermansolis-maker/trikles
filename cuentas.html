@@ -525,18 +525,29 @@ select.fi option{background:#fff;color:var(--ink);}
           <select class="fi" id="otro_tipo" onchange="onTipoChange()">
             <option value="">— Selecciona —</option>
             <option value="SALDO_INICIAL">🔢 Saldo Inicial (saldo previo al sistema)</option>
-            <option value="OTRO_CARGO">📤 Cargo / Salida (préstamo, anticipo...)</option>
-            <option value="COBRO_OTRO">📥 Abono / Cobro recibido</option>
+            <option value="OTRO_CARGO">📤 Préstamo / anticipo (crea deudor)</option>
+            <option value="COBRO_OTRO">📥 Cobro de préstamo / abono recibido</option>
           </select>
         </div>
+        <div class="fi-wrap" id="wrap_deudor" style="display:none">
+          <label class="fi-lbl">Deudor (a quién) *</label>
+          <input type="text" class="fi" id="otro_deudor" list="otro_deudores_list" placeholder="Ej: Cineteca Puebla" autocomplete="off" oninput="updateDeudorSaldoC()">
+          <datalist id="otro_deudores_list"></datalist>
+          <div id="otro_deudor_saldo" style="font-size:12px;color:var(--gray);margin-top:4px;"></div>
+        </div>
         <div class="fi-wrap" id="wrap_forma" style="display:none">
-          <label class="fi-lbl">Forma de pago *</label>
+          <label class="fi-lbl" id="otro_forma_lbl">Forma de pago *</label>
           <select class="fi" id="otro_forma">
             <option value="EFECTIVO">💵 Efectivo</option>
             <option value="BANCO1">🏦 Banco (Cuenta 1)</option>
             <option value="BANCO2">🏦 Banco (Cuenta 2)</option>
             <option value="TARJETA">💳 Tarjeta</option>
           </select>
+        </div>
+        <div class="fi-wrap" id="wrap_interes" style="display:none">
+          <label class="fi-lbl">Interés (%)</label>
+          <input type="number" class="fi" id="otro_interes" placeholder="0" min="0" step="0.01" value="0">
+          <div style="font-size:12px;color:var(--gray);margin-top:4px;">Ej: 10% sobre $1,000 = te deben $1,100. Deja 0 si no cobras interés.</div>
         </div>
         <div class="fi-wrap">
           <label class="fi-lbl">Monto *</label>
@@ -548,6 +559,29 @@ select.fi option{background:#fff;color:var(--ink);}
         </div>
       </div>
       <button class="btn-primary" onclick="guardarOtro()">💾 Guardar Movimiento</button>
+    </div>
+
+    <!-- Deudores por persona -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">👥 Deudores — cuánto debe cada quién</div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>DEUDOR</th>
+              <th style="text-align:right">PRESTADO</th>
+              <th style="text-align:right">INTERÉS</th>
+              <th style="text-align:right">PAGADO</th>
+              <th style="text-align:right">RESTANTE</th>
+            </tr>
+          </thead>
+          <tbody id="deudores_tbody">
+            <tr><td colspan="5" class="empty">Cargando…</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Estado de cuenta otros -->
@@ -656,12 +690,20 @@ function switchTab(tab) {
 
 function onTipoChange() {
   const tipo = document.getElementById('otro_tipo').value;
-  document.getElementById('wrap_forma').style.display = tipo === 'COBRO_OTRO' ? 'block' : 'none';
+  const esCargo = tipo === 'OTRO_CARGO';
+  const esCobro = tipo === 'COBRO_OTRO';
+  // Forma de pago: para préstamo = de dónde sale; para cobro = cómo te pagan
+  document.getElementById('wrap_forma').style.display   = (esCargo || esCobro) ? 'block' : 'none';
+  document.getElementById('wrap_deudor').style.display  = (esCargo || esCobro) ? 'block' : 'none';
+  document.getElementById('wrap_interes').style.display = esCargo ? 'block' : 'none';
+  const fl = document.getElementById('otro_forma_lbl');
+  if (fl) fl.textContent = esCargo ? 'De dónde sale el dinero *' : 'Cómo te pagan *';
   // Actualizar placeholder de nota según tipo
   const nota = document.getElementById('otro_notas');
   if (tipo === 'SALDO_INICIAL') nota.placeholder = 'Ej: Saldo CxC clientes previo al sistema, Préstamo pendiente de Juan...';
-  else if (tipo === 'OTRO_CARGO') nota.placeholder = 'Ej: Préstamo a empleado Juan García, Anticipo a proveedor...';
+  else if (esCargo) nota.placeholder = 'Ej: Préstamo a empleado Juan García, Anticipo a proveedor...';
   else nota.placeholder = 'Ej: Cobro parcial de préstamo, Abono de cliente...';
+  if (esCargo || esCobro) { poblarDeudoresListC(); updateDeudorSaldoC(); }
 }
 
 // ── Cargar CxC Clientes ──
@@ -732,9 +774,55 @@ async function cargarOtros() {
   try {
     const r = await jsonp({ action: 'getCxC', empresa: SESSION.empresa });
     if (!r.success) return;
-    OTROS_DATA = r.data || [];
+    // Blindaje: solo conceptos de deudores. Excluye movimientos de banco (BANCO_*),
+    // ventas a crédito y cobros de cliente — esos se ven en Bancos / CxC clientes.
+    const OK = ['OTRO_CARGO', 'COBRO_OTRO', 'SALDO_INICIAL', 'SALIDA'];
+    OTROS_DATA = (r.data || []).filter(m => OK.indexOf(String(m.tipo)) !== -1);
     renderAll();
   } catch(e) { console.warn('CxC otros:', e); }
+}
+
+// ── Deudores por persona (prestado, interés, pagado, restante) ──
+let DEUDORES_C = [];
+async function cargarDeudoresC() {
+  try {
+    const r = await jsonp({ action: 'getDeudores', empresa: SESSION.empresa });
+    DEUDORES_C = (r && r.success && Array.isArray(r.data)) ? r.data : [];
+  } catch(e) { DEUDORES_C = []; }
+  renderDeudoresC();
+  poblarDeudoresListC();
+}
+function poblarDeudoresListC() {
+  const dl = document.getElementById('otro_deudores_list');
+  if (!dl) return;
+  dl.innerHTML = DEUDORES_C
+    .filter(d => d.deudor && d.deudor !== '(sin deudor)')
+    .map(d => '<option value="' + String(d.deudor).replace(/"/g, '&quot;') + '">')
+    .join('');
+}
+function updateDeudorSaldoC() {
+  const el = document.getElementById('otro_deudor_saldo');
+  if (!el) return;
+  const name = (document.getElementById('otro_deudor').value || '').trim().toLowerCase();
+  const d = name ? DEUDORES_C.find(x => String(x.deudor).toLowerCase() === name) : null;
+  if (d) { el.textContent = 'Saldo actual: te debe ' + fmt(d.restante); el.style.color = d.restante > 0 ? 'var(--red)' : 'var(--green)'; }
+  else   { el.textContent = name ? 'Deudor nuevo' : ''; el.style.color = 'var(--gray)'; }
+}
+function renderDeudoresC() {
+  const tbody = document.getElementById('deudores_tbody');
+  if (!tbody) return;
+  const conSaldo = DEUDORES_C.filter(d => d.deudor !== '(sin deudor)');
+  if (!conSaldo.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">Sin deudores registrados</td></tr>';
+    return;
+  }
+  tbody.innerHTML = conSaldo.map(d => `<tr>
+    <td style="font-weight:600">${d.deudor}</td>
+    <td style="text-align:right">${fmt(d.prestado)}</td>
+    <td style="text-align:right;color:var(--gray)">${fmt(d.interes)}</td>
+    <td style="text-align:right;color:var(--green)">${fmt(d.pagado)}</td>
+    <td style="text-align:right;font-weight:700;color:${d.restante > 0.005 ? 'var(--red)' : 'var(--green)'}">${fmt(d.restante)}</td>
+  </tr>`).join('');
 }
 
 function renderOtros() {
@@ -763,23 +851,31 @@ function renderOtros() {
     else if (esCargo) { totalCargos += m.monto; saldoAcum += m.monto; }
     else { totalAbonos += m.monto; saldoAcum -= m.monto; }
 
-    // Solo afecta flujo de caja si es cargo real o abono en efectivo — Saldo Inicial NO afecta caja
-    if (esCargo) totalCaja -= m.monto;
+    const esInteres = esCargo && m.formaPago === 'INTERES';
+    const esBanco   = m.formaPago === 'BANCO1' || m.formaPago === 'BANCO2';
+    // Caja: solo el efectivo afecta el conteo. Banco e interés NO tocan caja.
+    if (esCargo && m.formaPago === 'EFECTIVO') totalCaja -= m.monto;
     else if (esAbono && m.formaPago === 'EFECTIVO') totalCaja += m.monto;
 
     const tipoBadge = esInicial
       ? `<span class="tipo-cargo" style="background:rgba(244,211,94,.15);color:var(--yellow);border-color:rgba(244,211,94,.3)">Saldo Inicial</span>`
-      : esCargo
-        ? `<span class="tipo-cargo">Cargo</span>`
-        : `<span class="tipo-cobro">Abono</span>`;
+      : esInteres
+        ? `<span class="tipo-cargo" style="background:rgba(150,150,150,.15);color:var(--gray)">Interés</span>`
+        : esCargo
+          ? `<span class="tipo-cargo">Préstamo</span>`
+          : `<span class="tipo-cobro">Cobro</span>`;
 
     const formaBadge = esInicial
       ? '<span style="color:var(--gray);font-size:12px">No afecta caja</span>'
-      : esCargo
-        ? '<span style="color:var(--red);font-size:12px">💸 Salida de caja</span>'
-        : m.formaPago === 'EFECTIVO'
-          ? '<span style="color:var(--green);font-size:12px">💵 Efectivo</span>'
-          : '<span style="color:var(--blue);font-size:12px">💳 Tarjeta</span>';
+      : esInteres
+        ? '<span style="color:var(--gray);font-size:12px">No afecta caja</span>'
+        : esBanco
+          ? '<span style="color:var(--blue);font-size:12px">🏦 Banco</span>'
+          : m.formaPago === 'EFECTIVO'
+            ? `<span style="color:${esAbono ? 'var(--green)' : 'var(--red)'};font-size:12px">💵 Efectivo</span>`
+            : esCargo
+              ? '<span style="color:var(--red);font-size:12px">💸 Salida</span>'
+              : '<span style="color:var(--blue);font-size:12px">💳 Tarjeta</span>';
 
     return `<tr>
       <td style="color:var(--gray)">${fmtFecha(m.fecha)}</td>
@@ -962,22 +1058,34 @@ async function guardarOtro() {
   const monto  = parseFloat(document.getElementById('otro_monto').value) || 0;
   const notas  = document.getElementById('otro_notas').value.trim();
   const forma  = document.getElementById('otro_forma').value;
+  const deudor = document.getElementById('otro_deudor').value.trim();
+  const tasa   = parseFloat(document.getElementById('otro_interes').value) || 0;
 
   if (!tipo)  { toast('err', 'Selecciona el tipo de movimiento'); return; }
   if (!monto) { toast('err', 'Ingresa un monto válido'); return; }
   if (!notas) { toast('err', 'El concepto/nota es obligatorio'); return; }
+  if ((tipo === 'OTRO_CARGO' || tipo === 'COBRO_OTRO') && !deudor) {
+    toast('err', 'Indica el deudor (a quién le prestas o de quién cobras)'); return;
+  }
 
   try {
-    const r = await jsonp({
-      action:     'guardarCxC',
-      empresa:    SESSION.empresa,
-      tipo,
-      concepto:   notas,
-      monto,
-      forma_pago: tipo === 'COBRO_OTRO' ? forma : 'SALIDA',
-      notas,
-      usuario:    SESSION.usuario,
-    });
+    let r;
+    if (tipo === 'OTRO_CARGO') {
+      // Préstamo: crea principal + interés ligados (acción dedicada del backend)
+      r = await jsonp({
+        action: 'guardarPrestamo', empresa: SESSION.empresa,
+        deudor, monto, tasaInteres: tasa, forma_pago: forma, concepto: notas,
+        usuario: SESSION.usuario,
+      });
+    } else {
+      // Cobro o saldo inicial
+      r = await jsonp({
+        action: 'guardarCxC', empresa: SESSION.empresa,
+        tipo, concepto: notas, monto,
+        forma_pago: tipo === 'COBRO_OTRO' ? forma : 'SALIDA',
+        notas, deudor, usuario: SESSION.usuario,
+      });
+    }
 
     if (r && r.success) {
       toast('ok', '✓ Movimiento guardado');
@@ -985,12 +1093,20 @@ async function guardarOtro() {
       document.getElementById('otro_tipo').value  = '';
       document.getElementById('otro_monto').value = '';
       document.getElementById('otro_notas').value = '';
+      document.getElementById('otro_deudor').value = '';
+      document.getElementById('otro_interes').value = '0';
+      document.getElementById('otro_deudor_saldo').textContent = '';
       document.getElementById('wrap_forma').style.display = 'none';
-      // Avisar si afecta caja
-      if (r.afectaCaja === 'SALIDA') toast('ok', '⚠ Recuerda registrar esta salida en la Captura del día');
+      document.getElementById('wrap_deudor').style.display = 'none';
+      document.getElementById('wrap_interes').style.display = 'none';
+      // Avisar si la salida fue en efectivo (afecta el conteo de caja del día)
+      if (tipo === 'OTRO_CARGO' && forma === 'EFECTIVO') {
+        toast('ok', '⚠ Recuerda: este efectivo salió de la caja del día');
+      }
       await cargarOtros();
+      await cargarDeudoresC();
     } else {
-      toast('err', r.error || 'Error al guardar');
+      toast('err', (r && r.error) || 'Error al guardar');
     }
   } catch(e) { toast('err', 'Error de conexión'); }
 }
@@ -1024,7 +1140,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Cargar nombre + logo real de la empresa
   applyEmpresaBranding(SESSION.empresa);
 
-  await Promise.all([cargarClientes(), cargarOtros()]);
+  await Promise.all([cargarClientes(), cargarOtros(), cargarDeudoresC()]);
 });
 
 // ── Branding por empresa: nombre completo + logo ──

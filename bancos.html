@@ -588,6 +588,10 @@ body.director-mode .director-hidden{display:none!important;}
             <option value="COMISION">💸 Comisión bancaria</option>
             <option value="OTRO_CARGO">➖ Otro cargo</option>
           </optgroup>
+          <optgroup label="Préstamos / Deudores">
+            <option value="PRESTAMO">📤 Préstamo / anticipo (crea deudor)</option>
+            <option value="COBRO_PRESTAMO">📥 Cobro de préstamo</option>
+          </optgroup>
         </select>
       </div>
       <div class="fi-wrap">
@@ -603,6 +607,20 @@ body.director-mode .director-hidden{display:none!important;}
           <option value="POS">➕ Sumar al saldo (ajuste positivo)</option>
           <option value="NEG">➖ Restar del saldo (ajuste negativo)</option>
         </select>
+      </div>
+      <div class="fi-wrap" id="wrap-deudor" style="display:none;">
+        <label class="fi-lbl">Deudor (a quién) <span style="color:var(--red)">*</span>
+          <span class="help-icon">?<span class="tt">Nombre de quién te debe. Escribe uno nuevo o elige de la lista.</span></span>
+        </label>
+        <input type="text" class="fi" id="f_deudor" list="deudores-list" placeholder="Ej: Cineteca Puebla" autocomplete="off" oninput="updateDeudorSaldo()">
+        <datalist id="deudores-list"></datalist>
+        <div id="deudor-saldo" style="font-family:var(--font-sans);font-size:12px;color:var(--muted);margin-top:4px;"></div>
+      </div>
+      <div class="fi-wrap" id="wrap-interes" style="display:none;">
+        <label class="fi-lbl">Interés (%)
+          <span class="help-icon">?<span class="tt">Porcentaje del préstamo. Ej: 10% sobre $1,000 = te deben $1,100. Deja 0 si no cobras interés.</span></span>
+        </label>
+        <input type="number" class="fi" id="f_interes" placeholder="0" min="0" step="0.01" value="0">
       </div>
       <div class="fi-wrap">
         <label class="fi-lbl">Monto <span style="color:var(--red)">*</span></label>
@@ -1243,15 +1261,37 @@ function openForm(isAjuste){
   document.getElementById('f_monto').value = '';
   document.getElementById('f_notas').value = '';
   document.getElementById('f_banco').value = CURRENT_BANK === 'BANCO2' ? 'BANCO2' : 'BANCO1';
+  // Reset campos de préstamo
+  document.getElementById('f_deudor').value = '';
+  document.getElementById('f_interes').value = '0';
+  document.getElementById('wrap-deudor').style.display = 'none';
+  document.getElementById('wrap-interes').style.display = 'none';
+  document.getElementById('deudor-saldo').textContent = '';
+  onTipoChange();
   box.scrollIntoView({behavior:'smooth', block:'center'});
 }
 function closeForm(){ document.getElementById('formBox').classList.remove('show'); }
-function onTipoChange(){ /* placeholder por si luego queremos reaccionar */ }
+function onTipoChange(){
+  const sel = document.getElementById('f_tipo').value;
+  const esPrestamo = sel === 'PRESTAMO';
+  const esCobro    = sel === 'COBRO_PRESTAMO';
+  document.getElementById('wrap-deudor').style.display  = (esPrestamo || esCobro) ? '' : 'none';
+  document.getElementById('wrap-interes').style.display = esPrestamo ? '' : 'none';
+  if (esPrestamo || esCobro) { poblarDeudoresList(); updateDeudorSaldo(); }
+}
 
 async function guardarMov(){
   const monto = parseFloat(document.getElementById('f_monto').value)||0;
   const banco = document.getElementById('f_banco').value;
   const concepto = document.getElementById('f_notas').value.trim();
+
+  // Préstamos / cobros se manejan aparte (crean/ajustan deudor + impactan banco)
+  if (!FORM_IS_AJUSTE) {
+    const selRaw = document.getElementById('f_tipo').value;
+    if (selRaw === 'PRESTAMO')        return guardarPrestamoDesdeBancos();
+    if (selRaw === 'COBRO_PRESTAMO')  return guardarCobroDesdeBancos();
+  }
+
   if (monto <= 0) { toast('err','Monto inválido'); return; }
 
   let tipo, subtipo, conceptoMostrar;
@@ -1278,7 +1318,7 @@ async function guardarMov(){
 
   try {
     const r = await jsonp({
-      action: 'saveCxC',
+      action: 'guardarCxC',
       empresa: ACTIVE_EMPRESA,
       tipo,
       concepto: conceptoMostrar,
@@ -1301,6 +1341,111 @@ async function guardarMov(){
     document.getElementById('btn-guardar').disabled = false;
     document.getElementById('btn-guardar').textContent = '💾 Guardar movimiento';
   }
+}
+
+/* ══════════════════════════════════════════════════════════
+   PRÉSTAMOS / DEUDORES (desde Bancos)
+   - Préstamo: sale del banco seleccionado y crea/aumenta el deudor.
+   - Cobro:    entra al banco seleccionado y baja la deuda.
+   Ambos impactan el KPI "Cuentas por Cobrar" del tablero.
+══════════════════════════════════════════════════════════ */
+let DEUDORES = [];
+
+async function cargarDeudores(){
+  try {
+    const r = await jsonp({ action:'getDeudores', empresa: ACTIVE_EMPRESA });
+    DEUDORES = (r && r.success && Array.isArray(r.data)) ? r.data : [];
+  } catch(e){ DEUDORES = []; }
+}
+
+function poblarDeudoresList(){
+  const dl = document.getElementById('deudores-list');
+  if (!dl) return;
+  dl.innerHTML = DEUDORES
+    .filter(d => d.deudor && d.deudor !== '(sin deudor)')
+    .map(d => '<option value="' + String(d.deudor).replace(/"/g,'&quot;') + '">')
+    .join('');
+}
+
+function updateDeudorSaldo(){
+  const el = document.getElementById('deudor-saldo');
+  if (!el) return;
+  const name = (document.getElementById('f_deudor').value || '').trim().toLowerCase();
+  const d = name ? DEUDORES.find(x => String(x.deudor).toLowerCase() === name) : null;
+  if (d) {
+    el.textContent = 'Saldo actual: te debe ' + fmt(d.restante);
+    el.style.color = d.restante > 0 ? 'var(--red)' : 'var(--green)';
+  } else {
+    el.textContent = name ? 'Deudor nuevo' : '';
+    el.style.color = 'var(--muted)';
+  }
+}
+
+function setGuardando(on){
+  const b = document.getElementById('btn-guardar');
+  b.disabled = on;
+  b.textContent = on ? 'Guardando...' : '💾 Guardar movimiento';
+}
+
+async function guardarPrestamoDesdeBancos(){
+  const deudor   = (document.getElementById('f_deudor').value || '').trim();
+  const monto    = parseFloat(document.getElementById('f_monto').value) || 0;
+  const tasa     = parseFloat(document.getElementById('f_interes').value) || 0;
+  const banco    = document.getElementById('f_banco').value;
+  const concepto = document.getElementById('f_notas').value.trim() || ('Préstamo a ' + deudor);
+  if (!deudor) { toast('err','Falta el deudor','Escribe a quién le prestas.'); return; }
+  if (monto <= 0) { toast('err','Monto inválido'); return; }
+
+  const interes = Math.round(monto * tasa) / 100;
+  const totalCobrar = monto + interes;
+  const nb = BANK_NAMES[banco] || banco;
+  if (!confirm('¿Registrar préstamo?\n\nDeudor: ' + deudor +
+    '\nSale de: ' + nb + '  →  ' + fmt(monto) +
+    '\nInterés: ' + tasa + '% = ' + fmt(interes) +
+    '\nTe deberá: ' + fmt(totalCobrar))) return;
+
+  setGuardando(true);
+  try {
+    const r = await jsonp({
+      action: 'guardarPrestamo', empresa: ACTIVE_EMPRESA,
+      deudor, monto, tasaInteres: tasa, forma_pago: banco, concepto,
+      usuario: SESSION.usuario || SESSION.nombre || 'SYS',
+    });
+    if (r && r.success) {
+      toast('ok','✓ Préstamo registrado', deudor + ' te debe ' + fmt(r.totalACobrar));
+      closeForm();
+      await loadAll(); await cargarDeudores(); renderAll();
+    } else { toast('err', (r && r.error) || 'Error al guardar'); }
+  } catch(e){ console.warn(e); toast('err','Error de conexión'); }
+  finally { setGuardando(false); }
+}
+
+async function guardarCobroDesdeBancos(){
+  const deudor   = (document.getElementById('f_deudor').value || '').trim();
+  const monto    = parseFloat(document.getElementById('f_monto').value) || 0;
+  const banco    = document.getElementById('f_banco').value;
+  const concepto = document.getElementById('f_notas').value.trim() || ('Cobro de préstamo — ' + deudor);
+  if (!deudor) { toast('err','Falta el deudor','Elige de quién cobras.'); return; }
+  if (monto <= 0) { toast('err','Monto inválido'); return; }
+
+  const nb = BANK_NAMES[banco] || banco;
+  if (!confirm('¿Registrar cobro?\n\nDe: ' + deudor + '\nEntra a: ' + nb + '  →  ' + fmt(monto))) return;
+
+  setGuardando(true);
+  try {
+    const r = await jsonp({
+      action: 'guardarCxC', empresa: ACTIVE_EMPRESA,
+      tipo: 'COBRO_OTRO', forma_pago: banco, deudor, monto, concepto,
+      notas: 'COBRO_PRESTAMO|' + concepto,
+      usuario: SESSION.usuario || SESSION.nombre || 'SYS',
+    });
+    if (r && r.success) {
+      toast('ok','✓ Cobro registrado', deudor + ' · ' + fmt(monto) + ' a ' + nb);
+      closeForm();
+      await loadAll(); await cargarDeudores(); renderAll();
+    } else { toast('err', (r && r.error) || 'Error al guardar'); }
+  } catch(e){ console.warn(e); toast('err','Error de conexión'); }
+  finally { setGuardando(false); }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1351,7 +1496,7 @@ async function guardarTransfer(){
   try {
     // 1) Salida en cuenta origen
     const r1 = await jsonp({
-      action: 'saveCxC',
+      action: 'guardarCxC',
       empresa: ACTIVE_EMPRESA,
       tipo: 'BANCO_CARGO',
       concepto: conceptoOut,
@@ -1367,7 +1512,7 @@ async function guardarTransfer(){
 
     // 2) Entrada en cuenta destino
     const r2 = await jsonp({
-      action: 'saveCxC',
+      action: 'guardarCxC',
       empresa: ACTIVE_EMPRESA,
       tipo: 'BANCO_ABONO',
       concepto: conceptoIn,
@@ -1406,6 +1551,7 @@ async function guardarTransfer(){
   loadBankNames();
   applyBranding(); // no-await: corre en paralelo, no bloquea
   await loadAll();
+  cargarDeudores(); // no-await: llena la lista de deudores para préstamos/cobros
   renderAll();
 })();
 
