@@ -272,14 +272,17 @@ function sr12FamiliasActivas(empresa_id) {
     return r.empresa_id === empresa_id && String(r.clave) === SR12_CLAVE_FAMILIAS_CONFIG;
   });
   if (!fila || !fila.valor) return SR12_FAMILIAS_DEFAULT.slice();
-  return String(fila.valor).split(',').map(function(s){ return s.trim(); }).filter(function(s){ return s; });
+  // v402 — separador '|' (no ','): hay familias con coma EN el nombre ("JUGOS, AGUAS Y REFRESCOS")
+  // que el split(',') partía en dos y rompía el filtro. Compat: si no hay '|', es config vieja CSV.
+  var sep = String(fila.valor).indexOf('|') !== -1 ? '|' : ',';
+  return String(fila.valor).split(sep).map(function(s){ return s.trim(); }).filter(function(s){ return s; });
 }
 function sr12GuardarFamiliasActivas(empresa_id, familias) {
   var sheet = asegurarHoja('Configuracion', ['empresa_id','sucursal_id','clave','valor']);
   var existing = rowsToObjects(sheet).find(function(r){
     return r.empresa_id === empresa_id && String(r.clave) === SR12_CLAVE_FAMILIAS_CONFIG;
   });
-  var valor = (familias || []).join(',');
+  var valor = (familias || []).join('|');  // v402 — '|' soporta familias con coma en el nombre
   if (existing) {
     sheet.getRange(existing._row, 4).setValue(valor);
   } else {
