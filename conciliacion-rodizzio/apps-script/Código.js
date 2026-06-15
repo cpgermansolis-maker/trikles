@@ -74,6 +74,9 @@ var ACCIONES_WRITE_OBSERVADOR_BLOQUEADAS = {
   'sr12_diagnostico_schema': true,
   'sr12_migrar_schema_legacy': true,
   'sr12_backup_ingredientes': true,
+  'sr12_restaurar_ingredientes': true,
+  // v382 — Fusionar insumos duplicados
+  'ingrediente_fusionar': true,
   // v144 — Branding multi-empresa
   'empresa_branding_seed_fogueira': true,
   // v250 — Costos operativos
@@ -90,6 +93,7 @@ var ACCIONES_WRITE_OBSERVADOR_BLOQUEADAS = {
   // v267 — Aprobaciones de importación
   'sr12_solicitar_aprobacion': true,
   'sr12_aprobacion_aprobar': true,
+  'sr12_aprobacion_aprobar_aplicar': true,
   'sr12_aprobacion_rechazar': true,
   // v270 — F3 Fase C: importador de compras (historial de precios reales)
   'sr12_compras_importar': true,
@@ -3425,6 +3429,26 @@ function esActivo(v) {
 }
 
 // =============== Auth ===============
+// === Registro de accesos para el panel "Mi actividad de supervisión" (v389) ===
+// Solo registramos a los roles SUPERVISORES (los que vigilan el Tablero) para no encarecer
+// el hot-path de `me` con escrituras de cajeras/chefs. 1 fila por (usuario, día lógico):
+// dedup best-effort por CacheService (6h) + el conteo lee DISTINCT día_lógico (robusto a dupes).
+// NOTA: no hay historia previa — empieza a contar desde el deploy.
+var ACCESOS_COLS = ['id','empresa_id','usuario_id','email','rol','dia_logico','creado_at'];
+var SUPERVISOR_ROLES_ACTIVIDAD = ['admin','gerente_plaza','auditoria','gerente_administrativo'];
+function _registrarAcceso(u){
+  try {
+    if (!u || SUPERVISOR_ROLES_ACTIVIDAD.indexOf(String(u.rol||'').toLowerCase()) === -1) return;
+    var dia = diaLogicoRestaurante();
+    var ckey = 'acc_' + u.empresa_id + '_' + u.id + '_' + dia;
+    var cache = CacheService.getScriptCache();
+    if (cache.get(ckey)) return;          // ya registrado hoy (ventana de 6h)
+    cache.put(ckey, '1', 21600);
+    var sh = asegurarHoja('Accesos', ACCESOS_COLS);
+    sh.appendRow([Utilities.getUuid(), u.empresa_id, u.id, String(u.email||'').toLowerCase(), String(u.rol||''), dia, new Date()]);
+  } catch(e){ /* nunca tirar `me` por el registro de actividad */ }
+}
+
 function handleLogin(p) {
   var email = String(p.email || '').toLowerCase().trim(), password = p.password || '';
   if (!email || !password) return { ok:false, error:'Email y contraseña requeridos' };
@@ -3449,6 +3473,7 @@ function handleMe(p) {
   if (hit) { try { return JSON.parse(hit); } catch(e){} }
   var u = validarToken(token);
   if (!u) return { ok:false, error:'Sesión inválida o expirada' };
+  _registrarAcceso(u);  // panel "Mi actividad" (v389): registra el acceso de roles supervisores (1/día)
   var empresa = rowsToObjects(getSheet('Empresas')).find(function(e){ return e.id === u.empresa_id; });
   var sucursales = rowsToObjects(getSheet('Sucursales')).filter(function(s){
     return s.empresa_id === u.empresa_id && esActivo(s.activa);
@@ -5148,9 +5173,9 @@ function handleDireccionCancelaciones(p) {
 }
 
 // =====================================================================================
-// ★ BANDERAS DEL CIERRE — sube al Tablero Directivo las 14 banderas de cada conciliación ★
+// ★ BANDERAS DEL CIERRE — sube al Tablero Directivo las 15 banderas de cada conciliación ★
 // =====================================================================================
-// La conciliación profunda calcula 14 banderas rojas EN PANTALLA (renderFlags en
+// La conciliación profunda calcula 15 banderas rojas EN PANTALLA (renderFlags en
 // conciliacion.html), pero solo viven dentro de cada cierre del día. Aquí las RECALCULAMOS
 // en el backend desde el `payload_json` guardado (mismas fórmulas, portadas 1:1) para que
 // dirección vea la matriz día × bandera de TODAS las conciliaciones. Solo lectura.
@@ -5169,6 +5194,7 @@ var BANDERAS_CIERRE_DEF = [
   { key:'pct_canc',   abbr:'%Canc',    title:'% Cancelaciones > 3% de cobros' },
   { key:'nosales',    abbr:'No-sale',  title:'No-sales (cajón sin venta) > 2 en el día' },
   { key:'cort_sinaut',abbr:'Cort.s/a', title:'Cortesías registradas sin autorización documentada' },
+  { key:'cort_docum', abbr:'Cort.doc', title:'Cortesías declaradas ≠ documentadas (faltan folio/nombre/importe)' },
   { key:'canc_sinaut',abbr:'Canc.s/a', title:'Cancelaciones registradas sin autorización documentada' },
   { key:'fuga',       abbr:'Fuga',     title:'Cancelación con baja en EFECTIVO sin autorización del Gerente Admin (patrón de fuga)' },
   { key:'prop_serv',  abbr:'Prop.sv',  title:'% Propinas con tarjeta fuera de rango 8–20% (por servicio)' },
@@ -5179,7 +5205,7 @@ var BANDERAS_CIERRE_DEF = [
   { key:'folios',     abbr:'Folios',   title:'Saltos en folios consecutivos' }
 ];
 
-// Recalcula las 14 banderas desde el payload de UNA conciliación. Devuelve sev por bandera:
+// Recalcula las 15 banderas desde el payload de UNA conciliación. Devuelve sev por bandera:
 // 'rojo' (encendida), 'ok' (evaluada, sin problema), 'na' (sin datos para evaluarla).
 function _banderasDeConciliacion(payload) {
   var P = payload || {};
@@ -5250,6 +5276,11 @@ function _banderasDeConciliacion(payload) {
   var corteSinAut = (apCorteNum > 0 && !_bcTrim(P.ap_corte_autor)) || (ciCorteNum > 0 && !_bcTrim(P.ci_corte_autor));
   var apCancN = _bcNum(P.ap_canc_num), ciCancN = _bcNum(P.ci_canc_num);
   var cancSinAut = (apCancN > 0 && !_bcTrim(P.ap_canc_autor)) || (ciCancN > 0 && !_bcTrim(P.ci_canc_autor));
+  // Cortesías declaradas (conteo) vs documentadas (renglones con folio/nombre/importe).
+  // Diferencia = cortesía sin papel (posible fuga). cortDocum se reusa abajo para el KPI total_cortesias.
+  var _cortsDoc = (Array.isArray(P.ci_cortesias) ? P.ci_cortesias : []).concat(Array.isArray(P.ap_cortesias) ? P.ap_cortesias : []);
+  var cortDocum = _cortsDoc.filter(function(c){ return c && (_bcTrim(c.folio) || _bcTrim(c.nombre) || _bcNum(c.importe) > 0); }).length;
+  var cortDeclar = apCorteNum + ciCorteNum;
 
   function sev(fired, hayDato){ return fired ? 'rojo' : (hayDato === false ? 'na' : 'ok'); }
 
@@ -5261,6 +5292,7 @@ function _banderasDeConciliacion(payload) {
   B.pct_canc    = { sev: sev(pctCanc > 3, cobrosDia > 0), val: pctCanc.toFixed(1)+'%' };
   B.nosales     = { sev: sev(nosalesDia > 2, true), val: String(nosalesDia) };
   B.cort_sinaut = { sev: sev(corteSinAut, true), val: corteSinAut ? 'sin autorizar' : 'ok' };
+  B.cort_docum  = { sev: sev(cortDeclar !== cortDocum, (cortDeclar > 0 || cortDocum > 0)), val: cortDeclar + ' decl · ' + cortDocum + ' doc' };
   B.canc_sinaut = { sev: sev(cancSinAut, true), val: cancSinAut ? 'sin autorizar' : 'ok' };
   B.fuga        = { sev: sev(rojasSinAut > 0, true), val: rojasSinAut > 0 ? (rojasSinAut+' sin sello') : (rojas > 0 ? (rojas+' autorizadas') : '0') };
   B.prop_serv   = { sev: sev((apPct>0 && (apPct<8||apPct>20)) || (ciPct>0 && (ciPct<8||ciPct>20)), (apPct>0 || ciPct>0)),
@@ -5280,8 +5312,7 @@ function _banderasDeConciliacion(payload) {
   // KPIs reales del día (mismas fórmulas que renderKPIs de conciliacion.html) — fuente única para
   // el Histórico (handleConciliacionesList). Evita la función vieja calcularKpisConciliacion que
   // leía campos inexistentes (ap_mix_pos_adulto / venta_total) y devolvía 0 en todo.
-  var _corts = (Array.isArray(P.ci_cortesias) ? P.ci_cortesias : []).concat(Array.isArray(P.ap_cortesias) ? P.ap_cortesias : []);
-  var totCort = _corts.filter(function(c){ return c && (_bcTrim(c.folio) || _bcTrim(c.nombre) || _bcNum(c.importe) > 0); }).length;
+  var totCort = cortDocum; // renglones documentados (calculado arriba; reuso para que KPI == bandera)
   var totCanc = cancs.filter(function(c){ return _bcTrim(c.folio) || _bcTrim(c.prod_orig) || _bcNum(c.monto_orig) > 0; }).length;
   var kpis = {
     total_comensales: apMix.pos + ciMix.pos,
@@ -5703,6 +5734,28 @@ function handleTableroMsgList(p){
   return { ok:true, mensajes: rows };
 }
 
+// Conteo de mensajes por fila (item_ref) de un módulo — para pintar el badge 💬 N en cada
+// renglón de las pestañas del Tablero (Cuadre/Banderas/SR12), igual que Cancelaciones/Justif. v378.
+// Lectura ligera: devuelve { ref: { total, pend } } sin traer los textos.
+function handleTableroMsgRefCounts(p){
+  var u = validarToken(p.token);
+  if (!u) return { ok:false, error:'Sesión inválida' };
+  if (!rolEs(u, TABLERO_MSG_PREGUNTAN)) return { ok:false, error:'Sin permisos' };
+  var sh = getSheet('TableroMensajes');
+  if (!sh) return { ok:true, counts:{} };
+  var modulo = String(p.modulo||'');
+  var counts = {};
+  rowsToObjects(sh).forEach(function(r){
+    if (r.empresa_id !== u.empresa_id) return;
+    if (modulo && r.modulo !== modulo) return;
+    var ref = String(r.item_ref==null?'':r.item_ref);
+    if (!counts[ref]) counts[ref] = { total:0, pend:0 };
+    counts[ref].total++;
+    if (String(r.estado||'pendiente') !== 'respondida') counts[ref].pend++;
+  });
+  return { ok:true, counts:counts };
+}
+
 // Bandeja del destinatario (cualquier usuario): mensajes dirigidos a MÍ.
 function handleTableroMsgMis(p){
   var u = validarToken(p.token);
@@ -5780,6 +5833,77 @@ function handleTableroRespuestasCount(p){
   rev('TableroMensajes', 'Tablero', function(r){ return String(r.item_label||r.modulo||'mensaje'); });
   det.sort(function(a,b){ return String(b.respondido_at).localeCompare(String(a.respondido_at)); });
   return { ok:true, pendientes: det.length, detalle: det.slice(0,30) };
+}
+
+// === Panel "Mi actividad de supervisión" (v389) ===
+// Para un usuario supervisor: entradas (días activos) en los últimos 7 días + total,
+// observaciones hechas (preguntas en las 3 hojas de cuestionamientos) + desglose,
+// última actividad y días sin entrar (para la alerta de inactividad).
+function _actividadDeUsuario(empresaId, usr, hoyLog){
+  var emailLc = String(usr.email||'').toLowerCase();
+  var obs = { cancelaciones:0, precios:0, tablero:0, total:0, ultima:'' };
+  function cnt(sheetName, key){
+    var sh = getSheet(sheetName); if (!sh) return;
+    rowsToObjects(sh).forEach(function(r){
+      if (r.empresa_id !== empresaId) return;
+      if (String(r.preguntado_por_email||'').toLowerCase() !== emailLc) return;
+      obs[key]++; obs.total++;
+      var pat = _fhComparable(r.preguntado_at);
+      if (pat > obs.ultima) obs.ultima = pat;
+    });
+  }
+  cnt('CancelacionesCuestionamientos','cancelaciones');
+  cnt('PreciosCuestionamientos','precios');
+  cnt('TableroMensajes','tablero');
+
+  var hace7 = _agendaSumaDias(hoyLog, -6); // ventana de 7 días lógicos (hoy incluido)
+  var diasTotal = {}, diasSemana = {}, ultimoAcceso = '';
+  var shA = getSheet('Accesos');
+  if (shA) rowsToObjects(shA).forEach(function(r){
+    if (r.empresa_id !== empresaId) return;
+    if (String(r.usuario_id||'') !== String(usr.id)) return;
+    // ⚠ Sheets (es_MX) convierte "2026-06-13" a Date al guardar → usar fechaToString al leer.
+    var d = fechaToString(r.dia_logico); if (!d) return;
+    diasTotal[d] = 1;
+    if (d >= hace7 && d <= hoyLog) diasSemana[d] = 1;
+    var ts = _fhComparable(r.creado_at);
+    if (ts > ultimoAcceso) ultimoAcceso = ts;
+  });
+
+  var ultimaAct = ultimoAcceso > obs.ultima ? ultimoAcceso : obs.ultima;
+  return {
+    usuario_id: usr.id, nombre: usr.nombre || usr.email, email: usr.email, rol: usr.rol,
+    entradas_semana: Object.keys(diasSemana).length,
+    entradas_total: Object.keys(diasTotal).length,
+    obs_total: obs.total, obs_cancelaciones: obs.cancelaciones, obs_precios: obs.precios, obs_tablero: obs.tablero,
+    ultima_obs: obs.ultima, ultimo_acceso: ultimoAcceso, ultima_actividad: ultimaAct,
+    dias_sin_entrar: ultimoAcceso ? _diasEntre(ultimoAcceso.slice(0,10), hoyLog) : null,
+    nunca_ha_entrado: !ultimoAcceso
+  };
+}
+
+function handleSupervisionActividad(p){
+  var u = validarToken(p.token);
+  if (!u) return { ok:false, error:'Sesión inválida' };
+  if (!rolEs(u, ['admin','gerente_plaza','auditoria','gerente_administrativo'])) return { ok:false, error:'Sin permisos' };
+  var hoyLog = diaLogicoRestaurante();
+  var resp = {
+    ok:true, hoy: hoyLog,
+    mi_actividad: _actividadDeUsuario(u.empresa_id, { id:u.id, email:u.email, rol:u.rol, nombre:u.nombre }, hoyLog),
+    ver_todos: false
+  };
+  // Tabla de TODOS los supervisores: solo dirección/auditoría (decisión Germán 2026-06-13).
+  if (rolEs(u, ['admin','auditoria'])) {
+    resp.ver_todos = true;
+    var sups = rowsToObjects(getSheet('Usuarios')).filter(function(x){
+      return x.empresa_id === u.empresa_id && esActivo(x.activo)
+        && SUPERVISOR_ROLES_ACTIVIDAD.indexOf(String(x.rol||'').toLowerCase()) !== -1;
+    });
+    resp.supervisores = sups.map(function(x){
+      return _actividadDeUsuario(u.empresa_id, { id:x.id, email:x.email, rol:x.rol, nombre:x.nombre }, hoyLog);
+    }).sort(function(a,b){ return (b.entradas_semana - a.entradas_semana) || (b.obs_total - a.obs_total); });
+  }
+  return resp;
 }
 
 function handleTableroRespuestasMarcarVistas(p){
@@ -7436,6 +7560,7 @@ function handleRequest(e) {
       case 'bootstrap_insumos_barra':      result = handleBootstrapInsumosBarra(params);      break;
       case 'ingredientes_list':     result = handleIngredientesList(params);    break;
       case 'ingrediente_update':    result = handleIngredienteUpdate(params);   break;
+      case 'ingrediente_fusionar':  result = handleIngredienteFusionar(params);  break;
       case 'recetas_list':          result = handleRecetasList(params);         break;
       case 'receta_get':            result = handleRecetaGet(params);           break;
       case 'receta_proponer_cambio':result = handleRecetaProponerCambio(params);break;
@@ -7470,6 +7595,7 @@ function handleRequest(e) {
       case 'sr12_diagnostico_schema':    result = handleSr12DiagnosticoSchema(params);    break;
       case 'sr12_migrar_schema_legacy':  result = handleSr12MigrarSchemaLegacy(params);   break;
       case 'sr12_backup_ingredientes':   result = handleSr12BackupIngredientes(params);   break;
+      case 'sr12_restaurar_ingredientes': result = handleSr12RestaurarIngredientes(params); break;
       // v270 — F3 Fase C: importador de compras (historial de precios reales)
       case 'sr12_compras_importar':      result = handleSr12ComprasImportar(params);      break;
       case 'sr12_cancelaciones_importar': result = handleSr12CancelacionesImportar(params); break;
@@ -7482,6 +7608,7 @@ function handleRequest(e) {
       case 'direccion_ventas_barra':      result = handleDireccionVentasBarra(params);      break;
       case 'direccion_banderas_cierre':   result = handleDireccionBanderasCierre(params);    break;
       case 'direccion_resumen':           result = handleDireccionResumen(params);           break;
+      case 'supervision_actividad':       result = handleSupervisionActividad(params);       break;
       // v313 — Mensajes dirigidos del Tablero
       case 'tablero_msg_destinatarios':   result = handleTableroMsgDestinatarios(params);    break;
       case 'tablero_msg_crear':           result = handleTableroMsgCrear(params);            break;
@@ -7489,6 +7616,7 @@ function handleRequest(e) {
       case 'tablero_msg_list':            result = handleTableroMsgList(params);             break;
       case 'tablero_msg_mis':             result = handleTableroMsgMis(params);              break;
       case 'tablero_msg_count':           result = handleTableroMsgCount(params);            break;
+      case 'tablero_msg_ref_counts':      result = handleTableroMsgRefCounts(params);        break;
       // v315 — Aviso al que pregunta cuando le responden
       case 'tablero_respuestas_count':         result = handleTableroRespuestasCount(params);         break;
       case 'tablero_respuestas_marcar_vistas': result = handleTableroRespuestasMarcarVistas(params);   break;
@@ -7517,6 +7645,7 @@ function handleRequest(e) {
       case 'sr12_solicitar_aprobacion':       result = handleSr12SolicitarAprobacion(params);       break;
       case 'sr12_aprobaciones_list':          result = handleSr12AprobacionesList(params);          break;
       case 'sr12_aprobacion_aprobar':         result = handleSr12AprobacionAprobar(params);         break;
+      case 'sr12_aprobacion_aprobar_aplicar': result = handleSr12AprobacionAprobarYAplicar(params); break;
       case 'sr12_aprobacion_rechazar':        result = handleSr12AprobacionRechazar(params);        break;
       case 'sr12_aprobaciones_count':         result = handleSr12AprobacionesCount(params);         break;
       // v265 — Justificaciones de variación de precios
@@ -7542,8 +7671,8 @@ function handleRequest(e) {
 // =====================================================================================
 var AGENDA_PATRON_COLS = ['id','empresa_id','sucursal_id','area','usuario_email','usuario_nombre','tipo','dias_semana','vigente_desde','vigente_hasta','activo','creado_at','creado_por','actualizado_at','actualizado_por'];
 var AGENDA_EXCEPCION_COLS = ['id','empresa_id','sucursal_id','fecha','area','usuario_email','usuario_nombre','tipo','estado','motivo','registrado_por','creado_at'];
-var AGENDA_AREAS = ['cajera','cocina','churrasca'];          // Fase 1: solo estas tres
-var AGENDA_ROLES_OPERATIVOS = ['cajera','cocina','churrasca']; // roles de personas que aparecen en la cuadrícula
+var AGENDA_AREAS = ['cajera','cocina','churrasca','host'];
+var AGENDA_ROLES_OPERATIVOS = ['cajera','cocina','churrasca','host']; // roles de personas que aparecen en la cuadrícula
 var AGENDA_ROLES_EDITA = ['admin','gerente_administrativo','gerente_restaurante'];
 var AGENDA_ROLES_LEE   = ['admin','gerente_administrativo','gerente_restaurante','auditoria'];
 
@@ -7890,6 +8019,15 @@ function _auditOperaron(empresaId, fecha, area, sucursalId) {
   return res;
 }
 
+// De los esperados ACTIVOS (planeado/cubre) de un día, ¿quién es el responsable real?
+// Regla (v377): si hay titular(es) activo(s), ellos responden; el suplente SÓLO responde
+// cuando no queda ningún titular activo (el titular descansa/falta y el suplente cubre).
+// Así dejamos de culpar al suplente cuando el titular sí estaba programado ese día.
+function _auditResponsables(activos) {
+  var tit = (activos || []).filter(function(a){ return String(a.tipo || 'titular').toLowerCase() === 'titular'; });
+  return tit.length ? tit : (activos || []);
+}
+
 // Pendientes ACUMULADOS del comprador (rol 'comprador'). A diferencia de cajera/cocina/
 // churrasca, NO dependen de la agenda ni de "operar un día": son el estado del catálogo de
 // insumos (huérfanos SR12 sin vincular + datos sucios). Conteo ligero (números, no detalle).
@@ -7957,8 +8095,106 @@ function _auditMensaje(pe, fecha) {
   var nom = String(pe.usuario_nombre||'').trim().split(' ')[0] || pe.usuario_nombre;
   if (pe.ok) return '✅ ' + nom + ' — ' + fecha + ': todo en orden, sin pendientes. ¡Gracias! 💪';
   var ic = { critica:'🔴', alta:'🟠', media:'🟡' };
-  var lin = pe.pendientes.map(function(x){ return (ic[x.sev]||'•') + ' ' + x.titulo; });
+  var lin = pe.pendientes.map(function(x){
+    var d = Number(x.dias_atraso) || 0;
+    var suf = d >= 1 ? ' — ⏳ ' + d + (d === 1 ? ' día' : ' días') + ' de atraso' : '';
+    return (ic[x.sev]||'•') + ' ' + x.titulo + suf;
+  });
   return '🔔 ' + nom + ' — pendientes del ' + fecha + ':\n' + lin.join('\n') + '\n\nEn cuanto puedas, ponte al día. Cualquier duda, con Luis.';
+}
+
+// Días enteros entre dos fechas ISO (yyyy-mm-dd). Negativo o no parseable → 0.
+function _diasEntre(isoDesde, isoHasta) {
+  var a = String(isoDesde||'').split('-'), b = String(isoHasta||'').split('-');
+  if (a.length < 3 || b.length < 3) return 0;
+  var da = new Date(parseInt(a[0],10), parseInt(a[1],10)-1, parseInt(a[2],10));
+  var db = new Date(parseInt(b[0],10), parseInt(b[1],10)-1, parseInt(b[2],10));
+  if (isNaN(da) || isNaN(db)) return 0;
+  var d = Math.round((db - da) / 86400000);
+  return d > 0 ? d : 0;
+}
+
+// Estado de pendientes del gerente administrativo (Luis): cancelaciones §07 sin documentar
+// (con la fecha de la cara sin documentar más vieja = evidencia para los días de atraso) +
+// usuarios barman/panadero faltantes. Solo lectura.
+function _auditGteAdminEstado(empresaId) {
+  var canc = { total:0, sin_doc:0, caras_sin_doc:0, desde:'' };
+  try {
+    var cc = _cancelacionesSr12Core(empresaId, '', '');
+    if (cc && cc.resumen) {
+      canc.total = cc.resumen.total || 0;
+      canc.sin_doc = cc.resumen.sin_documentar || 0;
+      canc.caras_sin_doc = cc.resumen.caras_sin_documentar || 0;
+      var fechas = (cc.detalle||[]).filter(function(d){ return d.es_caro && !d.documentado && d.fecha; })
+        .map(function(d){ return d.fecha; }).sort();
+      canc.desde = fechas.length ? fechas[0] : '';
+    }
+  } catch(e){}
+  var roles = {};
+  rowsToObjects(getSheet('Usuarios')).forEach(function(x){
+    if (x.empresa_id !== empresaId || !esActivo(x.activo)) return;
+    roles[String(x.rol||'').toLowerCase()] = true;
+  });
+  return { canc:canc, faltan_barman: !roles['barman'], faltan_panadero: !roles['panadero'] };
+}
+
+// REGISTRO de días de atraso (hoja SeguimientoPendientes). Para cada (persona, clave) abierto,
+// guarda la PRIMERA vez que se detectó; los días de atraso = hoy − primera_detección. Si el
+// pendiente trae evidencia de fecha (desde, ej. la cancelación más vieja), esa fecha es el piso.
+// SIEMPRE atribuye dias_atraso a cada pendiente (aunque no escriba); solo PERSISTE si doWrite
+// (la corrida oficial del bot), nunca al ver fechas históricas en la pantalla. v379.
+function _seguimientoSync(empresaId, hoy, personasArr, doWrite) {
+  var COLS = ['empresa_id','persona_email','clave','titulo','area','sev','primera_deteccion','ultima_deteccion','dias_atraso','activo','resuelto_en','actualizado'];
+  var sh = asegurarHoja('SeguimientoPendientes', COLS);
+  var rows = rowsToObjects(sh);
+  var idx = {}; // empresa+email+clave (última fila gana) → fila
+  rows.forEach(function(r){
+    if (r.empresa_id !== empresaId) return;
+    idx[String(r.persona_email||'').toLowerCase() + '|' + String(r.clave||'')] = r;
+  });
+
+  var activasHoy = {};
+  (personasArr||[]).forEach(function(pe){
+    (pe.pendientes||[]).forEach(function(pend){
+      var clave = pend.clave || pend.titulo;
+      var k = String(pe.usuario_email||'').toLowerCase() + '|' + clave;
+      var ex = idx[k];
+      var primera;
+      if (ex && esActivo(ex.activo)) {
+        primera = fechaToString(ex.primera_deteccion) || hoy;
+      } else {
+        primera = (pend.desde && String(pend.desde) < hoy) ? String(pend.desde) : hoy;
+      }
+      pend.dias_atraso = _diasEntre(primera, hoy);
+      pend.desde_fecha = primera;
+      activasHoy[k] = { email:pe.usuario_email, nombre:pe.usuario_nombre, area:pe.area, pend:pend, primera:primera };
+    });
+  });
+
+  if (!doWrite) return;
+
+  Object.keys(activasHoy).forEach(function(k){
+    var a = activasHoy[k], ex = idx[k];
+    var clave = a.pend.clave || a.pend.titulo;
+    if (ex && esActivo(ex.activo)) {
+      // Mantener primera_deteccion; refrescar el resto.
+      sh.getRange(ex._row, 1, 1, COLS.length).setValues([[
+        empresaId, a.email, clave, a.pend.titulo, a.area, a.pend.sev||'',
+        fechaToString(ex.primera_deteccion) || a.primera, hoy, a.pend.dias_atraso, true, '', hoy
+      ]]);
+    } else {
+      // Nuevo (o reaparece tras resolverse) → fila nueva, conservando el historial resuelto.
+      sh.appendRow([ empresaId, a.email, clave, a.pend.titulo, a.area, a.pend.sev||'', a.primera, hoy, a.pend.dias_atraso, true, '', hoy ]);
+    }
+  });
+
+  // Cerrar (resolver) los que estaban activos y hoy ya no aparecen.
+  rows.forEach(function(r){
+    if (r.empresa_id !== empresaId || !esActivo(r.activo)) return;
+    var k = String(r.persona_email||'').toLowerCase() + '|' + String(r.clave||'');
+    if (activasHoy[k]) return;
+    sh.getRange(r._row, 10, 1, 3).setValues([[ false, hoy, hoy ]]); // activo, resuelto_en, actualizado
+  });
 }
 
 function handleAuditoriaMatutina(p) {
@@ -7967,12 +8203,12 @@ function handleAuditoriaMatutina(p) {
   if (!rolEs(u, AUDIT_MATUTINA_ROLES)) return { ok:false, error:'Sin permisos' };
   var fecha = String(p.fecha||'').trim() || _agendaSumaDias(diaLogicoRestaurante(), -1);  // default: AYER (día lógico)
   var suc = String(p.sucursal_id||'').trim();
-  return _auditoriaMatutinaCore(u.empresa_id, fecha, suc);
+  return _auditoriaMatutinaCore(u.empresa_id, fecha, suc, false); // ver = NO persiste el registro
 }
 
 // Núcleo del motor matutino, separado del handler para poderlo correr SIN token de
 // sesión (trigger diario del bot de Telegram, v367). Solo lectura.
-function _auditoriaMatutinaCore(empresaId, fecha, suc) {
+function _auditoriaMatutinaCore(empresaId, fecha, suc, doWrite) {
   fecha = String(fecha||'').trim() || _agendaSumaDias(diaLogicoRestaurante(), -1);
   suc = String(suc||'').trim();
 
@@ -7993,9 +8229,9 @@ function _auditoriaMatutinaCore(empresaId, fecha, suc) {
     if (!personas[email]) personas[email] = { usuario_email:email, usuario_nombre:nombre||email, area:area, pendientes:[], ok:true };
     return personas[email];
   }
-  function addPend(email, nombre, area, titulo, sev) {
+  function addPend(email, nombre, area, titulo, sev, clave, desde) {
     var pe = ensure(email, nombre, area);
-    pe.pendientes.push({ titulo:titulo, sev:sev }); pe.ok = false;
+    pe.pendientes.push({ titulo:titulo, sev:sev, clave:clave || ('pend:'+titulo), desde:desde || '' }); pe.ok = false;
   }
 
   var areasOut = [];
@@ -8007,24 +8243,37 @@ function _auditoriaMatutinaCore(empresaId, fecha, suc) {
     var sinAgenda = esperados.length === 0;
 
     if (area === 'cajera') {
-      // Responsables a evaluar: los activos de la agenda; si no hay agenda, quien haya operado el corte.
-      var resp = activos.length ? activos.map(function(a){ return { email:a.usuario_email, nombre:a.usuario_nombre }; })
-                                : Object.keys(operaron).map(function(em){ return { email:em, nombre:em }; });
-      resp.forEach(function(rc){
-        ensure(rc.email, rc.nombre, area);
-        if (!concExiste) {
-          if (activos.length) addPend(rc.email, rc.nombre, area, 'No se abrió el corte de caja del día.', 'critica');
-        } else if (concEstado !== 'cerrada') {
-          addPend(rc.email, rc.nombre, area, 'El corte de caja quedó SIN CERRAR (falta sellar tu cierre).', 'critica');
-        } else {
-          banderasRojas.forEach(function(b){ addPend(rc.email, rc.nombre, area, 'Bandera roja: ' + _auditBanderaLabel(b.key) + (b.val ? (' (' + b.val + ')') : ''), 'alta'); });
-        }
-      });
+      // Responsables del día = titular-preferente (v377). Si no hay agenda, caemos a quien operó.
+      var responsables = activos.length ? _auditResponsables(activos) : [];
+      if (!concExiste) {
+        // Nadie abrió el corte: culpa a los responsables programados (no a todos los activos).
+        responsables.forEach(function(a){
+          ensure(a.usuario_email, a.usuario_nombre, area);
+          addPend(a.usuario_email, a.usuario_nombre, area, 'No se abrió el corte de caja del día.', 'critica', 'cajera:corte_no_abierto', fecha);
+        });
+      } else {
+        // El corte existe: el dueño del pendiente es QUIEN lo operó (si lo sabemos); si no,
+        // los responsables programados. Evita culpar a un titular que ese día no trabajó.
+        var duenos = Object.keys(operaron).length
+          ? Object.keys(operaron).map(function(em){
+              var m = esperados.filter(function(e){ return e.usuario_email === em; })[0];
+              return { usuario_email: em, usuario_nombre: m ? m.usuario_nombre : em };
+            })
+          : responsables;
+        duenos.forEach(function(a){
+          ensure(a.usuario_email, a.usuario_nombre, area);
+          if (concEstado !== 'cerrada') {
+            addPend(a.usuario_email, a.usuario_nombre, area, 'El corte de caja quedó SIN CERRAR (falta sellar tu cierre).', 'critica', 'cajera:corte_sin_cerrar', fecha);
+          } else {
+            banderasRojas.forEach(function(b){ addPend(a.usuario_email, a.usuario_nombre, area, 'Bandera roja: ' + _auditBanderaLabel(b.key) + (b.val ? (' (' + b.val + ')') : ''), 'alta', 'cajera:bandera:'+b.key, fecha); });
+          }
+        });
+      }
     } else {
-      // cocina / churrasca: el esperado debe haber registrado charolas.
-      activos.forEach(function(e){
+      // cocina / churrasca: el responsable (titular-preferente) debe haber registrado charolas.
+      _auditResponsables(activos).forEach(function(e){
         ensure(e.usuario_email, e.usuario_nombre, area);
-        if (!operaron[e.usuario_email]) addPend(e.usuario_email, e.usuario_nombre, area, 'No registró charolas de ' + area + ' este día.', 'critica');
+        if (!operaron[e.usuario_email]) addPend(e.usuario_email, e.usuario_nombre, area, 'No registró charolas de ' + area + ' este día.', 'critica', area+':sin_charolas', fecha);
       });
     }
 
@@ -8048,12 +8297,12 @@ function _auditoriaMatutinaCore(empresaId, fecha, suc) {
     compradores.forEach(function(c){
       var em = String(c.email||'').toLowerCase();
       ensure(em, c.nombre, 'compras');
-      if (cat.huerfanos > 0) addPend(em, c.nombre, 'compras', cat.huerfanos + ' insumos del POS sin vincular (Recetas → Ingredientes → 🪄 sugeridor, "Vincular todas las de alta confianza").', 'alta');
+      if (cat.huerfanos > 0) addPend(em, c.nombre, 'compras', cat.huerfanos + ' insumos del POS sin vincular (Recetas → Ingredientes → 🪄 sugeridor, "Vincular todas las de alta confianza").', 'alta', 'compras:huerfanos_sr12', '');
       if (cat.sin_unidad > 0 || cat.sin_precio > 0) {
         var partes = [];
         if (cat.sin_unidad > 0) partes.push(cat.sin_unidad + ' sin unidad');
         if (cat.sin_precio > 0) partes.push(cat.sin_precio + ' sin precio');
-        addPend(em, c.nombre, 'compras', 'Catálogo por limpiar: ' + partes.join(' y ') + ' (🩺 Diagnóstico de datos; corrige con clic directo en la celda).', 'media');
+        addPend(em, c.nombre, 'compras', 'Catálogo por limpiar: ' + partes.join(' y ') + ' (🩺 Diagnóstico de datos; corrige con clic directo en la celda).', 'media', 'compras:catalogo_sucio', '');
       }
     });
   }
@@ -8082,7 +8331,7 @@ function _auditoriaMatutinaCore(empresaId, fecha, suc) {
     resp.forEach(function(c){
       var em = String(c.email||'').toLowerCase();
       ensure(em, c.nombre, areasRol[0]);
-      addPend(em, c.nombre, areasRol[0], sosp + ' receta(s) de ' + etiqueta + ' con cantidad o costo absurdo por corregir' + ejemplos + '.', 'alta');
+      addPend(em, c.nombre, areasRol[0], sosp + ' receta(s) de ' + etiqueta + ' con cantidad o costo absurdo por corregir' + ejemplos + '.', 'alta', areasRol[0]+':recetas_absurdas', '');
     });
   });
 
@@ -8090,7 +8339,7 @@ function _auditoriaMatutinaCore(empresaId, fecha, suc) {
   // acumulada atribuida al DUEÑO de cada bitácora (host_email) — no necesita agenda.
   // Mismo criterio que abiertas_pasadas de handleBitacoraList (sucursal vacía = global).
   var hoyLog = diaLogicoRestaurante();
-  var abiertasPorHost = {};
+  var abiertasPorHost = {}, abiertasDesde = {};
   rowsToObjects(getSheet('Bitacoras')).forEach(function(b){
     if (b.empresa_id !== empresaId) return;
     if (suc && b.sucursal_id && b.sucursal_id !== suc) return;
@@ -8101,6 +8350,7 @@ function _auditoriaMatutinaCore(empresaId, fecha, suc) {
     if (!emH) return;
     if (!abiertasPorHost[emH]) abiertasPorHost[emH] = [];
     abiertasPorHost[emH].push((b.folio || b.id) + ' del ' + fb);
+    if (!abiertasDesde[emH] || fb < abiertasDesde[emH]) abiertasDesde[emH] = fb;
   });
   if (Object.keys(abiertasPorHost).length) {
     var nombresIdx = {};
@@ -8112,15 +8362,38 @@ function _auditoriaMatutinaCore(empresaId, fecha, suc) {
       var ej = lista.slice(0,3).join(', ') + (lista.length > 3 ? '…' : '');
       var nomH = nombresIdx[emH] || emH;
       ensure(emH, nomH, 'host');
-      addPend(emH, nomH, 'host', lista.length + ' servicio(s) de días pasados sin cerrar en Bitácora (' + ej + '). Ábrelo y ciérralo.', 'critica');
+      addPend(emH, nomH, 'host', lista.length + ' servicio(s) de días pasados sin cerrar en Bitácora (' + ej + '). Ábrelo y ciérralo.', 'critica', 'host:servicios_abiertos', abiertasDesde[emH] || '');
     });
   }
 
-  var personasArr = Object.keys(personas).map(function(k){
-    var pe = personas[k];
-    pe.mensaje_texto = _auditMensaje(pe, fecha);
-    return pe;
+  // Gerente administrativo (Luis): pendientes acumulados de dirección — documentar las
+  // cancelaciones §07 y dar de alta los usuarios barman/panadero. Atribuido a cada usuario con
+  // rol gerente_administrativo (en Fogueira = solo Luis; los demás jefes son admin). v379.
+  var gteAdmins = rowsToObjects(getSheet('Usuarios')).filter(function(x){
+    return x.empresa_id === empresaId && esActivo(x.activo) && String(x.rol||'').toLowerCase() === 'gerente_administrativo';
   });
+  if (gteAdmins.length) {
+    var ga = _auditGteAdminEstado(empresaId);
+    gteAdmins.forEach(function(c){
+      var em = String(c.email||'').toLowerCase();
+      ensure(em, c.nombre, 'gte_admin');
+      if (ga.canc.caras_sin_doc > 0) {
+        addPend(em, c.nombre, 'gte_admin', ga.canc.caras_sin_doc + ' cancelación(es) caras del POS sin documentar en la conciliación §07 (de ' + ga.canc.sin_doc + ' sin documentar en total).', 'critica', 'gteadmin:cancelaciones_sin_doc', ga.canc.desde);
+      }
+      if (ga.faltan_barman || ga.faltan_panadero) {
+        var faltan = [];
+        if (ga.faltan_barman) faltan.push('barman');
+        if (ga.faltan_panadero) faltan.push('panadero');
+        addPend(em, c.nombre, 'gte_admin', 'Faltan crear los usuarios de ' + faltan.join(' y ') + ' (sin ellos no se enciende barra/panadería).', 'alta', 'gteadmin:usuarios_barra', '');
+      }
+    });
+  }
+
+  var personasArr = Object.keys(personas).map(function(k){ return personas[k]; });
+  // Registro de días de atraso: atribuye dias_atraso a cada pendiente (y lo PERSISTE solo en la
+  // corrida oficial del bot, doWrite=true). El mensaje se arma DESPUÉS para incluir los días.
+  try { _seguimientoSync(empresaId, diaLogicoRestaurante(), personasArr, doWrite === true); } catch(e){}
+  personasArr.forEach(function(pe){ pe.mensaje_texto = _auditMensaje(pe, fecha); });
 
   return {
     ok: true, fecha: fecha,

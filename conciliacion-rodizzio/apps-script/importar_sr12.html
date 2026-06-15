@@ -1,0 +1,1176 @@
+﻿<? var __tokenInyectado = '';
+try { __tokenInyectado = (queryParams && queryParams.t) ? String(queryParams.t) : ''; } catch(e){}
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Importar SR12 · Fogueira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<base target="_top">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzOCc+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSdmZycgeDE9JzAnIHkxPScwJyB4Mj0nMCcgeTI9JzEnPjxzdG9wIG9mZnNldD0nMCUnIHN0b3AtY29sb3I9JyNlOGM0NmEnLz48c3RvcCBvZmZzZXQ9JzUwJScgc3RvcC1jb2xvcj0nI2M4OWE0YScvPjxzdG9wIG9mZnNldD0nMTAwJScgc3RvcC1jb2xvcj0nIzlhNzMzMCcvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGQ9J00xNiAxLjUgQyAxNyA2LDIyIDksMjMgMTQgQyAyNCAxOCwyMiAyMSwyMCAyMiBDIDIyIDI0LDI0IDI3LDI0IDMxIEMgMjQgMzUsMjEgMzcsMTYgMzcgQyAxMSAzNyw4IDM1LDggMzEgQyA4IDI4LDEwIDI2LDExIDI0IEMgOSAyMiw3IDE5LDggMTUgQyA5IDExLDEzIDExLDE0IDcgQyAxNSA1LDE2IDMsMTYgMS41WicgZmlsbD0ndXJsKCNmZyknLz48cGF0aCBkPSdNMTYgMTYgQyAxNyAxOSwxOSAyMSwxOSAyNSBDIDE5IDI4LDE3IDMwLDE2IDMwIEMgMTUgMzAsMTMgMjgsMTMgMjUgQyAxMyAyMiwxNSAxOSwxNiAxNlonIGZpbGw9JyMwYzA5MDcnIG9wYWNpdHk9Jy41NScvPjwvc3ZnPg==">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500;1,600&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap">
+<!-- xlsx (sheet.js) para parsear los .XLS del SR12 en el navegador antes de mandar al backend -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<style>
+:root {
+  /* Paleta handoff oficial Fogueira (v161) */
+  --ink:#0c0907; --ink-soft:#1a1310;
+  --ember:#c4322a; --ember-hot:#e04826; --ember-deep:#8a1f17;
+  --cream:#f6f1e8; --cream-warm:#efe5d2; --cream-line:#e4d9c2;
+  --bone:#fffdf8; --slate-soft:#5d6c80; --smoke:#8a8278;
+  --gold:#c89a4a; --gold-soft:#e8c46a;
+  /* Aliases legacy */
+  --navy:var(--ink); --navy-2:var(--ink-soft); --sky:var(--gold); --sky-2:rgba(200,154,74,.18);
+  --mist:var(--cream-line); --muted:var(--slate-soft); --line:var(--cream-line); --paper:var(--cream-warm);
+  --accent:var(--ember); --good:#1E7F5C; --warn:var(--gold); --bad:var(--ember-deep); --purple:#7C5BD9;
+  --brand:var(--ember); --brand-deep:var(--ember-deep); --brand-tint:rgba(196,50,42,.08);
+  /* Tipografía handoff */
+  --font-sans:'DM Sans',system-ui,-apple-system,sans-serif;
+  --font-serif:'Cormorant Garamond',Georgia,serif;
+  --font-mono:'DM Mono',ui-monospace,'SF Mono',monospace;
+  --r-sm:4px; --r-md:6px; --r-lg:7px; --r-xl:10px; --r-2xl:12px;
+}
+*,*::before,*::after{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font-sans);color:var(--ink);background:var(--cream);line-height:1.55;-webkit-font-smoothing:antialiased;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;}
+
+/* ── Topbar oscuro (handoff Fogueira) ── */
+header.app{background:var(--ink);color:var(--cream);border-bottom:1px solid rgba(200,154,74,.22);position:sticky;top:0;z-index:30}
+.head-row{max-width:1480px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+.brand-cluster{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand-flame{display:flex;align-items:center;gap:9px}
+.brand-flame svg{display:block;flex-shrink:0}
+.brand-flame .wordmark{font-family:'DM Sans',sans-serif;font-weight:800;font-size:18px;letter-spacing:.02em;color:var(--gold);line-height:1}
+.brand-sep-v{width:1px;height:30px;background:rgba(246,241,232,.15);flex-shrink:0}
+.brand-eyebrow,.topbar-sub{font-family:var(--font-mono);font-size:10px;letter-spacing:.22em;color:rgba(246,241,232,.5);text-transform:uppercase;font-weight:500;display:block;line-height:1.2}
+.brand-name{font-family:var(--font-serif);font-style:italic;font-weight:500;font-size:22px;color:var(--cream);line-height:1.1;margin-top:3px}
+.brand-empresa{font-family:'DM Sans',sans-serif;font-weight:600;font-size:10px;color:var(--gold);padding:5px 12px;background:rgba(200,154,74,.12);border:1px solid rgba(200,154,74,.4);letter-spacing:.18em;text-transform:uppercase}
+.head-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:var(--r-md);font-family:var(--font-sans);font-size:12.5px;font-weight:500;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;transition:all .15s;text-decoration:none;}
+.btn:hover{background:var(--paper);border-color:var(--brand)}
+.btn.primary{background:var(--ink);color:var(--gold);border-color:var(--ink)}
+.btn.primary:hover{background:#000;border-color:#000}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.danger:hover{background:rgba(196,50,42,.08)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.head-actions .btn{background:rgba(246,241,232,.04);color:var(--cream);border-color:rgba(246,241,232,.18)}
+.head-actions .btn:hover{background:rgba(200,154,74,.12);border-color:var(--gold);color:var(--cream)}
+.head-actions .btn.primary{background:var(--gold);color:var(--ink);border-color:var(--gold);font-weight:600}
+.head-actions .btn.primary:hover{background:var(--gold-soft);border-color:var(--gold-soft);color:var(--ink)}
+.btn-logout{color:rgba(246,241,232,.65) !important}
+.btn-logout:hover{background:rgba(196,50,42,.12) !important;border-color:var(--ember) !important;color:var(--ember-hot) !important}
+
+/* Main */
+main{max-width:1480px;margin:0 auto;padding:22px}
+.page-head{margin-bottom:18px}
+.page-head h1{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:32px;letter-spacing:-.015em;margin:0;color:var(--ink)}
+.page-head .desc{font-size:13px;color:var(--muted);margin-top:4px;max-width:760px}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;border-bottom:2px solid var(--line);margin-bottom:18px;flex-wrap:wrap}
+.tab{padding:10px 16px;cursor:pointer;font-family:var(--font-sans);font-size:14px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;}
+.tab:hover{color:var(--ink)}
+.tab.active{color:var(--brand);border-bottom-color:var(--brand)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* Cards */
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r-xl);padding:18px;margin-bottom:16px}
+.card h2{margin:0 0 12px;font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:22px;color:var(--ink)}
+.card .desc{font-size:13px;color:var(--muted);margin-bottom:14px}
+
+/* Dropzone */
+.dropzone{border:2px dashed var(--line);border-radius:var(--r-xl);padding:50px 22px;text-align:center;background:#fff;transition:all .2s;cursor:pointer;}
+.dropzone:hover, .dropzone.dragover{border-color:var(--brand);background:var(--brand-tint)}
+.dropzone .icon{font-size:46px;margin-bottom:8px;opacity:.7}
+.dropzone .title{font-size:16px;font-weight:500;color:var(--ink);margin-bottom:6px}
+.dropzone .sub{font-size:13px;color:var(--muted)}
+.dropzone input[type="file"]{display:none}
+
+/* Lista de archivos cargados */
+.archivos-list{margin-top:16px}
+.archivo-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:8px;background:#fff}
+.archivo-item.ok{border-color:rgba(30,127,92,.3);background:rgba(30,127,92,.04)}
+.archivo-item.error{border-color:rgba(159,43,30,.3);background:rgba(159,43,30,.04)}
+.archivo-item .icon{font-size:18px}
+.archivo-item .info{flex:1;min-width:0}
+.archivo-item .name{font-weight:500;color:var(--ink);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.archivo-item .meta{font-size:11.5px;color:var(--muted);font-family:var(--font-mono);margin-top:2px}
+.archivo-item .area-tag{font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:3px;background:var(--brand-tint);color:var(--brand-deep);font-weight:500}
+.archivo-item .quitar{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:2px 8px;border-radius:4px}
+.archivo-item .quitar:hover{background:rgba(159,43,30,.06);color:var(--bad)}
+
+/* Resumen del preview */
+.preview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+.preview-tile{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:14px}
+.preview-tile.ok{border-color:rgba(30,127,92,.3);background:rgba(30,127,92,.04)}
+.preview-tile.warn{border-color:rgba(185,122,27,.3);background:rgba(185,122,27,.06)}
+.preview-tile.bad{border-color:rgba(159,43,30,.3);background:rgba(159,43,30,.04)}
+.preview-tile .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-mono);margin-bottom:4px}
+.preview-tile .val{font-size:24px;font-weight:600;color:var(--ink);font-family:var(--font-serif);font-style:italic}
+.preview-tile .sub{font-size:11.5px;color:var(--muted);margin-top:4px}
+
+/* Tabla */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-md)}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;background:#fff}
+.tbl thead th{background:var(--paper);text-align:left;padding:10px 12px;font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--line);font-family:var(--font-mono);position:sticky;top:0;z-index:1}
+.tbl tbody td{padding:9px 12px;border-bottom:1px solid var(--line)}
+.tbl tbody tr:hover{background:var(--paper)}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl .num{text-align:right;font-family:var(--font-mono)}
+.tbl .nombre{font-weight:500}
+.tbl .clave{color:var(--muted);font-family:var(--font-mono);font-size:11.5px}
+.accion-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10.5px;font-family:var(--font-mono);letter-spacing:.04em;text-transform:uppercase;font-weight:500}
+.accion-nuevo_sr12{background:rgba(30,127,92,.12);color:var(--good)}
+.accion-actualizado_costo{background:rgba(28,28,28,.06);color:var(--ink)}
+.accion-sin_cambio{background:transparent;color:var(--muted)}
+.accion-sospechoso{background:rgba(185,122,27,.14);color:var(--warn)}
+.accion-sin_parser{background:rgba(159,43,30,.10);color:var(--bad)}
+.accion-creado_fogueira{background:rgba(124,91,217,.12);color:var(--purple)}
+
+.match-tag{display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;font-family:var(--font-mono)}
+.match-clave{background:rgba(30,127,92,.10);color:var(--good)}
+.match-nombre_exacto{background:rgba(124,91,217,.10);color:var(--purple)}
+.match-nombre_similar{background:rgba(185,122,27,.10);color:var(--warn)}
+.match-sin_match{background:rgba(159,43,30,.06);color:var(--bad)}
+
+/* Filtros / chips */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:14px;font-size:12px;background:#fff;border:1px solid var(--line);cursor:pointer;color:var(--muted);font-weight:500}
+.chip:hover{border-color:var(--brand);color:var(--ink)}
+.chip.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+/* Familias config */
+.familia-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:6px;background:#fff;cursor:pointer;transition:all .15s}
+.familia-row:hover{border-color:var(--brand)}
+.familia-row.active{background:var(--brand-tint);border-color:var(--brand)}
+.familia-row .check{width:18px;height:18px;border:1.5px solid var(--line);border-radius:3px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:12px;flex-shrink:0;background:#fff}
+.familia-row.active .check{background:var(--brand);border-color:var(--brand)}
+.familia-row .name{flex:1;font-size:14px}
+.familia-row .recomendado{font-size:11px;color:var(--good);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.06em}
+
+/* Toast */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:var(--r-md);font-size:14px;z-index:1000;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:90vw;opacity:0;transition:opacity .2s, transform .2s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+.toast.error{background:var(--bad)}
+.toast.success{background:var(--good)}
+
+/* Sticky bar de acciones */
+.sticky-bar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:14px 22px;margin:0 -22px -22px;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.sticky-bar .info{font-size:13px;color:var(--muted)}
+
+/* Search input */
+.search-input{padding:9px 12px;border:1px solid var(--line);border-radius:var(--r-md);font-family:inherit;font-size:13px;width:100%;max-width:340px}
+.search-input:focus{outline:none;border-color:var(--brand)}
+
+.muted{color:var(--muted)}
+.text-good{color:var(--good)}
+.text-warn{color:var(--warn)}
+.text-bad{color:var(--bad)}
+.empty-state{padding:50px 22px;text-align:center;color:var(--muted);font-size:14px}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="head-row">
+    <div class="brand-cluster">
+      <div class="brand-flame" aria-label="Fogueira">
+        <svg width="22" height="26" viewBox="0 0 32 38" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="flameGradIs" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e8c46a"/>
+              <stop offset="50%" stop-color="#c89a4a"/>
+              <stop offset="100%" stop-color="#9a7330"/>
+            </linearGradient>
+          </defs>
+          <path d="M16 1.5 C 17 6, 22 9, 23 14 C 24 18, 22 21, 20 22 C 22 24, 24 27, 24 31 C 24 35, 21 37, 16 37 C 11 37, 8 35, 8 31 C 8 28, 10 26, 11 24 C 9 22, 7 19, 8 15 C 9 11, 13 11, 14 7 C 15 5, 16 3, 16 1.5 Z" fill="url(#flameGradIs)"/>
+          <path d="M16 16 C 17 19, 19 21, 19 25 C 19 28, 17 30, 16 30 C 15 30, 13 28, 13 25 C 13 22, 15 19, 16 16 Z" fill="#0c0907" opacity="0.55"/>
+        </svg>
+        <span class="wordmark">FOGUEIRA</span>
+      </div>
+      <div class="brand-sep-v"></div>
+      <div>
+        <div class="brand-eyebrow">Compras · Importación POS</div>
+        <div class="brand-name">Importar SR12</div>
+      </div>
+      <span class="brand-empresa" id="empresaNombre">—</span>
+    </div>
+    <div class="head-actions">
+      <a class="btn" id="btnInicio" href="#" target="_top">← Inicio</a>
+      <button class="btn btn-logout" id="btnLogout">Cerrar sesión</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="page-head">
+    <h1>Sincroniza el catálogo desde SoftRestaurant 12</h1>
+    <div class="desc">
+      Sube los archivos <strong>EXISTENCIAS</strong> que exporta SR12 (uno por área física: almacén, cocina, churrasca, barra, cava, piso). El sistema actualiza automáticamente costos y existencias en Fogueira. SR12 es la fuente de verdad — Fogueira refleja.
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="importar">📥 Importar</div>
+    <div class="tab" data-tab="huerfanos">🔗 Huérfanos sin vincular</div>
+    <div class="tab" data-tab="aprobaciones" id="tabAprobaciones" style="display:none">✅ Aprobaciones <span id="badgeAprobaciones" style="display:none;background:#c4322a;color:#fff;font-size:10px;padding:1px 6px;margin-left:4px">0</span></div>
+    <div class="tab" data-tab="catalogo">📋 Catálogo SR12</div>
+    <div class="tab" data-tab="historico">📜 Histórico</div>
+    <div class="tab" data-tab="config">⚙ Configuración</div>
+  </div>
+
+  <!-- ════════ TAB: IMPORTAR ════════ -->
+  <div class="tab-panel active" data-panel="importar">
+    <div class="card">
+      <h2>1. Sube los archivos del SR12</h2>
+      <div class="desc">
+        Arrastra los 6 archivos EXISTENCIAS o haz click para seleccionarlos. El sistema detecta el área de cada archivo por su nombre (ALMACEN, COCINA, CHURRASCA, BARRA, CAVA, PISO).
+      </div>
+      <div style="margin:0 0 16px">
+        <a class="btn" id="btnManualExistencias" href="#" target="_top" style="background:rgba(200,154,74,.1);border-color:var(--gold);color:var(--ink)">📖 ¿Cómo bajar este reporte del SR12?</a>
+        <span style="font-size:12px;color:var(--muted);margin-left:10px">Guía paso a paso · recuerda exportar con <strong>"Imprimir costos: SÍ"</strong></span>
+      </div>
+      <div class="dropzone" id="dropzone">
+        <div class="icon">📥</div>
+        <div class="title">Arrastra los archivos aquí o click para seleccionarlos</div>
+        <div class="sub">Acepta .xls / .xlsx · puedes subir varios a la vez</div>
+        <input type="file" id="fileInput" multiple accept=".xls,.xlsx">
+      </div>
+      <div class="archivos-list" id="archivosList"></div>
+      <div id="procesarBox" style="display:none;text-align:center;margin-top:14px">
+        <button class="btn primary" id="btnProcesar">📊 Generar vista previa</button>
+      </div>
+    </div>
+
+    <div id="previewBox" style="display:none">
+      <div class="card">
+        <h2>2. Vista previa del import (dry-run · todavía no se aplica)</h2>
+        <div class="preview-grid" id="previewGrid"></div>
+        <div class="chips">
+          <div class="chip active" data-filtro="todos">Todos</div>
+          <div class="chip" data-filtro="nuevo_sr12">Nuevos</div>
+          <div class="chip" data-filtro="actualizado_costo">Actualizados</div>
+          <div class="chip" data-filtro="sospechoso">Sospechosos &gt;50%</div>
+          <div class="chip" data-filtro="sin_parser">Sin parser</div>
+          <div class="chip" data-filtro="sin_match">Sin match Fogueira</div>
+        </div>
+        <input type="text" class="search-input" id="searchPreview" placeholder="Buscar en clave o nombre…" style="margin-bottom:12px">
+        <div class="tbl-wrap" style="max-height:520px">
+          <table class="tbl" id="tablaPreview">
+            <thead><tr>
+              <th>Acción</th><th>Clave</th><th>Nombre SR12</th><th>Familia</th>
+              <th>Pres.</th><th class="num">Costo total</th><th class="num">Costo/base</th>
+              <th class="num">Δ%</th><th class="num">Existencia</th>
+              <th>Match Fogueira</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div id="huerfanosBox" style="margin-top:18px"></div>
+      </div>
+      <div class="card sticky-bar">
+        <div class="info" id="stickyInfo">Si todo cuadra, confirma para aplicar a Fogueira.</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn" id="btnCancelarPreview">Descartar</button>
+          <button class="btn primary" id="btnConfirmarImport">✅ Confirmar y aplicar</button>
+          <button class="btn" id="btnEnviarGerencia" style="display:none;border-color:var(--ember);color:var(--ember)">📋 Enviar a Gerencia para aprobación</button>
+          <span id="aprobacionEstado" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ TAB: CATÁLOGO SR12 ════════ -->
+  <div class="tab-panel" data-panel="catalogo">
+    <div class="card">
+      <h2>Catálogo SR12 actual</h2>
+      <div class="desc">Lo que el sistema sabe del SR12 después de la última importación. Existencias por área y costo unitario por unidad base.</div>
+      <input type="text" class="search-input" id="searchCatalogo" placeholder="Buscar en clave, nombre o familia…" style="margin-bottom:12px">
+      <div class="tbl-wrap" style="max-height:640px">
+        <table class="tbl" id="tablaCatalogo">
+          <thead><tr>
+            <th>Clave</th><th>Nombre</th><th>Familia</th><th>Pres.</th>
+            <th class="num">Costo total</th><th class="num">Costo/base</th>
+            <th class="num">Almacén</th><th class="num">Cocina</th><th class="num">Churrasca</th>
+            <th class="num">Barra</th><th class="num">Cava</th><th class="num">Piso</th>
+            <th class="num">Total</th><th class="num">Saldo</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="empty-state" id="catalogoEmpty" style="display:none">
+        El catálogo SR12 está vacío. Sube los archivos en el tab "Importar" para empezar.
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ TAB: HISTÓRICO ════════ -->
+  <div class="tab-panel" data-panel="historico">
+    <div class="card">
+      <h2>Histórico de importaciones</h2>
+      <div class="desc">Cada vez que aplicas una importación, queda registrada aquí. La última se puede revertir si fue por error.</div>
+      <div class="tbl-wrap">
+        <table class="tbl" id="tablaHistorico">
+          <thead><tr>
+            <th>Fecha</th><th>Usuario</th><th>Estatus</th>
+            <th class="num">Archivos</th><th class="num">Productos</th>
+            <th class="num">Nuevos</th><th class="num">Actualizados</th>
+            <th class="num">Sospechosos</th><th class="num">Huérfanos</th>
+            <th>Acciones</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="empty-state" id="historicoEmpty" style="display:none">
+        Aún no hay importaciones registradas. La primera importación que apliques aparecerá aquí.
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ TAB: HUÉRFANOS SIN VINCULAR ════════ -->
+  <div class="tab-panel" data-panel="huerfanos">
+    <div class="card">
+      <h2>🔗 Ingredientes sin vincular al SR12</h2>
+      <div class="desc">Estos ingredientes de Fogueira no tienen correspondencia con ningún producto del SR12. Sin vínculo, sus precios no se actualizan con las importaciones. Ingresa la clave SR12 de cada uno para vincularlo.</div>
+      <div style="margin:6px 0 4px;padding:12px 14px;background:rgba(200,154,74,.10);border:1px solid var(--gold)">
+        <div style="font-weight:600;font-size:14px;margin-bottom:3px">🪄 ¿Son muchos para hacerlos a mano?</div>
+        <div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">El <strong>Sugeridor de vínculos</strong> busca solo el producto del SR12 más parecido a cada ingrediente; tú solo confirmas «Es este» o «No aplica». Convierte cientos de búsquedas en una lista lista para revisar.</div>
+        <a class="btn primary" id="btnSugeridor" href="#" target="_top">Abrir sugeridor de vínculos →</a>
+      </div>
+      <input type="text" class="search-input" id="searchHuerfanos" placeholder="Buscar por nombre o categoría…" style="margin:12px 0">
+      <div id="huerfanosTabBody"><div class="empty-state">Cargando…</div></div>
+    </div>
+  </div>
+
+  <!-- ════════ TAB: APROBACIONES ════════ -->
+  <div class="tab-panel" data-panel="aprobaciones">
+    <div class="card">
+      <h2>✅ Solicitudes de aprobación de importación</h2>
+      <div class="desc">El comprador solicitó autorización para aplicar una importación con cambios sospechosos (>50%). Revisa el resumen y aprueba o rechaza.</div>
+      <div id="aprobacionesBody"><div class="empty-state">Cargando…</div></div>
+    </div>
+  </div>
+
+  <!-- ════════ TAB: CONFIGURACIÓN ════════ -->
+  <div class="tab-panel" data-panel="config">
+    <div class="card">
+      <h2>Familias del SR12 a importar</h2>
+      <div class="desc">Marca solo las familias que sí quieres importar a Fogueira. Las no marcadas se ignoran completamente (sus productos no se crean ni se actualizan). Por default están marcadas las relevantes para cocina; las bebidas/licores/suministros quedan fuera.</div>
+      <div id="familiasBox"></div>
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn primary" id="btnGuardarFamilias">💾 Guardar configuración</button>
+        <button class="btn" id="btnRestaurarDefault">↺ Restaurar por default</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  var API_URL = 'https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec';
+
+  // Sesión
+  function getQuery(name){
+    var m = (location.search.match(new RegExp('[?&]' + name + '=([^&]*)')) || [])[1];
+    return m ? decodeURIComponent(m) : '';
+  }
+  var token = getQuery('t') || '<?!= __tokenInyectado ?>';
+  var user = null, empresa = null, rol = '';
+  if (token) { try { sessionStorage.setItem('fogueira_token', token); } catch(e){} }
+  else { try { token = sessionStorage.getItem('fogueira_token'); } catch(e){} }
+  if (!token) { (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})(); return; }
+  try {
+    user = JSON.parse(sessionStorage.getItem('fogueira_user') || 'null');
+    empresa = JSON.parse(sessionStorage.getItem('fogueira_empresa') || 'null');
+  } catch(e){}
+  var _sesionUIAplicada = false;
+  function aplicarSesionUI() {
+    if (_sesionUIAplicada) return true;
+    _sesionUIAplicada = true;
+    rol = String(user ? user.rol : '').toLowerCase();
+    if (['admin','comprador','gerente_administrativo','auditoria'].indexOf(rol) === -1) {
+      alert('Tu rol no tiene acceso al importador SR12.');
+      (function(_u){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sin acceso</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Esta pantalla no es para tu rol</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Toca el botón de abajo para ir a tu inicio, donde verás las pantallas que sí puedes usar.</p><a href="'+_u+'" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">← Ir a mi inicio</a></div>';document.body.appendChild(_o);})(API_URL+'?p=inicio&t='+encodeURIComponent(token||''));
+      return false;
+    }
+    document.getElementById('empresaNombre').textContent = (empresa && empresa.nombre) || 'Sin empresa';
+    document.getElementById('btnInicio').href = API_URL+'?p=inicio&t='+encodeURIComponent(token||'')+(user?'&urol='+encodeURIComponent(user.rol||'')+'&unom='+encodeURIComponent(user.nombre||user.email||''):'');
+    var _bm = document.getElementById('btnManualExistencias'); if (_bm) _bm.href = API_URL+'?p=manual-existencias&t='+encodeURIComponent(token||'');
+    var _bs = document.getElementById('btnSugeridor'); if (_bs) _bs.href = API_URL+'?p=sugerencias-sr12&t='+encodeURIComponent(token||'');
+    // La pestaña Aprobaciones (revisar importaciones con cambios >50%) la ven los que pueden
+    // ver/aprobar: admin/gerente_administrativo aprueban, auditoría solo mira. Antes esta pestaña
+    // estaba SIEMPRE oculta y cargarAprobaciones ni existía → era inalcanzable. Fix v397.
+    if (['admin','gerente_administrativo','auditoria'].indexOf(rol) !== -1) {
+      var _tabApr = document.getElementById('tabAprobaciones'); if (_tabApr) _tabApr.style.display = '';
+      cargarBadgeAprobaciones();
+    }
+    (function(){ if (!token) return; var _cb='_brand_'+Date.now(); window[_cb]=function(d){ try{delete window[_cb];}catch(e){} if(!d||!d.ok||!d.branding||d.origen!=='empresa_config') return; var b=d.branding,rs=document.documentElement.style; if(b.color_primario) rs.setProperty('--gold',b.color_primario); if(b.color_secundario) rs.setProperty('--ink',b.color_secundario); if(b.color_acento) rs.setProperty('--ember',b.color_acento); if(b.color_fondo) rs.setProperty('--cream',b.color_fondo); if(b.nombre_comercial) document.querySelectorAll('.brand-flame .wordmark').forEach(function(w){ w.textContent=String(b.nombre_comercial).toUpperCase(); }); }; var _s=document.createElement('script'); _s.src=API_URL+'?action=empresa_branding_get&token='+encodeURIComponent(token)+'&callback='+_cb; _s.async=true; document.head.appendChild(_s); })();
+    return true;
+  }
+  if (user && !aplicarSesionUI()) return;
+  document.getElementById('btnLogout').addEventListener('click', function(){
+    sessionStorage.clear();
+    (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+  });
+
+  // ─── API helpers ───
+  function apiCall(params, cb) {
+    var cbName = '_jcb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+    var script = document.createElement('script');
+    var cleanup = function(){ try{ delete window[cbName];}catch(e){window[cbName]=undefined;} if(script.parentNode) script.parentNode.removeChild(script); };
+    var t = setTimeout(function(){ cleanup(); cb({ok:false,error:'timeout'}); }, 60000);
+    window[cbName] = function(d){ clearTimeout(t); cleanup(); cb(d); };
+    var qs = Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
+    script.onerror = function(){ clearTimeout(t); cleanup(); cb({ok:false,error:'network'}); };
+    script.src = API_URL + '?' + qs + '&callback=' + cbName;
+    document.body.appendChild(script);
+  }
+  // POST con body grande (para los archivos parseados — JSONP no soporta payloads >8KB)
+  function apiCallPost(params, cb) {
+    fetch(API_URL, {
+      method: 'POST',
+      // text/plain evita preflight CORS de Apps Script (no acepta application/json directo)
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(params),
+      redirect: 'follow'
+    }).then(function(r){ return r.text(); }).then(function(txt){
+      try { cb(JSON.parse(txt)); }
+      catch(e) { cb({ ok:false, error: 'Respuesta inválida del servidor: ' + txt.substring(0,200) }); }
+    }).catch(function(e){
+      cb({ ok:false, error: 'Error de red: ' + (e && e.message) });
+    });
+  }
+  function toast(msg, tipo) {
+    var el = document.getElementById('toast');
+    el.textContent = msg; el.className = 'toast show' + (tipo ? ' ' + tipo : '');
+    setTimeout(function(){ el.classList.remove('show'); }, 3500);
+  }
+  function escAttr(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+  function fmt(n){ var x = parseFloat(n); if (isNaN(x)) return '—'; return x.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function fmtMoney(n){ return '$' + fmt(n); }
+  function fmtInt(n){ var x = parseFloat(n); if (isNaN(x)) return '0'; return Math.round(x).toLocaleString('es-MX'); }
+  function fmtFecha(iso){ if (!iso) return '—'; try { var d = new Date(iso); return d.toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}); } catch(e){ return iso; } }
+
+  // ─── Tabs ───
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.addEventListener('click', function(){
+      document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function(x){ x.classList.remove('active'); });
+      t.classList.add('active');
+      var name = t.getAttribute('data-tab');
+      document.querySelector('.tab-panel[data-panel="'+name+'"]').classList.add('active');
+      if (name === 'catalogo') cargarCatalogo();
+      if (name === 'historico') cargarHistorico();
+      if (name === 'config') cargarConfig();
+      if (name === 'huerfanos') cargarHuerfanosTab();
+      if (name === 'aprobaciones') cargarAprobaciones();
+    });
+  });
+
+  // ─── Detectar área del archivo por nombre ───
+  function detectarArea(nombreArchivo) {
+    var n = String(nombreArchivo || '').toUpperCase();
+    if (/ALMACEN/.test(n)) return 'almacen';
+    if (/BARRA/.test(n))   return 'barra';
+    if (/CAVA/.test(n))    return 'cava';
+    if (/CHURRASCA/.test(n)) return 'churrasca';
+    if (/COCINA/.test(n))  return 'cocina';
+    if (/PISO/.test(n))    return 'piso';
+    if (/EXISTENCIAS|INVENTARIO/i.test(n)) return 'consolidado';
+    return null;
+  }
+
+  // ─── Parser de archivos del SR12 (mismo que en .tmp_xlsx_reader/analyze_sr12.js) ───
+  function parsearArchivoSR12(workbook) {
+    var ws = workbook.Sheets[workbook.SheetNames[0]];
+    var filas = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: null });
+    var productos = [];
+    var grupoActual = '';
+    function num(v) { if (v == null) return 0; var s = String(v).replace(/[,$\s]/g,''); var n = parseFloat(s); return isNaN(n) ? 0 : n; }
+    for (var i = 0; i < filas.length; i++) {
+      var fila = filas[i] || [];
+      var colA = String(fila[0] || '').trim();
+      // Línea de grupo: "GRUPO:001 ABARROTES"
+      var matchGrupo = colA.match(/^GRUPO:\s*(\S+)\s+(.+)$/i);
+      if (matchGrupo) { grupoActual = matchGrupo[2].trim(); continue; }
+      // Header
+      if (colA === 'CLAVE') continue;
+      // Totales
+      if (colA === '**' || colA === '*' || colA === 'REGISTROS' || /TOTAL/i.test(colA)) continue;
+      if (!colA) continue;
+      var desc = String(fila[1] || '').trim();
+      if (!desc) continue;
+      productos.push({
+        clave: colA,
+        descripcion: desc,
+        grupo: grupoActual,
+        impuesto: num(fila[2]),
+        existencia: num(fila[3]),
+        ultimo_costo: num(fila[5]),
+        saldo: num(fila[6])
+      });
+    }
+    return productos;
+  }
+
+  // ─── Estado: archivos cargados ───
+  var archivosCargados = []; // { nombre, area, productos, status, error }
+
+  function renderArchivosList() {
+    var el = document.getElementById('archivosList');
+    if (!archivosCargados.length) { el.innerHTML = ''; document.getElementById('procesarBox').style.display = 'none'; return; }
+    el.innerHTML = archivosCargados.map(function(a, idx){
+      var icon = a.error ? '⚠' : (a.area ? '✓' : '?');
+      var clazz = a.error ? 'error' : (a.area ? 'ok' : '');
+      var meta = a.error ? '<span class="text-bad">' + escAttr(a.error) + '</span>' :
+        (a.productos ? a.productos.length + ' productos' : '—');
+      return '<div class="archivo-item ' + clazz + '">' +
+        '<div class="icon">' + icon + '</div>' +
+        '<div class="info">' +
+          '<div class="name">' + escAttr(a.nombre) + '</div>' +
+          '<div class="meta">' + meta + '</div>' +
+        '</div>' +
+        (a.area ? '<span class="area-tag">' + a.area + '</span>' : '') +
+        '<button class="quitar" data-idx="' + idx + '" title="Quitar">×</button>' +
+        '</div>';
+    }).join('');
+    el.querySelectorAll('.quitar').forEach(function(b){
+      b.addEventListener('click', function(){
+        var idx = parseInt(b.getAttribute('data-idx'));
+        archivosCargados.splice(idx, 1);
+        renderArchivosList();
+      });
+    });
+    var hayValidos = archivosCargados.some(function(a){ return a.area && !a.error && a.productos && a.productos.length; });
+    document.getElementById('procesarBox').style.display = hayValidos ? '' : 'none';
+  }
+
+  function cargarArchivo(file) {
+    var area = detectarArea(file.name);
+    if (!area) {
+      archivosCargados.push({
+        nombre: file.name, area: null,
+        error: 'No detecto el área (debe contener: ALMACEN, COCINA, CHURRASCA, BARRA, CAVA o PISO en el nombre)'
+      });
+      renderArchivosList();
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        var data = new Uint8Array(e.target.result);
+        var wb = XLSX.read(data, { type: 'array' });
+        var productos = parsearArchivoSR12(wb);
+        if (!productos.length) {
+          archivosCargados.push({ nombre: file.name, area: area, error: 'No se detectaron productos en el archivo' });
+        } else {
+          archivosCargados.push({ nombre: file.name, area: area, productos: productos });
+        }
+      } catch(err) {
+        archivosCargados.push({ nombre: file.name, area: area, error: 'Error al leer Excel: ' + (err && err.message) });
+      }
+      renderArchivosList();
+    };
+    reader.onerror = function() {
+      archivosCargados.push({ nombre: file.name, area: area, error: 'Error al leer el archivo' });
+      renderArchivosList();
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  // ─── Dropzone ───
+  var dz = document.getElementById('dropzone');
+  var fileInput = document.getElementById('fileInput');
+  dz.addEventListener('click', function(){ fileInput.click(); });
+  fileInput.addEventListener('change', function(e){
+    Array.from(e.target.files).forEach(cargarArchivo);
+    fileInput.value = '';
+  });
+  ['dragenter','dragover'].forEach(function(ev){
+    dz.addEventListener(ev, function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.add('dragover'); });
+  });
+  ['dragleave','drop'].forEach(function(ev){
+    dz.addEventListener(ev, function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.remove('dragover'); });
+  });
+  dz.addEventListener('drop', function(e){
+    Array.from(e.dataTransfer.files).forEach(cargarArchivo);
+  });
+
+  // ─── Procesar dry-run ───
+  var previewActual = null;
+
+  document.getElementById('btnProcesar').addEventListener('click', function(){
+    var btn = this;
+    var validos = archivosCargados.filter(function(a){ return a.area && !a.error && a.productos && a.productos.length; });
+    if (!validos.length) { toast('No hay archivos válidos.', 'error'); return; }
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Procesando…';
+    var payload = {
+      action: 'sr12_import_dry_run',
+      token: token,
+      data: JSON.stringify({
+        archivos: validos.map(function(a){ return { nombre:a.nombre, area:a.area, productos:a.productos }; })
+      })
+    };
+    apiCallPost(payload, function(res){
+      btn.disabled = false; btn.innerHTML = '📊 Generar vista previa';
+      if (!res.ok) { toast('Error: ' + (res.error || 'desconocido'), 'error'); return; }
+      previewActual = res;
+      renderPreview(res);
+      document.getElementById('previewBox').style.display = '';
+      document.getElementById('previewBox').scrollIntoView({ behavior:'smooth', block:'start' });
+      // Mostrar botón correcto según alertas
+      var hasDivergencias = res.resumen && res.resumen.divergencias_grandes > 0;
+      document.getElementById('btnConfirmarImport').style.display = hasDivergencias ? 'none' : '';
+      document.getElementById('btnEnviarGerencia').style.display = hasDivergencias ? '' : 'none';
+      if (hasDivergencias) {
+        document.getElementById('stickyInfo').textContent = '⚠ Hay ' + res.resumen.divergencias_grandes + ' cambio(s) sospechoso(s) >50%. Requiere aprobación del Gerente Administrativo antes de aplicar.';
+        document.getElementById('stickyInfo').style.color = 'var(--ember)';
+        // Verificar si ya hay aprobación válida
+        apiCallPost({ action:'sr12_aprobaciones_count', token:token }, function(cr){
+          if (cr.ok && cr.hay_aprobacion_valida) {
+            document.getElementById('btnConfirmarImport').style.display = '';
+            document.getElementById('btnConfirmarImport').textContent = '✅ Confirmar y aplicar (autorizado)';
+            document.getElementById('btnEnviarGerencia').style.display = 'none';
+            document.getElementById('aprobacionEstado').textContent = '✓ Aprobación vigente';
+            document.getElementById('aprobacionEstado').style.color = 'var(--good)';
+            document.getElementById('stickyInfo').textContent = 'Importación autorizada por Gerencia. Puedes aplicar.';
+            document.getElementById('stickyInfo').style.color = 'var(--good)';
+          }
+        });
+      } else {
+        document.getElementById('stickyInfo').textContent = 'Sin cambios sospechosos. Puedes aplicar directamente.';
+        document.getElementById('stickyInfo').style.color = '';
+      }
+    });
+  });
+
+  function renderPreview(res) {
+    var r = res.resumen;
+    document.getElementById('previewGrid').innerHTML =
+      tile('ok', 'Productos importables', r.productos_filtrados_familia, 'de ' + r.total_productos_archivos + ' totales') +
+      tile('ok', 'Nuevos en Fogueira', r.nuevos_creados, '') +
+      tile('ok', 'Costos a actualizar', r.actualizados, '') +
+      tile('', 'Sin cambio', r.sin_cambio, '') +
+      tile(r.divergencias_grandes > 0 ? 'warn' : '', 'Cambios sospechosos &gt;50%', r.divergencias_grandes, '') +
+      tile(r.parser_fallos > 0 ? 'warn' : '', 'Sin parser de unidad', r.parser_fallos, 'Manual') +
+      tile(r.creados_fogueira > 0 ? 'ok' : '', 'Nuevos en Fogueira', r.creados_fogueira, 'auto-creados') +
+      tile(r.huerfanos_fogueira > 0 ? 'warn' : '', 'Huérfanos Fogueira', r.huerfanos_fogueira, 'sin equiv. SR12');
+
+    renderTablaPreview(res.detalles);
+    renderHuerfanos(res.huerfanos);
+  }
+  function tile(clase, lbl, val, sub) {
+    return '<div class="preview-tile ' + clase + '">' +
+      '<div class="lbl">' + lbl + '</div>' +
+      '<div class="val">' + fmtInt(val) + '</div>' +
+      (sub ? '<div class="sub">' + sub + '</div>' : '') +
+      '</div>';
+  }
+
+  // ─── Tabla preview con filtros y búsqueda ───
+  var filtroActivo = 'todos';
+  document.querySelectorAll('.chip[data-filtro]').forEach(function(c){
+    c.addEventListener('click', function(){
+      document.querySelectorAll('.chip[data-filtro]').forEach(function(x){ x.classList.remove('active'); });
+      c.classList.add('active');
+      filtroActivo = c.getAttribute('data-filtro');
+      if (previewActual) renderTablaPreview(previewActual.detalles);
+    });
+  });
+  document.getElementById('searchPreview').addEventListener('input', function(){
+    if (previewActual) renderTablaPreview(previewActual.detalles);
+  });
+
+  function renderTablaPreview(detalles) {
+    var q = document.getElementById('searchPreview').value.toUpperCase();
+    var filtrados = detalles.filter(function(d){
+      if (filtroActivo !== 'todos') {
+        if (filtroActivo === 'sin_parser' && d.parser_unidad_ok) return false;
+        if (filtroActivo === 'sin_match' && d.tipo_match !== 'sin_match') return false;
+        if (['nuevo_sr12','actualizado_costo','sospechoso'].indexOf(filtroActivo) !== -1 && d.accion !== filtroActivo) return false;
+      }
+      if (q) {
+        var t = (d.clave_sr12 + ' ' + d.nombre_sr12 + ' ' + (d.familia_sr12 || '')).toUpperCase();
+        if (t.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+    var tbody = document.querySelector('#tablaPreview tbody');
+    if (!filtrados.length) {
+      tbody.innerHTML = '<tr><td colspan="10" class="empty-state">Sin resultados</td></tr>';
+      return;
+    }
+    tbody.innerHTML = filtrados.slice(0, 500).map(function(d){
+      var match = d.tipo_match || 'sin_match';
+      var nombreFog = d.ingrediente_fogueira_nombre || '—';
+      return '<tr>' +
+        '<td><span class="accion-tag accion-' + d.accion + '">' + accionLabel(d.accion) + '</span></td>' +
+        '<td class="clave">' + escAttr(d.clave_sr12) + '</td>' +
+        '<td class="nombre">' + escAttr(d.nombre_sr12) +
+          (!d.parser_unidad_ok ? ' <span class="text-warn" title="Sin parser de unidad — manual">⚠</span>' : '') + '</td>' +
+        '<td class="muted">' + escAttr(d.familia_sr12) + '</td>' +
+        '<td class="muted">' + escAttr(d.unidad_base || '?') + ' × ' + d.factor_a_base + '</td>' +
+        '<td class="num">' + fmtMoney(d.costo_total_sr12) + '</td>' +
+        '<td class="num">' + fmtMoney(d.costo_por_base_sr12) + '</td>' +
+        '<td class="num ' + (d.variacion_pct > 50 ? 'text-bad' : (Math.abs(d.variacion_pct) > 0 ? 'text-warn' : 'muted')) + '">' +
+          (d.costo_anterior_base > 0 ? (d.variacion_pct > 0 ? '+' : '') + d.variacion_pct.toFixed(1) + '%' : 'NUEVO') + '</td>' +
+        '<td class="num">' + fmt(d.existencia_total) + '</td>' +
+        '<td><span class="match-tag match-' + match + '">' + matchLabel(match) +
+          (d.score_match && d.score_match < 1 ? ' ' + Math.round(d.score_match*100) + '%' : '') +
+          '</span><div class="muted" style="font-size:11px">' + escAttr(nombreFog) + '</div></td>' +
+        '</tr>';
+    }).join('');
+  }
+  function accionLabel(a) {
+    return ({nuevo_sr12:'Nuevo', actualizado_costo:'Actualiza', sin_cambio:'Igual', sospechoso:'Sospechoso', sin_parser:'Sin parser', creado_fogueira:'Crea en Fog'})[a] || a;
+  }
+  function matchLabel(m) {
+    return ({clave:'Por clave',nombre_exacto:'Nombre exacto',nombre_similar:'Similar',sin_match:'Sin match',auto_creado:'Auto'})[m] || m;
+  }
+
+  // ─── Huérfanos en preview ───
+  function renderHuerfanos(huerfanos) {
+    var el = document.getElementById('huerfanosBox');
+    if (!huerfanos || !huerfanos.length) { el.innerHTML = ''; return; }
+    el.innerHTML = '<h3 style="margin:18px 0 8px;font-size:15px">⚠ ' + huerfanos.length +
+      ' ingredientes Fogueira sin equivalente en SR12</h3>' +
+      '<div class="desc" style="margin-bottom:8px">Estos están en Fogueira pero no se encontraron en el SR12. Probablemente son sub-recetas, ingredientes preparados o productos que faltan dar de alta en SR12.</div>' +
+      '<div class="tbl-wrap" style="max-height:280px"><table class="tbl"><thead><tr>' +
+      '<th>Ingrediente Fogueira</th><th>Categoría</th><th class="num">Costo actual</th></tr></thead><tbody>' +
+      huerfanos.slice(0, 80).map(function(h){
+        return '<tr>' +
+          '<td class="nombre">' + escAttr(h.nombre) + '</td>' +
+          '<td class="muted">' + escAttr(h.categoria || '—') + '</td>' +
+          '<td class="num">' + (h.ultimo_costo ? fmtMoney(h.ultimo_costo) : '—') +
+            (h.ultimo_costo_estimado ? ' <span class="text-warn">📍</span>' : '') + '</td>' +
+          '</tr>';
+      }).join('') + '</tbody></table></div>' +
+      (huerfanos.length > 80 ? '<div class="muted" style="font-size:12px;margin-top:6px">… y ' + (huerfanos.length - 80) + ' más</div>' : '');
+  }
+
+  // ─── Cancelar / confirmar ───
+  document.getElementById('btnCancelarPreview').addEventListener('click', function(){
+    if (!confirm('¿Descartar la vista previa? No se aplicó nada.')) return;
+    previewActual = null;
+    archivosCargados = [];
+    renderArchivosList();
+    document.getElementById('previewBox').style.display = 'none';
+  });
+  document.getElementById('btnConfirmarImport').addEventListener('click', function(){
+    if (!previewActual) return;
+    var r = previewActual.resumen;
+    var msg = 'Vas a aplicar la importación:\n\n' +
+      '• ' + r.nuevos_creados + ' nuevos\n' +
+      '• ' + r.actualizados + ' actualizados\n' +
+      '• ' + r.divergencias_grandes + ' sospechosos (cambio >50%)\n' +
+      '• ' + r.creados_fogueira + ' nuevos en Fogueira\n\n' +
+      'Esto modifica los costos del catálogo Fogueira. ¿Continuar?';
+    if (!confirm(msg)) return;
+    var btn = this;
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Aplicando…';
+    var validos = archivosCargados.filter(function(a){ return a.area && !a.error && a.productos && a.productos.length; });
+    apiCallPost({
+      action: 'sr12_import_aplicar',
+      token: token,
+      data: JSON.stringify({
+        archivos: validos.map(function(a){ return { nombre:a.nombre, area:a.area, productos:a.productos }; })
+      })
+    }, function(res){
+      btn.disabled = false; btn.innerHTML = '✅ Confirmar y aplicar';
+      if (!res.ok) { toast('Error: ' + (res.error || 'desconocido'), 'error'); return; }
+      toast('✅ Importación aplicada con éxito', 'success');
+      previewActual = null;
+      archivosCargados = [];
+      renderArchivosList();
+      document.getElementById('previewBox').style.display = 'none';
+      // Cambiar a tab histórico
+      document.querySelector('.tab[data-tab="historico"]').click();
+    });
+  });
+  // Enviar a Gerencia para aprobación (cuando hay cambios >50%). Antes este botón se
+  // mostraba pero NO tenía clic conectado → el circuito de aprobación nunca se podía
+  // completar desde la app (y el gate de v391 nunca se alcanzaba). Fix v397.
+  document.getElementById('btnEnviarGerencia').addEventListener('click', function(){
+    if (!previewActual) return;
+    var r = previewActual.resumen || {};
+    var div = r.divergencias_grandes || 0;
+    if (!div) { toast('No hay cambios sospechosos que requieran aprobación.', 'error'); return; }
+    if (!confirm('Vas a enviar a Gerencia ' + div + ' cambio(s) de costo mayores al 50% para su aprobación.\n\nUn Admin o Gerente Administrativo deberá aprobarlos (pestaña "✅ Aprobaciones") antes de poder aplicar la importación. ¿Continuar?')) return;
+    var btn = this;
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Enviando…';
+    var resumen = div + ' cambio(s) >50% · ' + (r.actualizados||0) + ' costos a actualizar · ' + (r.productos_filtrados_familia||0) + ' de ' + (r.total_productos_archivos||0) + ' productos';
+    // Adjuntamos el detalle producto-por-producto que ya calculó la vista previa, para que
+    // quien aprueba lo vea sin tener el archivo. Solo los que CAMBIAN; sospechosos y unidad
+    // mal leída primero; cap para no reventar la celda de Sheets. v399.
+    var dets = (previewActual.detalles || []).filter(function(d){ return d.accion !== 'sin_cambio'; }).map(function(d){
+      return { c:d.clave_sr12, n:d.nombre_sr12, f:d.familia_sr12, a:d.costo_anterior_base,
+        v:d.costo_por_base_sr12, p:d.variacion_pct, ac:d.accion, pk:d.parser_unidad_ok?1:0, ig:d.ingrediente_fogueira_nombre||'' };
+    });
+    dets.sort(function(x,y){
+      var rx=(x.ac==='sospechoso'?2:0)+(x.pk?0:1), ry=(y.ac==='sospechoso'?2:0)+(y.pk?0:1);
+      if (ry!==rx) return ry-rx;
+      return Math.abs(y.p||0)-Math.abs(x.p||0);
+    });
+    var TOPE=200, mas=0;
+    if (dets.length>TOPE){ mas=dets.length-TOPE; dets=dets.slice(0,TOPE); }
+    apiCallPost({
+      action: 'sr12_solicitar_aprobacion',
+      token: token,
+      divergencias_count: div,
+      alertas_resumen: resumen,
+      detalle_json: JSON.stringify({ items:dets, mas:mas }),
+      // v400 — adjuntamos el archivo parseado para que Gerencia pueda "Aprobar y aplicar" sin que
+      // el comprador lo vuelva a subir. (Se guarda en Drive del lado del servidor.)
+      payload: JSON.stringify({ archivos: archivosCargados.filter(function(a){ return a.area && !a.error && a.productos && a.productos.length; }).map(function(a){ return { nombre:a.nombre, area:a.area, productos:a.productos }; }) })
+    }, function(res){
+      btn.disabled = false; btn.innerHTML = '📋 Enviar a Gerencia para aprobación';
+      if (!res.ok) { toast('Error: ' + (res.error || 'desconocido'), 'error'); return; }
+      toast('📋 Solicitud enviada a Gerencia. Falta que un Admin/Gerente la apruebe.', 'success');
+      btn.style.display = 'none';
+      var est = document.getElementById('aprobacionEstado');
+      if (est) { est.textContent = '⏳ Solicitud enviada · esperando aprobación de Gerencia'; est.style.color = 'var(--ember)'; }
+    });
+  });
+
+  // ─── Catálogo SR12 ───
+  function cargarCatalogo() {
+    var tbody = document.querySelector('#tablaCatalogo tbody');
+    tbody.innerHTML = '<tr><td colspan="14" class="empty-state"><span class="spinner"></span> Cargando…</td></tr>';
+    apiCall({ action:'sr12_catalogo_list', token: token }, function(res){
+      if (!res.ok) { tbody.innerHTML = '<tr><td colspan="14" class="empty-state text-bad">' + escAttr(res.error) + '</td></tr>'; return; }
+      catalogoActual = res.productos || [];
+      renderCatalogo();
+    });
+  }
+  var catalogoActual = [];
+  document.getElementById('searchCatalogo').addEventListener('input', renderCatalogo);
+  function renderCatalogo() {
+    var tbody = document.querySelector('#tablaCatalogo tbody');
+    var emptyEl = document.getElementById('catalogoEmpty');
+    if (!catalogoActual.length) { tbody.innerHTML = ''; emptyEl.style.display = ''; return; }
+    emptyEl.style.display = 'none';
+    var q = document.getElementById('searchCatalogo').value.toUpperCase();
+    var filtrados = !q ? catalogoActual : catalogoActual.filter(function(s){
+      var t = (s.clave_sr12 + ' ' + s.nombre_sr12 + ' ' + (s.familia_sr12 || '')).toUpperCase();
+      return t.indexOf(q) !== -1;
+    });
+    tbody.innerHTML = filtrados.slice(0, 500).map(function(s){
+      return '<tr>' +
+        '<td class="clave">' + escAttr(s.clave_sr12) + '</td>' +
+        '<td class="nombre">' + escAttr(s.nombre_sr12) + '</td>' +
+        '<td class="muted">' + escAttr(s.familia_sr12) + '</td>' +
+        '<td class="muted">' + escAttr(s.unidad_base) + ' × ' + s.factor_a_base + '</td>' +
+        '<td class="num">' + fmtMoney(s.costo_total_sr12) + '</td>' +
+        '<td class="num">' + fmtMoney(s.costo_por_base_sr12) + '</td>' +
+        '<td class="num">' + fmt(s.existencia_almacen) + '</td>' +
+        '<td class="num">' + fmt(s.existencia_cocina) + '</td>' +
+        '<td class="num">' + fmt(s.existencia_churrasca) + '</td>' +
+        '<td class="num">' + fmt(s.existencia_barra) + '</td>' +
+        '<td class="num">' + fmt(s.existencia_cava) + '</td>' +
+        '<td class="num">' + fmt(s.existencia_piso) + '</td>' +
+        '<td class="num"><strong>' + fmt(s.existencia_total) + '</strong></td>' +
+        '<td class="num">' + fmtMoney(s.saldo_total) + '</td>' +
+        '</tr>';
+    }).join('');
+    if (filtrados.length > 500) {
+      tbody.innerHTML += '<tr><td colspan="14" class="muted" style="text-align:center">… ' + (filtrados.length - 500) + ' más (refina la búsqueda)</td></tr>';
+    }
+  }
+
+  // ─── Histórico ───
+  function cargarHistorico() {
+    var tbody = document.querySelector('#tablaHistorico tbody');
+    tbody.innerHTML = '<tr><td colspan="10" class="empty-state"><span class="spinner"></span> Cargando…</td></tr>';
+    apiCall({ action:'sr12_importaciones_list', token: token }, function(res){
+      if (!res.ok) { tbody.innerHTML = '<tr><td colspan="10" class="empty-state text-bad">' + escAttr(res.error) + '</td></tr>'; return; }
+      var imps = res.importaciones || [];
+      var emptyEl = document.getElementById('historicoEmpty');
+      if (!imps.length) { tbody.innerHTML = ''; emptyEl.style.display = ''; return; }
+      emptyEl.style.display = 'none';
+      tbody.innerHTML = imps.map(function(it, idx){
+        var puedeRevertir = (idx === 0 && it.estatus === 'aplicada' && ['admin','gerente_administrativo'].indexOf(rol) !== -1);
+        var estatusColor = it.estatus === 'aplicada' ? 'text-good' : (it.estatus === 'revertida' ? 'text-bad' : 'muted');
+        return '<tr>' +
+          '<td>' + fmtFecha(it.aplicado_at || it.subido_at) + '</td>' +
+          '<td>' + escAttr(it.usuario_nombre || it.usuario_email) + '</td>' +
+          '<td class="' + estatusColor + '">' + escAttr(it.estatus) + '</td>' +
+          '<td class="num">' + fmtInt(it.archivos_count) + '</td>' +
+          '<td class="num">' + fmtInt(it.productos_filtrados_familia) + '</td>' +
+          '<td class="num text-good">' + fmtInt(it.nuevos_creados) + '</td>' +
+          '<td class="num">' + fmtInt(it.actualizados) + '</td>' +
+          '<td class="num ' + (it.divergencias_grandes > 0 ? 'text-warn' : 'muted') + '">' + fmtInt(it.divergencias_grandes) + '</td>' +
+          '<td class="num ' + (it.huerfanos_fogueira > 0 ? 'text-warn' : 'muted') + '">' + fmtInt(it.huerfanos_fogueira) + '</td>' +
+          '<td>' + (puedeRevertir ? '<button class="btn btn-sm danger" data-revertir="' + escAttr(it.id) + '">↺ Revertir</button>' : '<span class="muted">—</span>') + '</td>' +
+          '</tr>';
+      }).join('');
+      tbody.querySelectorAll('[data-revertir]').forEach(function(b){
+        b.addEventListener('click', function(){
+          var id = b.getAttribute('data-revertir');
+          if (!confirm('Vas a revertir esta importación. Los costos volverán al estado anterior. ¿Continuar?')) return;
+          apiCall({ action:'sr12_importacion_revertir', token: token, data: JSON.stringify({ importacion_id: id }) }, function(res){
+            if (!res.ok) { toast('Error: ' + res.error, 'error'); return; }
+            toast('Importación revertida (' + res.revertidos + ' costos restaurados)', 'success');
+            cargarHistorico();
+          });
+        });
+      });
+    });
+  }
+
+  // ─── Aprobaciones de importación (tab) ─── (Fix v397: antes el backend existía pero la UI no)
+  function _puedeAprobar(){ return ['admin','gerente_administrativo'].indexOf(rol) !== -1; }
+  // Tabla producto-por-producto para decidir informado (v399): costo anterior→nuevo→% por producto,
+  // sospechosos resaltados y marca roja "UNIDAD?" en los que el parser no pudo leer la presentación.
+  function _detalleAprobHtml(det){
+    var items = (det && det.items) || (Array.isArray(det) ? det : []);
+    var mas = (det && det.mas) || 0;
+    if (!items.length) return '<div class="muted" style="font-size:12px;margin-top:8px">— Sin detalle guardado (solicitud creada antes de esta mejora; pídele al comprador que la reenvíe para ver producto por producto).</div>';
+    var filas = items.map(function(d){
+      var pct = Number(d.p)||0, nuevo = d.ac==='nuevo_sr12', sosp = d.ac==='sospechoso';
+      var pctColor = Math.abs(pct)>=50 ? 'var(--ember)' : (pct>0?'var(--warn)':'var(--muted)');
+      var flag = '';
+      if (!d.pk) flag += ' <span style="background:var(--ember);color:#fff;font-size:9px;padding:1px 4px">UNIDAD?</span>';
+      if (nuevo) flag += ' <span style="background:var(--good);color:#fff;font-size:9px;padding:1px 4px">NUEVO</span>';
+      return '<tr' + (sosp?' style="background:rgba(196,50,42,.07)"':'') + '>' +
+        '<td>' + escAttr(d.n||d.c) + flag + (d.ig?'<div class="muted" style="font-size:10px">→ '+escAttr(d.ig)+'</div>':'') + '</td>' +
+        '<td class="muted" style="font-size:11px">' + escAttr(d.f||'') + '</td>' +
+        '<td style="text-align:right">' + (nuevo?'<span class="muted">—</span>':fmtMoney(d.a)) + '</td>' +
+        '<td style="text-align:right">' + fmtMoney(d.v) + '</td>' +
+        '<td style="text-align:right;color:' + pctColor + ';font-weight:600">' + (nuevo?'—':((pct>0?'+':'')+Math.round(pct)+'%')) + '</td></tr>';
+    }).join('');
+    return '<details style="margin-top:10px" open><summary style="cursor:pointer;font-weight:600;font-size:13px;color:var(--ember)">📋 Ver ' + items.length + ' producto(s) que cambian' + (mas?' (+'+mas+' más no listados)':'') + '</summary>' +
+      '<div style="overflow:auto;max-height:360px;margin-top:8px"><table class="tbl" style="width:100%;font-size:12px">' +
+      '<thead><tr><th>Producto</th><th>Área</th><th style="text-align:right">Anterior</th><th style="text-align:right">Nuevo</th><th style="text-align:right">Δ%</th></tr></thead>' +
+      '<tbody>' + filas + '</tbody></table></div></details>';
+  }
+  function cargarBadgeAprobaciones(){
+    apiCall({ action:'sr12_aprobaciones_count', token: token }, function(res){
+      if (!res || !res.ok) return;
+      var b = document.getElementById('badgeAprobaciones'); if (!b) return;
+      if (res.pendientes > 0) { b.textContent = res.pendientes; b.style.display = ''; }
+      else { b.style.display = 'none'; }
+    });
+  }
+  function cargarAprobaciones(){
+    var el = document.getElementById('aprobacionesBody');
+    el.innerHTML = '<div class="empty-state"><span class="spinner"></span> Cargando…</div>';
+    apiCall({ action:'sr12_aprobaciones_list', token: token }, function(res){
+      if (!res.ok) { el.innerHTML = '<div class="empty-state text-bad">' + escAttr(res.error) + '</div>'; return; }
+      var aps = res.aprobaciones || [];
+      if (!aps.length) { el.innerHTML = '<div class="empty-state">No hay solicitudes de aprobación.</div>'; return; }
+      el.innerHTML = aps.map(function(a){
+        var estado = String(a.estado||'').toLowerCase();
+        var color = estado==='pendiente' ? 'var(--ember)' : (estado==='aprobada' ? 'var(--good)' : 'var(--muted)');
+        var acciones = '';
+        if (estado==='pendiente' && _puedeAprobar()) {
+          var btnPpal = a.tiene_payload
+            ? '<button class="btn primary btn-sm" data-aplicar="' + escAttr(a.id) + '">✅ Aprobar y aplicar</button>'
+            : '<button class="btn primary btn-sm" data-aprobar="' + escAttr(a.id) + '">✅ Aprobar</button>';
+          acciones = '<div style="display:flex;gap:8px;margin-top:10px">' + btnPpal +
+            '<button class="btn btn-sm danger" data-rechazar="' + escAttr(a.id) + '">✗ Rechazar</button></div>' +
+            (a.tiene_payload ? '' : '<div class="muted" style="font-size:11px;margin-top:4px">Sin archivo guardado: al aprobar, el comprador debe aplicarla.</div>');
+        } else if (estado==='pendiente') {
+          acciones = '<div class="muted" style="margin-top:8px;font-size:12px">Esperando aprobación de un Admin o Gerente Administrativo.</div>';
+        }
+        var extra = '';
+        if (estado==='aprobada') extra = '<div class="muted" style="font-size:12px;margin-top:4px">Aprobada por ' + escAttr(a.aprobado_por||'') + (a.valido_hasta?' · vence ' + escAttr(a.valido_hasta):'') + '</div>';
+        if (estado==='rechazada') extra = '<div class="text-bad" style="font-size:12px;margin-top:4px">Rechazada por ' + escAttr(a.aprobado_por||'') + (a.motivo?' · ' + escAttr(a.motivo):'') + '</div>';
+        return '<div class="card" style="margin-bottom:10px">' +
+          '<div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px">' +
+            '<strong>' + escAttr(a.solicitado_por||'—') + '</strong>' +
+            '<span style="color:' + color + ';font-weight:600;text-transform:uppercase;font-size:12px">' + escAttr(a.estado||'') + '</span></div>' +
+          '<div class="muted" style="font-size:12px">' + escAttr(a.solicitado_at||'') + '</div>' +
+          '<div style="margin-top:6px">' + escAttr(a.resumen || ((a.divergencias||0) + ' cambio(s) >50%')) + '</div>' +
+          _detalleAprobHtml(a.detalle) +
+          extra + acciones + '</div>';
+      }).join('');
+      el.querySelectorAll('[data-aplicar]').forEach(function(b){
+        b.addEventListener('click', function(){
+          var id = b.getAttribute('data-aplicar');
+          if (!confirm('Vas a APROBAR Y APLICAR esta importación ahora. Se actualizarán los costos del catálogo. ¿Continuar?')) return;
+          b.disabled = true; b.innerHTML = '<span class="spinner"></span> Aplicando…';
+          apiCallPost({ action:'sr12_aprobacion_aprobar_aplicar', token: token, id: id }, function(r){
+            if (!r.ok) { toast('Error: ' + (r.error||'desconocido'), 'error'); b.disabled=false; b.innerHTML='✅ Aprobar y aplicar'; return; }
+            toast('✅ Importación aprobada y aplicada con éxito.', 'success');
+            cargarAprobaciones(); cargarBadgeAprobaciones();
+          });
+        });
+      });
+      el.querySelectorAll('[data-aprobar]').forEach(function(b){
+        b.addEventListener('click', function(){
+          var id = b.getAttribute('data-aprobar');
+          if (!confirm('¿Aprobar esta importación? El comprador podrá aplicarla (válido 48 h).')) return;
+          b.disabled = true;
+          apiCall({ action:'sr12_aprobacion_aprobar', token: token, id: id }, function(r){
+            if (!r.ok) { toast('Error: ' + r.error, 'error'); b.disabled = false; return; }
+            toast('✅ Importación aprobada. El comprador ya puede aplicarla.', 'success');
+            cargarAprobaciones(); cargarBadgeAprobaciones();
+          });
+        });
+      });
+      el.querySelectorAll('[data-rechazar]').forEach(function(b){
+        b.addEventListener('click', function(){
+          var id = b.getAttribute('data-rechazar');
+          var motivo = prompt('Motivo del rechazo (mínimo 5 caracteres):');
+          if (motivo === null) return;
+          if (motivo.trim().length < 5) { toast('El motivo debe tener al menos 5 caracteres.', 'error'); return; }
+          b.disabled = true;
+          apiCall({ action:'sr12_aprobacion_rechazar', token: token, id: id, motivo: motivo.trim() }, function(r){
+            if (!r.ok) { toast('Error: ' + r.error, 'error'); b.disabled = false; return; }
+            toast('Solicitud rechazada.', 'success');
+            cargarAprobaciones(); cargarBadgeAprobaciones();
+          });
+        });
+      });
+    });
+  }
+
+  // ─── Huérfanos sin vincular (tab) ───
+  var huerfanosData = null;
+  function cargarHuerfanosTab() {
+    var el = document.getElementById('huerfanosTabBody');
+    el.innerHTML = '<div class="empty-state"><span class="spinner"></span> Cargando…</div>';
+    apiCall({ action: 'sr12_huerfanos_fogueira', token: token }, function(res) {
+      if (!res.ok) { el.innerHTML = '<div class="empty-state text-bad">' + escAttr(res.error) + '</div>'; return; }
+      huerfanosData = res.huerfanos || [];
+      renderHuerfanosTab(huerfanosData);
+      document.getElementById('searchHuerfanos').addEventListener('input', function() {
+        var q = this.value.trim().toLowerCase();
+        if (!q) { renderHuerfanosTab(huerfanosData); return; }
+        renderHuerfanosTab(huerfanosData.filter(function(h){
+          return h.nombre.toLowerCase().indexOf(q) !== -1 || (h.categoria || '').toLowerCase().indexOf(q) !== -1;
+        }));
+      });
+    });
+  }
+  function urgenciaColor(dias) {
+    if (dias === null || dias === undefined) return 'var(--muted)';
+    if (dias > 30) return 'var(--bad)';
+    if (dias > 7)  return 'var(--warn)';
+    return 'var(--good)';
+  }
+  function urgenciaLabel(dias) {
+    if (dias === null || dias === undefined) return '—';
+    if (dias === 0) return 'Hoy';
+    return dias + (dias === 1 ? ' día' : ' días');
+  }
+  function renderHuerfanosTab(lista) {
+    var el = document.getElementById('huerfanosTabBody');
+    if (!lista || lista.length === 0) {
+      el.innerHTML = '<div class="empty-state" style="padding:40px 0">✅ Todos los ingredientes activos tienen vínculo SR12</div>';
+      return;
+    }
+    var criticos = lista.filter(function(h){ return (h.dias_sin_vincular || 0) > 30; }).length;
+    var enRecetas = lista.filter(function(h){ return h.recetas_que_lo_usan > 0; }).length;
+    el.innerHTML =
+      '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">' +
+        '<div style="background:rgba(196,50,42,.07);border:1px solid rgba(196,50,42,.25);padding:10px 16px;flex:0 0 auto">' +
+          '<div style="font-size:22px;font-weight:700;color:var(--ember)">' + lista.length + '</div>' +
+          '<div style="font-size:11px;color:var(--slate-soft);text-transform:uppercase;letter-spacing:.12em">Sin vincular</div>' +
+        '</div>' +
+        '<div style="background:rgba(196,50,42,.07);border:1px solid rgba(196,50,42,.25);padding:10px 16px;flex:0 0 auto">' +
+          '<div style="font-size:22px;font-weight:700;color:var(--ember)">' + criticos + '</div>' +
+          '<div style="font-size:11px;color:var(--slate-soft);text-transform:uppercase;letter-spacing:.12em">&gt;30 días sin vincular</div>' +
+        '</div>' +
+        '<div style="background:rgba(196,50,42,.07);border:1px solid rgba(196,50,42,.25);padding:10px 16px;flex:0 0 auto">' +
+          '<div style="font-size:22px;font-weight:700;color:var(--ember)">' + enRecetas + '</div>' +
+          '<div style="font-size:11px;color:var(--slate-soft);text-transform:uppercase;letter-spacing:.12em">Usados en recetas</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="desc" style="margin-bottom:12px">Estos ingredientes no tienen clave SR12 asignada — sus costos <strong>no se actualizan</strong> al importar. Busca su clave en el SR12 y escríbela en la columna <em>clave_sr12</em> de la hoja Ingredientes, o usa la función de matching manual en Recetas.</div>' +
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr>' +
+        '<th>Ingrediente</th><th>Categoría</th><th class="num">Días sin vincular</th><th class="num">En recetas</th>' +
+      '</tr></thead><tbody>' +
+      lista.map(function(h){
+        var dias = h.dias_sin_vincular;
+        var color = urgenciaColor(dias);
+        var label = urgenciaLabel(dias);
+        return '<tr>' +
+          '<td><span class="nombre">' + escAttr(h.nombre) + '</span>' +
+            (h.dato_incompleto ? ' <span style="font-size:10px;color:var(--warn)">⚠ incompleto</span>' : '') +
+          '</td>' +
+          '<td style="color:var(--slate-soft);font-size:12px">' + escAttr(h.categoria || '—') + '</td>' +
+          '<td class="num"><span style="font-weight:600;color:' + color + '">' + label + '</span></td>' +
+          '<td class="num">' + (h.recetas_que_lo_usan > 0 ? '<span style="color:var(--ember);font-weight:600">' + h.recetas_que_lo_usan + '</span>' : '<span class="muted">—</span>') + '</td>' +
+        '</tr>';
+      }).join('') +
+      '</tbody></table></div>';
+  }
+
+  // ─── Configuración (familias) ───
+  var configActual = null;
+  function cargarConfig() {
+    apiCall({ action:'sr12_config_get', token: token }, function(res){
+      if (!res.ok) { toast('Error: ' + res.error, 'error'); return; }
+      configActual = res;
+      renderFamilias();
+    });
+  }
+  function renderFamilias() {
+    if (!configActual) return;
+    var activas = {};
+    configActual.familias_activas.forEach(function(f){ activas[f.toUpperCase()] = true; });
+    var defaults = {};
+    configActual.familias_default.forEach(function(f){ defaults[f.toUpperCase()] = true; });
+    document.getElementById('familiasBox').innerHTML = configActual.todas_familias.map(function(f){
+      var act = !!activas[f.toUpperCase()];
+      var def = !!defaults[f.toUpperCase()];
+      return '<div class="familia-row ' + (act ? 'active' : '') + '" data-familia="' + escAttr(f) + '">' +
+        '<div class="check">' + (act ? '✓' : '') + '</div>' +
+        '<div class="name">' + escAttr(f) + '</div>' +
+        (def ? '<div class="recomendado">recomendada</div>' : '') +
+        '</div>';
+    }).join('');
+    document.querySelectorAll('.familia-row').forEach(function(r){
+      r.addEventListener('click', function(){
+        r.classList.toggle('active');
+        r.querySelector('.check').textContent = r.classList.contains('active') ? '✓' : '';
+      });
+    });
+  }
+  document.getElementById('btnGuardarFamilias').addEventListener('click', function(){
+    var familias = [];
+    document.querySelectorAll('.familia-row.active').forEach(function(r){
+      familias.push(r.getAttribute('data-familia'));
+    });
+    apiCall({ action:'sr12_config_set', token: token, data: JSON.stringify({ familias: familias }) }, function(res){
+      if (!res.ok) { toast('Error: ' + res.error, 'error'); return; }
+      toast('Configuración guardada · ' + familias.length + ' familias activas', 'success');
+      cargarConfig();
+    });
+  });
+  document.getElementById('btnRestaurarDefault').addEventListener('click', function(){
+    if (!configActual) return;
+    apiCall({ action:'sr12_config_set', token: token, data: JSON.stringify({ familias: configActual.familias_default }) }, function(res){
+      if (!res.ok) { toast('Error: ' + res.error, 'error'); return; }
+      toast('Configuración restaurada al default', 'success');
+      cargarConfig();
+    });
+  });
+
+  // Init — valida sesión e inyecta datos de empresa (iOS recovery)
+  apiCall({ action:'me', token: token }, function(res){
+    if (!res.ok) {
+      sessionStorage.clear();
+      (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+      return;
+    }
+    if (res.user) { try { sessionStorage.setItem('fogueira_user', JSON.stringify(res.user)); user = res.user; } catch(e){} }
+    if (res.empresa) { try { sessionStorage.setItem('fogueira_empresa', JSON.stringify(res.empresa)); empresa = res.empresa; } catch(e){} }
+    aplicarSesionUI();
+  });
+})();
+</script>
+</body>
+</html>
