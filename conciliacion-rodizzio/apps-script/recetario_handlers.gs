@@ -937,6 +937,47 @@ function handleIngredienteFusionar(p) {
   return { ok:true, from:from.nombre, to:to.nombre, reapuntadas:reapuntadas };
 }
 
+// Re-apunta SOLO las líneas de receta de un insumo (from) a otro (to) cuya unidad pertenece a
+// una familia dada (ej. solo las que están en "pza"). A diferencia de ingrediente_fusionar
+// (re-apunta TODO y desactiva el origen), esto es PARCIAL y NO desactiva el origen — sirve para
+// el caso recurrente de un duplicado que se usa BIEN por kg pero MAL por pieza (o viceversa):
+// p.ej. "Huevo entero" ($62/kg) bien en kg pero mal con "60 pz" → re-apuntar solo las pz al
+// "HUEVO X PIEZA" del SR12 ($4.16/pza) y dejar intactas las líneas en kg (v405).
+// Solo cambia la celda ingrediente_id; conserva cantidad/unidad/merma/orden de cada línea.
+function handleIngredienteRepuntarLineas(p){
+  var u = validarToken(p.token);
+  if (!u) return { ok:false, error:'Sesión inválida' };
+  if (!rolEs(u, ['admin','gerente_administrativo'])) return { ok:false, error:'Solo admin puede re-apuntar líneas' };
+  var fromId = String(p.from_id||'').trim();
+  var toId = String(p.to_id||'').trim();
+  // familias: CSV de familias de unidad (gr|ml|kg|lt|pza) — solo se re-apuntan las líneas de esas familias
+  var fams = String(p.familias||'').toLowerCase().split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+  if (!fromId || !toId) return { ok:false, error:'Faltan from_id/to_id' };
+  if (fromId === toId) return { ok:false, error:'from_id y to_id son el mismo' };
+  if (!fams.length) return { ok:false, error:'Falta familias (ej "pza")' };
+
+  var shI = getSheet('Ingredientes');
+  var ings = rowsToObjects(shI);
+  var from = ings.find(function(x){ return x.id === fromId && x.empresa_id === u.empresa_id; });
+  var to   = ings.find(function(x){ return x.id === toId   && x.empresa_id === u.empresa_id; });
+  if (!from) return { ok:false, error:'Insumo origen no encontrado' };
+  if (!to)   return { ok:false, error:'Insumo destino no encontrado' };
+
+  var shL = getSheet('IngredientesReceta');
+  var headersL = shL.getRange(1,1,1,shL.getLastColumn()).getValues()[0];
+  var colIng = headersL.indexOf('ingrediente_id') + 1;
+  var detalle = [];
+  if (colIng > 0) {
+    rowsToObjects(shL).forEach(function(l){
+      if (String(l.ingrediente_id) === fromId && fams.indexOf(_recetaUnidadFamilia(l.unidad)) !== -1) {
+        shL.getRange(l._row, colIng).setValue(toId);
+        detalle.push({ receta_id: l.receta_id, cantidad: l.cantidad, unidad: l.unidad });
+      }
+    });
+  }
+  return { ok:true, from:from.nombre, to:to.nombre, familias:fams, reapuntadas:detalle.length, detalle:detalle };
+}
+
 // =============== Recetas ===============
 // Helper: detecta si las instrucciones son solo placeholder vacío del Excel
 // (numeración "1.- 2.- 3.-" sin contenido real). 141/219 recetas tienen este patrón.

@@ -77,6 +77,8 @@ var ACCIONES_WRITE_OBSERVADOR_BLOQUEADAS = {
   'sr12_restaurar_ingredientes': true,
   // v382 — Fusionar insumos duplicados
   'ingrediente_fusionar': true,
+  // v405 — Re-apuntar SOLO ciertas líneas (por familia de unidad) sin fusionar/desactivar
+  'ingrediente_repuntar_lineas': true,
   // v144 — Branding multi-empresa
   'empresa_branding_seed_fogueira': true,
   // v250 — Costos operativos
@@ -7561,6 +7563,7 @@ function handleRequest(e) {
       case 'ingredientes_list':     result = handleIngredientesList(params);    break;
       case 'ingrediente_update':    result = handleIngredienteUpdate(params);   break;
       case 'ingrediente_fusionar':  result = handleIngredienteFusionar(params);  break;
+      case 'ingrediente_repuntar_lineas': result = handleIngredienteRepuntarLineas(params); break;
       case 'recetas_list':          result = handleRecetasList(params);         break;
       case 'receta_get':            result = handleRecetaGet(params);           break;
       case 'receta_proponer_cambio':result = handleRecetaProponerCambio(params);break;

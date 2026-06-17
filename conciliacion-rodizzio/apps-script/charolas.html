@@ -834,6 +834,10 @@ img, svg { display: block; max-width: 100%; }
         </div>
         <button class="btn btn-sm" id="nrAddIng" type="button" style="margin-top:8px">+ Ingrediente</button>
       </div>
+      <div class="form-row">
+        <label for="nr_obs">Observación para quien autoriza <span style="font-weight:400;color:var(--muted)">(opcional)</span></label>
+        <textarea id="nr_obs" rows="2" placeholder="Ej. Es fruta del buffet matutino que se sirve por charola." style="resize:vertical"></textarea>
+      </div>
     </div>
     <div style="display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--line);padding:14px 20px">
       <button class="btn" id="nrCancel" type="button">Cancelar</button>
@@ -980,11 +984,15 @@ img, svg { display: block; max-width: 100%; }
 
   function buildBtns(area){
     var vincsArea = (vincCache || []).filter(function(v){ return (v.area === area || v.area === 'ambas') && v.activo !== false; });
+    var recetasArea = (recetasCache || []).filter(function(r){ return r.area === area || r.area === 'ambas'; });
     var charolaUI;
-    if (vincsArea.length > 0) {
+    if (vincsArea.length > 0 || recetasArea.length > 0) {
       // Buscador: el chef escribe el platillo y aparecen los que coinciden (tocables).
       // Antes se pintaba un botón por receta vinculada; con 40+ recetas el muro tapaba toda
       // la pantalla y había que deslizar hasta abajo (reporte de Xochitl, 2026-06-11).
+      // v404: busca en TODO el catálogo activo del área, no solo las recetas vinculadas
+      // (reporte Chef Sergio 2026-06-17: "no me sale todo el menú" — 226 recetas de cocina
+      // pero solo 74 vinculadas). La vinculación ya NO es requisito para encontrar el platillo.
       charolaUI =
         '<div class="charola-buscador">' +
           '<input type="text" class="cb-input" id="cbInput-' + esc(area) + '" data-area="' + esc(area) + '" placeholder="🔍 Escribe el platillo que serviste…" autocomplete="off">' +
@@ -1100,17 +1108,31 @@ img, svg { display: block; max-width: 100%; }
       var area = input.getAttribute('data-area');
       var results = document.getElementById('cbResults-' + area);
       if (!results) return;
-      var vincsArea = (vincCache || []).filter(function(v){ return (v.area === area || v.area === 'ambas') && v.activo !== false; });
-      vincsArea.sort(function(a, b){ return String(a.receta_nombre || '').localeCompare(String(b.receta_nombre || '')); });
+      // Porciones sugeridas por receta YA vinculada (solo para pre-llenar la cantidad).
+      var porcMap = {};
+      (vincCache || []).forEach(function(v){
+        if ((v.area === area || v.area === 'ambas') && v.activo !== false) porcMap[v.receta_id] = Number(v.porciones) || 1;
+      });
+      // v404: la lista de búsqueda es TODO el catálogo activo del área (no solo las vinculadas).
+      // El chef encuentra cualquier platillo del menú; la vinculación solo aporta las porciones
+      // sugeridas. El descuento de inventario sigue funcionando porque se pasa el receta_id.
+      var lista = (recetasCache || [])
+        .filter(function(r){ return r.area === area || r.area === 'ambas'; })
+        .map(function(r){ return { receta_id: r.id, receta_nombre: r.nombre, porciones: porcMap[r.id] || 1 }; });
+      if (!lista.length) {  // fallback: si el catálogo no cargó, usar las vinculaciones
+        lista = (vincCache || []).filter(function(v){ return (v.area === area || v.area === 'ambas') && v.activo !== false; })
+          .map(function(v){ return { receta_id: v.receta_id, receta_nombre: v.receta_nombre, porciones: Number(v.porciones) || 1 }; });
+      }
+      lista.sort(function(a, b){ return String(a.receta_nombre || '').localeCompare(String(b.receta_nombre || '')); });
       function render(q){
         var nq = _normTxt(q).trim();
         if (!nq) { results.innerHTML = ''; return; }
-        var matches = vincsArea.filter(function(v){ return _normTxt(v.receta_nombre).indexOf(nq) !== -1; });
+        var matches = lista.filter(function(v){ return _normTxt(v.receta_nombre).indexOf(nq) !== -1; });
         if (!matches.length) {
           results.innerHTML = '<div class="cb-hint">Sin coincidencias. Si el platillo no está, usa «+ Registro con descripción específica» abajo.</div>';
           return;
         }
-        results.innerHTML = matches.map(function(v){
+        results.innerHTML = matches.slice(0, 40).map(function(v){
           return '<button type="button" class="cb-row" data-vinc-receta="' + esc(v.receta_id) + '" data-vinc-porciones="' + (Number(v.porciones) || 1) + '" data-area="' + esc(area) + '">' +
             '<span class="ico">🍽</span><span>' + esc(v.receta_nombre || 'Charola') + '</span></button>';
         }).join('');
@@ -1151,6 +1173,7 @@ img, svg { display: block; max-width: 100%; }
     document.getElementById('dm_causa').value = '';
     document.getElementById('dm_causa_otro').value = '';
     document.getElementById('dmAlert').innerHTML = '';
+    document.getElementById('dmCancel').textContent = 'Cancelar';
     cargarRecetasParaSelect(area, recetaIdPreset || '');
     document.getElementById('detalleModal').classList.add('open');
     setTimeout(function(){ document.getElementById('dm_receta').focus(); }, 60);
@@ -1188,7 +1211,6 @@ img, svg { display: block; max-width: 100%; }
     })}, function(res){
       if (btnG) { btnG.disabled = false; btnG.textContent = txtG; }
       if (res && res.ok) {
-        closeDetalleModal();
         var labelTipo = dmTipo === 'reposicion' ? 'Reposición' : dmTipo === 'merma' ? 'Merma' : 'Charola';
         var msg = '+' + cantidad + ' ' + labelTipo + ' · ' + labelArea(dmArea);
         if (res.descuento && res.descuento.descontados > 0) {
@@ -1196,6 +1218,19 @@ img, svg { display: block; max-width: 100%; }
         }
         toast(msg);
         loadCharolas();
+        // v384: NO cerramos el modal — el chef registra varias charolas seguidas sin reabrir.
+        // Confirmación dentro del modal + formulario listo para la siguiente (mantiene área y tipo).
+        document.getElementById('dmAlert').innerHTML = '<div class="alert" style="background:#e8f5e9;border-color:#43a047;color:#1b5e20">✅ ' + msg + ' registrado. Captura la siguiente o toca <strong>Listo ✓</strong> para cerrar.</div>';
+        var _cancelBtn = document.getElementById('dmCancel'); if (_cancelBtn) _cancelBtn.textContent = 'Listo ✓';
+        var _cantEl = document.getElementById('dm_cantidad'); if (_cantEl) _cantEl.value = esMerma ? '0.5' : '1';
+        var _selR = document.getElementById('dm_receta'); if (_selR) _selR.value = '';
+        actualizarPreviewReceta();
+        if (esMerma) {
+          document.getElementById('dm_causa').value = '';
+          document.getElementById('dm_causa_otro').value = '';
+          document.getElementById('dm_causa_otro_row').style.display = 'none';
+        }
+        setTimeout(function(){ var _f = document.getElementById('dm_receta'); if (_f) _f.focus(); }, 40);
       } else {
         var e = String((res && res.error) || '').toLowerCase();
         var esConex = (e === 'network' || e.indexOf('timeout') !== -1 || e.indexOf('sin conex') !== -1 || e.indexOf('tiempo de espera') !== -1);
@@ -1597,22 +1632,57 @@ img, svg { display: block; max-width: 100%; }
     });
   }
 
+  // ¿Hoy se parte en dos servicios? Vie-Dom = Desayuno + Comida; Lun-Jue = buffet único.
+  function _finDeSemana(iso){
+    var p = String(iso || '').split('-');
+    if (p.length < 3) return false;
+    var dow = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2])).getDay(); // 0=Dom..6=Sáb
+    return dow === 0 || dow === 5 || dow === 6;
+  }
+  var PARTIR_SERVICIO = _finDeSemana(FECHA); // corte 13:00 (igual que tarifas/horarios)
+  function _esDesayuno(c){ return (c.hora || '99:99') < '13:00'; }
+  function _totalesCharolas(arr){
+    var t = { charola:0, reposicion:0, merma:0 };
+    arr.forEach(function(c){ var tipo = String(c.tipo || '').toLowerCase(); if (t[tipo] !== undefined) t[tipo] += Number(c.cantidad) || 1; });
+    return t;
+  }
+  function _filaCharola(c){
+    var puedeBorrar = rol === 'admin' || rol === 'auditoria' || c.responsable_email === user.email;
+    var desc = c.descripcion ? esc(c.descripcion) : '<span class="reg-desc empty">(sin descripción)</span>';
+    var tipoLabel = c.tipo === 'reposicion' ? 'Repos.' : c.tipo === 'merma' ? 'Merma' : 'Charola';
+    return '<div class="registro-row">' +
+      '<span class="reg-hora">' + esc(c.hora || '') + '</span>' +
+      '<span class="reg-tipo ' + esc(c.tipo) + '">' + tipoLabel + '</span>' +
+      '<span class="reg-desc">' + desc + '</span>' +
+      '<span class="reg-cant">×' + (Number(c.cantidad) || 1) + '</span>' +
+      '<span class="reg-resp" title="' + esc(c.responsable_email || '') + '">' + esc((c.responsable_email || '').split('@')[0]) + '</span>' +
+      (puedeBorrar
+        ? '<button class="reg-del" title="Eliminar" data-id="' + c.id + '" type="button">×</button>'
+        : '<span></span>') +
+    '</div>';
+  }
+  // Encabezado de un servicio dentro de la lista, con sus conteos
+  function _bloqueServicio(titulo, rango, arr){
+    var t = _totalesCharolas(arr);
+    var head = '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:10px 12px;background:var(--paper);border-bottom:1px solid var(--line)">' +
+      '<strong style="font-family:var(--font-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)">' + titulo + '</strong>' +
+      '<span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">' + rango + '</span>' +
+      '<span style="margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--ink)">' + t.charola + ' servidas · ' + t.reposicion + ' repos · ' + t.merma + ' mermas</span>' +
+    '</div>';
+    var body = arr.length ? arr.map(_filaCharola).join('') : '<div class="empty-state" style="padding:14px">Sin registros en este servicio.</div>';
+    return head + body;
+  }
+
   function renderArea(area, charolas){
     // Ordenar por hora descendente (más reciente arriba)
     charolas = charolas.slice().sort(function(a,b){ return (b.hora || '').localeCompare(a.hora || ''); });
 
-    // KPIs
-    var totales = { charola:0, reposicion:0, merma:0 };
-    charolas.forEach(function(c){
-      var tipo = String(c.tipo || '').toLowerCase();
-      if (totales[tipo] !== undefined) totales[tipo] += Number(c.cantidad) || 1;
-    });
-    var kpiHtml =
+    // KPIs del DÍA (total, sin partir) — se mantienen arriba como referencia
+    var totales = _totalesCharolas(charolas);
+    document.getElementById('kpis-' + area).innerHTML =
       '<div class="kpi"><div class="lbl"><span class="kpi-tip" data-tip-key="kpi_charola">Charolas servidas <span class="tip-icon">ⓘ</span></span></div><div class="val">' + totales.charola + '</div></div>' +
       '<div class="kpi"><div class="lbl"><span class="kpi-tip" data-tip-key="kpi_reposicion">Reposiciones <span class="tip-icon">ⓘ</span></span></div><div class="val">' + totales.reposicion + '</div></div>' +
       '<div class="kpi"><div class="lbl"><span class="kpi-tip" data-tip-key="kpi_merma">Mermas <span class="tip-icon">ⓘ</span></span></div><div class="val">' + totales.merma + '</div></div>';
-    var kpiEl = document.getElementById('kpis-' + area);
-    kpiEl.innerHTML = kpiHtml;
 
     // Lista
     var lista = document.getElementById('lista-' + area);
@@ -1620,21 +1690,17 @@ img, svg { display: block; max-width: 100%; }
       lista.innerHTML = '<div class="empty-state">Aún no hay registros de hoy. Toca un botón arriba para empezar.</div>';
       return;
     }
-    lista.innerHTML = charolas.map(function(c){
-      var puedeBorrar = rol === 'admin' || rol === 'auditoria' || c.responsable_email === user.email;
-      var desc = c.descripcion ? esc(c.descripcion) : '<span class="reg-desc empty">(sin descripción)</span>';
-      var tipoLabel = c.tipo === 'reposicion' ? 'Repos.' : c.tipo === 'merma' ? 'Merma' : 'Charola';
-      return '<div class="registro-row">' +
-        '<span class="reg-hora">' + esc(c.hora || '') + '</span>' +
-        '<span class="reg-tipo ' + esc(c.tipo) + '">' + tipoLabel + '</span>' +
-        '<span class="reg-desc">' + desc + '</span>' +
-        '<span class="reg-cant">×' + (Number(c.cantidad) || 1) + '</span>' +
-        '<span class="reg-resp" title="' + esc(c.responsable_email || '') + '">' + esc((c.responsable_email || '').split('@')[0]) + '</span>' +
-        (puedeBorrar
-          ? '<button class="reg-del" title="Eliminar" data-id="' + c.id + '" type="button">×</button>'
-          : '<span></span>') +
-      '</div>';
-    }).join('');
+    if (PARTIR_SERVICIO) {
+      // Fin de semana: partir en Desayuno (00:00–12:59) y Comida (13:00–cierre)
+      var des = charolas.filter(_esDesayuno);
+      var com = charolas.filter(function(c){ return !_esDesayuno(c); });
+      lista.innerHTML =
+        _bloqueServicio('☀️ Desayuno', '00:00–12:59', des) +
+        _bloqueServicio('🍽️ Comida', '13:00–cierre', com);
+    } else {
+      // Entre semana: buffet de un solo servicio
+      lista.innerHTML = charolas.map(_filaCharola).join('');
+    }
     lista.querySelectorAll('.reg-del').forEach(function(btn){
       btn.addEventListener('click', function(){
         if (!confirm('¿Eliminar este registro?')) return;
@@ -1857,6 +1923,7 @@ img, svg { display: block; max-width: 100%; }
     document.getElementById('nr_rendimiento').value = '1';
     document.getElementById('nr_unidad').value = 'porciones';
     document.getElementById('nr_instrucciones').value = '';
+    document.getElementById('nr_obs').value = '';
     var areaSelect = document.getElementById('nr_area');
     areaSelect.value = areaFinal;
     areaSelect.disabled = true; // fijado al área de la charola — no editable desde este flujo
@@ -1969,24 +2036,27 @@ img, svg { display: block; max-width: 100%; }
       if (!(lineasValidas[i].cantidad > 0)){ toast('Revisa la cantidad del ingrediente ' + (i+1), 'error'); return; }
       if (!lineasValidas[i].unidad){ toast('Agrega la unidad del ingrediente ' + (i+1), 'error'); return; }
     }
-    var payload = lineasValidas.map(function(l){
-      return { tipo:'ingrediente', referencia_id: l.id, cantidad: l.cantidad, unidad: l.unidad, merma_pct: l.merma_pct||0, es_decoracion: false };
+    var payload = lineasValidas.map(function(l, i){
+      return { ingrediente_id: l.id, cantidad: l.cantidad, unidad: l.unidad, merma_extra_pct: l.merma_pct||0, es_decoracion: false, orden: i+1 };
     });
     var btn = document.getElementById('nrEnviar');
     btn.disabled = true;
+    // v385: el backend (handleRecetaProponerCambio) espera cambios_json + lineas_json, NO campos planos.
+    // Antes se mandaban planos → el backend los ignoraba y devolvía "nombre requerido" (proponer desde Charolas roto).
     apiCall({
       action: 'receta_proponer_cambio', token: token,
       tipo_cambio: 'crear',
       receta_id: '',
-      nombre: nombre,
-      area: document.getElementById('nr_area').value,
-      categoria_culinaria: document.getElementById('nr_cat').value.trim(),
-      rendimiento: parseFloat(document.getElementById('nr_rendimiento').value) || 1,
-      unidad_rendimiento: document.getElementById('nr_unidad').value.trim() || 'porciones',
-      instrucciones: document.getElementById('nr_instrucciones').value.trim(),
-      uso_aplicacion: '',
-      decoracion: '',
-      lineas: JSON.stringify(payload)
+      cambios_json: JSON.stringify({
+        nombre: nombre,
+        area: document.getElementById('nr_area').value,
+        categoria_culinaria: document.getElementById('nr_cat').value.trim(),
+        rendimiento: parseFloat(document.getElementById('nr_rendimiento').value) || 1,
+        unidad_rendimiento: document.getElementById('nr_unidad').value.trim() || 'porciones',
+        instrucciones: document.getElementById('nr_instrucciones').value.trim()
+      }),
+      motivo: document.getElementById('nr_obs').value.trim(),
+      lineas_json: JSON.stringify(payload)
     }, function(res){
       btn.disabled = false;
       if (res.ok){
