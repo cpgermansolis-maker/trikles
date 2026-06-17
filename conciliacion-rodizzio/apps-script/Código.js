@@ -224,7 +224,7 @@ function setupHojas() {
     // Cada sello es la firma autenticada de un usuario en un momento específico de un servicio.
     // Imposible firmar por otro: el sistema usa la sesión activa. Override admin con motivo.
     'Sellos':         ['id','bitacora_id','momento','rol_esperado','user_id','user_email','user_nombre','user_rol','sellado_at','es_override','motivo_override'],
-    'Conciliaciones': ['id','empresa_id','sucursal_id','fecha','estado','cerrada_at','payload_json'],
+    'Conciliaciones': ['id','empresa_id','sucursal_id','fecha','estado','cerrada_at','payload_json','actualizado_por','actualizado_at'],
     // Auditoría granular de cambios sobre Conciliaciones (T2 fase 2 · v126).
     // Cada entrada documenta un evento de save: quién (usuario), cuándo (ts), qué cambió
     // (secciones_modificadas — apertura, cierre, corte_caja, arqueo, depositos, cortesias,
@@ -6015,6 +6015,8 @@ function handleConciliacionGet(p) {
     id: c.id, empresa_id: c.empresa_id, sucursal_id: c.sucursal_id,
     fecha: fechaToString(c.fecha), estado: c.estado,
     cerrada_at: c.cerrada_at instanceof Date ? c.cerrada_at.toISOString() : (c.cerrada_at || ''),
+    actualizado_por: c.actualizado_por || '',
+    actualizado_at: c.actualizado_at instanceof Date ? c.actualizado_at.toISOString() : (c.actualizado_at || ''),
     payload: payload
   }};
 }
@@ -6048,6 +6050,9 @@ function handleConciliacionSave(p) {
     sheet.getRange(row, 5).setValue(nuevoEstado);
     sheet.getRange(row, 6).setValue(nuevoEstado === 'cerrada' ? ahora : (existing.cerrada_at || ''));
     sheet.getRange(row, 7).setValue(JSON.stringify(payloadNuevo));
+    // v407 — registrar quién capturó/editó (Moni: "no se observa quién rellenó datos")
+    sheet.getRange(row, _getOrCreateCol(sheet, 'actualizado_por')).setValue(u.email);
+    sheet.getRange(row, _getOrCreateCol(sheet, 'actualizado_at')).setValue(ahora);
     // Auditoría: detectar cambio de estado o cambios de secciones
     var accionAud = 'editar';
     if (nuevoEstado === 'cerrada' && existing.estado !== 'cerrada') accionAud = 'cerrar';
@@ -6060,6 +6065,10 @@ function handleConciliacionSave(p) {
     var sucursal_id = data.sucursal_id || ((rowsToObjects(getSheet('Sucursales')).find(function(s){ return s.empresa_id === u.empresa_id; }) || {}).id || '');
     sheet.appendRow([newId, u.empresa_id, sucursal_id, data.fecha || '', nuevoEstado,
       nuevoEstado === 'cerrada' ? ahora : '', JSON.stringify(payloadNuevo)]);
+    // v407 — registrar quién capturó (Moni: "no se observa quién rellenó datos")
+    var _nr = sheet.getLastRow();
+    sheet.getRange(_nr, _getOrCreateCol(sheet, 'actualizado_por')).setValue(u.email);
+    sheet.getRange(_nr, _getOrCreateCol(sheet, 'actualizado_at')).setValue(ahora);
     // Auditoría: primer save = "crear"
     registrarAuditoriaConciliacion(newId, u, fechaToString(data.fecha || ''),
       sucursal_id, 'crear', {}, payloadNuevo);

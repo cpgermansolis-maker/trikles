@@ -1,4 +1,4 @@
-<? var __tokenInyectado = '';
+﻿<? var __tokenInyectado = '';
 try { __tokenInyectado = (queryParams && queryParams.t) ? String(queryParams.t) : ''; } catch(e){} ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -7,6 +7,7 @@ try { __tokenInyectado = (queryParams && queryParams.t) ? String(queryParams.t) 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Conciliación · Fogueira</title>
 <base target="_top">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzOCc+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSdmZycgeDE9JzAnIHkxPScwJyB4Mj0nMCcgeTI9JzEnPjxzdG9wIG9mZnNldD0nMCUnIHN0b3AtY29sb3I9JyNlOGM0NmEnLz48c3RvcCBvZmZzZXQ9JzUwJScgc3RvcC1jb2xvcj0nI2M4OWE0YScvPjxzdG9wIG9mZnNldD0nMTAwJScgc3RvcC1jb2xvcj0nIzlhNzMzMCcvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGQ9J00xNiAxLjUgQyAxNyA2LDIyIDksMjMgMTQgQyAyNCAxOCwyMiAyMSwyMCAyMiBDIDIyIDI0LDI0IDI3LDI0IDMxIEMgMjQgMzUsMjEgMzcsMTYgMzcgQyAxMSAzNyw4IDM1LDggMzEgQyA4IDI4LDEwIDI2LDExIDI0IEMgOSAyMiw3IDE5LDggMTUgQyA5IDExLDEzIDExLDE0IDcgQyAxNSA1LDE2IDMsMTYgMS41WicgZmlsbD0ndXJsKCNmZyknLz48cGF0aCBkPSdNMTYgMTYgQyAxNyAxOSwxOSAyMSwxOSAyNSBDIDE5IDI4LDE3IDMwLDE2IDMwIEMgMTUgMzAsMTMgMjgsMTMgMjUgQyAxMyAyMiwxNSAxOSwxNiAxNlonIGZpbGw9JyMwYzA5MDcnIG9wYWNpdHk9Jy41NScvPjwvc3ZnPg==">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500;1,600&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap">
@@ -707,6 +708,41 @@ img, svg { display: block; max-width: 100%; }
   .small{font-size:12px}
   .bdg{display:inline-block;background:var(--brasa);color:white;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 
+  .add-row-btn{
+    margin-top:10px;background:var(--bg);border:1px dashed var(--line-strong);
+    width:100%;padding:10px;border-radius:6px;cursor:pointer;
+    color:var(--ink-soft);font-family:inherit;font-size:13px;transition:all .15s;
+  }
+  .add-row-btn:hover{border-color:var(--brasa);color:var(--brasa);background:var(--brasa-tint)}
+
+  /* Tabla conciliación CFDI */
+  .table-wrap.cfdi-wrap{overflow-x:auto}
+  table.cfdi-table{width:100%;border-collapse:collapse;font-size:13px;min-width:680px}
+  table.cfdi-table th{
+    background:var(--ink);color:white;padding:8px 6px;
+    font-weight:600;font-size:11px;letter-spacing:.04em;
+    text-transform:uppercase;text-align:right;
+  }
+  table.cfdi-table th:first-child{text-align:left}
+  table.cfdi-table td{padding:6px;border-bottom:1px solid var(--line);background:var(--paper);vertical-align:middle}
+  table.cfdi-table tr:nth-child(even) td{background:var(--bg)}
+  table.cfdi-table td:first-child{font-weight:500}
+  table.cfdi-table input[type=number]{
+    width:100%;border:1px solid var(--line);background:var(--paper);
+    padding:6px 6px;font-size:13px;border-radius:4px;text-align:right;
+    font-family:inherit;color:var(--ink);
+  }
+  table.cfdi-table input[type=number]:focus{outline:none;border-color:var(--brasa)}
+  table.cfdi-table select{
+    width:100%;border:1px solid var(--line);background:var(--paper);
+    padding:6px 8px;font-size:13px;font-family:inherit;color:var(--ink);
+    border-radius:4px;cursor:pointer;
+  }
+  table.cfdi-table select:focus{outline:none;border-color:var(--brasa)}
+  .cfdi-diff-pos{color:var(--rojo);font-weight:600}
+  .cfdi-diff-neg{color:var(--rojo);font-weight:600}
+  .cfdi-diff-ok{color:var(--verde);font-weight:600}
+
   /* Footer info */
   .meta{font-size:11px;color:var(--ink-soft);text-align:center;margin-top:30px;border-top:1px solid var(--line);padding-top:14px}
 
@@ -880,6 +916,33 @@ img, svg { display: block; max-width: 100%; }
   .audit-modal{background:#fffdf8}
   .audit-head{border-bottom-color:var(--line)}
   .audit-overlay{background:rgba(12,9,7,.55)}
+
+  /* ── Cancelaciones con soporte (control de fuga · Capa 1+2) ── */
+  .canc-resumen{font-size:12.5px;margin:0 0 12px;color:var(--ink)}
+  .canc-resumen.ok{padding:9px 12px;background:var(--verde-tint);border-left:3px solid var(--verde)}
+  .canc-resumen.gold{padding:9px 12px;background:var(--ambar-tint);border-left:3px solid var(--ambar)}
+  .canc-resumen.roja{padding:9px 12px;background:var(--rojo-tint);border-left:3px solid var(--rojo)}
+  .canc-resumen .cr-alert{color:var(--rojo);font-weight:700}
+  .canc-resumen .cr-muted{color:var(--muted)}
+  .canc-resumen .cr-cajeras{margin-top:6px;font-size:11.5px;color:var(--muted)}
+  #ci_canc_tbl input,#ci_canc_tbl select{width:100%;min-width:58px}
+  #ci_canc_tbl td{vertical-align:middle}
+  .canc-delta{font-family:var(--font-mono);font-weight:600;font-size:12.5px}
+  .canc-delta.neg{color:var(--rojo)}
+  .canc-delta.pos{color:var(--verde)}
+  .canc-delta.zero{color:var(--muted)}
+  tr.canc-roja{background:var(--rojo-tint)}
+  tr.canc-roja-sinaut{background:rgba(196,50,42,.16)}
+  tr.canc-roja-sinaut td:first-child{box-shadow:inset 3px 0 0 var(--rojo)}
+  .canc-auth-done{font-size:11.5px;font-weight:600;color:var(--verde)}
+  .canc-auth-btn{display:none;font-size:11.5px;font-weight:600;color:#fff;background:var(--brasa);border:none;padding:4px 9px;cursor:pointer}
+  .canc-auth-btn:hover{background:var(--brasa-deep)}
+  .canc-auth-pend{font-size:11px;color:var(--rojo);font-style:italic}
+  .canc-auth-revoke{display:none;margin-left:6px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:13px;line-height:1}
+  .canc-auth-revoke:hover{color:var(--rojo)}
+  body.can-auth-canc .canc-auth-btn{display:inline-block}
+  body.can-auth-canc .canc-auth-pend{display:none}
+  body.can-auth-canc .canc-auth-revoke{display:inline-block}
 
   /* ── Restricciones de visibilidad por rol ── */
   /* Cajera: solo ve Mix POS (sin columna Host/Δ) y Corte de Caja. Nada más. */
@@ -1127,6 +1190,14 @@ img, svg { display: block; max-width: 100%; }
         <div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);font-size:13px">Cargando sellos…</div>
       </div>
     </div>
+
+    <!-- v407 — Estado de mi corte: quién capturó + finalizar/bloqueo (reporte Moni) -->
+    <div class="card" id="estadoCorteCard">
+      <h3><span class="num">06</span> Estado de mi corte</h3>
+      <p class="section-sub">Quién capturó este corte y, cuando termines, finalízalo para dejarlo firmado y bloqueado.</p>
+      <div style="font-size:13.5px;color:var(--muted);margin:10px 0 14px">Capturado / última edición por: <strong id="corteCapturadoPor" style="color:var(--ink)">—</strong></div>
+      <div id="corteFinalizarZona"></div>
+    </div>
   </section>
 
   <!-- ============================ CIERRE ============================ -->
@@ -1286,13 +1357,9 @@ img, svg { display: block; max-width: 100%; }
       <h4 style="margin:0 0 10px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">Tarjetas bancarias</h4>
       <div class="grid g4">
         <div><label>T. Débito ($)</label><input type="number" min="0" step=".01" data-k="ci_corte_tar_debito"></div>
-        <div><label>T.C. Mastercard ($)</label><input type="number" min="0" step=".01" data-k="ci_corte_tar_master"></div>
-        <div><label>T.C. AMEX ($)</label><input type="number" min="0" step=".01" data-k="ci_corte_tar_amex"></div>
-        <div><label>T.C. Visa ($)</label><input type="number" min="0" step=".01" data-k="ci_corte_tar_visa"></div>
-      </div>
-      <div class="grid g3" style="margin-top:10px">
+        <div><label>T. Crédito ($)</label><input type="number" min="0" step=".01" data-k="ci_corte_tar_credito"></div>
+        <div><label>BZPAY ($)<button class="info-icon no-print" data-tip="Cobros procesados por BZPAY. Suman al total del día y al gran total. La única excepción es facturación: BZPAY no se incluye en la base de facturación de la sección 10b." type="button">i</button></label><input type="number" min="0" step=".01" data-k="ci_corte_tar_bzpay"></div>
         <div><label>Total tarjeta (auto)</label><input type="text" id="ci_corte_tar_total" readonly style="background:var(--bg);font-weight:600"></div>
-        <div style="grid-column:span 2"></div>
       </div>
 
       <div class="divider"></div>
@@ -1303,9 +1370,8 @@ img, svg { display: block; max-width: 100%; }
           <tbody>
             <tr><td>Efectivo final</td><td class="num-cell" id="ci_corte_res_efe">$0.00</td></tr>
             <tr><td>T. Débito</td><td class="num-cell" id="ci_corte_res_debito">$0.00</td></tr>
-            <tr><td>T.C. Mastercard</td><td class="num-cell" id="ci_corte_res_master">$0.00</td></tr>
-            <tr><td>T.C. AMEX</td><td class="num-cell" id="ci_corte_res_amex">$0.00</td></tr>
-            <tr><td>T.C. Visa</td><td class="num-cell" id="ci_corte_res_visa">$0.00</td></tr>
+            <tr><td>T. Crédito</td><td class="num-cell" id="ci_corte_res_credito">$0.00</td></tr>
+            <tr><td>BZPAY</td><td class="num-cell" id="ci_corte_res_bzpay">$0.00</td></tr>
             <tr style="background:var(--bg);font-weight:600;font-size:16px"><td>GRAN TOTAL DEL DÍA</td><td class="num-cell" id="ci_corte_gran_total">$0.00</td></tr>
           </tbody>
         </table>
@@ -1417,10 +1483,37 @@ img, svg { display: block; max-width: 100%; }
         <div><label># Tickets emitidos POS</label><input type="number" min="0" data-k="ci_folio_emitidos"></div>
         <div><label>Δ Folios (auto)</label><input type="text" id="ci_folio_delta" readonly style="background:var(--bg)"></div>
       </div>
-      <div style="margin-top:12px">
-        <label>Folios cancelados con soporte</label>
-        <textarea data-k="ci_folio_canc" placeholder="Lista de folios cancelados y motivo"></textarea>
+      <div class="divider"></div>
+
+      <h4 style="margin:0 0 6px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">Cancelaciones del día (detalle con soporte)</h4>
+      <p class="help" style="margin-top:0;margin-bottom:10px">Una fila por cada ticket/producto cancelado. El sistema marca en <strong style="color:var(--rojo)">rojo</strong> las cancelaciones que <strong>bajan el monto cobrado</strong> y se pagaron en <strong>efectivo</strong> — el patrón típico de fuga (ej. 2 rodizios → Rodizio Duo). Esas <strong>requieren autorización autenticada del Gerente Administrativo</strong> (el botón de autorizar solo aparece en su sesión, no se puede teclear a mano).</p>
+      <div id="ci_canc_resumen" class="canc-resumen"></div>
+      <div class="table-wrap">
+        <table class="data" id="ci_canc_tbl">
+          <thead>
+            <tr>
+              <th style="width:78px">Folio</th>
+              <th style="width:60px">Hora</th>
+              <th style="width:108px">Cajera</th>
+              <th style="min-width:150px">Producto cancelado</th>
+              <th style="width:96px" class="num-cell">$ Original</th>
+              <th style="min-width:130px">Cambió a</th>
+              <th style="width:96px" class="num-cell">$ Nuevo</th>
+              <th style="width:84px" class="num-cell">Δ</th>
+              <th style="width:104px">Pago</th>
+              <th style="width:168px">Motivo</th>
+              <th style="width:172px">Autorizó</th>
+              <th style="width:30px" class="no-print"></th>
+            </tr>
+          </thead>
+          <tbody id="ci_canc_tbody"></tbody>
+        </table>
       </div>
+      <button class="add-row-btn no-print" id="btnAddCanc" type="button">+ Agregar cancelación</button>
+
+      <div class="divider"></div>
+      <label>Notas adicionales de folios (opcional)</label>
+      <textarea data-k="ci_folio_canc" placeholder="Observaciones generales sobre folios o cancelaciones"></textarea>
     </div>
 
     <div class="card">
@@ -1445,13 +1538,83 @@ img, svg { display: block; max-width: 100%; }
     </div>
 
     <div class="card">
-      <h3><span class="num">10</span> CFDI emitidos<button class="info-icon no-print" data-tip="<strong>CFDI</strong> = facturas electrónicas emitidas en el día. Captura cuántas se emitieron y el monto facturado. Útil para compaginar contra ventas totales: el monto facturado nunca debe exceder los cobros del día." type="button">i</button></h3>
-      <div class="grid g3">
-        <div><label>Total facturado ($)</label><input type="number" min="0" step=".01" data-k="ci_cfdi_total"></div>
-        <div><label># CFDI individuales</label><input type="number" min="0" data-k="ci_cfdi_num"></div>
+      <h3><span class="num">10a</span> Facturas emitidas (registro cajera)<button class="info-icon no-print" data-tip="Lista cada factura emitida en el día con su concepto y monto. La cajera la llena después de emitir cada CFDI. Estos datos alimentan la propuesta de facturación en la sección 10b." type="button">i</button></h3>
+      <p class="help" style="margin-top:0;margin-bottom:10px">Registra cada CFDI emitido: concepto (efectivo / tarjeta débito / tarjeta crédito / mixto) y monto. El sistema suma automáticamente por tipo para la conciliación.</p>
+      <div class="table-wrap">
+        <table class="data" id="ci_fact_tbl">
+          <thead>
+            <tr>
+              <th style="width:150px">Tipo de pago</th>
+              <th>No. de factura</th>
+              <th style="width:130px">Folio ticket POS</th>
+              <th style="width:140px" class="num-cell">Monto ($)</th>
+              <th style="width:34px" class="no-print"></th>
+            </tr>
+          </thead>
+          <tbody id="ci_fact_tbody"></tbody>
+          <tfoot>
+            <tr style="background:var(--bg);font-weight:600"><td>TOTAL FACTURADO</td><td>—</td><td>—</td><td class="num-cell" id="ci_fact_total">$0.00</td><td class="no-print"></td></tr>
+          </tfoot>
+        </table>
+      </div>
+      <button class="add-row-btn no-print" id="btnAddFactura" type="button">+ Agregar factura</button>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">10b</span> Conciliación CFDI<button class="info-icon no-print" data-tip="<strong>Ventas base</strong>: lo cobrado en el día por forma de pago (viene del corte de caja).<br><strong>Ya facturado</strong>: suma de las facturas registradas por la cajera en 10a.<br><strong>Propuesta a facturar</strong>: ventas base − ya facturado = lo que aún falta facturar.<br><strong>Lo facturado real</strong>: capture aquí lo que efectivamente se facturó (puede diferir de la propuesta si hubo ajustes).<br><strong>Diferencia</strong>: propuesta − real (debe ser cero o justificada)." type="button">i</button></h3>
+      <div class="table-wrap cfdi-wrap">
+        <table class="data cfdi-table">
+          <thead>
+            <tr>
+              <th>Concepto</th>
+              <th class="num-cell" style="width:110px">Ventas base</th>
+              <th class="num-cell" style="width:110px">Ya facturado</th>
+              <th class="num-cell" style="width:110px">Propuesta</th>
+              <th class="num-cell" style="width:110px">Facturado real</th>
+              <th class="num-cell" style="width:110px">Diferencia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Efectivo</td>
+              <td class="num-cell" id="cfdi_base_efe">$0.00</td>
+              <td class="num-cell" id="cfdi_yafact_efe">$0.00</td>
+              <td class="num-cell" id="cfdi_prop_efe">$0.00</td>
+              <td><input type="number" min="0" step=".01" data-k="ci_cfdi_real_efe" style="width:100%;text-align:right"></td>
+              <td class="num-cell" id="cfdi_diff_efe">—</td>
+            </tr>
+            <tr>
+              <td>T. Débito</td>
+              <td class="num-cell" id="cfdi_base_deb">$0.00</td>
+              <td class="num-cell" id="cfdi_yafact_deb">$0.00</td>
+              <td class="num-cell" id="cfdi_prop_deb">$0.00</td>
+              <td><input type="number" min="0" step=".01" data-k="ci_cfdi_real_deb" style="width:100%;text-align:right"></td>
+              <td class="num-cell" id="cfdi_diff_deb">—</td>
+            </tr>
+            <tr>
+              <td>T. Crédito</td>
+              <td class="num-cell" id="cfdi_base_cre">$0.00</td>
+              <td class="num-cell" id="cfdi_yafact_cre">$0.00</td>
+              <td class="num-cell" id="cfdi_prop_cre">$0.00</td>
+              <td><input type="number" min="0" step=".01" data-k="ci_cfdi_real_cre" style="width:100%;text-align:right"></td>
+              <td class="num-cell" id="cfdi_diff_cre">—</td>
+            </tr>
+            <tr style="background:var(--bg);font-weight:600">
+              <td>TOTAL</td>
+              <td class="num-cell" id="cfdi_base_tot">$0.00</td>
+              <td class="num-cell" id="cfdi_yafact_tot">$0.00</td>
+              <td class="num-cell" id="cfdi_prop_tot">$0.00</td>
+              <td class="num-cell" id="cfdi_real_tot">$0.00</td>
+              <td class="num-cell" id="cfdi_diff_tot">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="grid g3" style="margin-top:14px">
         <div><label>Factura global emitida</label>
           <select data-k="ci_cfdi_global"><option value="">—</option><option>Sí</option><option>No</option><option>Pendiente</option></select>
         </div>
+        <div style="grid-column:span 2"></div>
       </div>
     </div>
 
@@ -1511,6 +1674,86 @@ img, svg { display: block; max-width: 100%; }
         <div><label>Total depositado a tesorería (auto)</label><input type="text" id="ci_dep_total" readonly style="background:var(--bg);font-weight:600"></div>
         <div style="grid-column:span 2"></div>
       </div>
+    </div>
+
+    <div class="card" id="sec-costos">
+      <h3><span class="num">13</span> Margen bruto estimado<button class="info-icon no-print" data-tip="Estimado del margen bruto operativo del día. El <strong>costo manual</strong> es el que Administración captura en Configuración — es el que vale para el cálculo. El <strong>referente recetario</strong> es informativo: costo teórico basado en ingredientes y montaje de charolas. Cuando los precios del recetario estén validados, el referente puede reemplazar al manual (Fase 2)." type="button">i</button></h3>
+
+      <h4 style="margin:0 0 8px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">Costos operativos por tipo de servicio</h4>
+      <p class="help" style="margin-bottom:10px">Costo manual = referente oficial (validado por Administración). Recetario = estimado teórico desde ingredientes y montaje.</p>
+
+      <div class="table-wrap">
+        <table class="data" id="tbl-costos-config">
+          <thead>
+            <tr>
+              <th>Servicio</th>
+              <th class="num-cell" style="min-width:160px">Costo manual ($/comensal)</th>
+              <th class="num-cell" style="min-width:160px">Referente recetario (~)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Buffet completo</td>
+              <td class="num-cell">
+                <span class="cc-view" id="cc-v-buffet">—</span>
+                <input type="number" class="cc-input" id="cc-e-buffet" min="0" step="1" placeholder="0" style="display:none;width:90px;text-align:right">
+              </td>
+              <td class="num-cell" id="cc-ref-buffet">—</td>
+            </tr>
+            <tr>
+              <td>Desayuno</td>
+              <td class="num-cell">
+                <span class="cc-view" id="cc-v-desayuno">—</span>
+                <input type="number" class="cc-input" id="cc-e-desayuno" min="0" step="1" placeholder="0" style="display:none;width:90px;text-align:right">
+              </td>
+              <td class="num-cell" id="cc-ref-desayuno">—</td>
+            </tr>
+            <tr>
+              <td>Comida</td>
+              <td class="num-cell">
+                <span class="cc-view" id="cc-v-comida">—</span>
+                <input type="number" class="cc-input" id="cc-e-comida" min="0" step="1" placeholder="0" style="display:none;width:90px;text-align:right">
+              </td>
+              <td class="num-cell" id="cc-ref-comida">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cc-admin-ctrl no-print" style="margin-top:8px;display:none">
+        <button class="btn" id="btnEditCostos" type="button">✏ Editar costos</button>
+        <button class="btn btn-primary" id="btnSaveCostos" type="button" style="display:none">💾 Guardar</button>
+        <button class="btn" id="btnCancelCostos" type="button" style="display:none">Cancelar</button>
+        <span id="costos-save-msg" style="margin-left:10px;font-size:12px;color:var(--verde);display:none"></span>
+      </div>
+
+      <div class="divider"></div>
+
+      <h4 style="margin:0 0 8px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">Margen estimado del día</h4>
+      <p class="help" style="margin-bottom:10px">Ingresos = cobros reales de la conciliación. Costo estimado = N comensales × costo manual del tipo de servicio.</p>
+
+      <div class="table-wrap">
+        <table class="data">
+          <thead>
+            <tr>
+              <th>Bloque</th>
+              <th>Servicio</th>
+              <th class="num-cell">Comensales</th>
+              <th class="num-cell">Ingresos</th>
+              <th class="num-cell">Costo est.</th>
+              <th class="num-cell">Margen</th>
+              <th class="num-cell">% Margen</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-margen-body">
+            <tr><td colspan="7" style="color:var(--muted);text-align:center;padding:12px;font-style:italic">Llena el Mix de comensales y los cobros para calcular.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p id="costos-nota-est" class="help" style="display:none;margin-top:10px;color:var(--ember)">
+        📍 El referente del recetario incluye ingredientes con precio <strong>estimado</strong> (no confirmado con proveedor). Validar con Estefanía/Weslley antes de usar como referencia confiable.
+      </p>
     </div>
 
     <!-- Firmas legacy quitadas: ahora se firman desde el tablero de sellos en sección 05
@@ -1576,7 +1819,7 @@ img, svg { display: block; max-width: 100%; }
   } else {
     try { token = sessionStorage.getItem('fogueira_token'); } catch(e){}
   }
-  if (!token) { var _a=document.createElement('a');_a.href=API_URL+'?p=acceso';_a.target='_top';document.body.appendChild(_a);_a.click(); return; }
+  if (!token) { try { (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})(); } catch(e) { (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})(); } return; }
   try {
     user = JSON.parse(sessionStorage.getItem('fogueira_user') || 'null');
     empresa = JSON.parse(sessionStorage.getItem('fogueira_empresa') || 'null');
@@ -1589,15 +1832,22 @@ img, svg { display: block; max-width: 100%; }
     if (_sesionUIAplicada) return true;
     _sesionUIAplicada = true;
     var r = String(user.rol || '').toLowerCase();
-    if (['admin','auditoria','cajera'].indexOf(r) === -1) {
+    // El gate debe espejar la herencia de rolEs() del backend: gerente_administrativo→admin
+    // (el backend usa rolEs(u,['admin','auditoria','cajera']) y SÍ lo acepta). Sin esto, Luis
+    // ve el tile en su inicio pero la pantalla lo expulsa con "no es para tu rol". (v359/v388/v394)
+    if (['admin','gerente_administrativo','auditoria','cajera'].indexOf(r) === -1) {
       alert('Tu rol no tiene acceso a la conciliación.');
-      var _b=document.createElement('a');_b.href=API_URL+'?p=inicio';_b.target='_top';document.body.appendChild(_b);_b.click();
+      (function(_u){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sin acceso</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Esta pantalla no es para tu rol</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Toca el botón de abajo para ir a tu inicio, donde verás las pantallas que sí puedes usar.</p><a href="'+_u+'" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">← Ir a mi inicio</a></div>';document.body.appendChild(_o);})(API_URL+'?p=inicio&t='+encodeURIComponent(token||''));
       return false;
     }
     if (r === 'cajera') document.body.classList.add('role-cajera');
+    // Solo admin / gerente administrativo pueden SELLAR la autorización de una cancelación.
+    // El sello toma el nombre de la sesión activa (no se teclea) → el sub-gerente no puede falsificarlo.
+    if (r === 'admin' || r === 'gerente_administrativo') document.body.classList.add('can-auth-canc');
     var elEmp = document.getElementById('empresaNombre');
     if (elEmp) elEmp.textContent = (empresa && empresa.nombre) || 'Sin empresa';
     (function(){ try { var b=API_URL+'?p=inicio&t='+encodeURIComponent(token||'')+(user?'&urol='+encodeURIComponent(user.rol||'')+'&unom='+encodeURIComponent(user.nombre||user.email||''):''); document.querySelectorAll('a[href*="p=inicio"]').forEach(function(a){a.href=b;}); }catch(e){} })();
+    (function(){ if (!token) return; var _cb='_brand_'+Date.now(); window[_cb]=function(d){ try{delete window[_cb];}catch(e){} if(!d||!d.ok||!d.branding||d.origen!=='empresa_config') return; var b=d.branding,rs=document.documentElement.style; if(b.color_primario) rs.setProperty('--gold',b.color_primario); if(b.color_secundario) rs.setProperty('--ink',b.color_secundario); if(b.color_acento) rs.setProperty('--ember',b.color_acento); if(b.color_fondo) rs.setProperty('--cream',b.color_fondo); if(b.nombre_comercial) document.querySelectorAll('.brand-flame .wordmark').forEach(function(w){ w.textContent=String(b.nombre_comercial).toUpperCase(); }); }; var _s=document.createElement('script'); _s.src=API_URL+'?action=empresa_branding_get&token='+encodeURIComponent(token)+'&callback='+_cb; _s.async=true; document.head.appendChild(_s); })();
     return true;
   }
   if (user && !aplicarSesionUI()) return;
@@ -1613,6 +1863,73 @@ img, svg { display: block; max-width: 100%; }
     script.onerror = function(){ clearTimeout(t); cleanup(); cb({ok:false,error:'network'}); };
     script.src = API_URL + '?' + qs + '&callback=' + cbName;
     document.body.appendChild(script);
+  }
+
+  // ---------- Carga robusta (reintento + recuperación visible) ----------
+  // Un parpadeo de red o un redeploy momentáneo NO debe dejar la pantalla colgada ni
+  // sacar al usuario a login. apiCallReintento reintenta 2× los fallos transitorios
+  // (network/timeout). SOLO usar en lecturas idempotentes, NUNCA en guardados (doble submit).
+  function _esErrTransitorio(res){
+    if (!res) return true;
+    if (res.ok) return false;
+    var e = String(res.error || '').toLowerCase();
+    return e === 'network' || e.indexOf('timeout') !== -1;
+  }
+  function apiCallReintento(params, cb, intentos){
+    intentos = (intentos == null) ? 2 : intentos;
+    apiCall(params, function(res){
+      if (res && res.ok) { cb(res); return; }
+      if (intentos > 0 && _esErrTransitorio(res)) {
+        setTimeout(function(){ apiCallReintento(params, cb, intentos - 1); }, 1200);
+        return;
+      }
+      cb(res); // fallo final → el caller decide cómo mostrarlo
+    });
+  }
+  // Detecta un fallo de AUTENTICACIÓN (sesión vencida/ inválida) — distinto de un
+  // parpadeo de red. Si el token caducó (cambió el día lógico a las 3am o hubo logout
+  // en otro lado), el backend responde "Sesión inválida"/"Sesión expirada". Eso NO se
+  // debe reintentar en silencio (deja "Guardando…" eterno): hay que avisar y mandar a login.
+  function _esErrSesion(res){
+    if (!res || res.ok) return false;
+    var e = String(res.error || '').toLowerCase();
+    if (_esErrTransitorio(res)) return false; // network/timeout ≠ sesión
+    return e.indexOf('sesi') !== -1 || e.indexOf('inválid') !== -1 || e.indexOf('invalid') !== -1 || e.indexOf('expir') !== -1 || e.indexOf('token') !== -1;
+  }
+  // Overlay "Tu sesión expiró" + botón a login real (con gesto del usuario; iOS bloquea
+  // la navegación _top programática). Reusable: lo dispara el chequeo inicial de `me` Y
+  // cualquier mutación que rebote por sesión (guardado del corte, sellado). Idempotente.
+  var _sesionExpiradaMostrada = false;
+  function mostrarSesionExpirada(){
+    if (_sesionExpiradaMostrada) return;
+    _sesionExpiradaMostrada = true;
+    try { sessionStorage.clear(); } catch(e){}
+    setSaveIndicator('error', 'Sesión expirada');
+    var banner = document.getElementById('lbRecover');
+    if (banner) {
+      banner.innerHTML = '<div class="lb-recover-row"><div class="lb-recover-msg"><strong>⚠ Sesión expirada.</strong> Vuelve a iniciar sesión para continuar. Tu captura quedó respaldada en este dispositivo.</div><div class="lb-recover-actions"><a class="btn btn-restore" href="' + API_URL + '?p=acceso" target="_top" style="text-decoration:none">→ Iniciar sesión</a></div></div>';
+      banner.classList.add('show');
+    }
+    try {
+      var _o = document.createElement('div');
+      _o.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';
+      _o.innerHTML = '<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día (a las 3am). Tu captura quedó respaldada en este dispositivo: al volver a entrar podrás recuperarla.</p><a href="' + API_URL + '?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';
+      document.body.appendChild(_o);
+    } catch(e){}
+  }
+  function _errorTabla(selector, colspan, msg, onRetry){
+    var tb = document.querySelector(selector);
+    if (!tb) return;
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.colSpan = colspan; td.className = 'empty-state'; td.style.padding = '26px 12px';
+    var p = document.createElement('div');
+    p.textContent = msg || 'No se pudo cargar.'; p.style.marginBottom = '12px';
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'btn'; b.textContent = '↻ Reintentar';
+    b.onclick = function(){ tb.innerHTML = '<tr><td colspan="' + colspan + '" class="empty-state">Cargando…</td></tr>'; onRetry(); };
+    td.appendChild(p); td.appendChild(b); tr.appendChild(td);
+    tb.innerHTML = ''; tb.appendChild(tr);
   }
 
   // Indicador con UX tranquilizadora: solo muestra "Guardando" si tarda >600ms
@@ -1757,8 +2074,12 @@ img, svg { display: block; max-width: 100%; }
 
   // ---------- State & backend ----------
   var state = {};
+  var costosConfig   = { buffet:0, desayuno:0, comida:0 };
+  var costosRefTotal = { desayuno:0, otros:0 };
+  var costosRefEstimados = false;
   var conciliacionId = null;
   var conciliacionEstado = 'abierta';
+  var corteActualizadoPor = '', corteActualizadoAt = '';  // v407 — quién capturó (se muestra)
   var saveTimer = null;
   var maxSaveTimerC = null;
   var saveRetryTimerC = null;
@@ -1796,18 +2117,46 @@ img, svg { display: block; max-width: 100%; }
       if (res.ok) {
         if (!conciliacionId) conciliacionId = res.id;
         if (estadoOverride) conciliacionEstado = estadoOverride;
+        // v407: este usuario acaba de guardar → refrescar "capturado por"
+        corteActualizadoPor = (user && user.email) || corteActualizadoPor;
+        corteActualizadoAt = new Date().toISOString();
+        if (estadoOverride === 'cerrada') bloquearCorteUI();
+        else if (estadoOverride === 'abierta') desbloquearCorteUI();
+        actualizarFinalizarCorteUI();
         setSaveIndicator('saved');
         saveRetryCountC = 0;
         // Server confirmó: el backup local ya cumplió su función, lo borramos.
         lbClear(fecha);
+      } else if (/cerrad/i.test(String(res.error||''))) {
+        // v407 — El corte ya está finalizado/bloqueado: NO reintentar (evitaría el loop
+        // "reintentando" eterno). Reflejar el bloqueo y parar.
+        clearTimeout(saveRetryTimerC); savesPendientesC = 0;
+        if (savingTimerUIC) { clearTimeout(savingTimerUIC); savingTimerUIC = null; }
+        conciliacionEstado = 'cerrada';
+        bloquearCorteUI(); actualizarFinalizarCorteUI();
+        var _sl = document.getElementById('saveIndicator');
+        if (_sl) { _sl.classList.remove('saving'); _sl.classList.add('error'); _sl.textContent = '🔒 Corte finalizado'; }
+      } else if (_esErrSesion(res)) {
+        // ⚠ Sesión vencida: NO reintentar en silencio (eso dejaba "Guardando…" ETERNO y
+        // confundía — bug real reportado por ambas cajeras). La captura sigue respaldada en
+        // localStorage → al re-entrar se recupera. Avisar claro y mandar a login.
+        clearTimeout(saveRetryTimerC);
+        savesPendientesC = 0;
+        if (savingTimerUIC) { clearTimeout(savingTimerUIC); savingTimerUIC = null; }
+        mostrarSesionExpirada();
       } else {
-        // Reintentos INFINITOS en silencio. Backoff: 2s, 5s, 10s, 20s, 40s, después cada 60s.
-        // Mientras tanto, el localStorage tiene el snapshot reciente como red de seguridad.
+        // Error TRANSITORIO (red/servidor): reintentos con backoff (2s,5s,10s,20s,40s,luego 60s).
+        // El localStorage tiene el snapshot reciente como red de seguridad. A diferencia de antes,
+        // el indicador ahora dice "reintentando" en vez de quedarse en "Guardando…".
         saveRetryCountC++;
+        savesPendientesC = 0;
+        if (savingTimerUIC) { clearTimeout(savingTimerUIC); savingTimerUIC = null; }
+        var _si = document.getElementById('saveIndicator');
+        if (_si) { _si.classList.remove('saving'); _si.classList.add('error'); _si.textContent = '⚠ Sin conexión — reintentando…'; }
         var esperas = [2000, 5000, 10000, 20000, 40000];
         var espera = esperas[Math.min(saveRetryCountC - 1, esperas.length - 1)] || 60000;
         clearTimeout(saveRetryTimerC);
-        saveRetryTimerC = setTimeout(function(){ doSave(estadoOverride); }, espera);
+        saveRetryTimerC = setTimeout(function(){ setSaveIndicator('saving'); doSave(estadoOverride); }, espera);
       }
     });
   }
@@ -1840,20 +2189,26 @@ img, svg { display: block; max-width: 100%; }
     initialLoadDone = false;
     lbHideBanner();
     setSaveIndicator('saving');
-    apiCall({ action:'conciliacion_get', token: token, fecha: fecha,
+    apiCallReintento({ action:'conciliacion_get', token: token, fecha: fecha,
               sucursal_id: (sucursales[0] && sucursales[0].id) || '' }, function(res){
       if (res.ok) {
         if (res.conciliacion) {
           conciliacionId = res.conciliacion.id;
           conciliacionEstado = res.conciliacion.estado || 'abierta';
+          corteActualizadoPor = res.conciliacion.actualizado_por || '';
+          corteActualizadoAt = res.conciliacion.actualizado_at || '';
           state = res.conciliacion.payload || {};
         } else {
           conciliacionId = null;
           conciliacionEstado = 'abierta';
+          corteActualizadoPor = ''; corteActualizadoAt = '';
           state = {};
         }
         applyStateToInputs();
         recalcAll();
+        // v407 — estado del corte (quién capturó + finalizar/bloqueo)
+        actualizarFinalizarCorteUI();
+        if (conciliacionEstado === 'cerrada') bloquearCorteUI(); else desbloquearCorteUI();
         setSaveIndicator('idle');
         // Anti-pérdida: si hay un backup local que difiere del backend, ofrecer recuperar.
         // Si coincide (o no hay), simplemente continuamos.
@@ -1864,6 +2219,10 @@ img, svg { display: block; max-width: 100%; }
           // Backup coincide con backend → el server ya tiene todo, limpiamos localStorage.
           lbClear(fecha);
         }
+      } else if (_esErrSesion(res)) {
+        // Lectura rebotó por sesión vencida (caso "engañoso": la UI se pintó de caché pero
+        // los datos validan en vivo y fallan). Avisar claro en vez de dejar "error" mudo.
+        mostrarSesionExpirada();
       } else {
         setSaveIndicator('error', res.error);
       }
@@ -1884,6 +2243,8 @@ img, svg { display: block; max-width: 100%; }
     // Tablas dinámicas
     renderTerminales();
     renderCortesias();
+    renderCancelaciones();
+    renderCfdiFacturas();
   }
 
   // ---------- Helpers ----------
@@ -2027,6 +2388,7 @@ img, svg { display: block; max-width: 100%; }
   }
 
   function escAttr(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
   function addTerminal(){
     ensureTerminalesArray();
@@ -2160,6 +2522,457 @@ img, svg { display: block; max-width: 100%; }
     if (btn) btn.addEventListener('click', addCortesia);
   }
 
+  // ===== Tabla dinámica de cancelaciones con soporte (control de fuga · Capa 1+2) =====
+  // state.ci_cancelaciones = [{folio,hora,cajera,prod_orig,monto_orig,prod_nuevo,monto_nuevo,forma_pago,motivo,autoriza,autoriza_at}, ...]
+  var MOTIVOS_CANC = [
+    'Error real de captura',
+    'Cambio de producto (combo/Duo)',
+    'Cliente canceló consumo',
+    'Cortesía autorizada',
+    'Reproceso del POS',
+    'Otro'
+  ];
+  var FORMAS_PAGO_CANC = ['Efectivo','Tarjeta','Mixto'];
+
+  function cuidCanc(){ return 'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+  function blankCanc(){
+    return {id:cuidCanc(),folio:'',hora:'',cajera:'',prod_orig:'',monto_orig:'',prod_nuevo:'',monto_nuevo:'',forma_pago:'',motivo:'',autoriza:'',autoriza_at:''};
+  }
+  function ensureCancArray(){
+    if (!Array.isArray(state.ci_cancelaciones)) state.ci_cancelaciones = [];
+  }
+  function puedeAutorizarCanc(){
+    var r = String((user && user.rol) || '').toLowerCase();
+    return r === 'admin' || r === 'gerente_administrativo';
+  }
+  function nowCancStr(){
+    var d = new Date();
+    function z(n){ return ('0'+n).slice(-2); }
+    return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+' '+z(d.getHours())+':'+z(d.getMinutes());
+  }
+  // Roja = baja el monto cobrado (Δ<0) Y se pagó en efectivo. Es el patrón de fuga.
+  function cancEsRoja(c){
+    if (!c) return false;
+    if (!(num(c.monto_orig) > 0)) return false;
+    var delta = num(c.monto_nuevo) - num(c.monto_orig);
+    return delta < 0 && c.forma_pago === 'Efectivo';
+  }
+  function cancEsReal(c){
+    return !!((c.folio||'').toString().trim() || (c.prod_orig||'').toString().trim() || num(c.monto_orig) > 0);
+  }
+  function cancOptsHtml(values, sel){
+    return '<option value=""></option>' + values.map(function(v){
+      return '<option value="'+escAttr(v)+'"'+(String(sel)===v?' selected':'')+'>'+esc(v)+'</option>';
+    }).join('');
+  }
+  function cancStats(){
+    ensureCancArray();
+    var s = { count:0, totalBaja:0, rojas:0, rojasSinAut:0, convDuo:0, byCajera:{} };
+    state.ci_cancelaciones.forEach(function(c){
+      if (!cancEsReal(c)) return;
+      s.count++;
+      var delta = num(c.monto_nuevo) - num(c.monto_orig);
+      if (delta < 0 && num(c.monto_orig) > 0) s.totalBaja += -delta;
+      if (cancEsRoja(c)) { s.rojas++; if (!(c.autoriza && String(c.autoriza).trim())) s.rojasSinAut++; }
+      if ((c.motivo||'') === 'Cambio de producto (combo/Duo)') s.convDuo++;
+      var caj = (c.cajera||'').toString().trim();
+      if (caj) s.byCajera[caj] = (s.byCajera[caj]||0) + 1;
+    });
+    return s;
+  }
+  function renderCancResumen(){
+    var box = document.getElementById('ci_canc_resumen');
+    if (!box) return;
+    var s = cancStats();
+    if (!s.count) {
+      box.className = 'canc-resumen';
+      box.innerHTML = '<span class="cr-muted">Sin cancelaciones capturadas. Si hubo cancelaciones en el POS, regístralas aquí con su soporte.</span>';
+      return;
+    }
+    box.className = 'canc-resumen ' + (s.rojasSinAut > 0 ? 'roja' : (s.rojas > 0 ? 'gold' : 'ok'));
+    var parts = [];
+    parts.push('🧾 <strong>'+s.count+'</strong> cancelación'+(s.count!==1?'es':''));
+    if (s.totalBaja > 0) parts.push('📉 <strong>'+fmtMoney(s.totalBaja)+'</strong> en bajas de precio');
+    if (s.rojas > 0) parts.push('💵 <strong>'+s.rojas+'</strong> en efectivo con baja');
+    if (s.rojasSinAut > 0) parts.push('<span class="cr-alert">⚠ '+s.rojasSinAut+' SIN autorizar</span>');
+    if (s.convDuo > 0) parts.push('🔁 '+s.convDuo+' cambio(s) a combo/Duo');
+    var html = parts.join(' &nbsp;·&nbsp; ');
+    var cajeras = Object.keys(s.byCajera);
+    if (cajeras.length) {
+      html += '<div class="cr-cajeras">Por cajera: ' + cajeras.map(function(k){ return escAttr(k)+' ('+s.byCajera[k]+')'; }).join('  ·  ') + '</div>';
+    }
+    box.innerHTML = html;
+  }
+  function cancAuthCellHtml(c, i){
+    if (c.autoriza && String(c.autoriza).trim()) {
+      return '<span class="canc-auth-done" title="Autorización autenticada con sesión">✓ '+escAttr(c.autoriza)+(c.autoriza_at?(' · '+escAttr(c.autoriza_at)):'')+'</span>'
+        + '<button type="button" class="canc-auth-revoke no-print" data-canrevoke="'+i+'" title="Quitar autorización">×</button>';
+    }
+    return '<button type="button" class="canc-auth-btn no-print" data-canauth="'+i+'">✓ Autorizar</button>'
+      + '<span class="canc-auth-pend">Pendiente · Gerente Admin</span>';
+  }
+  function renderCancelaciones(){
+    ensureCancArray();
+    var tbody = document.getElementById('ci_canc_tbody');
+    if (!tbody) return;
+    if (state.ci_cancelaciones.length === 0) state.ci_cancelaciones.push(blankCanc());
+    tbody.innerHTML = state.ci_cancelaciones.map(function(c, i){
+      var delta = num(c.monto_nuevo) - num(c.monto_orig);
+      var hasMonto = (c.monto_orig !== '' && c.monto_orig != null) || (c.monto_nuevo !== '' && c.monto_nuevo != null);
+      var dTxt = hasMonto ? fmtMoney(delta) : '';
+      var dCls = delta < 0 ? 'neg' : (delta > 0 ? 'pos' : 'zero');
+      var roja = cancEsRoja(c);
+      var trCls = roja ? (c.autoriza ? 'canc-roja' : 'canc-roja canc-roja-sinaut') : '';
+      return '<tr data-cantr="'+i+'" class="'+trCls+'">'
+        + '<td><input type="text" data-canrow="'+i+'" data-cancol="folio" value="'+escAttr(c.folio)+'" placeholder="ej. 1832"></td>'
+        + '<td><input type="text" data-canrow="'+i+'" data-cancol="hora" value="'+escAttr(c.hora)+'" placeholder="22:30"></td>'
+        + '<td><input type="text" data-canrow="'+i+'" data-cancol="cajera" value="'+escAttr(c.cajera)+'" placeholder="Nombre"></td>'
+        + '<td><input type="text" data-canrow="'+i+'" data-cancol="prod_orig" value="'+escAttr(c.prod_orig)+'" placeholder="2 Rodizio adulto"></td>'
+        + '<td class="num-cell"><input type="number" min="0" step=".01" data-canrow="'+i+'" data-cancol="monto_orig" value="'+escAttr(c.monto_orig)+'"></td>'
+        + '<td><input type="text" data-canrow="'+i+'" data-cancol="prod_nuevo" value="'+escAttr(c.prod_nuevo)+'" placeholder="Rodizio Duo"></td>'
+        + '<td class="num-cell"><input type="number" min="0" step=".01" data-canrow="'+i+'" data-cancol="monto_nuevo" value="'+escAttr(c.monto_nuevo)+'"></td>'
+        + '<td class="num-cell"><span class="canc-delta '+dCls+'">'+dTxt+'</span></td>'
+        + '<td><select data-canrow="'+i+'" data-cancol="forma_pago">'+cancOptsHtml(FORMAS_PAGO_CANC, c.forma_pago)+'</select></td>'
+        + '<td><select data-canrow="'+i+'" data-cancol="motivo">'+cancOptsHtml(MOTIVOS_CANC, c.motivo)+'</select></td>'
+        + '<td class="canc-auth-cell">'+cancAuthCellHtml(c, i)+'</td>'
+        + '<td class="no-print"><button type="button" class="term-row-del" data-cancdel="'+i+'" title="Eliminar cancelación">×</button></td>'
+        + '</tr>';
+    }).join('');
+    renderCancResumen();
+  }
+  function updateCancRow(idx){
+    var tbody = document.getElementById('ci_canc_tbody');
+    if (!tbody) return;
+    var tr = tbody.querySelector('tr[data-cantr="'+idx+'"]');
+    if (!tr) return;
+    var c = state.ci_cancelaciones[idx]; if (!c) return;
+    var delta = num(c.monto_nuevo) - num(c.monto_orig);
+    var hasMonto = (c.monto_orig !== '' && c.monto_orig != null) || (c.monto_nuevo !== '' && c.monto_nuevo != null);
+    var dEl = tr.querySelector('.canc-delta');
+    if (dEl) {
+      dEl.textContent = hasMonto ? fmtMoney(delta) : '';
+      dEl.className = 'canc-delta ' + (delta < 0 ? 'neg' : (delta > 0 ? 'pos' : 'zero'));
+    }
+    var roja = cancEsRoja(c);
+    tr.classList.toggle('canc-roja', roja);
+    tr.classList.toggle('canc-roja-sinaut', roja && !c.autoriza);
+  }
+  function addCancelacion(){
+    ensureCancArray();
+    state.ci_cancelaciones.push(blankCanc());
+    renderCancelaciones();
+    save();
+    recalcAll();
+    var inputs = document.querySelectorAll('#ci_canc_tbody tr:last-child input');
+    if (inputs.length > 0) inputs[0].focus();
+  }
+  function removeCancelacion(idx){
+    ensureCancArray();
+    if (state.ci_cancelaciones.length <= 1) {
+      state.ci_cancelaciones[0] = blankCanc();
+    } else {
+      var c = state.ci_cancelaciones[idx] || {};
+      var label = (c.prod_orig||'').trim() ? '"'+c.prod_orig+'"' : ((c.folio||'').trim() ? 'el folio '+c.folio : 'esta cancelación');
+      if (!confirm('¿Eliminar '+label+'?')) return;
+      state.ci_cancelaciones.splice(idx, 1);
+    }
+    renderCancelaciones();
+    save();
+    recalcAll();
+  }
+  function bindCancelaciones(){
+    var tbody = document.getElementById('ci_canc_tbody');
+    if (!tbody) return;
+    function onEdit(e){
+      var inp = e.target.closest('[data-canrow]');
+      if (!inp) return;
+      var idx = parseInt(inp.getAttribute('data-canrow'), 10);
+      var col = inp.getAttribute('data-cancol');
+      ensureCancArray();
+      if (!state.ci_cancelaciones[idx]) state.ci_cancelaciones[idx] = blankCanc();
+      state.ci_cancelaciones[idx][col] = inp.value;
+      updateCancRow(idx);
+      renderCancResumen();
+      save();
+      recalcAll();
+    }
+    tbody.addEventListener('input', onEdit);
+    tbody.addEventListener('change', onEdit);   // <select> no dispara 'input' en todos los navegadores
+    tbody.addEventListener('click', function(e){
+      var del = e.target.closest('[data-cancdel]');
+      if (del) { removeCancelacion(parseInt(del.getAttribute('data-cancdel'), 10)); return; }
+      var auth = e.target.closest('[data-canauth]');
+      if (auth) {
+        if (!puedeAutorizarCanc()) { alert('Solo el Gerente Administrativo (o admin) puede autorizar cancelaciones.'); return; }
+        var idx = parseInt(auth.getAttribute('data-canauth'), 10);
+        var c = state.ci_cancelaciones[idx]; if (!c) return;
+        if (!confirm('Vas a autorizar esta cancelación con tu nombre y queda registrado en la conciliación. ¿Continuar?')) return;
+        c.autoriza = (user && (user.nombre || user.email)) || 'Autorizado';
+        c.autoriza_at = nowCancStr();
+        renderCancelaciones(); save(); recalcAll();
+        return;
+      }
+      var rev = e.target.closest('[data-canrevoke]');
+      if (rev) {
+        if (!puedeAutorizarCanc()) { alert('Solo el Gerente Administrativo (o admin) puede quitar una autorización.'); return; }
+        var i2 = parseInt(rev.getAttribute('data-canrevoke'), 10);
+        var c2 = state.ci_cancelaciones[i2]; if (!c2) return;
+        if (!confirm('¿Quitar la autorización de esta cancelación?')) return;
+        c2.autoriza = ''; c2.autoriza_at = '';
+        renderCancelaciones(); save(); recalcAll();
+      }
+    });
+    var btn = document.getElementById('btnAddCanc');
+    if (btn) btn.addEventListener('click', addCancelacion);
+  }
+
+  // ===== Tabla dinámica de facturas emitidas (10a) =====
+  // state.ci_facturas_cfdi = [{concepto, monto}, ...]
+  function ensureCfdiArray(){
+    if (!Array.isArray(state.ci_facturas_cfdi)) state.ci_facturas_cfdi = [];
+  }
+  function renderCfdiFacturas(){
+    ensureCfdiArray();
+    var tbody = document.getElementById('ci_fact_tbody');
+    if (!tbody) return;
+    if (state.ci_facturas_cfdi.length === 0) {
+      state.ci_facturas_cfdi.push({tipo:'', folio:'', folio_pos:'', monto:''});
+    }
+    var TIPOS_CFDI = ['Efectivo','T. Débito','T. Crédito','Mixto'];
+    var html = state.ci_facturas_cfdi.map(function(f, i){
+      var opts = '<option value="">— Tipo —</option>' + TIPOS_CFDI.map(function(t){
+        return '<option value="'+t+'"'+(f.tipo===t?' selected':'')+'>'+t+'</option>';
+      }).join('');
+      return '<tr>' +
+        '<td><select class="fact-tipo" data-frow="'+i+'" data-fcol="tipo" style="width:100%">'+opts+'</select></td>' +
+        '<td><input type="text" data-frow="'+i+'" data-fcol="folio" value="'+escAttr(f.folio)+'" placeholder="Ej. A-0001"></td>' +
+        '<td><input type="text" data-frow="'+i+'" data-fcol="folio_pos" value="'+escAttr(f.folio_pos)+'" placeholder="Ej. 1548"></td>' +
+        '<td><input type="number" min="0" step=".01" data-frow="'+i+'" data-fcol="monto" value="'+escAttr(f.monto)+'" style="text-align:right"></td>' +
+        '<td class="no-print"><button type="button" class="term-row-del" data-fdel="'+i+'" title="Eliminar factura">×</button></td>' +
+        '</tr>';
+    }).join('');
+    tbody.innerHTML = html;
+  }
+  function addCfdiFactura(){
+    ensureCfdiArray();
+    state.ci_facturas_cfdi.push({tipo:'', folio:'', folio_pos:'', monto:''});
+    renderCfdiFacturas();
+    save();
+    recalcAll();
+    var selects = document.querySelectorAll('#ci_fact_tbody select.fact-tipo');
+    if (selects.length > 0) selects[selects.length-1].focus();
+  }
+  function removeCfdiFactura(idx){
+    ensureCfdiArray();
+    if (state.ci_facturas_cfdi.length <= 1) {
+      state.ci_facturas_cfdi[0] = {tipo:'', folio:'', folio_pos:'', monto:''};
+    } else {
+      var f = state.ci_facturas_cfdi[idx] || {};
+      var label = f.tipo ? '"'+f.tipo+'"' : 'la factura sin tipo';
+      if (!confirm('¿Eliminar '+label+'?')) return;
+      state.ci_facturas_cfdi.splice(idx, 1);
+    }
+    renderCfdiFacturas();
+    save();
+    recalcAll();
+  }
+  function bindCfdiFacturas(){
+    var tbody = document.getElementById('ci_fact_tbody');
+    if (!tbody) return;
+    tbody.addEventListener('input', function(e){
+      var inp = e.target.closest('input[data-frow]');
+      if (!inp) return;
+      var idx = parseInt(inp.getAttribute('data-frow'), 10);
+      var col = inp.getAttribute('data-fcol');
+      if (!state.ci_facturas_cfdi[idx]) state.ci_facturas_cfdi[idx] = {tipo:'', folio:'', folio_pos:'', monto:''};
+      state.ci_facturas_cfdi[idx][col] = inp.value;
+      save();
+      recalcAll();
+    });
+    tbody.addEventListener('change', function(e){
+      var sel = e.target.closest('select[data-frow]');
+      if (!sel) return;
+      var idx = parseInt(sel.getAttribute('data-frow'), 10);
+      var col = sel.getAttribute('data-fcol');
+      if (!state.ci_facturas_cfdi[idx]) state.ci_facturas_cfdi[idx] = {tipo:'', folio:'', folio_pos:'', monto:''};
+      state.ci_facturas_cfdi[idx][col] = sel.value;
+      save();
+      recalcAll();
+    });
+    tbody.addEventListener('click', function(e){
+      var del = e.target.closest('button[data-fdel]');
+      if (!del) return;
+      var idx = parseInt(del.getAttribute('data-fdel'), 10);
+      removeCfdiFactura(idx);
+    });
+    var btn = document.getElementById('btnAddFactura');
+    if (btn) btn.addEventListener('click', addCfdiFactura);
+  }
+
+  function recalcCfdi(){
+    // Ventas base = cobros del día por forma de pago
+    var baseEfe = num(state.ap_cobro_efectivo) + num(state.ci_cobro_efectivo);
+    var baseDeb  = num(state.ci_corte_tar_debito);
+    var baseCre  = num(state.ci_corte_tar_credito);
+    var baseTot  = baseEfe + baseDeb + baseCre;
+
+    // Ya facturado por tipo = suma de facturas en 10a clasificadas por su select
+    ensureCfdiArray();
+    var yafEfe = 0, yafDeb = 0, yafCre = 0, yafMix = 0, totFact = 0;
+    state.ci_facturas_cfdi.forEach(function(f){
+      var m = num(f.monto);
+      totFact += m;
+      if      (f.tipo === 'Efectivo')   yafEfe += m;
+      else if (f.tipo === 'T. Débito')  yafDeb += m;
+      else if (f.tipo === 'T. Crédito') yafCre += m;
+      else if (f.tipo === 'Mixto')      yafMix += m; // mixto suma al total pero no a ningún tipo base
+    });
+    setText('ci_fact_total', fmtMoney(totFact));
+
+    // Propuesta = base − ya facturado de ese tipo (no baja de 0)
+    var propEfe = Math.max(0, baseEfe - yafEfe);
+    var propDeb = Math.max(0, baseDeb - yafDeb);
+    var propCre = Math.max(0, baseCre - yafCre);
+    var propTot = propEfe + propDeb + propCre;
+
+    // Facturado real = campos manuales
+    var realEfe = num(state.ci_cfdi_real_efe);
+    var realDeb = num(state.ci_cfdi_real_deb);
+    var realCre = num(state.ci_cfdi_real_cre);
+    var realTot = realEfe + realDeb + realCre;
+
+    // Diferencia = propuesta − real (positivo = aún pendiente de facturar)
+    var diffEfe = propEfe - realEfe;
+    var diffDeb = propDeb - realDeb;
+    var diffCre = propCre - realCre;
+    var diffTot = propTot - realTot;
+
+    var anyReal = (realEfe + realDeb + realCre) > 0;
+    function fmtDiff(v){
+      if (!anyReal) return '—';
+      if (Math.abs(v) < 0.005) return '<span class="cfdi-diff-ok">✓ $0.00</span>';
+      return '<span class="cfdi-diff-' + (v > 0 ? 'pos' : 'neg') + '">' + (v > 0 ? '+' : '') + fmtMoney(v) + '</span>';
+    }
+
+    setText('cfdi_base_efe',    fmtMoney(baseEfe));
+    setText('cfdi_base_deb',    fmtMoney(baseDeb));
+    setText('cfdi_base_cre',    fmtMoney(baseCre));
+    setText('cfdi_base_tot',    fmtMoney(baseTot));
+
+    setText('cfdi_yafact_efe',  yafEfe > 0 ? fmtMoney(yafEfe) : '—');
+    setText('cfdi_yafact_deb',  yafDeb > 0 ? fmtMoney(yafDeb) : '—');
+    setText('cfdi_yafact_cre',  yafCre > 0 ? fmtMoney(yafCre) : '—');
+    setText('cfdi_yafact_tot',  totFact > 0 ? fmtMoney(totFact) : '—');
+
+    setText('cfdi_prop_efe',    fmtMoney(propEfe));
+    setText('cfdi_prop_deb',    fmtMoney(propDeb));
+    setText('cfdi_prop_cre',    fmtMoney(propCre));
+    setText('cfdi_prop_tot',    fmtMoney(propTot));
+
+    setText('cfdi_real_tot',    fmtMoney(realTot));
+
+    var diffEfeEl = document.getElementById('cfdi_diff_efe');
+    var diffDebEl = document.getElementById('cfdi_diff_deb');
+    var diffCreEl = document.getElementById('cfdi_diff_cre');
+    var diffTotEl = document.getElementById('cfdi_diff_tot');
+    if (diffEfeEl) diffEfeEl.innerHTML = fmtDiff(diffEfe);
+    if (diffDebEl) diffDebEl.innerHTML = fmtDiff(diffDeb);
+    if (diffCreEl) diffCreEl.innerHTML = fmtDiff(diffCre);
+    if (diffTotEl) diffTotEl.innerHTML = fmtDiff(diffTot);
+  }
+
+  function recalcMargen(apMix, ciMix) {
+    var apServicio = state.ap_servicio || '';
+    var ciServicio = state.ci_servicio || '';
+
+    // Ingresos por bloque (efectivo + tarjeta + transferencia)
+    var apIng = num(state.ap_cobro_efectivo) + num(state.ap_cobro_tarjeta) + num(state.ap_cobro_transfer);
+    var ciIng = num(state.ci_cobro_efectivo) + num(state.ci_cobro_tarjeta) + num(state.ci_cobro_transfer);
+
+    // Comensales por bloque (host)
+    var apCom = apMix ? apMix.host : 0;
+    var ciCom = ciMix ? ciMix.host : 0;
+
+    // Costo manual por tipo de servicio
+    function costoManual(servicio) {
+      if (servicio === 'Desayuno') return costosConfig.desayuno;
+      if (servicio === 'Comida')   return costosConfig.comida;
+      return costosConfig.buffet; // Buffet completo o vacío
+    }
+
+    var apCostoUnit = costoManual(apServicio);
+    var ciCostoUnit = costoManual(ciServicio);
+
+    var apCostoTotal  = apCom * apCostoUnit;
+    var ciCostoTotal  = ciCom * ciCostoUnit;
+    var totCom        = apCom + ciCom;
+    var totIng        = apIng + ciIng;
+    var totCostoTotal = apCostoTotal + ciCostoTotal;
+
+    var apMargen  = apIng  - apCostoTotal;
+    var ciMargen  = ciIng  - ciCostoTotal;
+    var totMargen = totIng - totCostoTotal;
+
+    var apPct  = apIng  > 0 ? (apMargen  / apIng  * 100) : 0;
+    var ciPct  = ciIng  > 0 ? (ciMargen  / ciIng  * 100) : 0;
+    var totPct = totIng > 0 ? (totMargen / totIng * 100) : 0;
+
+    function fmtMargenPct(pct, margen) {
+      if (margen === 0 && pct === 0) return '<span style="color:var(--muted)">—</span>';
+      var color = pct >= 40 ? 'var(--verde)' : (pct >= 20 ? '' : 'var(--ember)');
+      return '<span style="' + (color ? 'color:'+color : '') + '">' + pct.toFixed(1) + '%</span>';
+    }
+    function fmtMargenVal(v) {
+      if (v === 0) return '<span style="color:var(--muted)">—</span>';
+      var color = v >= 0 ? 'var(--verde)' : 'var(--ember)';
+      return '<span style="color:' + color + '">' + fmtMoney(v) + '</span>';
+    }
+
+    var bloques = [
+      { lbl:'Apertura',  serv: apServicio, com: apCom,  ing: apIng,  costo: apCostoTotal,  margen: apMargen,  pct: apPct  },
+      { lbl:'Cierre',    serv: ciServicio, com: ciCom,  ing: ciIng,  costo: ciCostoTotal,  margen: ciMargen,  pct: ciPct  },
+      { lbl:'TOTAL DÍA', serv: '',         com: totCom, ing: totIng, costo: totCostoTotal, margen: totMargen, pct: totPct, bold: true }
+    ];
+
+    var html = bloques.map(function(b) {
+      var rowStyle = b.bold ? ' style="font-weight:600;border-top:2px solid var(--border)"' : '';
+      var servicioTxt = b.serv ? esc(b.serv) : (b.bold ? '' : '<span style="color:var(--muted)">—</span>');
+      var costoTxt = (b.com === 0 && b.costo === 0) ? '<span style="color:var(--muted)">—</span>' : fmtMoney(b.costo);
+      return '<tr' + rowStyle + '>' +
+        '<td>' + esc(b.lbl) + '</td>' +
+        '<td>' + servicioTxt + '</td>' +
+        '<td class="num-cell">' + (b.com || '0') + '</td>' +
+        '<td class="num-cell">' + (b.ing > 0 ? fmtMoney(b.ing) : '<span style="color:var(--muted)">—</span>') + '</td>' +
+        '<td class="num-cell">' + costoTxt + '</td>' +
+        '<td class="num-cell">' + fmtMargenVal(b.margen) + '</td>' +
+        '<td class="num-cell">' + fmtMargenPct(b.pct, b.margen) + '</td>' +
+        '</tr>';
+    }).join('');
+
+    var tbody = document.getElementById('tbl-margen-body');
+    if (tbody) tbody.innerHTML = html || '<tr><td colspan="7" style="color:var(--muted);text-align:center;padding:12px;font-style:italic">Sin datos.</td></tr>';
+
+    // Actualizar referentes en la tabla de config (divide costo total entre comensales del tipo)
+    var comDesayuno = 0, comOtros = 0;
+    [{ serv: apServicio, com: apCom }, { serv: ciServicio, com: ciCom }].forEach(function(b) {
+      if (b.serv === 'Desayuno') comDesayuno += b.com;
+      else comOtros += b.com;
+    });
+    function fmtRef(total, n) {
+      if (!(n > 0) || !(total > 0)) return '<span style="color:var(--muted)">—</span>';
+      return '~' + fmtMoney(total / n) + '<span style="font-size:10px;color:var(--muted)">/com</span>';
+    }
+    var refDesayuno = fmtRef(costosRefTotal.desayuno, comDesayuno);
+    var refOtros    = fmtRef(costosRefTotal.otros,    comOtros);
+    setText('cc-ref-desayuno', ''); var el; el = document.getElementById('cc-ref-desayuno'); if (el) el.innerHTML = refDesayuno;
+    setText('cc-ref-buffet',   ''); el = document.getElementById('cc-ref-buffet');   if (el) el.innerHTML = refOtros;
+    setText('cc-ref-comida',   ''); el = document.getElementById('cc-ref-comida');   if (el) el.innerHTML = refOtros;
+
+    // Nota de estimados
+    var notaEl = document.getElementById('costos-nota-est');
+    if (notaEl) notaEl.style.display = costosRefEstimados ? '' : 'none';
+  }
+
   function recalcCierre(){
     // === Corte de caja: desglose de denominaciones, tarjetas, resumen, cortesías ===
     var DENOMS = [1000,500,200,100,50,20,10,5,2,1];
@@ -2175,19 +2988,17 @@ img, svg { display: block; max-width: 100%; }
     var efeFinal = retiros + sumDenoms + comisionCorte;
     setText('ci_corte_efe_total', fmtMoney(efeFinal));
     // Tarjetas del corte
-    var tDeb = num(state.ci_corte_tar_debito);
-    var tMas = num(state.ci_corte_tar_master);
-    var tAme = num(state.ci_corte_tar_amex);
-    var tVis = num(state.ci_corte_tar_visa);
-    var tarTotal = tDeb + tMas + tAme + tVis;
+    var tDeb  = num(state.ci_corte_tar_debito);
+    var tCred = num(state.ci_corte_tar_credito);
+    var tBzp  = num(state.ci_corte_tar_bzpay);
+    var tarTotal = tDeb + tCred + tBzp; // BZPAY sí suma al total del día
     setVal('ci_corte_tar_total', fmtMoney(tarTotal));
     // Resumen y gran total
-    setText('ci_corte_res_efe', fmtMoney(efeFinal));
-    setText('ci_corte_res_debito', fmtMoney(tDeb));
-    setText('ci_corte_res_master', fmtMoney(tMas));
-    setText('ci_corte_res_amex', fmtMoney(tAme));
-    setText('ci_corte_res_visa', fmtMoney(tVis));
-    setText('ci_corte_gran_total', fmtMoney(efeFinal + tarTotal));
+    setText('ci_corte_res_efe',     fmtMoney(efeFinal));
+    setText('ci_corte_res_debito',  fmtMoney(tDeb));
+    setText('ci_corte_res_credito', fmtMoney(tCred));
+    setText('ci_corte_res_bzpay',   fmtMoney(tBzp));
+    setText('ci_corte_gran_total',  fmtMoney(efeFinal + tarTotal));
     // Cortesías (tabla dinámica)
     ensureCortesiasArray();
     var totCort = 0;
@@ -2301,6 +3112,8 @@ img, svg { display: block; max-width: 100%; }
     var apCom = intentar(function(){ return recalcComisionMeseros('ap'); }, 'recalcComisionMeseros(ap)', { c7tar:0,c7efe:0,c5pt:0,iva:0,fondo:0,banco:0,propTar:0,retiro:0,deltaRetiro:0,total:0 });
     var ciCom = intentar(function(){ return recalcComisionMeseros('ci'); }, 'recalcComisionMeseros(ci)', { c7tar:0,c7efe:0,c5pt:0,iva:0,fondo:0,banco:0,propTar:0,retiro:0,deltaRetiro:0,total:0 });
     var ci = intentar(function(){ return recalcCierre(); }, 'recalcCierre', { arqDelta:0, termDelta:0, fDelta:0, extra:0, apps:0, sumLote:0, sumOps:0, problemasPorTerminal:[], arqTeorico:0, arqContado:0, totCort:0 });
+    intentar(function(){ recalcCfdi(); }, 'recalcCfdi', null);
+    intentar(function(){ recalcMargen(apMix, ciMix); }, 'recalcMargen', null);
     // Asegurar que apCom y ciCom siempre tengan .total — algunas versiones del fallback lo omitían
     if (apCom && apCom.total === undefined) apCom.total = (apCom.c7tar||0) + (apCom.c7efe||0);
     if (ciCom && ciCom.total === undefined) ciCom.total = (ciCom.c7tar||0) + (ciCom.c7efe||0);
@@ -2341,12 +3154,18 @@ img, svg { display: block; max-width: 100%; }
       pctPropTotal: pctPropTotal
     });
 
+    var _cs = cancStats();
+    renderCancResumen();
     renderFlags({
       apMix: apMix, ciMix: ciMix,
       apPct: apPct, ciPct: ciPct,
       arqDelta: ci.arqDelta,
       termDelta: ci.termDelta,
       pctCanc: pctCanc,
+      cancRojas: _cs.rojas,
+      cancRojasSinAut: _cs.rojasSinAut,
+      cancConvDuo: _cs.convDuo,
+      cancCount: _cs.count,
       nosalesDia: nosalesDia,
       fDelta: ci.fDelta,
       apCorteNum: num(state.ap_corte_num),
@@ -2424,12 +3243,33 @@ img, svg { display: block; max-width: 100%; }
       title: 'Cortesías registradas sin autorización documentada',
       detail: 'Toda cortesía requiere nombre de quien autoriza (Mónica u otro autorizado).'
     });
+    // Cortesías declaradas ≠ documentadas (cada cortesía debe llevar folio/nombre/importe; lo declarado-pero-no-documentado es donde se esconde una cortesía sin papel)
+    var cortDeclar = (f.apCorteNum || 0) + (f.ciCorteNum || 0);
+    var _cortsDoc = (Array.isArray(state.ci_cortesias) ? state.ci_cortesias : []).concat(Array.isArray(state.ap_cortesias) ? state.ap_cortesias : []);
+    var cortDocum = _cortsDoc.filter(function(c){ return c && (String(c.folio||'').trim() || String(c.nombre||'').trim() || num(c.importe) > 0); }).length;
+    checks.push({
+      fired: cortDeclar !== cortDocum && (cortDeclar > 0 || cortDocum > 0),
+      title: 'Cortesías declaradas ≠ documentadas',
+      detail: cortDeclar > cortDocum
+        ? 'Declaraste ' + cortDeclar + ' cortesía(s) pero solo documentaste ' + cortDocum + ' con folio/nombre/importe. Falta(n) ' + (cortDeclar - cortDocum) + ' — ahí se esconde una cortesía regalada sin papel.'
+        : (cortDocum > cortDeclar
+            ? 'Documentaste ' + cortDocum + ' cortesía(s) pero el número declarado dice ' + cortDeclar + '. Ajusta el conteo o revisa los renglones.'
+            : 'Declaradas y documentadas coinciden.')
+    });
     // Cancelación sin autorización
     var cancSinAut = (f.apCanc>0 && !(f.apCancAutor||'').trim()) || (f.ciCanc>0 && !(f.ciCancAutor||'').trim());
     checks.push({
       fired: cancSinAut,
       title: 'Cancelaciones registradas sin autorización documentada',
       detail: 'Toda cancelación requiere nombre de quien autoriza.'
+    });
+    // Cancelación con baja de precio pagada en EFECTIVO sin sello del Gerente Administrativo (patrón de fuga)
+    checks.push({
+      fired: (f.cancRojasSinAut||0) > 0,
+      title: 'Cancelación con baja de precio en EFECTIVO sin autorización del Gerente Administrativo',
+      detail: (f.cancRojasSinAut||0) > 0
+        ? f.cancRojasSinAut+' cancelación(es) reducen el monto cobrado y se pagaron en efectivo SIN sello de autorización. Es el patrón típico de fuga (ej. 2 rodizios → Rodizio Duo): el cliente paga el total en efectivo pero solo se registra el combo más barato. Deben autorizarse con el sello autenticado del Gerente Administrativo en la sección 07.'
+        : ((f.cancRojas||0) > 0 ? 'Las '+f.cancRojas+' cancelación(es) en efectivo con baja de precio están autorizadas con sello.' : 'Ninguna cancelación en efectivo reduce el monto cobrado.')
     });
     // Propinas tarjeta fuera de rango (BAJA o ALTA, con detalle)
     function detallePct(label, pct){
@@ -2672,7 +3512,7 @@ img, svg { display: block; max-width: 100%; }
     document.getElementById('btnLogout').addEventListener('click', function(){
       if (!confirm('¿Cerrar sesión?')) return;
       try { sessionStorage.clear(); } catch(e){}
-      var _a=document.createElement('a');_a.href=API_URL + '?p=acceso';_a.target='_top';document.body.appendChild(_a);_a.click();
+      (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
     });
     var btnAuto = document.getElementById('btnAutoFill');
     if (btnAuto) btnAuto.addEventListener('click', autoFillFromDayBitacoras);
@@ -2790,6 +3630,9 @@ img, svg { display: block; max-width: 100%; }
         var target = (/comida|cena/.test(serv)) ? 'ci' : 'ap';
         grupos[target].push(b);
       });
+      // Lun-Jue: un solo servicio "Buffet completo" → llenar también CIERRE con los mismos datos
+      // para que hora desde/hasta, folio y mix queden disponibles en el corte profundo.
+      if (!grupos.ci.length && grupos.ap.length) grupos.ci = grupos.ap;
       // Cargar tablero de sellos de la primera bitácora encontrada (típico = una sola)
       var primera = bitacoras.find(function(b){ return b && b.id; });
       if (primera) {
@@ -2958,6 +3801,7 @@ img, svg { display: block; max-width: 100%; }
     apiCall({ action:'sello_save', token: token,
               data: JSON.stringify({ bitacora_id: bitacora_id, momento: momento, rol_esperado: 'cajera' }) }, function(res){
       if (res.ok) { actualizarCajeroSelloUI(bitacora_id); cargarTableroSellos(bitacora_id); }
+      else if (_esErrSesion(res)) { mostrarSesionExpirada(); }
       else alert('No se pudo: ' + (res.error || 'Error'));
     });
   }
@@ -2968,6 +3812,56 @@ img, svg { display: block; max-width: 100%; }
     if (btnAp) btnAp.addEventListener('click', function(){ sellarComoCajero('apertura', BITACORA_ACTUAL_ID); });
     if (btnCi) btnCi.addEventListener('click', function(){ sellarComoCajero('cierre', BITACORA_ACTUAL_ID); });
   });
+
+  // ============= v407 — "Estado de mi corte": quién capturó + Finalizar (firma + bloqueo) =============
+  // Reporte de Moni: (1) "no se observa quién rellenó datos" → mostrar actualizado_por;
+  // (2) "en el cierre no te da la opción de guardarlo o finalizarlo" → botón visible que
+  // firma y BLOQUEA (estado='cerrada'); el backend rechaza ediciones posteriores de la cajera.
+  function _rolUserConc(){ return String((user && user.rol) || '').toLowerCase(); }
+  function _esCajeraConc(){ return _rolUserConc() === 'cajera'; }
+  function _esAdminConc(){ var r = _rolUserConc(); return r === 'admin' || r === 'auditoria' || r === 'gerente_administrativo'; }
+  function actualizarFinalizarCorteUI(){
+    var cap = document.getElementById('corteCapturadoPor');
+    if (cap){
+      var cuando = corteActualizadoAt ? (' · ' + new Date(corteActualizadoAt).toLocaleString('es-MX')) : '';
+      cap.textContent = (corteActualizadoPor || '—') + (corteActualizadoPor ? cuando : '');
+    }
+    var zona = document.getElementById('corteFinalizarZona');
+    if (!zona) return;
+    if (conciliacionEstado === 'cerrada'){
+      zona.innerHTML = '<div style="padding:12px 14px;border:1px solid var(--good);background:rgba(30,127,92,.06);border-radius:var(--r-md);font-size:14px;color:var(--ink)">🔒 <strong>Corte finalizado</strong> — bloqueado para edición.' +
+        (corteActualizadoPor ? ' Firmado por <strong>' + esc(corteActualizadoPor) + '</strong>.' : '') + '</div>' +
+        (_esAdminConc() ? '<button class="btn" id="btnReabrirCorte" type="button" style="margin-top:10px">🔓 Reabrir corte (admin)</button>' : '');
+      var br = document.getElementById('btnReabrirCorte');
+      if (br) br.addEventListener('click', reabrirCorte);
+    } else if (_esCajeraConc()){
+      zona.innerHTML = '<p style="font-size:13px;color:var(--muted);margin:0 0 10px">Cuando termines tu corte del día, finalízalo: quedará <strong>firmado a tu nombre y bloqueado</strong>. Si necesitas corregir algo después, un administrador puede reabrirlo.</p>' +
+        '<button class="btn btn-primary" id="btnFinalizarCorte" type="button">🔒 Finalizar mi corte</button>';
+      var bf = document.getElementById('btnFinalizarCorte');
+      if (bf) bf.addEventListener('click', finalizarCorte);
+    } else {
+      zona.innerHTML = '<div style="font-size:13px;color:var(--muted)">Corte <strong>abierto</strong> (aún editable por la cajera).</div>';
+    }
+  }
+  function finalizarCorte(){
+    if (conciliacionEstado === 'cerrada') return;
+    if (!document.getElementById('fecha').value){ alert('Falta la fecha del corte.'); return; }
+    if (!confirm('¿Finalizar y cerrar tu corte?\n\nQuedará FIRMADO a tu nombre y BLOQUEADO: ya no podrás editarlo. Si necesitas corregir, pídele a un administrador que lo reabra.')) return;
+    setSaveIndicator('saving');
+    doSave('cerrada');  // el backend bloquea; el success de doSave bloquea la UI
+  }
+  function reabrirCorte(){
+    if (!_esAdminConc()) return;
+    if (!confirm('¿Reabrir este corte para edición? Quedará registrado en la auditoría.')) return;
+    setSaveIndicator('saving');
+    doSave('abierta');
+  }
+  function bloquearCorteUI(){
+    document.querySelectorAll('input[data-k], select[data-k], textarea[data-k]').forEach(function(el){ el.disabled = true; });
+  }
+  function desbloquearCorteUI(){
+    document.querySelectorAll('input[data-k], select[data-k], textarea[data-k]').forEach(function(el){ if (!el.readOnly) el.disabled = false; });
+  }
 
   // ============= Tablero de sellos del servicio (read-only + override admin) =============
   // Se llama cuando se carga una bitácora desde el bindBitacoraLoader.
@@ -3014,8 +3908,11 @@ img, svg { display: block; max-width: 100%; }
       var miSelloAdmin = res.tablero.find(function(s){ return s.momento==='cierre' && s.rol==='gerente_administrativo'; });
       var rolUser = String((user && user.rol) || '').toLowerCase();
       if (miSelloAdmin && !miSelloAdmin.sellado && (rolUser === 'admin' || rolUser === 'gerente_administrativo')) {
-        // Botón especial para mi propio sello
+        // Botón especial para mi propio sello (deduplicado: quitar el previo si cargarTableroSellos corre varias veces)
+        var btnPrev = document.getElementById('btnSelloPropioAdmin');
+        if (btnPrev && btnPrev.parentNode) btnPrev.parentNode.removeChild(btnPrev);
         var btnPropio = document.createElement('button');
+        btnPropio.id = 'btnSelloPropioAdmin';
         btnPropio.className = 'btn btn-primary no-print';
         btnPropio.style.cssText = 'margin-top:14px;display:block;width:100%;padding:14px;font-size:14px';
         btnPropio.textContent = '🖋️ Sellar mi cierre como Administradora';
@@ -3024,6 +3921,7 @@ img, svg { display: block; max-width: 100%; }
           apiCall({ action:'sello_save', token: token,
                     data: JSON.stringify({ bitacora_id: bitacora_id, momento:'cierre', rol_esperado:'gerente_administrativo' }) }, function(r){
             if (r.ok) cargarTableroSellos(bitacora_id);
+            else if (_esErrSesion(r)) mostrarSesionExpirada();
             else alert('No se pudo: ' + (r.error || 'Error'));
           });
         });
@@ -3043,6 +3941,7 @@ img, svg { display: block; max-width: 100%; }
     apiCall({ action:'sello_save', token: token,
               data: JSON.stringify({ bitacora_id: bitacora_id, momento: momento, rol_esperado: rol, motivo_override: motivo }) }, function(res){
       if (res.ok) cargarTableroSellos(bitacora_id);
+      else if (_esErrSesion(res)) mostrarSesionExpirada();
       else alert('No se pudo sellar: ' + (res.error || 'Error'));
     });
   }
@@ -3054,7 +3953,8 @@ img, svg { display: block; max-width: 100%; }
     var btn = document.getElementById('btnAuditoria');
     if (!btn) return;
     var rolesAud = ['admin','auditoria','gerente_administrativo'];
-    if (rolesAud.indexOf(rol) === -1) return;  // queda hidden por style="display:none" del HTML
+    var rolActual = String((user && user.rol) || '').toLowerCase();
+    if (rolesAud.indexOf(rolActual) === -1) return;  // queda hidden por style="display:none" del HTML
     btn.style.display = '';
     btn.addEventListener('click', openAuditoria);
     var closeBtn = document.getElementById('auditClose');
@@ -3150,6 +4050,86 @@ img, svg { display: block; max-width: 100%; }
     body.innerHTML = html;
   }
 
+  // ---------- Costos operativos — carga y edición ----------
+  function cargarCostosConfig() {
+    apiCall({ action:'costo_config_get', token: token }, function(res) {
+      if (!res.ok) return;
+      costosConfig.buffet   = res.costos.buffet   || 0;
+      costosConfig.desayuno = res.costos.desayuno || 0;
+      costosConfig.comida   = res.costos.comida   || 0;
+      actualizarVistasCostos();
+      recalcAll();
+    });
+  }
+  function cargarCostosReferente() {
+    apiCall({ action:'costo_recetario_calc', token: token }, function(res) {
+      if (!res.ok) return;
+      costosRefTotal.desayuno   = (res.costo_total && res.costo_total.desayuno) || 0;
+      costosRefTotal.otros      = (res.costo_total && res.costo_total.otros)    || 0;
+      costosRefEstimados        = !!res.tiene_estimados;
+      recalcAll();
+    });
+  }
+  function actualizarVistasCostos() {
+    var tipos = { buffet: costosConfig.buffet, desayuno: costosConfig.desayuno, comida: costosConfig.comida };
+    Object.keys(tipos).forEach(function(k) {
+      var vEl = document.getElementById('cc-v-' + k);
+      var eEl = document.getElementById('cc-e-' + k);
+      if (vEl) vEl.textContent = tipos[k] > 0 ? fmtMoney(tipos[k]) : '—';
+      if (eEl) eEl.value = tipos[k] > 0 ? tipos[k] : '';
+    });
+  }
+  function bindCostosConfig() {
+    var r = String((user && user.rol) || '').toLowerCase();
+    // Solo admin puede editar (gerente_admin no accede a conciliacion.html)
+    if (r !== 'admin') return;
+    var ctrlEl = document.querySelector('.cc-admin-ctrl');
+    if (ctrlEl) ctrlEl.style.display = '';
+    var btnEdit   = document.getElementById('btnEditCostos');
+    var btnSave   = document.getElementById('btnSaveCostos');
+    var btnCancel = document.getElementById('btnCancelCostos');
+    var msgEl     = document.getElementById('costos-save-msg');
+    if (!btnEdit || !btnSave || !btnCancel) return;
+
+    btnEdit.addEventListener('click', function() {
+      document.querySelectorAll('.cc-view').forEach(function(el){ el.style.display = 'none'; });
+      document.querySelectorAll('.cc-input').forEach(function(el){ el.style.display = ''; });
+      btnEdit.style.display   = 'none';
+      btnSave.style.display   = '';
+      btnCancel.style.display = '';
+    });
+    btnCancel.addEventListener('click', function() {
+      document.querySelectorAll('.cc-input').forEach(function(el){ el.style.display = 'none'; });
+      document.querySelectorAll('.cc-view').forEach(function(el){ el.style.display = ''; });
+      btnSave.style.display   = 'none';
+      btnCancel.style.display = 'none';
+      btnEdit.style.display   = '';
+      if (msgEl) msgEl.style.display = 'none';
+      actualizarVistasCostos(); // restaurar valores originales en inputs
+    });
+    btnSave.addEventListener('click', function() {
+      var buffet   = parseFloat(document.getElementById('cc-e-buffet').value)   || 0;
+      var desayuno = parseFloat(document.getElementById('cc-e-desayuno').value) || 0;
+      var comida   = parseFloat(document.getElementById('cc-e-comida').value)   || 0;
+      btnSave.disabled = true;
+      apiCall({ action:'costo_config_set', token: token, buffet: buffet, desayuno: desayuno, comida: comida }, function(res) {
+        btnSave.disabled = false;
+        if (!res.ok) { alert('No se pudo guardar: ' + (res.error || 'Error desconocido')); return; }
+        costosConfig.buffet   = buffet;
+        costosConfig.desayuno = desayuno;
+        costosConfig.comida   = comida;
+        actualizarVistasCostos();
+        document.querySelectorAll('.cc-input').forEach(function(el){ el.style.display = 'none'; });
+        document.querySelectorAll('.cc-view').forEach(function(el){ el.style.display = ''; });
+        btnSave.style.display   = 'none';
+        btnCancel.style.display = 'none';
+        btnEdit.style.display   = '';
+        if (msgEl) { msgEl.textContent = '✓ Guardado'; msgEl.style.display = ''; setTimeout(function(){ msgEl.style.display = 'none'; }, 3000); }
+        recalcAll();
+      });
+    });
+  }
+
   // ---------- Init ----------
   function init(){
     var fechaEl = document.getElementById('fecha');
@@ -3168,16 +4148,32 @@ img, svg { display: block; max-width: 100%; }
     bindTooltips();
     bindTerminales();
     bindCortesias();
+    bindCancelaciones();
+    bindCfdiFacturas();
     bindAuditoria();
+    bindCostosConfig();
     load();
     updateMetaFecha();
     cargarTableroSellos(null); // mensaje inicial "carga una bitácora"
     // Validar token + recuperar sesión si iOS borró sessionStorage
-    apiCall({ action:'me', token: token }, function(res){
+    apiCallReintento({ action:'me', token: token }, function(res){
       if (!res.ok) {
+        // Parpadeo de red / servidor momentáneo: NO tirar la sesión ni mandar a login
+        // (la captura sigue viva y respaldada en localStorage). Solo avisar.
+        if (_esErrTransitorio(res)) {
+          setSaveIndicator('error', 'Sin conexión — reintenta en un momento');
+          return;
+        }
         try { sessionStorage.clear(); } catch(e){}
-        alert('Tu sesión expiró. Vuelve a iniciar sesión.');
-        var _a=document.createElement('a');_a.href=API_URL+'?p=acceso';_a.target='_top';document.body.appendChild(_a);_a.click();
+        _sesionExpiradaMostrada = true; // este handler ya pinta el overlay → evita doble overlay desde doSave/sello
+        setSaveIndicator('error', 'Sesión expirada');
+        // Mostrar banner de sesión inválida con link directo — fallback si window.top.location falla
+        var banner = document.getElementById('lbRecover');
+        if (banner) {
+          banner.innerHTML = '<div class="lb-recover-row"><div class="lb-recover-msg"><strong>⚠ Sesión expirada.</strong> Vuelve a iniciar sesión para continuar.</div><div class="lb-recover-actions"><a class="btn btn-restore" href="' + API_URL + '?p=acceso" target="_top" style="text-decoration:none">→ Iniciar sesión</a></div></div>';
+          banner.classList.add('show');
+        }
+        try { (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})(); } catch(e) { (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})(); }
         return;
       }
       user = res.user || user;
@@ -3189,6 +4185,8 @@ img, svg { display: block; max-width: 100%; }
         sessionStorage.setItem('fogueira_sucursales', JSON.stringify(sucursales));
       } catch(e){}
       if (!aplicarSesionUI()) return;
+      cargarCostosConfig();
+      cargarCostosReferente();
     });
   }
   if (document.readyState === 'loading') {
