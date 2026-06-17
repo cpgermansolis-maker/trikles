@@ -79,6 +79,9 @@ var ACCIONES_WRITE_OBSERVADOR_BLOQUEADAS = {
   'ingrediente_fusionar': true,
   // v405 — Re-apuntar SOLO ciertas líneas (por familia de unidad) sin fusionar/desactivar
   'ingrediente_repuntar_lineas': true,
+  // v406 — Pendientes manuales (dirección asigna tarea ad-hoc → Telegram)
+  'pendiente_manual_add': true,
+  'pendiente_manual_resolver': true,
   // v144 — Branding multi-empresa
   'empresa_branding_seed_fogueira': true,
   // v250 — Costos operativos
@@ -7532,6 +7535,9 @@ function handleRequest(e) {
       // Bot de Telegram (v367) — entrega del auditor matutino
       case 'telegram_webhook':          result = handleTelegramWebhook(params, e);      break;
       case 'telegram_estado':           result = handleTelegramEstado(params);          break;
+      case 'pendiente_manual_add':      result = handlePendienteManualAdd(params);      break;
+      case 'pendiente_manual_list':     result = handlePendienteManualList(params);     break;
+      case 'pendiente_manual_resolver': result = handlePendienteManualResolver(params); break;
       case 'telegram_configurar':       result = handleTelegramConfigurar(params);      break;
       case 'telegram_enviar_auditoria': result = handleTelegramEnviarAuditoria(params); break;
       case 'telegram_prueba':           result = handleTelegramPrueba(params);          break;
@@ -8392,6 +8398,28 @@ function _auditoriaMatutinaCore(empresaId, fecha, suc, doWrite) {
     });
   }
 
+  // Pendientes MANUALES (v406): tareas ad-hoc que dirección le asigna a una persona y deben
+  // salir en su Telegram igual que las automáticas. Viven en PendientesManuales; aquí se inyectan
+  // al dueño por email (clave estable 'manual:<id>' → días de atraso desde creado_at). Quedan en
+  // pe.pendientes → fluyen a _auditMensaje, _seguimientoSync, el envío matutino y /pendientes.
+  try {
+    var shPM = SpreadsheetApp.getActive().getSheetByName('PendientesManuales');
+    if (shPM) {
+      var nomIdxPM = {};
+      rowsToObjects(getSheet('Usuarios')).forEach(function(x){
+        if (x.empresa_id === empresaId) nomIdxPM[String(x.email||'').toLowerCase()] = x.nombre || x.email;
+      });
+      rowsToObjects(shPM).forEach(function(m){
+        if (m.empresa_id !== empresaId || !esActivo(m.activo)) return;
+        var emPM = String(m.usuario_email||'').toLowerCase().trim();
+        var txtPM = String(m.texto||'').trim();
+        if (!emPM || !txtPM) return;
+        var nomPM = nomIdxPM[emPM] || emPM;
+        addPend(emPM, nomPM, 'tarea', txtPM, String(m.sev||'alta').toLowerCase(), 'manual:'+m.id, fechaToString(m.creado_at));
+      });
+    }
+  } catch(e){}
+
   var personasArr = Object.keys(personas).map(function(k){ return personas[k]; });
   // Registro de días de atraso: atribuye dias_atraso a cada pendiente (y lo PERSISTE solo en la
   // corrida oficial del bot, doWrite=true). El mensaje se arma DESPUÉS para incluir los días.
@@ -8408,4 +8436,69 @@ function _auditoriaMatutinaCore(empresaId, fecha, suc, doWrite) {
       sin_agenda_areas: areasOut.filter(function(a){ return a.sin_agenda; }).map(function(a){ return a.area; })
     }
   };
+}
+
+// =============================================================================
+// PENDIENTES MANUALES (v406) — tareas ad-hoc que dirección asigna a una persona y
+// salen en su Telegram (y /pendientes) igual que las del auditor automático.
+// Roles que asignan/gestionan = dirección. La entrega la hace el motor matutino
+// (se inyectan en _auditoriaMatutinaCore). Solo se "molesta" mientras activo=true.
+// =============================================================================
+var PENDIENTE_MANUAL_COLS = ['id','empresa_id','usuario_email','texto','sev','creado_por_email','creado_at','activo','resuelto_at','resuelto_por_email'];
+var PENDIENTE_MANUAL_ROLES = ['admin','gerente_administrativo','gerente_plaza','auditoria'];
+
+function handlePendienteManualAdd(p) {
+  var u = validarToken(p.token);
+  if (!u) return { ok:false, error:'Sesión inválida' };
+  if (!rolEs(u, PENDIENTE_MANUAL_ROLES)) return { ok:false, error:'Solo dirección puede asignar pendientes' };
+  var emailDest = String(p.usuario_email||'').trim().toLowerCase();
+  var texto = String(p.texto||'').trim();
+  var sev = String(p.sev||'alta').trim().toLowerCase();
+  if (['critica','alta','media'].indexOf(sev) === -1) sev = 'alta';
+  if (!emailDest) return { ok:false, error:'usuario_email requerido' };
+  if (texto.length < 5) return { ok:false, error:'El texto del pendiente es muy corto' };
+  var dest = rowsToObjects(getSheet('Usuarios')).find(function(x){
+    return String(x.email||'').toLowerCase() === emailDest && x.empresa_id === u.empresa_id;
+  });
+  if (!dest) return { ok:false, error:'No encuentro un usuario con ese correo en la empresa' };
+  var sh = asegurarHoja('PendientesManuales', PENDIENTE_MANUAL_COLS);
+  var id = 'PM-' + Utilities.getUuid().slice(0,8);
+  var obj = { id:id, empresa_id:u.empresa_id, usuario_email:emailDest, texto:texto, sev:sev,
+              creado_por_email:u.email, creado_at:new Date(), activo:true, resuelto_at:'', resuelto_por_email:'' };
+  var headers = sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0];
+  sh.appendRow(headers.map(function(h){ return obj[h] === undefined ? '' : obj[h]; }));
+  return { ok:true, id:id, usuario_email:emailDest, nombre:dest.nombre || emailDest, texto:texto, sev:sev };
+}
+
+function handlePendienteManualList(p) {
+  var u = validarToken(p.token);
+  if (!u) return { ok:false, error:'Sesión inválida' };
+  if (!rolEs(u, PENDIENTE_MANUAL_ROLES)) return { ok:false, error:'Sin permiso' };
+  var sh = SpreadsheetApp.getActive().getSheetByName('PendientesManuales');
+  if (!sh) return { ok:true, pendientes:[] };
+  var soloActivos = String(p.solo_activos||'1') !== '0';
+  var lista = rowsToObjects(sh)
+    .filter(function(m){ return m.empresa_id === u.empresa_id && (!soloActivos || esActivo(m.activo)); })
+    .map(function(m){ return { id:m.id, usuario_email:m.usuario_email, texto:m.texto, sev:m.sev,
+        creado_por_email:m.creado_por_email, creado_at:fechaToString(m.creado_at), activo:esActivo(m.activo),
+        resuelto_at: m.resuelto_at ? fechaToString(m.resuelto_at) : '' }; });
+  return { ok:true, pendientes:lista };
+}
+
+function handlePendienteManualResolver(p) {
+  var u = validarToken(p.token);
+  if (!u) return { ok:false, error:'Sesión inválida' };
+  if (!rolEs(u, PENDIENTE_MANUAL_ROLES)) return { ok:false, error:'Sin permiso' };
+  var id = String(p.id||'').trim();
+  if (!id) return { ok:false, error:'id requerido' };
+  var sh = SpreadsheetApp.getActive().getSheetByName('PendientesManuales');
+  if (!sh) return { ok:false, error:'No hay pendientes manuales' };
+  var headers = sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0];
+  var fila = rowsToObjects(sh).find(function(m){ return m.id === id && m.empresa_id === u.empresa_id; });
+  if (!fila) return { ok:false, error:'Pendiente no encontrado' };
+  var cAct = headers.indexOf('activo')+1, cRes = headers.indexOf('resuelto_at')+1, cResP = headers.indexOf('resuelto_por_email')+1;
+  if (cAct > 0)  sh.getRange(fila._row, cAct).setValue(false);
+  if (cRes > 0)  sh.getRange(fila._row, cRes).setValue(new Date());
+  if (cResP > 0) sh.getRange(fila._row, cResP).setValue(u.email);
+  return { ok:true, id:id };
 }
