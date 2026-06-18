@@ -1,0 +1,1972 @@
+<? var __tokenInyectado = '';
+try { __tokenInyectado = (queryParams && queryParams.t) ? String(queryParams.t) : ''; } catch(e){}
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tablero Directivo · Fogueira</title>
+<base target="_top">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500;1,600&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --ink:#0c0907; --ember:#c4322a; --ember-deep:#8a1f17; --cream:#f6f1e8; --gold:#c89a4a;
+  --cream-warm:#efe5d2; --cream-line:#e4d9c2; --muted:#5d6c80;
+  --good:#1E7F5C; --bad:#8a1f17; --warn:#c89a4a;
+  --rojo-tint:rgba(196,50,42,.10); --ambar-tint:rgba(200,154,74,.14); --verde-tint:rgba(30,127,92,.10);
+  --font-sans:'DM Sans',system-ui,sans-serif;
+  --font-serif:'Cormorant Garamond',Georgia,serif;
+  --font-mono:'DM Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--ink);background:var(--cream);line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+header.app{background:var(--ink);color:var(--cream);border-bottom:1px solid rgba(200,154,74,.22);position:sticky;top:0;z-index:30}
+.head-row{max-width:1280px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.brand-eyebrow{font-family:var(--font-mono);font-size:10px;letter-spacing:.22em;color:rgba(246,241,232,.5);text-transform:uppercase;display:block;line-height:1.2}
+.brand-name{font-family:var(--font-serif);font-style:italic;font-size:22px;color:var(--cream);line-height:1.1;margin-top:2px}
+.head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-size:12.5px;font-weight:500;border:1px solid var(--cream-line);background:#fff;color:var(--ink);cursor:pointer;transition:all .15s}
+.btn:hover{background:var(--cream-warm);border-color:var(--ember)}
+.head-actions .btn{background:rgba(246,241,232,.04);color:var(--cream);border-color:rgba(246,241,232,.18)}
+.head-actions .btn:hover{background:rgba(200,154,74,.12);border-color:var(--gold);color:var(--cream)}
+main{max-width:1280px;margin:0 auto;padding:22px}
+.page-head{margin-bottom:16px}
+.page-head h1{font-family:var(--font-serif);font-style:italic;font-size:32px;letter-spacing:-.015em;margin:0}
+.page-head .desc{font-size:13px;color:var(--muted);margin-top:4px}
+.explainer{background:var(--cream-warm);border-left:3px solid var(--gold);padding:12px 16px;margin-bottom:18px;font-size:13px;line-height:1.6}
+.explainer strong{color:var(--ember-deep)}
+.controls-bar{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;background:var(--cream-warm);border:1px solid var(--cream-line);padding:14px 18px;margin-bottom:18px}
+.ctrl-group{display:flex;flex-direction:column;gap:4px}
+.ctrl-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+select,input[type=date]{font-family:var(--font-sans);font-size:13px;padding:7px 10px;border:1px solid var(--cream-line);background:#fff;color:var(--ink)}
+select:focus,input:focus{outline:none;border-color:var(--ember)}
+.btn.primary{background:var(--ink);color:var(--gold);border-color:var(--ink)}
+.btn.primary:hover{background:#000}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+.kpi{padding:14px 18px;background:#fff;border:1px solid var(--cream-line);border-top:3px solid var(--cream-line)}
+.kpi.ink{border-top-color:var(--ink)}
+.kpi.gold{border-top-color:var(--warn)}
+.kpi.rojo{border-top-color:var(--bad)}
+.kpi.verde{border-top-color:var(--good)}
+.kpi-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.kpi-val{font-size:28px;font-weight:800;color:var(--ink);line-height:1}
+.kpi-val.bad{color:var(--bad)}
+.kpi-val.good{color:var(--good)}
+.kpi-sub{font-size:11.5px;color:var(--muted);margin-top:4px}
+.act-aviso{padding:12px 16px;background:#fff;border:1px solid var(--cream-line);border-left:3px solid var(--warn);font-size:13px;color:var(--muted);margin-bottom:8px}
+.act-aviso.bad{border-left-color:var(--bad);color:var(--bad);font-weight:600}
+.act-rol{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.act-tag{display:inline-block;font-size:10.5px;padding:1px 7px;background:var(--cream-warm);color:var(--muted);margin-left:6px}
+.act-tag.bad{background:#f6e3e1;color:var(--bad);font-weight:600}
+.panel{background:#fff;border:1px solid var(--cream-line);margin-bottom:16px}
+.panel-head{padding:13px 18px;border-bottom:1px solid var(--cream-line);font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.panel-body{padding:14px 18px}
+.cajera-chip{display:inline-block;padding:4px 10px;margin:3px;font-size:12px;background:var(--cream-warm);border:1px solid var(--cream-line)}
+.table-wrap{overflow-x:auto}
+table.data{width:100%;border-collapse:collapse;font-size:12.5px;min-width:820px}
+table.data th{text-align:left;padding:8px 10px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--cream-line);background:var(--cream-warm);white-space:nowrap}
+table.data td{padding:8px 10px;border-bottom:1px solid var(--cream-line);vertical-align:middle}
+table.data tr.roja{background:var(--rojo-tint)}
+table.data tr.roja-sinaut{background:rgba(196,50,42,.16)}
+table.data tr.roja-sinaut td:first-child{box-shadow:inset 3px 0 0 var(--bad)}
+.mono{font-family:var(--font-mono)}
+.delta.neg{color:var(--bad);font-weight:600}
+.delta.pos{color:var(--good)}
+.delta.zero{color:var(--muted)}
+.badge{display:inline-block;padding:2px 8px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge.ok{background:var(--verde-tint);color:var(--good)}
+.badge.pend{background:var(--rojo-tint);color:var(--bad)}
+.badge.neutral{background:rgba(0,0,0,.05);color:var(--muted)}
+.empty-state{padding:40px 20px;text-align:center;color:var(--muted);font-size:14px}
+.soon-note{font-size:12px;color:var(--muted);font-style:italic}
+.btn-q{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;font-size:11.5px;font-weight:600;border:1px solid var(--cream-line);background:#fff;color:var(--ink);cursor:pointer;white-space:nowrap}
+.btn-q:hover{border-color:var(--ember);background:var(--cream-warm)}
+.btn-q.has{border-color:var(--ember);color:var(--ember-deep)}
+.q-count{background:var(--ember);color:#fff;font-size:10px;padding:0 5px;font-weight:700}
+.q-count.pend{background:var(--bad)}
+.modal-ov{position:fixed;inset:0;background:rgba(12,9,7,.55);display:none;align-items:center;justify-content:center;z-index:80;padding:18px}
+.modal-ov.show{display:flex}
+.modal{background:var(--cream);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;border:1px solid var(--cream-line);box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.modal-head{background:var(--ink);color:var(--cream);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0}
+.modal-head h3{font-family:var(--font-serif);font-style:italic;font-size:20px;margin:0;color:var(--cream)}
+.modal-x{background:none;border:none;color:var(--cream);font-size:22px;cursor:pointer;line-height:1}
+.modal-body{padding:16px 18px}
+.canc-sum{background:#fff;border:1px solid var(--cream-line);padding:10px 12px;font-size:12.5px;margin-bottom:14px}
+.canc-sum .row{display:flex;justify-content:space-between;gap:10px;padding:2px 0}
+.canc-sum .row span:first-child{color:var(--muted)}
+.thread{margin-bottom:14px}
+.q-block{border:1px solid var(--cream-line);background:#fff;margin-bottom:10px}
+.q-q{padding:10px 12px;border-left:3px solid var(--ember)}
+.q-a{padding:10px 12px;border-left:3px solid var(--good);background:var(--verde-tint)}
+.q-pend{padding:8px 12px;border-left:3px solid var(--warn);background:var(--ambar-tint);font-size:12px;font-style:italic;color:#8a6d1a}
+.q-meta{font-size:10.5px;color:var(--muted);margin-top:4px}
+.q-text{font-size:13px;white-space:pre-wrap}
+.q-form{margin-top:8px}
+.q-form textarea{width:100%;font-family:var(--font-sans);font-size:13px;padding:9px 11px;border:1px solid var(--cream-line);resize:vertical;background:#fff}
+.q-form textarea:focus{outline:none;border-color:var(--ember)}
+.q-form .btn-send{margin-top:6px;padding:7px 16px;font-size:12.5px;font-weight:600;background:var(--ink);color:var(--gold);border:none;cursor:pointer}
+.q-form .btn-send:hover{background:#000}
+.q-form-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+#toastEl{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--cream);padding:11px 20px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
+#toastEl.show{opacity:1}
+#toastEl.error{background:var(--bad)}
+/* Pestañas (Cancelaciones / Cuadre de carne) */
+.tabs{display:flex;gap:2px;margin-bottom:18px;border-bottom:2px solid var(--cream-line)}
+.tab{padding:10px 18px;font-size:13.5px;font-weight:600;color:var(--muted);border:none;background:none;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer}
+.tab:hover{color:var(--ink)}
+.tab.active{color:var(--ember-deep);border-bottom-color:var(--ember)}
+/* Cuadre de carne — celdas de g/comensal por severidad */
+table.data td.cu-cell{text-align:right;font-family:var(--font-mono);white-space:nowrap}
+td.cu-rojo{background:rgba(196,50,42,.16);color:var(--bad);font-weight:700}
+td.cu-amarillo{background:rgba(200,154,74,.18);color:#8a6d1a;font-weight:600}
+td.cu-verde{background:rgba(30,127,92,.08)}
+td.cu-gris{color:var(--muted)}
+.cu-corte{cursor:pointer}
+.cu-corte:hover td{background:var(--cream-warm)}
+.cu-corte td.cu-rojo:hover,.cu-corte:hover td.cu-rojo{background:rgba(196,50,42,.22)}
+.cu-name{font-weight:600}
+.cu-clave{font-family:var(--font-mono);font-size:10px;color:var(--muted)}
+.cu-sinvinc{color:var(--bad);font-size:11px;font-weight:600}
+.cu-toggle{display:inline-block;width:14px;color:var(--muted);font-size:11px}
+.cu-total{background:var(--cream-warm);font-weight:700}
+.cu-com-row td{font-size:10.5px;color:var(--muted);font-style:italic;background:var(--cream-warm);text-align:right;white-space:nowrap}
+.cu-detalle td{background:#fffdf8;font-size:11.5px;padding:5px 10px}
+.cu-detalle .cu-lbl{color:var(--muted);text-align:left;white-space:nowrap}
+.cu-detalle .cu-num{font-family:var(--font-mono);text-align:right;white-space:nowrap}
+.cu-detalle td.cu-rojo{background:rgba(196,50,42,.16)}
+.cu-detalle td.cu-amarillo{background:rgba(200,154,74,.18)}
+.cu-detalle td.cu-verde{background:rgba(30,127,92,.08)}
+.cu-prov{color:var(--warn);font-size:9px;vertical-align:super}
+/* SR12 vs documentado */
+.sr-caro{display:inline-block;font-size:10px;font-weight:700;color:var(--ember-deep);background:rgba(196,50,42,.10);padding:1px 6px;margin-left:5px;white-space:nowrap}
+.sr-rol{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.sr-prod{font-weight:600}
+/* Barra — ventas y mix */
+.ba-grupo{display:grid;grid-template-columns:140px 1fr auto;align-items:center;gap:12px;padding:7px 0}
+.ba-grupo .ba-nom{font-weight:600;font-size:13px}
+.ba-track{position:relative;height:22px;background:var(--cream-line)}
+.ba-fill{position:absolute;left:0;top:0;bottom:0;background:var(--ember)}
+.ba-fill.g1{background:var(--ember)} .ba-fill.g2{background:var(--gold)} .ba-fill.g3{background:var(--slate)} .ba-fill.g4{background:var(--muted)}
+.ba-grupo .ba-val{font-family:var(--font-mono);font-size:12.5px;white-space:nowrap;text-align:right}
+.ba-grupo .ba-val .ba-pct{color:var(--muted);font-size:11px;margin-left:6px}
+td.ba-num{text-align:right;font-family:var(--font-mono);white-space:nowrap}
+.ba-rank{color:var(--muted);font-family:var(--font-mono);font-size:11px}
+.ba-gchip{display:inline-block;font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);border:1px solid var(--cream-line);padding:1px 6px;white-space:nowrap}
+/* Aviso "te respondieron" */
+.resp-banner{ background:var(--ink); color:var(--cream); border-left:4px solid var(--good); padding:14px 18px; margin-bottom:18px }
+.resp-banner .rb-head{ font-weight:700; font-size:15px; margin-bottom:8px }
+.resp-banner .rb-list{ margin:0; padding-left:20px; font-size:13px; line-height:1.7; color:rgba(246,241,232,.9) }
+.resp-banner .rb-sys{ color:var(--gold); font-size:11px }
+.resp-banner .rb-x{ margin-top:10px; padding:7px 16px; background:var(--gold); color:var(--ink); font-weight:700; font-size:12px; border:none; cursor:pointer }
+/* Banderas del cierre — matriz día × bandera */
+table.bf{width:100%;border-collapse:collapse;font-size:12px;min-width:880px}
+table.bf th{padding:7px 6px;font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--cream-line);background:var(--cream-warm);white-space:nowrap}
+table.bf th.bf-rot{text-align:center;font-size:9px}
+table.bf td{padding:6px 6px;border-bottom:1px solid var(--cream-line);text-align:center;white-space:nowrap}
+table.bf td.bf-fecha{text-align:left;font-weight:600;white-space:nowrap}
+table.bf td.bf-serv{text-align:left;font-size:10.5px;color:var(--muted)}
+.bf-cell{font-family:var(--font-mono)}
+.bf-rojo{background:rgba(196,50,42,.16)}
+.bf-ok{color:var(--cream-line)}
+.bf-na{color:var(--cream-line)}
+.bf-row{cursor:pointer}
+.bf-row:hover td{background:var(--cream-warm)}
+.bf-row.bf-tiene-roja td.bf-fecha{box-shadow:inset 3px 0 0 var(--bad)}
+.bf-rojas-n{font-family:var(--font-mono);font-weight:700;color:var(--bad)}
+.bf-rojas-0{color:var(--muted)}
+.bf-vacia td{opacity:.5;font-style:italic}
+.bf-det td{background:#fffdf8;text-align:left;padding:0}
+.bf-det-wrap{padding:10px 14px}
+.bf-det-item{display:flex;gap:9px;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--cream-line)}
+.bf-det-item:last-child{border-bottom:none}
+.bf-det-item .bf-ic{flex-shrink:0}
+.bf-det-item .bf-tt{font-weight:600;font-size:12.5px}
+.bf-det-item .bf-vv{font-family:var(--font-mono);font-size:11.5px;color:var(--muted)}
+.bf-resumen{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.bf-rchip{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--cream-line);background:var(--bone)}
+.bf-rchip.hot{border-color:var(--bad);background:rgba(196,50,42,.06)}
+.bf-rchip .bf-rlbl{font-size:11.5px;color:var(--ink)}
+.bf-rchip .bf-rn{font-family:var(--font-mono);font-weight:700;font-size:15px}
+.bf-rchip.hot .bf-rn{color:var(--bad)}
+.bf-rchip .bf-rn.zero{color:var(--muted)}
+
+/* ── Portada ejecutiva (Resumen) v324 ── */
+.rs-controls{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.rs-controls .ctrl-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.rs-controls select{padding:8px 12px;border:1px solid var(--cream-line);background:var(--bone);font-family:inherit;font-size:13px;color:var(--ink)}
+.hero{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;background:var(--ink);color:var(--cream);padding:26px 30px;margin-bottom:22px;border-left:5px solid var(--gold)}
+.hero.rojo{border-left-color:var(--ember)}
+.hero.verde{border-left-color:#1E7F5C}
+.hero-main{display:flex;align-items:center;gap:18px}
+.hero-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 4px rgba(255,255,255,.06)}
+.hero-dot.rojo{background:var(--ember)}
+.hero-dot.verde{background:#37a06f}
+.hero-title{font-family:var(--font-serif);font-style:italic;font-weight:500;font-size:30px;line-height:1.05;color:var(--cream)}
+.hero-sub{font-size:12.5px;color:rgba(246,241,232,.55);margin-top:5px;font-family:var(--font-mono);letter-spacing:.04em}
+.hero-money{text-align:right}
+.hero-money .hm-l{font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;color:rgba(246,241,232,.5)}
+.hero-money .hm-v{font-family:var(--font-serif);font-style:italic;font-weight:600;font-size:34px;color:var(--gold);line-height:1.1}
+.sem-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:24px}
+.sem-card{text-align:left;background:#fff;border:1px solid var(--cream-line);border-left:4px solid var(--muted);padding:16px 18px;cursor:pointer;transition:box-shadow .15s,transform .05s;display:flex;flex-direction:column;gap:4px}
+.sem-card:hover{box-shadow:0 6px 22px rgba(12,9,7,.12)}
+.sem-card:active{transform:translateY(1px)}
+.sem-card.rojo{border-left-color:var(--ember)}
+.sem-card.amarillo{border-left-color:var(--gold)}
+.sem-card.verde{border-left-color:#1E7F5C}
+.sem-card.info{border-left-color:var(--muted)}
+.sc-top{display:flex;align-items:center;gap:9px}
+.sc-title{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);font-weight:600}
+.dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.dot.rojo{background:var(--ember)} .dot.amarillo{background:var(--gold)} .dot.verde{background:#1E7F5C} .dot.info{background:var(--muted)}
+.sc-val{font-family:var(--font-serif);font-style:italic;font-weight:600;font-size:30px;line-height:1.05;color:var(--ink);margin-top:6px}
+.sem-card.rojo .sc-val{color:var(--ember-deep)}
+.sc-valsub{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.sc-lines{margin-top:8px;font-size:12.5px;color:var(--slate-soft);line-height:1.5}
+.sc-cta{margin-top:10px;font-size:11.5px;font-weight:600;color:var(--ember-deep);letter-spacing:.02em}
+.sc-trend{margin-top:4px;font-size:11px;font-weight:700;display:inline-flex;align-items:baseline;gap:5px;letter-spacing:.02em}
+.sc-trend.peor{color:var(--bad)}
+.sc-trend.mejor{color:var(--good)}
+.sc-trend.flat{color:var(--muted)}
+.sc-trend .sc-trend-lbl{font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;font-size:10.5px}
+/* ── Modo presentación (juntas): vista grande, sin cromo, para proyectar ── */
+#btnSalirPres{position:fixed;top:14px;right:16px;z-index:1000;display:none;padding:9px 16px;font-size:13px;font-weight:600;background:var(--ink);color:var(--cream);border:1px solid var(--gold);cursor:pointer}
+body.presentacion #btnSalirPres{display:inline-flex}
+body.presentacion header.app,
+body.presentacion .tabs,
+body.presentacion .rs-controls,
+body.presentacion #respBanner,
+body.presentacion .page-head .desc,
+body.presentacion .sc-cta{display:none !important}
+body.presentacion main{max-width:1560px;padding:34px 44px}
+body.presentacion .page-head h1{font-size:40px}
+body.presentacion .hero{padding:26px 32px}
+body.presentacion .hero-title{font-size:30px}
+body.presentacion .hero-sub{font-size:16px}
+body.presentacion .sem-grid{gap:22px}
+body.presentacion .sem-card{padding:26px 30px;gap:6px}
+body.presentacion .sc-title{font-size:18px}
+body.presentacion .sc-val{font-size:48px}
+body.presentacion .sc-valsub{font-size:13px}
+body.presentacion .sc-trend{font-size:14px}
+body.presentacion .sc-lines{font-size:15px;line-height:1.6}
+body.presentacion .decision-item{font-size:16px;padding:14px 16px}
+body.presentacion .decision-head{font-size:18px}
+.decision-wrap{background:#fff;border:1px solid var(--cream-line);padding:18px 20px;margin-bottom:20px}
+.decision-head{font-family:var(--font-serif);font-style:italic;font-size:20px;color:var(--ink);margin-bottom:12px}
+.decision-list{display:flex;flex-direction:column;gap:8px}
+.decision-item{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:var(--bone);border:1px solid var(--cream-line);border-left:3px solid var(--muted);padding:11px 14px;cursor:pointer;font-size:13.5px;color:var(--ink)}
+.decision-item:hover{background:var(--paper)}
+.decision-item.rojo{border-left-color:var(--ember)}
+.decision-item.amarillo{border-left-color:var(--gold)}
+.di-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.di-dot.rojo{background:var(--ember)} .di-dot.amarillo{background:var(--gold)}
+.di-txt{flex:1}
+.di-cta{color:var(--muted);font-weight:700}
+.decision-empty{background:rgba(30,127,92,.06);border:1px solid rgba(30,127,92,.25);color:#1E7F5C;padding:16px 18px;font-size:14px;margin-bottom:20px}
+
+@media (max-width:640px){
+  .page-head h1{font-size:26px}
+  main{padding:16px}
+  .tab{padding:9px 12px;font-size:12.5px}
+  .hero{padding:20px;flex-direction:column;align-items:flex-start}
+  .hero-money{text-align:left}
+  .hero-title{font-size:24px}
+  .sem-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<button id="btnSalirPres" type="button">✕ Salir de presentación</button>
+<header class="app">
+  <div class="head-row">
+    <div>
+      <span class="brand-eyebrow">Fogueira · Dirección de Plaza</span>
+      <div class="brand-name">Tablero Directivo</div>
+    </div>
+    <div class="head-actions">
+      <span style="font-size:12px;color:rgba(246,241,232,.5)" id="empresaNombre">—</span>
+      <a id="btnCurvas" href="#" class="btn">📈 Curvas de precio</a>
+      <button id="btnJustif" class="btn">📄 Justificaciones</button>
+      <a id="btnInicio" href="#" class="btn">← Inicio</a>
+      <button class="btn" id="btnLogout">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="respBanner" class="resp-banner" style="display:none"></div>
+  <div class="tabs">
+    <button class="tab active" data-view="resumen" type="button">◆ Resumen</button>
+    <button class="tab" data-view="canc" type="button">🧾 Cancelaciones</button>
+    <button class="tab" data-view="cuadre" type="button">🥩 Cuadre de carne</button>
+    <button class="tab" data-view="sr12" type="button">🚫 SR12 vs Documentado</button>
+    <button class="tab" data-view="barra" type="button">🍸 Barra</button>
+    <button class="tab" data-view="banderas" type="button">🚩 Banderas del cierre</button>
+    <button class="tab" data-view="justif" type="button">📄 Justificaciones</button>
+    <button class="tab" data-view="actividad" type="button">📋 Mi actividad</button>
+  </div>
+
+  <div id="viewResumen">
+    <div class="page-head">
+      <h1>Panorama de la plaza</h1>
+      <div class="desc">El estado de Fogueira de un vistazo. Cada tarjeta es un foco de vigilancia — toca cualquiera para ver el detalle.</div>
+    </div>
+    <div class="rs-controls">
+      <span class="ctrl-label">Periodo</span>
+      <select id="rsPeriodo">
+        <option value="semana" selected>Semana en curso</option>
+        <option value="30">Últimos 30 días</option>
+        <option value="mes">Mes actual</option>
+      </select>
+      <button class="btn primary" id="rsActualizar" type="button">Actualizar</button>
+      <button class="btn" id="btnPresentar" type="button" title="Vista grande, sin distracciones, para proyectar en junta">🖥 Presentar</button>
+    </div>
+    <div id="rsHero" class="hero" style="display:none"></div>
+    <div id="rsDecisiones"></div>
+    <div id="rsCards" class="sem-grid"><div class="empty-state">Cargando el panorama…</div></div>
+  </div><!-- /viewResumen -->
+
+  <div id="viewCanc" style="display:none">
+  <div class="page-head">
+    <h1>Vigilancia de cancelaciones</h1>
+    <div class="desc">Cuántas cancelaciones se solicitaron y cuántas autorizó la administración · control de la plaza</div>
+  </div>
+
+  <div class="explainer">
+    Aquí ves todas las cancelaciones de ventas del periodo: cuántas se <strong>solicitaron</strong>, cuántas ya <strong>autorizó</strong> la administración (Luis), y cuáles encienden <strong>bandera roja</strong> — las que <strong>bajan el monto cobrado</strong> y se pagaron <strong>en efectivo</strong> (el patrón típico de fuga, ej. 2 rodizios convertidos a un Rodizio Duo). Las rojas <strong>sin autorizar</strong> son las que conviene revisar primero.
+  </div>
+
+  <div class="controls-bar">
+    <div class="ctrl-group">
+      <span class="ctrl-label">Periodo</span>
+      <select id="ctrlPeriodo">
+        <option value="7">Últimos 7 días</option>
+        <option value="30" selected>Últimos 30 días</option>
+        <option value="90">Últimos 90 días</option>
+        <option value="mes">Mes actual</option>
+        <option value="todo">Todo el historial</option>
+        <option value="custom">Rango de fechas</option>
+      </select>
+    </div>
+    <div class="ctrl-group" id="wrapDesde" style="display:none">
+      <span class="ctrl-label">Desde</span>
+      <input type="date" id="ctrlDesde">
+    </div>
+    <div class="ctrl-group" id="wrapHasta" style="display:none">
+      <span class="ctrl-label">Hasta</span>
+      <input type="date" id="ctrlHasta">
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">&nbsp;</span>
+      <button class="btn primary" id="btnActualizar">Actualizar</button>
+    </div>
+  </div>
+
+  <div class="kpi-row" id="kpiRow">
+    <div class="kpi ink"><div class="kpi-label">Solicitadas</div><div class="kpi-val" id="kpiSolic">—</div><div class="kpi-sub">cancelaciones del periodo</div></div>
+    <div class="kpi verde"><div class="kpi-label">Autorizadas</div><div class="kpi-val" id="kpiAutor">—</div><div class="kpi-sub">con sello de la administración</div></div>
+    <div class="kpi gold"><div class="kpi-label">Efectivo c/ baja</div><div class="kpi-val" id="kpiRojas">—</div><div class="kpi-sub">patrón de fuga</div></div>
+    <div class="kpi rojo"><div class="kpi-label">Sin autorizar</div><div class="kpi-val bad" id="kpiSinAut">—</div><div class="kpi-sub">revisar primero</div></div>
+    <div class="kpi ink"><div class="kpi-label">$ en bajas de precio</div><div class="kpi-val" id="kpiBaja">—</div><div class="kpi-sub">monto que se dejó de cobrar</div></div>
+    <div class="kpi gold"><div class="kpi-label">Cuestionamientos</div><div class="kpi-val" id="kpiPend">—</div><div class="kpi-sub" id="kpiPendSub">pendientes de responder</div></div>
+  </div>
+
+  <div class="panel" id="panelCajeras" style="display:none">
+    <div class="panel-head">👤 Cancelaciones por cajera</div>
+    <div class="panel-body" id="cajerasBody"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">🧾 Detalle de cancelaciones <span class="soon-note" id="detCount"></span></div>
+    <div class="panel-body" id="detalleBody">
+      <div class="empty-state" id="loadingState">Cargando…</div>
+    </div>
+  </div>
+
+  <p class="soon-note" id="hintCuestionar">💬 Toca <strong>Cuestionar</strong> en cualquier cancelación para escribir tu duda; la administración te responde en el mismo sistema.</p>
+  </div><!-- /viewCanc -->
+
+  <div id="viewCuadre" style="display:none">
+    <div class="page-head">
+      <h1>Cuadre de carne semanal</h1>
+      <div class="desc">Kilos de carne por comensal, semana a semana · detector de fuga</div>
+    </div>
+
+    <div class="explainer">
+      Por cada corte de carne, la semana cuadra así: <strong>Inicial</strong> (lo que se contó el lunes) <strong>+ Compras</strong> (lo que entró, de Compras SR12) <strong>− Final</strong> (lo que quedó) <strong>= Consumo real</strong>. Eso entre los <strong>comensales de rodizio</strong> de la semana (Buffet + Comida, sin Desayuno) da los <strong>gramos de carne por comensal</strong>. Ese número debe ser parecido cada semana: si <strong>sube</strong> mucho (celda roja), o hubo desperdicio o se está yendo carne. Los tres datos vienen de <strong>manos distintas</strong> (compras las paga el comprador, comensales los cuenta el host, el conteo físico lo hace cocina), así que es difícil de maquillar.
+    </div>
+
+    <div class="controls-bar">
+      <div class="ctrl-group">
+        <span class="ctrl-label">Semanas a mostrar</span>
+        <select id="cuPeriodo">
+          <option value="4">Últimas 4</option>
+          <option value="8" selected>Últimas 8</option>
+          <option value="12">Últimas 12</option>
+          <option value="26">Últimas 26</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <span class="ctrl-label">&nbsp;</span>
+        <button class="btn primary" id="cuActualizar">Actualizar</button>
+      </div>
+    </div>
+
+    <div class="kpi-row" id="cuKpis"></div>
+
+    <div class="panel">
+      <div class="panel-head">🥩 Gramos de carne por comensal <span class="soon-note" id="cuCount"></span></div>
+      <div class="panel-body" id="cuBody"><div class="empty-state">Cargando…</div></div>
+    </div>
+
+    <p class="soon-note">Toca un corte para ver el desglose <strong>Inicial · +Compras · −Final · =Consumo</strong> de cada semana. <span class="cu-prov">*</span> = final aún provisional (calculado), pendiente del conteo físico de la semana siguiente.</p>
+  </div><!-- /viewCuadre -->
+
+  <div id="viewBarra" style="display:none">
+    <div class="page-head">
+      <h1>Barra · ventas y mix</h1>
+      <div class="desc">Qué se vende en la barra y cuánto · base del futuro Cuadre de Barra</div>
+    </div>
+
+    <div class="explainer">
+      Esto es lo que el <strong>punto de venta</strong> reporta como vendido en bebidas (alcohólicas, vinos, sin alcohol). Por ahora te muestra <strong>qué se vende y cuánto</strong> — el mix por grupo y el ranking de productos. Cuando carguemos las <strong>recetas de cada bebida</strong>, esta pestaña crece al <strong>Cuadre de Barra</strong>: comparará lo que las recetas dicen que <em>debiste</em> gastar (ventas × receta) contra lo que el <em>inventario</em> dice que gastaste — y ahí saltará la fuga.
+    </div>
+
+    <div class="controls-bar">
+      <div class="ctrl-group">
+        <span class="ctrl-label">Periodo</span>
+        <select id="baPeriodo"><option value="todos">Todo el historial</option></select>
+      </div>
+      <div class="ctrl-group">
+        <span class="ctrl-label">&nbsp;</span>
+        <button class="btn primary" id="baActualizar">Actualizar</button>
+      </div>
+    </div>
+
+    <div class="kpi-row" id="baKpis"></div>
+
+    <div class="panel">
+      <div class="panel-head">🚨 Venta bajo costo / margen sospechoso <span class="soon-note" id="baAlertaCount"></span></div>
+      <div class="panel-body" id="baAlerta"><div class="empty-state">Cargando…</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">🍸 Mix de venta por grupo</div>
+      <div class="panel-body" id="baGrupos"><div class="empty-state">Cargando…</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">🏆 Productos más vendidos <span class="soon-note" id="baTopCount"></span></div>
+      <div class="panel-body" id="baTop"><div class="empty-state">Cargando…</div></div>
+    </div>
+
+    <p class="soon-note">🔭 Próximo paso (cuando lleguen las recetas): por cada insumo, <strong>teórico</strong> (ventas × receta) vs <strong>real</strong> (inicial + compras − final) con semáforo de fuga, igual que el cuadre de carne.</p>
+  </div><!-- /viewBarra -->
+
+  <div id="viewBanderas" style="display:none">
+    <div class="page-head">
+      <h1>Banderas del cierre</h1>
+      <div class="desc">Las 14 alertas automáticas de cada conciliación, día por día · vigilancia de control</div>
+    </div>
+
+    <div class="explainer">
+      Cada cierre de caja corre <strong>14 chequeos automáticos</strong> que cruzan toda la información del día (efectivo, terminales, tickets, cancelaciones, propinas, comensales). Aquí ves <strong>cuáles se encendieron cada día</strong>, en una sola pantalla. 🔴 = bandera encendida (revisar) · <span style="color:var(--muted)">·</span> = todo bien · <span style="color:var(--muted)">—</span> = sin datos para evaluar. <strong>Toca un día</strong> para ver el detalle de cada bandera. Las más críticas de fuga: <strong>Arqueo</strong> (descuadre de caja), <strong>Folios</strong> (tickets que no cuadran), <strong>Fuga</strong> (cancelación en efectivo sin sello) y <strong>No-sales</strong> (cajón abierto sin venta).
+    </div>
+
+    <div class="controls-bar">
+      <div class="ctrl-group">
+        <span class="ctrl-label">Periodo</span>
+        <select id="bfPeriodo">
+          <option value="30" selected>Últimos 30 días</option>
+          <option value="90">Últimos 90 días</option>
+          <option value="mes">Mes actual</option>
+          <option value="todo">Todo el historial</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <span class="ctrl-label">&nbsp;</span>
+        <button class="btn primary" id="bfActualizar">Actualizar</button>
+      </div>
+    </div>
+
+    <div class="kpi-row" id="bfKpis"></div>
+
+    <div class="panel">
+      <div class="panel-head">🚩 Resumen — cuántos días encendió cada bandera</div>
+      <div class="panel-body" id="bfResumen"><div class="empty-state">Cargando…</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">📅 Matriz día × bandera <span class="soon-note" id="bfCount"></span></div>
+      <div class="panel-body" id="bfMatriz"><div class="empty-state">Cargando…</div></div>
+    </div>
+
+    <p class="soon-note">Esta vista <strong>recalcula</strong> las banderas desde lo que quedó guardado en cada conciliación — es la misma lógica que ve la cajera en su semáforo de cierre, pero agregada para dirección. Para investigar un día, abre su conciliación.</p>
+  </div><!-- /viewBanderas -->
+
+  <div id="viewJustif" style="display:none">
+    <div class="page-head">
+      <h1>Justificaciones de variación de precios</h1>
+      <div class="desc">Por qué subió o bajó el costo de cada insumo · pregúntale al comprador (Weslley)</div>
+    </div>
+
+    <div class="explainer">
+      Cuando un insumo cambia mucho de precio, el sistema le pide al <strong>comprador (Weslley)</strong> que explique por qué. Aquí ves todas esas explicaciones. Si tienes dudas sobre alguna, toca <strong>💬 Preguntar</strong> en ese renglón: tu pregunta le llega a Weslley y te responde en el mismo sistema. Usa el <strong>buscador</strong> para encontrar un insumo por nombre o clave.
+    </div>
+
+    <div class="controls-bar">
+      <div class="ctrl-group" style="flex:1;min-width:240px">
+        <span class="ctrl-label">Buscar insumo</span>
+        <input type="search" id="jfBuscar" placeholder="Nombre o clave (ej. canela, 2009)…" autocomplete="off" style="width:100%;padding:9px 12px;font-size:13px;border:1px solid var(--cream-line);background:#fff;color:var(--ink)">
+      </div>
+      <div class="ctrl-group">
+        <span class="ctrl-label">&nbsp;</span>
+        <button class="btn" id="jfImprimir">🖨 Versión imprimible</button>
+      </div>
+    </div>
+
+    <div class="kpi-row" id="jfKpis"></div>
+
+    <div class="panel">
+      <div class="panel-head">📄 Insumos con variación justificada <span class="soon-note" id="jfCount"></span></div>
+      <div class="panel-body" id="jfBody"><div class="empty-state">Cargando…</div></div>
+    </div>
+  </div><!-- /viewJustif -->
+
+  <div id="viewSr12" style="display:none">
+    <div class="page-head">
+      <h1>Cancelaciones del POS vs lo documentado</h1>
+      <div class="desc">La verdad del SoftRestaurant cruzada con lo que registró la administración · prueba dura de fuga</div>
+    </div>
+
+    <div class="explainer">
+      Aquí están <strong>todas</strong> las cancelaciones que el SoftRestaurant registró (la prueba dura del POS, no lo que alguien teclea). Se cruzan con lo que la administración <strong>documentó</strong> en la conciliación, por número de cheque. Lo que enciende <strong>bandera roja</strong> es una cancelación <strong>de rodizio o buffet</strong> (las caras) que <strong>NO está documentada</strong> — esas son las que conviene revisar primero. <em>El reporte del POS no trae el monto ni el nombre de la persona (solo el rol que canceló).</em>
+    </div>
+
+    <div class="controls-bar">
+      <div class="ctrl-group">
+        <span class="ctrl-label">Periodo</span>
+        <select id="srPeriodo">
+          <option value="30">Últimos 30 días</option>
+          <option value="90">Últimos 90 días</option>
+          <option value="todo" selected>Todo el historial</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <span class="ctrl-label">&nbsp;</span>
+        <button class="btn primary" id="srActualizar">Actualizar</button>
+      </div>
+      <div class="ctrl-group">
+        <span class="ctrl-label">&nbsp;</span>
+        <label style="font-size:12.5px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="srSoloSospechosas"> Ver solo las sospechosas</label>
+      </div>
+    </div>
+
+    <div class="kpi-row" id="srKpis"></div>
+
+    <div class="panel" id="srPanelMeseros" style="display:none">
+      <div class="panel-head">👤 Cancelaciones por mesero</div>
+      <div class="panel-body" id="srMeserosBody"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">🚫 Cancelaciones del SR12 <span class="soon-note" id="srCount"></span></div>
+      <div class="panel-body" id="srBody"><div class="empty-state">Cargando…</div></div>
+    </div>
+
+    <p class="soon-note">🥩 = cancelación de rodizio / buffet (cara). Fila <strong style="color:var(--bad)">roja</strong> = cara <strong>sin documentar</strong> en la conciliación → revisar. ✓ = sí se documentó (pasa el cursor para ver con qué).</p>
+  </div><!-- /viewSr12 -->
+
+  <div id="viewActividad" style="display:none">
+    <div class="page-head">
+      <h1>Mi actividad de supervisión</h1>
+      <div class="desc">Tu propio seguimiento de un vistazo: cuántas veces entraste, cuántas observaciones dejaste y cuándo fue tu última actividad.</div>
+    </div>
+    <div id="actMio"><div class="empty-state">Cargando tu actividad…</div></div>
+    <div class="panel" id="actSupsPanel" style="display:none;margin-top:8px">
+      <div class="panel-head">👥 Actividad de supervisores</div>
+      <div class="panel-body" id="actSupsBody"><div class="empty-state">Cargando…</div></div>
+    </div>
+    <p class="soon-note">El registro de <strong>entradas</strong> empezó el 13-jun-2026 — antes de esa fecha no hay historia de accesos (irá creciendo desde ahora). Las <strong>observaciones</strong> sí incluyen todo el historial. Una "entrada" = un día con actividad.</p>
+  </div><!-- /viewActividad -->
+</main>
+
+<div class="modal-ov" id="modalOv">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Cuestionar cancelación</h3>
+      <button class="modal-x" id="modalX" title="Cerrar">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div id="toastEl"></div>
+
+<script>
+(function(){
+'use strict';
+
+var API_URL = 'https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec';
+var token = '<?!= __tokenInyectado ?>';
+var user = null, empresa = null;
+try { user = JSON.parse(sessionStorage.getItem('fogueira_user')||'null'); empresa = JSON.parse(sessionStorage.getItem('fogueira_empresa')||'null'); } catch(e){}
+function getQuery(k){ try{ var u=new URL(window.location.href); return u.searchParams.get(k)||''; }catch(e){ return ''; } }
+if (!token) token = getQuery('t');
+
+var miRol = '', datosDetalle = [], modalCancelId = '';
+
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function fmt2(n){ return (Math.round(Number(n)*100)/100).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtMoney(n){ return '$'+fmt2(n); }
+function fmtInt(n){ return (Number(n)||0).toLocaleString('es-MX'); }
+function pad(n){ return ('0'+n).slice(-2); }
+function ymd(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+var MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function fechaCorta(f){ if(!f) return '—'; var p=String(f).split('-'); if(p.length<3) return f; return parseInt(p[2],10)+' '+(MESES[parseInt(p[1],10)-1]||'')+' '+p[0].slice(2); }
+function toast(msg,tipo){ var el=document.getElementById('toastEl'); el.textContent=msg; el.className='show'+(tipo?' '+tipo:''); setTimeout(function(){ el.className=''; },3200); }
+
+function apiCall(params, cb){
+  var cbName='_jcb_'+Date.now()+'_'+Math.floor(Math.random()*9999);
+  var script=document.createElement('script'), cleanup=function(){ try{delete window[cbName];}catch(e){window[cbName]=undefined;} if(script.parentNode)script.parentNode.removeChild(script); };
+  var t=setTimeout(function(){ cleanup(); cb({ok:false,error:'timeout'}); },30000);
+  window[cbName]=function(d){ clearTimeout(t); cleanup(); cb(d); };
+  var qs=Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
+  script.onerror=function(){ clearTimeout(t); cleanup(); cb({ok:false,error:'network'}); };
+  script.src=API_URL+'?'+qs+'&callback='+cbName;
+  document.body.appendChild(script);
+}
+
+// ── Carga robusta (reintento + recuperación visible) ──
+// Un parpadeo de red o un redeploy momentáneo NO debe dejar el tablero colgado en
+// "Cargando…" ni sacar al directivo a login. apiCallReintento reintenta 2× los fallos
+// transitorios (network/timeout). SOLO usar en lecturas (este tablero es solo lectura).
+function _esErrTransitorio(res){
+  if (!res) return true;
+  if (res.ok) return false;
+  var e = String(res.error || '').toLowerCase();
+  return e === 'network' || e.indexOf('timeout') !== -1;
+}
+function apiCallReintento(params, cb, intentos){
+  intentos = (intentos == null) ? 2 : intentos;
+  apiCall(params, function(res){
+    if (res && res.ok) { cb(res); return; }
+    if (intentos > 0 && _esErrTransitorio(res)) {
+      setTimeout(function(){ apiCallReintento(params, cb, intentos - 1); }, 1200);
+      return;
+    }
+    cb(res); // fallo final → el caller decide cómo mostrarlo
+  });
+}
+function _errorTabla(selector, colspan, msg, onRetry){
+  var tb = document.querySelector(selector);
+  if (!tb) return;
+  var tr = document.createElement('tr');
+  var td = document.createElement('td');
+  td.colSpan = colspan; td.className = 'empty-state'; td.style.padding = '26px 12px'; td.style.textAlign = 'center';
+  var p = document.createElement('div');
+  p.textContent = msg || 'No se pudo cargar.'; p.style.marginBottom = '12px';
+  var b = document.createElement('button');
+  b.type = 'button'; b.className = 'btn'; b.textContent = '↻ Reintentar';
+  b.onclick = function(){ tb.innerHTML = '<tr><td colspan="' + colspan + '" class="empty-state">Cargando…</td></tr>'; onRetry(); };
+  td.appendChild(p); td.appendChild(b); tr.appendChild(td);
+  tb.innerHTML = ''; tb.appendChild(tr);
+}
+// Igual que _errorTabla pero para un contenedor div (las pestañas del tablero no son tablas).
+function _errorBox(elId, msg, onRetry){
+  var el = document.getElementById(elId);
+  if (!el) return;
+  el.innerHTML = '';
+  var d = document.createElement('div');
+  d.className = 'empty-state'; d.style.padding = '22px 12px'; d.style.textAlign = 'center';
+  var p = document.createElement('div'); p.textContent = msg || 'No se pudo cargar.'; p.style.marginBottom = '12px'; p.style.color = 'var(--bad)';
+  var b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.textContent = '↻ Reintentar';
+  b.onclick = onRetry;
+  d.appendChild(p); d.appendChild(b); el.appendChild(d);
+}
+
+// ── Rango de fechas según el selector ──
+function rangoActual(){
+  var v = document.getElementById('ctrlPeriodo').value;
+  if (v === 'todo') return { desde:'', hasta:'' };
+  if (v === 'custom') return { desde: document.getElementById('ctrlDesde').value || '', hasta: document.getElementById('ctrlHasta').value || '' };
+  if (v === 'mes') { var d=new Date(); return { desde: ymd(new Date(d.getFullYear(), d.getMonth(), 1)), hasta: ymd(d) }; }
+  var dias = parseInt(v, 10) || 30;
+  var hasta = new Date();
+  var desde = new Date(); desde.setDate(desde.getDate() - (dias - 1));
+  return { desde: ymd(desde), hasta: ymd(hasta) };
+}
+
+// ── Render ──
+function renderResumen(r){
+  document.getElementById('kpiSolic').textContent = fmtInt(r.solicitadas);
+  document.getElementById('kpiAutor').textContent = fmtInt(r.autorizadas);
+  document.getElementById('kpiRojas').textContent = fmtInt(r.rojas);
+  document.getElementById('kpiSinAut').textContent = fmtInt(r.rojas_sin_aut);
+  document.getElementById('kpiBaja').textContent = fmtMoney(r.total_baja);
+  var sinAutEl = document.getElementById('kpiSinAut');
+  sinAutEl.className = 'kpi-val ' + (r.rojas_sin_aut > 0 ? 'bad' : 'good');
+  var pend = r.cuestionamientos_pendientes || 0;
+  var pendEl = document.getElementById('kpiPend');
+  pendEl.textContent = fmtInt(pend);
+  pendEl.className = 'kpi-val' + (pend > 0 ? ' bad' : '');
+  document.getElementById('kpiPendSub').textContent = (miRol==='admin'||miRol==='gerente_administrativo')
+    ? (pend > 0 ? '¡tienes pendientes de responder!' : 'pendientes de responder')
+    : 'esperando respuesta de la administración';
+
+  // Por cajera
+  var cajeras = Object.keys(r.por_cajera || {});
+  var panel = document.getElementById('panelCajeras');
+  if (cajeras.length) {
+    cajeras.sort(function(a,b){ return r.por_cajera[b] - r.por_cajera[a]; });
+    document.getElementById('cajerasBody').innerHTML = cajeras.map(function(k){
+      return '<span class="cajera-chip"><strong>'+esc(k)+'</strong> · '+r.por_cajera[k]+'</span>';
+    }).join('');
+    panel.style.display = '';
+  } else {
+    panel.style.display = 'none';
+  }
+}
+
+function estadoBadge(it){
+  if (it.autorizada) return '<span class="badge ok" title="Autorizada con sello de sesión">✓ '+esc(it.autoriza||'Autorizada')+'</span>';
+  if (it.roja) return '<span class="badge pend">⏳ Sin autorizar</span>';
+  return '<span class="badge neutral">— Pendiente</span>';
+}
+
+function botonCuestionar(it){
+  var hilos = it.cuestionamientos || [];
+  var nPend = hilos.filter(function(q){ return q.estado==='pendiente'; }).length;
+  if (!hilos.length) return '<button class="btn-q" data-q="'+escAttr(it.cancel_id)+'">💬 Cuestionar</button>';
+  return '<button class="btn-q has" data-q="'+escAttr(it.cancel_id)+'">💬 <span class="q-count'+(nPend?' pend':'')+'">'+hilos.length+'</span></button>';
+}
+function renderDetalle(detalle){
+  datosDetalle = detalle || [];
+  var body = document.getElementById('detalleBody');
+  document.getElementById('detCount').textContent = detalle.length ? '· '+detalle.length+' en el periodo' : '';
+  if (!detalle.length) {
+    body.innerHTML = '<div class="empty-state">No hay cancelaciones documentadas en este periodo. Cuando la administración registre cancelaciones en la conciliación, aparecerán aquí.</div>';
+    return;
+  }
+  var rows = detalle.map(function(it){
+    var cls = it.roja ? (it.autorizada ? 'roja' : 'roja roja-sinaut') : '';
+    var prod = esc(it.prod_orig||'—');
+    if (it.prod_nuevo) prod += ' <span style="color:var(--muted)">→</span> ' + esc(it.prod_nuevo);
+    var dCls = it.delta < 0 ? 'neg' : (it.delta > 0 ? 'pos' : 'zero');
+    var dTxt = (it.monto_orig || it.monto_nuevo) ? fmtMoney(it.delta) : '—';
+    return '<tr class="'+cls+'">'
+      + '<td class="mono" style="white-space:nowrap">'+esc(fechaCorta(it.fecha))+(it.hora?'<br><span style="color:var(--muted);font-size:11px">'+esc(it.hora)+'</span>':'')+'</td>'
+      + '<td class="mono">'+esc(it.folio||'—')+'</td>'
+      + '<td>'+esc(it.cajera||'—')+'</td>'
+      + '<td>'+prod+'</td>'
+      + '<td class="mono delta '+dCls+'" style="white-space:nowrap">'+dTxt+'</td>'
+      + '<td>'+esc(it.forma_pago||'—')+'</td>'
+      + '<td style="font-size:11.5px">'+esc(it.motivo||'—')+'</td>'
+      + '<td>'+estadoBadge(it)+'</td>'
+      + '<td>'+botonCuestionar(it)+'</td>'
+      + '</tr>';
+  }).join('');
+  body.innerHTML = '<div class="table-wrap"><table class="data"><thead><tr>'
+    + '<th>Fecha</th><th>Folio</th><th>Cajera</th><th>Producto cancelado</th><th>Δ</th><th>Pago</th><th>Motivo</th><th>Estado</th><th>Vigilancia</th>'
+    + '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+// ── Modal de cuestionamiento (Gerente de Plaza ↔ administración) ──
+function buscarItem(cancelId){
+  for (var i=0;i<datosDetalle.length;i++){ if (datosDetalle[i].cancel_id===cancelId) return datosDetalle[i]; }
+  return null;
+}
+function puedeResponder(){ return miRol==='admin' || miRol==='gerente_administrativo'; }
+function puedePreguntar(){ return miRol==='gerente_plaza' || miRol==='auditoria' || miRol==='admin'; }
+
+function abrirModal(cancelId){
+  var it = buscarItem(cancelId);
+  if (!it) return;
+  modalCancelId = cancelId;
+  var prod = esc(it.prod_orig||'—') + (it.prod_nuevo ? ' → '+esc(it.prod_nuevo) : '');
+  var deltaTxt = (it.monto_orig || it.monto_nuevo) ? fmtMoney(it.delta) : '—';
+  var sum = '<div class="canc-sum">'
+    + '<div class="row"><span>Fecha</span><span>'+esc(fechaCorta(it.fecha))+(it.hora?(' · '+esc(it.hora)):'')+'</span></div>'
+    + '<div class="row"><span>Folio</span><span class="mono">'+esc(it.folio||'—')+'</span></div>'
+    + '<div class="row"><span>Cajera</span><span>'+esc(it.cajera||'—')+'</span></div>'
+    + '<div class="row"><span>Producto</span><span>'+prod+'</span></div>'
+    + '<div class="row"><span>Δ (cambio)</span><span class="mono" style="color:'+(it.delta<0?'var(--bad)':'var(--muted)')+'">'+deltaTxt+'</span></div>'
+    + '<div class="row"><span>Pago</span><span>'+esc(it.forma_pago||'—')+'</span></div>'
+    + '<div class="row"><span>Estado</span><span>'+(it.autorizada?('✓ Autorizada · '+esc(it.autoriza)):'⏳ Sin autorizar')+'</span></div>'
+    + '</div>';
+
+  var hilos = it.cuestionamientos || [];
+  var thread = '<div class="thread">';
+  if (!hilos.length) {
+    thread += '<div class="q-pend">Aún no hay preguntas sobre esta cancelación.</div>';
+  } else {
+    hilos.forEach(function(q){
+      thread += '<div class="q-block">';
+      thread += '<div class="q-q"><div class="q-text">'+esc(q.pregunta)+'</div><div class="q-meta">— '+esc(q.preguntado_por)+' · '+esc(q.preguntado_at)+'</div></div>';
+      if (q.estado==='respondida' && q.respuesta) {
+        thread += '<div class="q-a"><div class="q-text">'+esc(q.respuesta)+'</div><div class="q-meta">Respuesta de '+esc(q.respondido_por)+' · '+esc(q.respondido_at)+'</div></div>';
+      } else {
+        thread += '<div class="q-pend">⏳ Pendiente de respuesta de la administración.</div>';
+        if (puedeResponder()) {
+          thread += '<div class="q-form" style="padding:0 12px 12px">'
+            + '<div class="q-form-label">Responder</div>'
+            + '<textarea id="ans-'+esc(q.id)+'" rows="2" placeholder="Escribe la respuesta…"></textarea>'
+            + '<button class="btn-send" data-answer="'+esc(q.id)+'">Responder</button></div>';
+        }
+      }
+      thread += '</div>';
+    });
+  }
+  thread += '</div>';
+
+  var ask = '';
+  if (puedePreguntar()) {
+    ask = '<div class="q-form"><div class="q-form-label">Nueva pregunta</div>'
+      + '<textarea id="askText" rows="3" placeholder="Escribe tu duda sobre esta cancelación…"></textarea>'
+      + '<button class="btn-send" id="btnAsk">Enviar pregunta</button></div>';
+  }
+
+  document.getElementById('modalBody').innerHTML = sum + thread + ask;
+  document.getElementById('modalOv').classList.add('show');
+
+  var btnAsk = document.getElementById('btnAsk');
+  if (btnAsk) btnAsk.addEventListener('click', function(){ enviarPregunta(it); });
+  document.getElementById('modalBody').querySelectorAll('[data-answer]').forEach(function(b){
+    b.addEventListener('click', function(){ enviarRespuesta(b.getAttribute('data-answer')); });
+  });
+}
+function cerrarModal(){ document.getElementById('modalOv').classList.remove('show'); modalCancelId=''; }
+
+function enviarPregunta(it){
+  var ta = document.getElementById('askText'); if (!ta) return;
+  var t = (ta.value||'').trim();
+  if (t.length < 3) { toast('Escribe tu pregunta','error'); return; }
+  var btn = document.getElementById('btnAsk'); btn.disabled=true; btn.textContent='Enviando…';
+  apiCall({ action:'cancelacion_cuestionar', token:token, cancel_id: it.cancel_id, conciliacion_fecha: it.fecha, folio: it.folio, producto: it.prod_orig, monto_orig: it.monto_orig, monto_nuevo: it.monto_nuevo, pregunta: t }, function(r){
+    if (!r || !r.ok) { btn.disabled=false; btn.textContent='Enviar pregunta'; toast((r&&r.error)||'Error al enviar','error'); return; }
+    toast('Pregunta enviada');
+    var cid = it.cancel_id;
+    cargar(function(){ abrirModal(cid); });
+  });
+}
+function enviarRespuesta(qid){
+  var ta = document.getElementById('ans-'+qid); if (!ta) return;
+  var t = (ta.value||'').trim();
+  if (t.length < 3) { toast('Escribe la respuesta','error'); return; }
+  apiCall({ action:'cancelacion_responder', token:token, id: qid, respuesta: t }, function(r){
+    if (!r || !r.ok) { toast((r&&r.error)||'Error al guardar','error'); return; }
+    toast('Respuesta guardada');
+    var cid = modalCancelId;
+    cargar(function(){ abrirModal(cid); });
+  });
+}
+
+function cargar(cb){
+  var rango = rangoActual();
+  document.getElementById('detalleBody').innerHTML = '<div class="empty-state" id="loadingState">Cargando…</div>';
+  var params = { action:'direccion_cancelaciones', token:token };
+  if (rango.desde) params.fecha_desde = rango.desde;
+  if (rango.hasta) params.fecha_hasta = rango.hasta;
+  apiCallReintento(params, function(res){
+    if (!res || !res.ok) {
+      _errorBox('detalleBody', 'No se pudo cargar. Revisa tu internet.', function(){ cargar(cb); });
+      return;
+    }
+    renderResumen(res.resumen || {});
+    renderDetalle(res.detalle || []);
+    if (typeof cb === 'function') cb();
+  });
+}
+
+// ── Informe de Justificaciones de precios (solo lectura, imprimible) ──
+function verJustificacionesInforme(){
+  apiCall({ action:'sr12_justificaciones_list', token:token }, function(res){
+    if (!res || !res.ok) { toast((res&&res.error)||'Error','error'); return; }
+    if (!res.items || !res.items.length) { toast('Aún no hay justificaciones solicitadas. La administración debe pedirlas desde Análisis de Precios.','error'); return; }
+    var pendientes = res.items.filter(function(i){ return !i.justificacion; });
+    var respondidas = res.items.filter(function(i){ return !!i.justificacion; });
+    var rows = res.items.map(function(item){
+      var sev = item.severidad==='rojo'?'#8a1f17':item.severidad==='amarillo'?'#9a6e1a':'#1E7F5C';
+      var cambioStr = (Number(item.cambio_pct)>0?'+':'')+Number(item.cambio_pct).toFixed(1)+'%';
+      var estado = item.justificacion ? '<span style="color:#1E7F5C;font-weight:700">✓ Respondida</span>' : '<span style="color:#8a1f17;font-weight:700">⏳ Pendiente</span>';
+      var comp = (item.costo_ant != null && item.costo_nue != null)
+        ? fmtMoney(item.costo_ant)+' <span style="color:#999">('+esc(fechaCorta(item.fecha_ant))+')</span> → <b>'+fmtMoney(item.costo_nue)+'</b> <span style="color:#999">('+esc(fechaCorta(item.fecha_nue))+')</span>'+(item.unidad?(' <span style="color:#999;font-size:10px">/'+esc(item.unidad)+'</span>'):'')
+        : '—';
+      var dataSearch = escAttr((String(item.clave||'')+' '+String(item.nombre||'')+' '+String(item.categoria||'')).toLowerCase());
+      return '<tr data-search="'+dataSearch+'"><td><span style="font-family:DM Mono,monospace;font-size:10px;color:#5d6c80">'+esc(item.clave)+'</span></td>'
+        + '<td style="font-weight:600">'+esc(item.nombre)+'</td>'
+        + '<td style="color:#5d6c80">'+esc(item.categoria)+'</td>'
+        + '<td style="font-weight:700;color:'+sev+'">'+cambioStr+'</td>'
+        + '<td style="white-space:nowrap">'+comp+'</td>'
+        + '<td>'+estado+'</td>'
+        + '<td style="max-width:280px">'+esc(item.justificacion||'—')+'</td>'
+        + '<td style="font-size:11px;color:#5d6c80">'+esc(item.justificado_por||'—')+'</td>'
+        + '<td style="font-size:11px;color:#5d6c80">'+esc(item.justificado_at||'—')+'</td></tr>';
+    }).join('');
+    var w = window.open('','_blank');
+    if (!w) { toast('Permite ventanas emergentes para ver el informe','error'); return; }
+    var html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Justificaciones de precios · Fogueira</title>'
+      + '<style>*{box-sizing:border-box}body{font-family:"DM Sans",Arial,sans-serif;color:#111;background:#f6f1e8;margin:0;padding:24px}'
+      + 'h1{font-size:18px;margin:0 0 4px}p{font-size:13px;color:#5d6c80;margin:0 0 18px}'
+      + 'table{width:100%;border-collapse:collapse;background:#fff;font-size:12.5px}'
+      + 'th{background:#0c0907;color:#f6f1e8;padding:8px 10px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}'
+      + 'td{padding:8px 10px;border-bottom:1px solid #e4d9c2;vertical-align:top}tr:hover td{background:#fffdf8}'
+      + '.kpi-row{display:flex;gap:10px;margin-bottom:18px}.kpi{flex:1;padding:10px 14px;background:#fff;border:1px solid #e4d9c2;border-top:3px solid #c4322a}'
+      + '.kpi-v{font-size:22px;font-weight:800}.kpi-l{font-size:10px;text-transform:uppercase;color:#5d6c80}'
+      + '.toolbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#0c0907;margin:-24px -24px 18px;padding:12px 24px}'
+      + '.toolbar input{flex:1;min-width:220px;max-width:480px;padding:9px 12px;font-size:13px;border:1px solid #c89a4a;background:#fffdf8;color:#111}'
+      + '.toolbar button{padding:9px 16px;font-size:12.5px;font-weight:700;border:none;cursor:pointer}'
+      + '.tb-volver{background:#c89a4a;color:#0c0907}.tb-print{background:#1a1310;color:#c89a4a;border:1px solid #c89a4a!important}'
+      + '.tb-cnt{color:#c89a4a;font-size:12px;font-family:"DM Mono",monospace;white-space:nowrap}'
+      + '.tb-empty{display:none;padding:18px;text-align:center;color:#5d6c80;font-size:13px}'
+      + '@media print{@page{size:A4 landscape;margin:10mm}.no-print{display:none!important}body{padding:0}.toolbar{display:none}}</style></head><body>'
+      + '<div class="toolbar no-print">'
+      + '<button class="tb-volver" onclick="volver()">← Volver al Tablero</button>'
+      + '<input id="bus" type="search" placeholder="Buscar por nombre o clave…" oninput="filtrar()" autocomplete="off">'
+      + '<span class="tb-cnt" id="cnt"></span>'
+      + '<button class="tb-print" onclick="window.print()">🖨 Imprimir</button>'
+      + '</div>'
+      + '<h1>Justificaciones de variación de precios · Fogueira</h1>'
+      + '<p>'+pendientes.length+' pendientes · '+respondidas.length+' respondidas de '+res.items.length+' total</p>'
+      + '<div class="kpi-row"><div class="kpi"><div class="kpi-l">Pendientes</div><div class="kpi-v" style="color:#8a1f17">'+pendientes.length+'</div></div>'
+      + '<div class="kpi" style="border-top-color:#1E7F5C"><div class="kpi-l">Respondidas</div><div class="kpi-v" style="color:#1E7F5C">'+respondidas.length+'</div></div>'
+      + '<div class="kpi" style="border-top-color:#333"><div class="kpi-l">Total</div><div class="kpi-v">'+res.items.length+'</div></div></div>'
+      + '<table><thead><tr><th>Clave</th><th>Insumo</th><th>Categoría</th><th>Variación</th><th>Costo (antes → ahora)</th><th>Estado</th><th>Justificación</th><th>Respondió</th><th>Fecha</th></tr></thead><tbody>'+rows+'</tbody></table>'
+      + '<div class="tb-empty" id="empty">Ningún insumo coincide con tu búsqueda.</div>'
+      + '<p style="margin-top:16px;font-size:11px;color:#999">Generado · Fogueira · Tablero Directivo</p>'
+      + '<scr'+'ipt>'
+      + 'function volver(){ try{ window.close(); }catch(e){} if(!window.closed){ history.length>1?history.back():(location.href="about:blank"); } }'
+      + 'function filtrar(){ var q=(document.getElementById("bus").value||"").trim().toLowerCase();'
+      + ' var rows=document.querySelectorAll("tbody tr"),n=0;'
+      + ' for(var i=0;i<rows.length;i++){ var s=rows[i].getAttribute("data-search")||""; var show=!q||s.indexOf(q)!==-1; rows[i].style.display=show?"":"none"; if(show)n++; }'
+      + ' document.getElementById("cnt").textContent=q?(n+" de "+rows.length):(rows.length+" insumos");'
+      + ' document.getElementById("empty").style.display=(n===0)?"block":"none"; }'
+      + ' filtrar();'
+      + '</scr'+'ipt>'
+      + '</body></html>';
+    w.document.write(html); w.document.close();
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  CUADRE DE CARNE SEMANAL (pestaña)
+// ════════════════════════════════════════════════════════════════════════
+var cuData = null, cuCargado = false;
+
+function fmtKg(n){ if (n===null||n===undefined) return '—'; var r=Math.round(Number(n)*100)/100; return r.toLocaleString('es-MX',{maximumFractionDigits:2}); }
+function fmtG(n){ if (n===null||n===undefined) return '—'; return Math.round(Number(n)).toLocaleString('es-MX'); }
+
+var cancCargado = false;
+function switchView(v){
+  var tabs = document.querySelectorAll('.tab');
+  for (var i=0;i<tabs.length;i++){ tabs[i].classList.toggle('active', tabs[i].getAttribute('data-view')===v); }
+  document.getElementById('viewResumen').style.display = (v==='resumen') ? '' : 'none';
+  document.getElementById('viewCanc').style.display = (v==='canc') ? '' : 'none';
+  document.getElementById('viewCuadre').style.display = (v==='cuadre') ? '' : 'none';
+  document.getElementById('viewSr12').style.display = (v==='sr12') ? '' : 'none';
+  document.getElementById('viewBarra').style.display = (v==='barra') ? '' : 'none';
+  document.getElementById('viewBanderas').style.display = (v==='banderas') ? '' : 'none';
+  document.getElementById('viewJustif').style.display = (v==='justif') ? '' : 'none';
+  document.getElementById('viewActividad').style.display = (v==='actividad') ? '' : 'none';
+  try { window.scrollTo(0,0); } catch(e){}
+  if (v==='canc' && !cancCargado){ cancCargado = true; cargar(); }
+  if (v==='cuadre' && !cuCargado){ cuCargado = true; cargarCuadre(); }
+  if (v==='sr12' && !srCargado){ srCargado = true; cargarSr12(); }
+  if (v==='barra' && !baCargado){ baCargado = true; cargarBarra(); }
+  if (v==='banderas' && !bfCargado){ bfCargado = true; cargarBanderas(); }
+  if (v==='justif' && !jfCargado){ jfCargado = true; cargarJustif(); }
+  if (v==='actividad' && !actCargado){ actCargado = true; cargarActividad(); }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  PORTADA EJECUTIVA (Resumen) — semáforo + decisiones + drill-down
+// ════════════════════════════════════════════════════════════════════════
+function rangoResumen(){
+  var v = document.getElementById('rsPeriodo').value;
+  var hoy = new Date();
+  if (v === '30'){ var d=new Date(); d.setDate(d.getDate()-29); return { desde:ymd(d), hasta:ymd(hoy) }; }
+  if (v === 'mes'){ return { desde: ymd(new Date(hoy.getFullYear(), hoy.getMonth(), 1)), hasta: ymd(hoy) }; }
+  // semana en curso: lunes → hoy
+  var dow = (hoy.getDay()+6)%7; // 0 = lunes
+  var lun = new Date(hoy); lun.setDate(hoy.getDate()-dow);
+  return { desde: ymd(lun), hasta: ymd(hoy) };
+}
+function cargarResumen(){
+  var rango = rangoResumen();
+  document.getElementById('rsCards').innerHTML = '<div class="empty-state">Cargando el panorama…</div>';
+  document.getElementById('rsHero').style.display = 'none';
+  document.getElementById('rsDecisiones').innerHTML = '';
+  var params = { action:'direccion_resumen', token:token };
+  if (rango.desde) params.fecha_desde = rango.desde;
+  if (rango.hasta) params.fecha_hasta = rango.hasta;
+  apiCallReintento(params, function(res){
+    if (!res || !res.ok){
+      _errorBox('rsCards', 'No se pudo cargar el panorama. Revisa tu internet.', cargarResumen);
+      return;
+    }
+    renderResumenEjec(res);
+  });
+}
+// Flecha de tendencia (Fase 2): ▲ subió (peor=rojo), ▼ bajó (mejor=verde), ▬ igual.
+// "peor" lo decide el backend (todas las métricas son "más alto = peor").
+function trendBadge(tend){
+  if (!tend || !tend.dir) return '';
+  var arr = tend.dir==='up' ? '▲' : (tend.dir==='down' ? '▼' : '▬');
+  var cls = tend.dir==='flat' ? 'flat' : (tend.peor ? 'peor' : 'mejor');
+  var palabra = tend.dir==='flat' ? 'igual' : (tend.peor ? 'subió' : 'bajó');
+  var title = (tend.etiqueta||'') + ': ' + tend.anterior + ' → ' + tend.actual;
+  return '<div class="sc-trend '+cls+'" title="'+escAttr(title)+'">'+arr+' '+esc(palabra)
+       + ' <span class="sc-trend-lbl">'+esc(tend.etiqueta||'')+'</span></div>';
+}
+function renderResumenEjec(res){
+  // Héroe
+  var hero = document.getElementById('rsHero');
+  var rojo = (res.focos_rojos||0) > 0;
+  var dotCls = rojo ? 'rojo' : 'verde';
+  var titulo = rojo
+    ? (res.focos_rojos + ' foco' + (res.focos_rojos>1?'s':'') + ' requiere' + (res.focos_rojos>1?'n':'') + ' tu atención')
+    : 'Plaza bajo control';
+  var sub = rojo ? ('en el periodo · '+((empresa&&empresa.nombre)||'Fogueira')) : 'sin focos rojos en el periodo';
+  var dineroHtml = (res.dinero_riesgo||0) > 0
+    ? '<div class="hero-money"><div class="hm-l">Dinero en riesgo</div><div class="hm-v">'+fmtMoney(res.dinero_riesgo)+'</div></div>'
+    : '';
+  hero.className = 'hero ' + (rojo?'rojo':'verde');
+  hero.innerHTML = '<div class="hero-main"><span class="hero-dot '+dotCls+'"></span>'
+    + '<div><div class="hero-title">'+esc(titulo)+'</div><div class="hero-sub">'+esc(sub)+'</div></div></div>'
+    + dineroHtml;
+  hero.style.display = '';
+
+  // Tarjetas semáforo
+  document.getElementById('rsCards').innerHTML = (res.tarjetas||[]).map(function(t){
+    var sev = t.sev||'info';
+    return '<button class="sem-card '+sev+'" data-goto="'+escAttr(t.tab)+'" type="button">'
+      + '<div class="sc-top"><span class="dot '+sev+'"></span><span class="sc-title">'+esc((t.icono?t.icono+' ':'')+t.titulo)+'</span></div>'
+      + '<div class="sc-val">'+esc(t.valor)+'</div>'
+      + '<div class="sc-valsub">'+esc(t.valor_sub||'')+'</div>'
+      + trendBadge(t.tendencia)
+      + '<div class="sc-lines">'+(t.lineas||[]).map(function(l){ return '<div>'+esc(l)+'</div>'; }).join('')+'</div>'
+      + '<div class="sc-cta">ver detalle →</div>'
+      + '</button>';
+  }).join('');
+
+  // Requiere tu decisión
+  var dec = res.decisiones||[];
+  if (dec.length){
+    document.getElementById('rsDecisiones').innerHTML = '<div class="decision-wrap">'
+      + '<div class="decision-head">Requiere tu decisión</div>'
+      + '<div class="decision-list">'
+      + dec.map(function(d){
+          return '<button class="decision-item '+(d.sev||'')+'" data-goto="'+escAttr(d.tab||'')+'" type="button">'
+            + '<span class="di-dot '+(d.sev||'')+'"></span><span class="di-txt">'+esc(d.texto)+'</span><span class="di-cta">→</span>'
+            + '</button>';
+        }).join('')
+      + '</div></div>';
+  } else {
+    document.getElementById('rsDecisiones').innerHTML = '<div class="decision-empty">✓ Nada requiere tu decisión en este periodo.</div>';
+  }
+}
+
+function cargarCuadre(){
+  var n = document.getElementById('cuPeriodo').value || '8';
+  document.getElementById('cuBody').innerHTML = '<div class="empty-state">Cargando…</div>';
+  document.getElementById('cuKpis').innerHTML = '';
+  document.getElementById('cuCount').textContent = '';
+  apiCallReintento({ action:'direccion_cuadre_carne', token:token, n_semanas:n }, function(res){
+    if (!res || !res.ok){
+      _errorBox('cuBody', 'No se pudo cargar. Revisa tu internet.', cargarCuadre);
+      return;
+    }
+    cuData = res;
+    renderCuadreKpis(res);
+    renderCuadreTabla(res);
+  });
+}
+
+function cuKpi(border,label,val,sub,valCls){
+  return '<div class="kpi '+border+'"><div class="kpi-label">'+esc(label)+'</div><div class="kpi-val'+(valCls?' '+valCls:'')+'">'+val+'</div><div class="kpi-sub">'+esc(sub)+'</div></div>';
+}
+function renderCuadreKpis(data){
+  var cortes = data.cortes || [];
+  var rojas = 0, sinVinc = 0;
+  cortes.forEach(function(c){
+    if (!c.vinculado) sinVinc++;
+    (c.celdas||[]).forEach(function(x){ if (x.sev==='rojo') rojas++; });
+  });
+  document.getElementById('cuKpis').innerHTML =
+      cuKpi('ink','Cortes vigilados', fmtInt(cortes.length), 'carnes del congelador')
+    + cuKpi('ink','Semanas con dato', fmtInt((data.semanas||[]).length), 'mostradas en la tabla')
+    + cuKpi(rojas>0?'rojo':'verde','Celdas en rojo', fmtInt(rojas), 'consumo/persona disparado', rojas>0?'bad':'good')
+    + cuKpi(sinVinc>0?'gold':'verde','Carnes sin vincular', fmtInt(sinVinc), sinVinc>0?'sin clave SR12 → sin compras':'todas vinculadas', sinVinc>0?'bad':'');
+}
+
+// Desglose Inicial · +Compras · −Final · =Consumo · Comensales · g/comensal por semana.
+function detalleCorte(c, semanas){
+  function fila(lbl, vals, totVal){
+    var t = '<tr><td class="cu-lbl">'+lbl+'</td>';
+    vals.forEach(function(v){ t += '<td class="cu-num">'+v+'</td>'; });
+    t += '<td class="cu-num">'+totVal+'</td></tr>';
+    return t;
+  }
+  var h = '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left">Concepto</th>';
+  semanas.forEach(function(s){ h += '<th style="text-align:right">'+esc(s.etiqueta)+'</th>'; });
+  h += '<th style="text-align:right">Periodo</th></tr></thead><tbody>';
+  h += fila('Inicial (kg)', c.celdas.map(function(x){ return fmtKg(x.inicial); }), fmtKg(c.total.inicial));
+  h += fila('+ Compras (kg)', c.celdas.map(function(x){ return fmtKg(x.compras); }), fmtKg(c.total.compras));
+  h += fila('− Final (kg)', c.celdas.map(function(x){ return x.final===null?'—':(fmtKg(x.final)+(x.final_fisico?'':'<span class="cu-prov">*</span>')); }),
+            c.total.final===null?'—':(fmtKg(c.total.final)+(c.total.final_fisico?'':'<span class="cu-prov">*</span>')));
+  h += fila('= Consumo (kg)', c.celdas.map(function(x){ return x.consumo===null?'—':fmtKg(x.consumo); }), c.total.consumo===null?'—':fmtKg(c.total.consumo));
+  h += fila('👥 Comensales', c.celdas.map(function(x){ return fmtInt(x.comensales); }), fmtInt(c.total.comensales));
+  var gRow = '<tr><td class="cu-lbl"><strong>g / comensal</strong></td>';
+  c.celdas.forEach(function(x){
+    var dev = (x.dev_pct!==null && x.dev_pct!==undefined) ? '<br><span style="font-size:9px;font-weight:400">'+(x.dev_pct>0?'+':'')+x.dev_pct+'%</span>' : '';
+    gRow += '<td class="cu-num cu-'+esc(x.sev)+'" style="font-weight:700">'+(x.g_comensal===null?'—':fmtG(x.g_comensal))+dev+'</td>';
+  });
+  gRow += '<td class="cu-num" style="font-weight:700">'+(c.total.g_comensal===null?'—':fmtG(c.total.g_comensal))+'</td></tr>';
+  h += gRow + '</tbody></table>';
+  return h;
+}
+
+function renderCuadreTabla(data){
+  var body = document.getElementById('cuBody');
+  var semanas = data.semanas || [], cortes = data.cortes || [];
+  if (!semanas.length || !cortes.length){
+    body.innerHTML = '<div class="empty-state">'+esc(data.nota || 'Aún no hay datos suficientes para el cuadre. Se necesita inventario de carnes capturado por semana.')+'</div>';
+    document.getElementById('cuCount').textContent='';
+    return;
+  }
+  document.getElementById('cuCount').textContent = '· '+cortes.length+' cortes · '+semanas.length+' semanas';
+  var nCols = 1 + semanas.length + 2;
+
+  var head = '<tr><th>Corte <span style="font-weight:400;text-transform:none">(g/comensal)</span></th>';
+  semanas.forEach(function(s){ head += '<th style="text-align:right">'+esc(s.etiqueta)+'</th>'; });
+  head += '<th style="text-align:right" title="Mediana del propio corte en el periodo">Mediana</th><th style="text-align:right">Periodo</th></tr>';
+
+  var totCom = semanas.reduce(function(a,s){ return a+(s.comensales||0); },0);
+  var comRow = '<tr class="cu-com-row"><td style="text-align:left">👥 Comensales rodizio</td>';
+  semanas.forEach(function(s){ comRow += '<td>'+fmtInt(s.comensales||0)+'</td>'; });
+  comRow += '<td></td><td>'+fmtInt(totCom)+'</td></tr>';
+
+  var rows = '';
+  cortes.forEach(function(c){
+    var nameCell = '<span class="cu-toggle">▸</span> <span class="cu-name">'+esc(c.nombre)+'</span>'
+      + (c.vinculado ? ' <span class="cu-clave">'+esc(c.clave_sr12)+'</span>'
+                     : ' <span class="cu-sinvinc" title="Sin clave SR12 → no se le pueden sumar las compras">⚠ sin vincular</span>')
+      + ' ' + msgBtnHtml('cuadre_carne', c.ingrediente_id, 'Cuadre de carne · '+c.nombre);
+    var r = '<tr class="cu-corte" data-ing="'+escAttr(c.ingrediente_id)+'"><td>'+nameCell+'</td>';
+    c.celdas.forEach(function(x){
+      r += '<td class="cu-cell cu-'+esc(x.sev)+'">'+(x.g_comensal===null?'—':fmtG(x.g_comensal))+'</td>';
+    });
+    r += '<td class="cu-cell cu-gris">'+(c.mediana_g?fmtG(c.mediana_g):'—')+'</td>';
+    r += '<td class="cu-cell cu-total">'+(c.total.g_comensal===null?'—':fmtG(c.total.g_comensal))+'</td></tr>';
+    r += '<tr class="cu-detalle" id="cudet-'+escAttr(c.ingrediente_id)+'" style="display:none"><td colspan="'+nCols+'">'+detalleCorte(c, semanas)+'</td></tr>';
+    rows += r;
+  });
+
+  var minW = 240 + semanas.length*68 + 170;
+  body.innerHTML = '<div class="table-wrap"><table class="data" style="min-width:'+minW+'px"><thead>'+head+'</thead><tbody>'+comRow+rows+'</tbody></table></div>';
+  aplicarMsgCounts();
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  BARRA · VENTAS Y MIX (pestaña)  — Vista A del Cuadre de Barra
+// ════════════════════════════════════════════════════════════════════════
+var baCargado = false, baPeriodosCargados = false;
+
+function grupoBonito(g){
+  var s = String(g||'').toUpperCase();
+  if (s==='BEBIDAS SIN ALCOHOL') return 'Sin alcohol';
+  if (s==='ALCOHOLICAS') return 'Alcohólicas';
+  if (s==='VINOS') return 'Vinos';
+  if (s==='MODIFICADORES') return 'Modificadores';
+  return g;
+}
+
+function cargarBarra(){
+  cargarBarraAlerta();
+  var per = document.getElementById('baPeriodo').value || 'todos';
+  document.getElementById('baGrupos').innerHTML = '<div class="empty-state">Cargando…</div>';
+  document.getElementById('baTop').innerHTML = '<div class="empty-state">Cargando…</div>';
+  document.getElementById('baKpis').innerHTML = '';
+  document.getElementById('baTopCount').textContent = '';
+  apiCallReintento({ action:'direccion_ventas_barra', token:token, periodo:per, top:40 }, function(res){
+    if (!res || !res.ok){
+      document.getElementById('baTop').innerHTML = '';
+      _errorBox('baGrupos', 'No se pudo cargar. Revisa tu internet.', cargarBarra);
+      return;
+    }
+    if (res.sin_datos){
+      document.getElementById('baKpis').innerHTML = '';
+      document.getElementById('baGrupos').innerHTML = '<div class="empty-state">Aún no hay ventas de barra cargadas. Se suben desde <strong>Importadores → 🍸 Ventas de bebidas</strong>.</div>';
+      document.getElementById('baTop').innerHTML = '';
+      return;
+    }
+    poblarPeriodosBarra(res.periodos, per);
+    renderBarraKpis(res.kpis);
+    renderBarraGrupos(res.por_grupo);
+    renderBarraTop(res.top);
+  });
+}
+
+// v409 — Alerta de venta bajo costo / margen sospechoso (botellas). Cruza VentasSR12 con el
+// costo del insumo-botella. Se carga independiente del resumen (no depende del periodo).
+function cargarBarraAlerta(){
+  var box = document.getElementById('baAlerta');
+  if (box) box.innerHTML = '<div class="empty-state">Cargando…</div>';
+  apiCallReintento({ action:'barra_alerta_bajo_costo', token:token }, function(res){
+    if (!res || !res.ok){ _errorBox('baAlerta', 'No se pudo cargar la alerta.', cargarBarraAlerta); return; }
+    renderBarraAlerta(res);
+  });
+}
+function renderBarraAlerta(res){
+  var box = document.getElementById('baAlerta'); if (!box) return;
+  var r = res.resumen || {};
+  var cnt = document.getElementById('baAlertaCount');
+  if (cnt) cnt.textContent = '· '+(r.rojo||0)+' bajo costo · '+(r.amarillo||0)+' sospechoso';
+  if (res.sin_datos){ box.innerHTML = '<div class="empty-state">Aún no hay ventas de barra cargadas (Importadores → 🍸 Ventas de bebidas).</div>'; return; }
+  var nota = '<p class="soon-note" style="margin:0 0 12px">Compara el precio de venta contra el <strong>costo del sistema</strong>. ⚠️ Si el costo está viejo, una pérdida real puede no aparecer — verifica los 🔴 contra la factura y mantén los costos al día (Existencias SR12). El insumo se empata por nombre: revísalo.</p>';
+  var flag = (res.items||[]).filter(function(x){ return x.sev !== 'ok'; });
+  if (!flag.length){ box.innerHTML = nota + '<div class="empty-state">✓ Ninguna botella bajo costo con los costos actuales ('+(r.ok||0)+' revisadas · '+(r.sin_match||0)+' sin costo vinculado).</div>'; return; }
+  var rows = flag.map(function(x){
+    var badge = x.sev==='rojo'
+      ? '<span style="color:#fff;background:#c4322a;padding:2px 7px;font-size:11px;white-space:nowrap">BAJO COSTO</span>'
+      : '<span style="color:#6b4e00;background:#f3e2a8;padding:2px 7px;font-size:11px;white-space:nowrap">'+(x.sev==='amarillo_alto'?'COSTO RARO':'MARGEN BAJO')+'</span>';
+    return '<tr><td class="sr-prod">'+esc(x.descripcion)+' <span class="ba-gchip">'+esc(grupoBonito(x.grupo))+'</span></td>'
+      +'<td class="ba-num">'+fmtMoney(x.precio)+'</td>'
+      +'<td class="ba-num">'+fmtMoney(x.costo)+'</td>'
+      +'<td class="ba-num">'+(x.margen)+'%</td>'
+      +'<td>'+badge+'</td>'
+      +'<td style="font-size:11px;color:var(--muted)">'+esc(x.insumo)+'</td></tr>';
+  }).join('');
+  box.innerHTML = nota + '<div class="table-wrap"><table class="data" style="min-width:640px"><thead><tr>'
+    +'<th>Producto</th><th style="text-align:right">Precio</th><th style="text-align:right">Costo</th><th style="text-align:right">Margen</th><th>Alerta</th><th>Insumo (verificar)</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function poblarPeriodosBarra(periodos, seleccionado){
+  if (baPeriodosCargados) return;
+  baPeriodosCargados = true;
+  var sel = document.getElementById('baPeriodo');
+  (periodos||[]).forEach(function(pp){
+    var o = document.createElement('option');
+    o.value = pp.clave;
+    o.textContent = fechaCorta(pp.desde)+' → '+fechaCorta(pp.hasta);
+    sel.appendChild(o);
+  });
+  sel.value = seleccionado || 'todos';
+}
+
+function renderBarraKpis(k){
+  k = k || {};
+  document.getElementById('baKpis').innerHTML =
+      cuKpi('ink','Venta de barra', fmtMoney(k.venta||0), 'en el periodo')
+    + cuKpi('gold','Unidades vendidas', fmtInt(k.unidades||0), 'bebidas servidas')
+    + cuKpi('ink','Productos distintos', fmtInt(k.productos||0), 'claves del SR12');
+}
+
+function renderBarraGrupos(grupos){
+  var box = document.getElementById('baGrupos');
+  if (!grupos || !grupos.length){ box.innerHTML = '<div class="empty-state">Sin datos en este periodo.</div>'; return; }
+  var max = grupos.reduce(function(a,g){ return Math.max(a, g.venta||0); }, 0) || 1;
+  var html = '';
+  grupos.forEach(function(g, i){
+    var w = Math.max(2, Math.round((g.venta||0)/max*100));
+    html += '<div class="ba-grupo">'
+      + '<div class="ba-nom">'+esc(grupoBonito(g.grupo))+'</div>'
+      + '<div class="ba-track"><div class="ba-fill g'+((i%4)+1)+'" style="width:'+w+'%"></div></div>'
+      + '<div class="ba-val">'+fmtMoney(g.venta||0)+'<span class="ba-pct">'+(g.pct||0)+'%</span></div>'
+      + '</div>';
+  });
+  box.innerHTML = html;
+}
+
+function renderBarraTop(top){
+  var box = document.getElementById('baTop');
+  if (!top || !top.length){ box.innerHTML = '<div class="empty-state">Sin productos en este periodo.</div>'; return; }
+  document.getElementById('baTopCount').textContent = '· '+top.length+' productos';
+  var rows = '';
+  top.forEach(function(t, i){
+    rows += '<tr><td class="ba-rank">'+(i+1)+'</td>'
+      + '<td class="sr-prod">'+esc(t.descripcion)+' <span class="ba-gchip">'+esc(grupoBonito(t.grupo))+'</span></td>'
+      + '<td class="ba-num">'+fmtInt(t.unidades)+'</td>'
+      + '<td class="ba-num">'+fmtMoney(t.venta)+'</td>'
+      + '<td class="ba-num">'+fmtMoney(t.precio_prom)+'</td></tr>';
+  });
+  box.innerHTML = '<div class="table-wrap"><table class="data" style="min-width:560px"><thead><tr>'
+    + '<th>#</th><th>Producto</th><th style="text-align:right">Unidades</th><th style="text-align:right">Venta</th><th style="text-align:right">Precio prom.</th>'
+    + '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  BANDERAS DEL CIERRE (pestaña) — matriz día × bandera
+// ════════════════════════════════════════════════════════════════════════
+var bfCargado = false, bfDef = [];
+
+function bfRango(){
+  var v = document.getElementById('bfPeriodo').value;
+  if (v === 'todo') return { desde:'', hasta:'' };
+  if (v === 'mes'){ var d=new Date(); return { desde: ymd(new Date(d.getFullYear(), d.getMonth(), 1)), hasta: ymd(d) }; }
+  var dias = parseInt(v,10) || 30;
+  var hasta = new Date(); var desde = new Date(); desde.setDate(desde.getDate() - (dias-1));
+  return { desde: ymd(desde), hasta: ymd(hasta) };
+}
+
+function cargarBanderas(){
+  var r = bfRango();
+  document.getElementById('bfMatriz').innerHTML = '<div class="empty-state">Cargando…</div>';
+  document.getElementById('bfResumen').innerHTML = '';
+  document.getElementById('bfKpis').innerHTML = '';
+  document.getElementById('bfCount').textContent = '';
+  apiCallReintento({ action:'direccion_banderas_cierre', token:token, fecha_desde:r.desde, fecha_hasta:r.hasta }, function(res){
+    if (!res || !res.ok){
+      _errorBox('bfMatriz', 'No se pudo cargar. Revisa tu internet.', cargarBanderas);
+      return;
+    }
+    bfDef = res.banderas_def || [];
+    renderBanderasKpis(res.kpis||{});
+    renderBanderasResumen(res.resumen_por_bandera||[]);
+    renderBanderasMatriz(res.dias||[], bfDef);
+  });
+}
+
+function renderBanderasKpis(k){
+  document.getElementById('bfKpis').innerHTML =
+      cuKpi('ink','Conciliaciones', fmtInt(k.conciliaciones||0), 'en el periodo')
+    + cuKpi((k.total_rojas>0?'rojo':'verde'),'Banderas encendidas', fmtInt(k.total_rojas||0), 'en total', k.total_rojas>0?'bad':'good')
+    + cuKpi((k.dias_con_roja>0?'gold':'verde'),'Días con bandera', fmtInt(k.dias_con_roja||0), 'a revisar', k.dias_con_roja>0?'bad':'')
+    + cuKpi((k.sin_cerrar>0?'gold':'verde'),'Sin cerrar', fmtInt(k.sin_cerrar||0), 'conciliaciones abiertas', k.sin_cerrar>0?'bad':'');
+}
+
+function renderBanderasResumen(arr){
+  var box = document.getElementById('bfResumen');
+  if (!arr || !arr.length){ box.innerHTML = '<div class="empty-state">Sin datos.</div>'; return; }
+  var html = '<div class="bf-resumen">';
+  arr.forEach(function(b){
+    var hot = (b.rojas||0) > 0;
+    html += '<div class="bf-rchip'+(hot?' hot':'')+'" title="'+escAttr(b.title)+'">'
+      + '<span class="bf-rlbl">'+esc(b.abbr)+'</span>'
+      + '<span class="bf-rn'+(hot?'':' zero')+'">'+fmtInt(b.rojas||0)+'</span></div>';
+  });
+  html += '</div>';
+  box.innerHTML = html;
+}
+
+function bfDetalle(dia, def){
+  var titById = {}; def.forEach(function(d){ titById[d.key]=d; });
+  var rojas = dia.banderas.filter(function(b){ return b.sev==='rojo'; });
+  var html = '<div class="bf-det-wrap">';
+  if (!rojas.length){
+    html += '<div style="color:var(--good);font-size:12.5px">✅ Ninguna bandera encendida este día'+(dia.vacia?' (conciliación prácticamente vacía).':'.')+'</div>';
+  } else {
+    rojas.forEach(function(b){
+      var d = titById[b.key] || { title:b.key };
+      html += '<div class="bf-det-item"><span class="bf-ic">🔴</span><div><div class="bf-tt">'+esc(d.title)+'</div><div class="bf-vv">'+esc(b.val||'')+'</div></div></div>';
+    });
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderBanderasMatriz(dias, def){
+  var box = document.getElementById('bfMatriz');
+  if (!dias || !dias.length){ box.innerHTML = '<div class="empty-state">No hay conciliaciones en el periodo.</div>'; return; }
+  document.getElementById('bfCount').textContent = '· '+dias.length+' días';
+  var head = '<tr><th>Fecha</th><th>Servicio</th>';
+  def.forEach(function(d){ head += '<th class="bf-rot" title="'+escAttr(d.title)+'">'+esc(d.abbr)+'</th>'; });
+  head += '<th title="Banderas encendidas ese día">🔴</th></tr>';
+  var rows = '';
+  dias.forEach(function(dia, idx){
+    var clsRow = 'bf-row' + (dia.rojas>0?' bf-tiene-roja':'') + (dia.vacia?' bf-vacia':'');
+    var r = '<tr class="'+clsRow+'" data-bfidx="'+idx+'">';
+    r += '<td class="bf-fecha">'+esc(fechaCorta(dia.fecha))+(dia.cerrada?'':' <span style="font-size:9px;color:var(--gold)">abierta</span>')+' '+msgBtnHtml('banderas', dia.fecha, 'Cierre del '+fechaCorta(dia.fecha)+(dia.servicio?(' · '+dia.servicio):''))+'</td>';
+    r += '<td class="bf-serv">'+esc(dia.servicio||'—')+'</td>';
+    dia.banderas.forEach(function(b){
+      var cell = b.sev==='rojo' ? '🔴' : (b.sev==='na' ? '<span class="bf-na">—</span>' : '<span class="bf-ok">·</span>');
+      r += '<td class="bf-cell'+(b.sev==='rojo'?' bf-rojo':'')+'">'+cell+'</td>';
+    });
+    r += '<td class="'+(dia.rojas>0?'bf-rojas-n':'bf-rojas-0')+'">'+(dia.rojas||0)+'</td>';
+    r += '</tr>';
+    r += '<tr class="bf-det" id="bfdet-'+idx+'" style="display:none"><td colspan="'+(def.length+3)+'">'+bfDetalle(dia, def)+'</td></tr>';
+    rows += r;
+  });
+  var minW = 220 + def.length*46;
+  box.innerHTML = '<div class="table-wrap"><table class="bf" style="min-width:'+minW+'px"><thead>'+head+'</thead><tbody>'+rows+'</tbody></table></div>';
+  aplicarMsgCounts();
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  JUSTIFICACIONES DE PRECIOS (pestaña) — interactiva + mensajería con Weslley
+// ════════════════════════════════════════════════════════════════════════
+var jfCargado = false, justifData = [], jfModalClave = '';
+
+function puedePreguntarPrecio(){ return miRol==='gerente_plaza' || miRol==='auditoria' || miRol==='admin' || miRol==='gerente_administrativo'; }
+function puedeResponderPrecio(){ return miRol==='admin' || miRol==='gerente_administrativo'; }
+
+// ════════════════════════════════════════════════════════════════════════
+//  MI ACTIVIDAD DE SUPERVISIÓN (v389)
+// ════════════════════════════════════════════════════════════════════════
+var actCargado = false;
+function _actFechaCorta(s){
+  if(!s) return '—';
+  var parts = String(s).split(' '); var d = parts[0].split('-');
+  if(d.length<3) return esc(s);
+  var mes = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][parseInt(d[1],10)-1] || '';
+  return d[2]+' '+mes+(parts[1]?(', '+parts[1]):'');
+}
+function _renderMiActividad(a){
+  a = a || {};
+  var alerta = '';
+  if (a.nunca_ha_entrado) alerta = '<div class="act-aviso">Todavía no hay ninguna entrada tuya registrada (el registro de accesos empezó hoy). Entra al sistema cada día y aquí lo verás.</div>';
+  else if (a.dias_sin_entrar != null && a.dias_sin_entrar >= 7) alerta = '<div class="act-aviso bad">⚠ Llevas '+a.dias_sin_entrar+' días sin entrar al sistema.</div>';
+  document.getElementById('actMio').innerHTML = '<div class="kpi-row">'
+    + '<div class="kpi"><div class="kpi-label">Entradas · últimos 7 días</div><div class="kpi-val">'+(a.entradas_semana||0)+'</div><div class="kpi-sub">de 7 días · '+(a.entradas_total||0)+' días en total</div></div>'
+    + '<div class="kpi"><div class="kpi-label">Observaciones hechas</div><div class="kpi-val">'+(a.obs_total||0)+'</div><div class="kpi-sub">cancelaciones '+(a.obs_cancelaciones||0)+' · precios '+(a.obs_precios||0)+' · tablero '+(a.obs_tablero||0)+'</div></div>'
+    + '<div class="kpi"><div class="kpi-label">Última actividad</div><div class="kpi-val" style="font-size:18px">'+_actFechaCorta(a.ultima_actividad)+'</div><div class="kpi-sub">'+(a.ultimo_acceso?('último acceso: '+_actFechaCorta(a.ultimo_acceso)):'sin accesos registrados')+'</div></div>'
+    + '</div>' + alerta;
+}
+function _renderSupervisores(arr){
+  var body = document.getElementById('actSupsBody');
+  if(!arr || !arr.length){ body.innerHTML = '<div class="empty-state">Sin supervisores.</div>'; return; }
+  var rows = arr.map(function(s){
+    var tag = s.nunca_ha_entrado ? '<span class="act-tag">sin entrar aún</span>'
+      : (s.dias_sin_entrar != null && s.dias_sin_entrar >= 7 ? '<span class="act-tag bad">'+s.dias_sin_entrar+'d sin entrar</span>' : '');
+    return '<tr><td>'+esc(s.nombre)+'<div class="act-rol">'+esc(s.rol)+'</div></td>'
+      + '<td style="text-align:center">'+(s.entradas_semana||0)+'</td>'
+      + '<td style="text-align:center">'+(s.entradas_total||0)+'</td>'
+      + '<td style="text-align:center">'+(s.obs_total||0)+'</td>'
+      + '<td>'+_actFechaCorta(s.ultima_actividad)+' '+tag+'</td></tr>';
+  }).join('');
+  body.innerHTML = '<table class="data"><thead><tr><th>Supervisor</th><th style="text-align:center">Entradas 7d</th><th style="text-align:center">Total días</th><th style="text-align:center">Observac.</th><th>Última actividad</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+function cargarActividad(){
+  apiCallReintento({ action:'supervision_actividad', token: token }, function(res){
+    if(!res || !res.ok){ document.getElementById('actMio').innerHTML = '<div class="empty-state">No se pudo cargar tu actividad. Intenta de nuevo.</div>'; return; }
+    _renderMiActividad(res.mi_actividad);
+    if(res.ver_todos){
+      document.getElementById('actSupsPanel').style.display = '';
+      _renderSupervisores(res.supervisores || []);
+    }
+  });
+}
+
+function cargarJustif(cb){
+  document.getElementById('jfBody').innerHTML = '<div class="empty-state">Cargando…</div>';
+  document.getElementById('jfKpis').innerHTML = '';
+  document.getElementById('jfCount').textContent = '';
+  apiCallReintento({ action:'sr12_justificaciones_list', token:token }, function(res){
+    if (!res || !res.ok){ _errorBox('jfBody', 'No se pudo cargar. Revisa tu internet.', function(){ cargarJustif(cb); }); return; }
+    justifData = res.items || [];
+    renderJustifKpis(res);
+    renderJustifTabla(justifData);
+    if (typeof cb === 'function') cb();
+  });
+}
+
+function renderJustifKpis(res){
+  var total = (res.items||[]).length;
+  var pend = res.pendientes||0, resp = res.respondidas||0, cuestPend = res.cuest_pendientes||0;
+  document.getElementById('jfKpis').innerHTML =
+      cuKpi('ink','Total', fmtInt(total), 'insumos con variación')
+    + cuKpi(pend>0?'gold':'verde','Sin justificar', fmtInt(pend), 'por responder el comprador', pend>0?'bad':'good')
+    + cuKpi('verde','Justificadas', fmtInt(resp), 'con explicación')
+    + cuKpi(cuestPend>0?'rojo':'verde','Preguntas pendientes', fmtInt(cuestPend), 'esperando a Weslley', cuestPend>0?'bad':'good');
+}
+
+function jfBotonMsg(it){
+  var hilos = it.cuestionamientos || [];
+  var nPend = hilos.filter(function(q){ return q.estado==='pendiente'; }).length;
+  if (!hilos.length) return '<button class="btn-q" data-jq="'+escAttr(it.clave)+'">💬 Preguntar</button>';
+  return '<button class="btn-q has" data-jq="'+escAttr(it.clave)+'">💬 <span class="q-count'+(nPend?' pend':'')+'">'+hilos.length+'</span></button>';
+}
+
+function renderJustifTabla(items){
+  var body = document.getElementById('jfBody');
+  if (!items || !items.length){ body.innerHTML = '<div class="empty-state">Aún no hay justificaciones. La administración las solicita desde Análisis de Precios.</div>'; document.getElementById('jfCount').textContent=''; return; }
+  var rows = items.map(function(it){
+    var sevCol = it.severidad==='rojo'?'var(--bad)':(it.severidad==='amarillo'?'#9a6e1a':'var(--good)');
+    var cambio = (Number(it.cambio_pct)>0?'+':'')+Number(it.cambio_pct).toFixed(1)+'%';
+    var comp = (it.costo_ant!=null && it.costo_nue!=null)
+      ? fmtMoney(it.costo_ant)+' → <b>'+fmtMoney(it.costo_nue)+'</b>'+(it.unidad?(' <span style="color:var(--muted);font-size:10px">/'+esc(it.unidad)+'</span>'):'')
+      : '—';
+    var estado = it.justificacion ? '<span class="badge ok">✓ Respondida</span>' : '<span class="badge pend">⏳ Pendiente</span>';
+    var search = (String(it.clave||'')+' '+String(it.nombre||'')+' '+String(it.categoria||'')).toLowerCase();
+    return '<tr data-jfsearch="'+escAttr(search)+'">'
+      + '<td class="mono" style="font-size:11px;color:var(--muted)">'+esc(it.clave)+'</td>'
+      + '<td style="font-weight:600">'+esc(it.nombre)+'</td>'
+      + '<td style="color:var(--muted)">'+esc(it.categoria||'—')+'</td>'
+      + '<td class="mono" style="font-weight:700;color:'+sevCol+';white-space:nowrap">'+cambio+'</td>'
+      + '<td style="white-space:nowrap">'+comp+'</td>'
+      + '<td>'+estado+'</td>'
+      + '<td style="max-width:280px;font-size:11.5px">'+esc(it.justificacion||'—')+'</td>'
+      + '<td>'+jfBotonMsg(it)+'</td>'
+      + '</tr>';
+  }).join('');
+  body.innerHTML = '<div class="table-wrap"><table class="data" style="min-width:900px"><thead><tr>'
+    + '<th>Clave</th><th>Insumo</th><th>Categoría</th><th>Variación</th><th>Costo (antes → ahora)</th><th>Estado</th><th>Justificación</th><th>Mensajes</th>'
+    + '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+  filtrarJustif();
+}
+
+function filtrarJustif(){
+  var q = (document.getElementById('jfBuscar').value||'').trim().toLowerCase();
+  var rows = document.querySelectorAll('#jfBody tbody tr'); var n=0;
+  for (var i=0;i<rows.length;i++){ var s=rows[i].getAttribute('data-jfsearch')||''; var show=!q||s.indexOf(q)!==-1; rows[i].style.display=show?'':'none'; if(show)n++; }
+  document.getElementById('jfCount').textContent = q ? ('· '+n+' de '+rows.length) : ('· '+rows.length+' insumos');
+}
+
+function jfBuscarItem(clave){ for (var i=0;i<justifData.length;i++){ if (String(justifData[i].clave)===String(clave)) return justifData[i]; } return null; }
+
+function abrirModalJustif(clave){
+  var it = jfBuscarItem(clave); if (!it) return;
+  jfModalClave = clave;
+  var cambio = (Number(it.cambio_pct)>0?'+':'')+Number(it.cambio_pct).toFixed(1)+'%';
+  var comp = (it.costo_ant!=null && it.costo_nue!=null)
+    ? (fmtMoney(it.costo_ant)+(it.fecha_ant?(' ('+esc(fechaCorta(it.fecha_ant))+')'):'')+' → '+fmtMoney(it.costo_nue)+(it.fecha_nue?(' ('+esc(fechaCorta(it.fecha_nue))+')'):'')) : '—';
+  var sum = '<div class="canc-sum">'
+    + '<div class="row"><span>Insumo</span><span>'+esc(it.nombre)+'</span></div>'
+    + '<div class="row"><span>Clave</span><span class="mono">'+esc(it.clave)+'</span></div>'
+    + '<div class="row"><span>Variación</span><span class="mono">'+cambio+'</span></div>'
+    + '<div class="row"><span>Costo</span><span>'+comp+'</span></div>'
+    + '<div class="row"><span>Justificación de Weslley</span><span>'+esc(it.justificacion||'— (sin justificar aún)')+'</span></div>'
+    + '</div>';
+  var hilos = it.cuestionamientos || [];
+  var thread = '<div class="thread">';
+  if (!hilos.length){ thread += '<div class="q-pend">Aún no hay preguntas sobre este insumo.</div>'; }
+  else {
+    hilos.forEach(function(q){
+      thread += '<div class="q-block">';
+      thread += '<div class="q-q"><div class="q-text">'+esc(q.pregunta)+'</div><div class="q-meta">— '+esc(q.preguntado_por)+' · '+esc(q.preguntado_at)+'</div></div>';
+      if (q.estado==='respondida' && q.respuesta){
+        thread += '<div class="q-a"><div class="q-text">'+esc(q.respuesta)+'</div><div class="q-meta">Respuesta de '+esc(q.respondido_por)+' · '+esc(q.respondido_at)+'</div></div>';
+      } else {
+        thread += '<div class="q-pend">⏳ Pendiente de respuesta de Weslley (el comprador).</div>';
+        if (puedeResponderPrecio()){
+          thread += '<div class="q-form" style="padding:0 12px 12px"><div class="q-form-label">Responder</div>'
+            + '<textarea id="jans-'+esc(q.id)+'" rows="2" placeholder="Escribe la respuesta…"></textarea>'
+            + '<button class="btn-send" data-janswer="'+esc(q.id)+'">Responder</button></div>';
+        }
+      }
+      thread += '</div>';
+    });
+  }
+  thread += '</div>';
+  var ask = '';
+  if (puedePreguntarPrecio()){
+    ask = '<div class="q-form"><div class="q-form-label">Nueva pregunta para Weslley</div>'
+      + '<textarea id="jaskText" rows="3" placeholder="Escribe tu duda sobre este precio…"></textarea>'
+      + '<button class="btn-send" id="jbtnAsk">Enviar pregunta</button></div>';
+  }
+  document.getElementById('modalBody').innerHTML = sum + thread + ask;
+  document.getElementById('modalOv').classList.add('show');
+  var btnAsk = document.getElementById('jbtnAsk');
+  if (btnAsk) btnAsk.addEventListener('click', function(){ enviarPreguntaJustif(it); });
+  document.getElementById('modalBody').querySelectorAll('[data-janswer]').forEach(function(b){
+    b.addEventListener('click', function(){ enviarRespuestaJustif(b.getAttribute('data-janswer')); });
+  });
+}
+
+function enviarPreguntaJustif(it){
+  var ta = document.getElementById('jaskText'); if (!ta) return;
+  var t = (ta.value||'').trim();
+  if (t.length < 3){ toast('Escribe tu pregunta','error'); return; }
+  var btn = document.getElementById('jbtnAsk'); btn.disabled=true; btn.textContent='Enviando…';
+  apiCall({ action:'precio_cuestionar', token:token, clave_sr12: it.clave, producto: it.nombre, pregunta: t }, function(r){
+    if (!r || !r.ok){ btn.disabled=false; btn.textContent='Enviar pregunta'; toast((r&&r.error)||'Error al enviar','error'); return; }
+    toast('Pregunta enviada a Weslley');
+    var cl = it.clave;
+    cargarJustif(function(){ abrirModalJustif(cl); });
+  });
+}
+
+function enviarRespuestaJustif(qid){
+  var ta = document.getElementById('jans-'+qid); if (!ta) return;
+  var t = (ta.value||'').trim();
+  if (t.length < 3){ toast('Escribe la respuesta','error'); return; }
+  apiCall({ action:'precio_responder', token:token, id: qid, respuesta: t }, function(r){
+    if (!r || !r.ok){ toast((r&&r.error)||'Error al guardar','error'); return; }
+    toast('Respuesta guardada');
+    var cl = jfModalClave;
+    cargarJustif(function(){ abrirModalJustif(cl); });
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  MENSAJES DIRIGIDOS DEL TABLERO (genérico) — dirección elige destinatario
+// ════════════════════════════════════════════════════════════════════════
+var msgDestCache = {}; // modulo -> [{email,nombre,rol}]
+var msgModalCtx = null; // {modulo,itemRef,itemLabel}
+var msgCounts = {};    // 'modulo|ref' -> {total,pend}  (badge 💬 N por fila, v378)
+
+// Botón 💬 reutilizable para cualquier fila de cualquier pestaña. Muestra el contador
+// de mensajes existentes si ya se cargó (mismo patrón que Cancelaciones/Justificaciones).
+function msgBtnHtml(modulo, ref, label){
+  var c = msgCounts[modulo+'|'+String(ref)];
+  var has = c && c.total > 0;
+  var inner = has ? '💬 <span class="q-count'+(c.pend?' pend':'')+'">'+c.total+'</span>' : '💬';
+  return '<button class="btn-q'+(has?' has':'')+'" data-msgbtn="1" data-msgmod="'+escAttr(modulo)+'" data-msgref="'+escAttr(String(ref))+'" data-msglabel="'+escAttr(String(label||''))+'" title="Preguntar al responsable">'+inner+'</button>';
+}
+// Carga los conteos de los 3 módulos (una vez) y refresca los botones ya pintados.
+function cargarMsgCounts(){
+  ['cuadre_carne','banderas','sr12_doc'].forEach(function(mod){
+    apiCall({ action:'tablero_msg_ref_counts', token:token, modulo:mod }, function(r){
+      if (r && r.ok && r.counts){
+        Object.keys(r.counts).forEach(function(ref){ msgCounts[mod+'|'+ref] = r.counts[ref]; });
+        aplicarMsgCounts();
+      }
+    });
+  });
+}
+// Refresca el contenido de cada botón 💬 ya presente en el DOM según msgCounts (timing-safe:
+// sirve tanto si los conteos llegan antes como después de pintar la tabla).
+function aplicarMsgCounts(){
+  var btns = document.querySelectorAll('[data-msgbtn]');
+  for (var i=0;i<btns.length;i++){
+    var b = btns[i];
+    var c = msgCounts[b.getAttribute('data-msgmod')+'|'+b.getAttribute('data-msgref')];
+    if (c && c.total > 0){
+      b.classList.add('has');
+      b.innerHTML = '💬 <span class="q-count'+(c.pend?' pend':'')+'">'+c.total+'</span>';
+    } else {
+      b.classList.remove('has');
+      b.innerHTML = '💬';
+    }
+  }
+}
+// Handler común: si el clic fue en un 💬, abre el modal y corta. Devuelve true si lo manejó.
+function onMsgBtnClick(e){
+  var b = e.target.closest('[data-msgbtn]');
+  if (!b) return false;
+  e.stopPropagation();
+  abrirMsgTablero(b.getAttribute('data-msgmod'), b.getAttribute('data-msgref'), b.getAttribute('data-msglabel'));
+  return true;
+}
+
+function abrirMsgTablero(modulo, itemRef, itemLabel){
+  msgModalCtx = { modulo:modulo, itemRef:String(itemRef), itemLabel:itemLabel||'' };
+  document.getElementById('modalBody').innerHTML = '<div class="empty-state">Cargando…</div>';
+  document.getElementById('modalOv').classList.add('show');
+
+  function pintar(dest, hilos){
+    var sum = '<div class="canc-sum"><div class="row"><span>Tema</span><span>'+esc(itemLabel||'—')+'</span></div></div>';
+    var thread = '<div class="thread">';
+    if (!hilos.length){ thread += '<div class="q-pend">Aún no hay mensajes sobre esto.</div>'; }
+    else hilos.forEach(function(q){
+      thread += '<div class="q-block">';
+      thread += '<div class="q-q"><div class="q-text">'+esc(q.pregunta)+'</div><div class="q-meta">— '+esc(q.preguntado_por)+' → '+esc(q.destinatario_nombre)+' ('+esc(q.destinatario_rol)+') · '+esc(q.preguntado_at)+'</div></div>';
+      if (q.estado==='respondida' && q.respuesta){
+        thread += '<div class="q-a"><div class="q-text">'+esc(q.respuesta)+'</div><div class="q-meta">Respuesta de '+esc(q.respondido_por)+' · '+esc(q.respondido_at)+'</div></div>';
+      } else {
+        thread += '<div class="q-pend">⏳ Esperando respuesta de '+esc(q.destinatario_nombre||'el responsable')+'.</div>';
+      }
+      thread += '</div>';
+    });
+    thread += '</div>';
+    var ask;
+    if (!dest.length){
+      ask = '<div class="q-pend">No hay destinatarios disponibles para este módulo. Pídele al admin (Luis) crear los usuarios correspondientes.</div>';
+    } else {
+      var opts = dest.map(function(d){ return '<option value="'+escAttr(d.email)+'">'+esc(d.nombre)+' · '+esc(d.rol)+'</option>'; }).join('');
+      ask = '<div class="q-form"><div class="q-form-label">Enviar pregunta a</div>'
+        + '<select id="msgDest" style="width:100%;padding:9px;margin-bottom:8px;border:1px solid var(--cream-line);font-family:inherit;font-size:13px;background:#fff">'+opts+'</select>'
+        + '<textarea id="msgText" rows="3" placeholder="Escribe tu pregunta…"></textarea>'
+        + '<button class="btn-send" id="msgSend">Enviar pregunta</button></div>';
+    }
+    document.getElementById('modalBody').innerHTML = sum + thread + ask;
+    var sb = document.getElementById('msgSend');
+    if (sb) sb.addEventListener('click', enviarMsgTablero);
+  }
+  function loadHilos(dest){
+    apiCall({ action:'tablero_msg_list', token:token, modulo:modulo, item_ref:itemRef }, function(r){
+      pintar(dest, (r&&r.ok&&r.mensajes)?r.mensajes:[]);
+    });
+  }
+  if (msgDestCache[modulo]){ loadHilos(msgDestCache[modulo]); }
+  else apiCall({ action:'tablero_msg_destinatarios', token:token, modulo:modulo }, function(r){
+    var dest = (r&&r.ok&&r.destinatarios)?r.destinatarios:[];
+    msgDestCache[modulo] = dest; loadHilos(dest);
+  });
+}
+
+function enviarMsgTablero(){
+  if (!msgModalCtx) return;
+  var sel = document.getElementById('msgDest'), ta = document.getElementById('msgText');
+  if (!sel || !ta) return;
+  var dest = sel.value, t = (ta.value||'').trim();
+  if (!dest){ toast('Elige a quién enviar','error'); return; }
+  if (t.length < 3){ toast('Escribe tu pregunta','error'); return; }
+  var btn = document.getElementById('msgSend'); btn.disabled=true; btn.textContent='Enviando…';
+  apiCall({ action:'tablero_msg_crear', token:token, modulo:msgModalCtx.modulo, item_ref:msgModalCtx.itemRef, item_label:msgModalCtx.itemLabel, destinatario_email:dest, pregunta:t }, function(r){
+    if (!r || !r.ok){ btn.disabled=false; btn.textContent='Enviar pregunta'; toast((r&&r.error)||'Error al enviar','error'); return; }
+    toast('Mensaje enviado a '+(sel.options[sel.selectedIndex]?sel.options[sel.selectedIndex].text:''));
+    // Refresca el badge de esa fila al instante (sin recargar la tabla).
+    var k = msgModalCtx.modulo+'|'+String(msgModalCtx.itemRef);
+    if (!msgCounts[k]) msgCounts[k] = { total:0, pend:0 };
+    msgCounts[k].total++; msgCounts[k].pend++;
+    aplicarMsgCounts();
+    abrirMsgTablero(msgModalCtx.modulo, msgModalCtx.itemRef, msgModalCtx.itemLabel);
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  SR12 vs DOCUMENTADO (pestaña)
+// ════════════════════════════════════════════════════════════════════════
+var srData = null, srCargado = false;
+
+function srRango(){
+  var v = document.getElementById('srPeriodo').value;
+  if (v === 'todo') return { desde:'', hasta:'' };
+  var dias = parseInt(v,10) || 30;
+  var hasta = new Date();
+  var desde = new Date(); desde.setDate(desde.getDate() - (dias-1));
+  return { desde: ymd(desde), hasta: ymd(hasta) };
+}
+
+function cargarSr12(){
+  var rango = srRango();
+  document.getElementById('srBody').innerHTML = '<div class="empty-state">Cargando…</div>';
+  document.getElementById('srKpis').innerHTML = '';
+  document.getElementById('srCount').textContent = '';
+  var params = { action:'direccion_cancelaciones_sr12', token:token };
+  if (rango.desde) params.fecha_desde = rango.desde;
+  if (rango.hasta) params.fecha_hasta = rango.hasta;
+  apiCallReintento(params, function(res){
+    if (!res || !res.ok){
+      _errorBox('srBody', 'No se pudo cargar. Revisa tu internet.', cargarSr12);
+      return;
+    }
+    srData = res;
+    renderSr12Kpis(res.resumen||{});
+    renderSr12Meseros(res.resumen||{});
+    renderSr12Tabla(res);
+  });
+}
+
+function renderSr12Kpis(r){
+  var sosp = r.caras_sin_documentar||0;
+  document.getElementById('srKpis').innerHTML =
+      cuKpi('ink','Cancelaciones POS', fmtInt(r.total), 'en el periodo')
+    + cuKpi('gold','De rodizio / buffet', fmtInt(r.caras), 'las caras')
+    + cuKpi(sosp>0?'rojo':'verde','Caras sin documentar', fmtInt(sosp), 'revisar primero', sosp>0?'bad':'good')
+    + cuKpi('verde','Documentadas', fmtInt(r.documentadas), 'cruzan con la conciliación');
+}
+
+function renderSr12Meseros(r){
+  var meseros = Object.keys(r.por_mesero||{});
+  var panel = document.getElementById('srPanelMeseros');
+  if (!meseros.length){ panel.style.display='none'; return; }
+  meseros.sort(function(a,b){ return r.por_mesero[b]-r.por_mesero[a]; });
+  document.getElementById('srMeserosBody').innerHTML = meseros.map(function(k){
+    return '<span class="cajera-chip"><strong>'+esc(k)+'</strong> · '+r.por_mesero[k]+'</span>';
+  }).join('');
+  panel.style.display='';
+}
+
+function docTitle(d){
+  if (!d) return '';
+  var s = 'Documentada en la conciliación del '+(d.fecha||'');
+  if (d.prod_orig) s += ' — '+d.prod_orig;
+  if (d.prod_nuevo) s += ' → '+d.prod_nuevo;
+  if (d.forma_pago) s += ' ('+d.forma_pago+')';
+  if (d.autoriza) s += ' · autorizó '+d.autoriza;
+  return s;
+}
+
+function renderSr12Tabla(data){
+  var body = document.getElementById('srBody');
+  var detalle = (data.detalle || []).slice();
+  var soloSosp = document.getElementById('srSoloSospechosas').checked;
+  if (soloSosp) detalle = detalle.filter(function(x){ return x.es_caro && !x.documentado; });
+  document.getElementById('srCount').textContent = detalle.length ? ('· '+detalle.length+(soloSosp?' sospechosas':' en el periodo')) : '';
+  if (!detalle.length){
+    body.innerHTML = '<div class="empty-state">'+esc(data.nota || (soloSosp ? 'No hay cancelaciones caras sin documentar en el periodo. 👌' : 'No hay cancelaciones del SR12 en el periodo.'))+'</div>';
+    return;
+  }
+  var rows = detalle.map(function(it){
+    var sospechosa = it.es_caro && !it.documentado;
+    var cls = sospechosa ? 'roja roja-sinaut' : '';
+    var prod = '<span class="sr-prod">'+esc(it.descripcion||'—')+'</span>' + (it.es_caro ? '<span class="sr-caro">🥩 cara</span>' : '');
+    var docBadge = it.documentado
+      ? '<span class="badge ok" title="'+escAttr(docTitle(it.doc))+'">✓ Documentada</span>'
+      : '<span class="badge pend">✗ Sin documentar</span>';
+    var motivo = esc(it.motivo||'—') + (it.mesa ? ' <span style="color:var(--muted)">· Mesa '+esc(it.mesa)+'</span>' : '');
+    var msgRef = (it.numcheque||'')+'|'+(it.fecha||'')+'|'+(it.descripcion||'');
+    var msgLabel = (it.descripcion||'Cancelación')+' · cheque '+(it.numcheque||'—')+' · '+fechaCorta(it.fecha);
+    return '<tr class="'+cls+'">'
+      + '<td class="mono" style="white-space:nowrap">'+esc(fechaCorta(it.fecha))+(it.hora?'<br><span style="color:var(--muted);font-size:11px">'+esc(it.hora)+'</span>':'')+'</td>'
+      + '<td class="mono">'+esc(it.numcheque||'—')+'</td>'
+      + '<td>'+esc(it.mesero||'—')+'</td>'
+      + '<td>'+prod+'</td>'
+      + '<td class="mono" style="text-align:center">'+fmtInt(it.cantidad)+'</td>'
+      + '<td style="font-size:11.5px">'+motivo+'</td>'
+      + '<td><span class="sr-rol">'+esc(it.usuario||'—')+'</span></td>'
+      + '<td>'+docBadge+'</td>'
+      + '<td>'+msgBtnHtml('sr12_doc', msgRef, msgLabel)+'</td>'
+      + '</tr>';
+  }).join('');
+  body.innerHTML = '<div class="table-wrap"><table class="data"><thead><tr>'
+    + '<th>Fecha</th><th>Cheque</th><th>Mesero</th><th>Producto cancelado</th><th style="text-align:center">Cant.</th><th>Motivo</th><th>Canceló</th><th>¿Documentada?</th><th>Mensajes</th>'
+    + '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+  aplicarMsgCounts();
+}
+
+// ── Eventos ──
+document.getElementById('btnJustif').addEventListener('click', function(){ switchView('justif'); });
+var tabsEls = document.querySelectorAll('.tab');
+for (var ti=0; ti<tabsEls.length; ti++){
+  tabsEls[ti].addEventListener('click', function(){ switchView(this.getAttribute('data-view')); });
+}
+// Portada ejecutiva: actualizar, cambio de periodo y drill-down (clic en tarjeta/decisión → su detalle)
+document.getElementById('rsActualizar').addEventListener('click', cargarResumen);
+document.getElementById('rsPeriodo').addEventListener('change', cargarResumen);
+document.getElementById('viewResumen').addEventListener('click', function(e){
+  if (document.body.classList.contains('presentacion')) return; // en presentación no se navega
+  var b = e.target.closest('[data-goto]');
+  if (!b) return;
+  var v = b.getAttribute('data-goto');
+  if (v) switchView(v);
+});
+// ── Modo presentación (juntas) ──
+function setPresentacion(on){
+  document.body.classList.toggle('presentacion', !!on);
+  if (on){ switchView('resumen'); try{ window.scrollTo(0,0); }catch(e){} }
+}
+document.getElementById('btnPresentar').addEventListener('click', function(){ setPresentacion(true); });
+document.getElementById('btnSalirPres').addEventListener('click', function(){ setPresentacion(false); });
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && document.body.classList.contains('presentacion')) setPresentacion(false);
+});
+document.getElementById('cuActualizar').addEventListener('click', cargarCuadre);
+document.getElementById('cuPeriodo').addEventListener('change', cargarCuadre);
+document.getElementById('cuBody').addEventListener('click', function(e){
+  if (onMsgBtnClick(e)) return;
+  var row = e.target.closest('.cu-corte');
+  if (!row) return;
+  var ing = row.getAttribute('data-ing');
+  var det = document.getElementById('cudet-'+ing);
+  if (!det) return;
+  var abierto = det.style.display !== 'none';
+  det.style.display = abierto ? 'none' : '';
+  var tg = row.querySelector('.cu-toggle');
+  if (tg) tg.textContent = abierto ? '▸' : '▾';
+});
+document.getElementById('baActualizar').addEventListener('click', cargarBarra);
+document.getElementById('baPeriodo').addEventListener('change', cargarBarra);
+document.getElementById('bfActualizar').addEventListener('click', cargarBanderas);
+document.getElementById('bfPeriodo').addEventListener('change', cargarBanderas);
+document.getElementById('bfMatriz').addEventListener('click', function(e){
+  if (onMsgBtnClick(e)) return;
+  var row = e.target.closest('.bf-row');
+  if (!row) return;
+  var idx = row.getAttribute('data-bfidx');
+  var det = document.getElementById('bfdet-'+idx);
+  if (!det) return;
+  det.style.display = (det.style.display === 'none') ? '' : 'none';
+});
+document.getElementById('jfBuscar').addEventListener('input', filtrarJustif);
+document.getElementById('jfImprimir').addEventListener('click', verJustificacionesInforme);
+document.getElementById('jfBody').addEventListener('click', function(e){
+  var b = e.target.closest('[data-jq]');
+  if (!b) return;
+  abrirModalJustif(b.getAttribute('data-jq'));
+});
+document.getElementById('srActualizar').addEventListener('click', cargarSr12);
+document.getElementById('srPeriodo').addEventListener('change', cargarSr12);
+document.getElementById('srSoloSospechosas').addEventListener('change', function(){ if (srData) renderSr12Tabla(srData); });
+document.getElementById('srBody').addEventListener('click', onMsgBtnClick);
+document.getElementById('ctrlPeriodo').addEventListener('change', function(){
+  var custom = this.value === 'custom';
+  document.getElementById('wrapDesde').style.display = custom ? '' : 'none';
+  document.getElementById('wrapHasta').style.display = custom ? '' : 'none';
+  if (!custom) cargar();
+});
+document.getElementById('btnActualizar').addEventListener('click', function(){ cargar(); });
+document.getElementById('detalleBody').addEventListener('click', function(e){
+  var b = e.target.closest('[data-q]');
+  if (b) abrirModal(b.getAttribute('data-q'));
+});
+document.getElementById('modalX').addEventListener('click', cerrarModal);
+document.getElementById('modalOv').addEventListener('click', function(e){ if (e.target === this) cerrarModal(); });
+document.getElementById('btnLogout').addEventListener('click', function(){
+  if (!confirm('¿Cerrar sesión?')) return;
+  try { sessionStorage.clear(); } catch(e){}
+  (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+});
+
+// Aviso "te respondieron": muestra quién respondió qué y marca como vistas (limpia el badge de inicio).
+function cargarAvisoRespuestas(){
+  apiCall({ action:'tablero_respuestas_count', token:token }, function(res){
+    if (res && res.ok && res.pendientes){
+      var det = res.detalle || [];
+      var items = det.slice(0,6).map(function(d){
+        return '<li><strong>'+esc(d.respondido_por||'Alguien')+'</strong> respondió sobre '+esc(d.label)+' <span class="rb-sys">('+esc(d.sistema)+')</span></li>';
+      }).join('');
+      if (det.length > 6) items += '<li>…y '+(det.length-6)+' más</li>';
+      var b = document.getElementById('respBanner');
+      b.innerHTML = '<div class="rb-head">💬 Te respondieron '+res.pendientes+' pregunta'+(res.pendientes!==1?'s':'')+'</div>'
+        + '<ul class="rb-list">'+items+'</ul>'
+        + '<button class="rb-x" id="rbClose">Entendido</button>';
+      b.style.display = '';
+      document.getElementById('rbClose').addEventListener('click', function(){ b.style.display='none'; });
+    }
+    apiCall({ action:'tablero_respuestas_marcar_vistas', token:token }, function(){});
+  });
+}
+
+// ── Init ──
+// Reintenta los parpadeos de red SIN sacar al directivo a login: un blip ya no redirige,
+// muestra un banner "Reintentar" reinvocable.
+function iniciarTablero(){
+apiCallReintento({ action:'me', token:token }, function(res){
+  if (!res.ok) {
+    if (_esErrTransitorio(res)) {
+      var b = document.getElementById('respBanner');
+      if (b) {
+        b.innerHTML = '<div class="rb-head">⚠ Sin conexión con el servidor</div>'
+          + '<ul class="rb-list"><li>Revisa tu internet. Tu sesión sigue activa.</li></ul>'
+          + '<button class="rb-x" id="rbRetry">↻ Reintentar</button>';
+        b.style.display = '';
+        var rb = document.getElementById('rbRetry');
+        if (rb) rb.addEventListener('click', function(){ b.style.display='none'; iniciarTablero(); });
+      } else { toast('Sin conexión — reintenta', 'error'); }
+      return;
+    }
+    (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})(); return;
+  }
+  user = res.user || user; empresa = res.empresa || empresa;
+  var rol = String(user ? user.rol : '').toLowerCase();
+  miRol = rol;
+  // El gate DEBE espejar la herencia de rolEs() del backend: gerente_administrativo→admin.
+  // El backend (handleDireccionResumen/Cancelaciones/etc.) acepta a Luis vía esa herencia;
+  // si aquí lo rechazamos con un indexOf crudo, queda fuera de SU propio Tablero (bug admin.html v359).
+  if (['admin','gerente_plaza','auditoria','gerente_administrativo'].indexOf(rol) === -1) {
+    alert('Tu rol no tiene acceso al Tablero Directivo.');
+    (function(_u){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sin acceso</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Esta pantalla no es para tu rol</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Toca el botón de abajo para ir a tu inicio, donde verás las pantallas que sí puedes usar.</p><a href="'+_u+'" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">← Ir a mi inicio</a></div>';document.body.appendChild(_o);})(API_URL+'?p=inicio&t='+encodeURIComponent(token));
+    return;
+  }
+  document.getElementById('empresaNombre').textContent = (empresa && empresa.nombre) || '—';
+  var inicioUrl = API_URL + '?p=inicio&t=' + encodeURIComponent(token) + (user?'&urol='+encodeURIComponent(user.rol||'')+'&unom='+encodeURIComponent(user.nombre||user.email||''):'');
+  document.getElementById('btnInicio').href = inicioUrl;
+  document.getElementById('btnCurvas').href = API_URL + '?p=curva-precios&t=' + encodeURIComponent(token);
+  // Hoy por defecto en el rango personalizado
+  var hoy = ymd(new Date());
+  document.getElementById('ctrlHasta').value = hoy;
+  var d30 = new Date(); d30.setDate(d30.getDate()-29);
+  document.getElementById('ctrlDesde').value = ymd(d30);
+  switchView('resumen');
+  cargarResumen();
+  cargarAvisoRespuestas();
+  cargarMsgCounts();
+});
+}
+iniciarTablero();
+
+})();
+</script>
+</body>
+</html>

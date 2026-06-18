@@ -3060,6 +3060,99 @@ function handleDireccionVentasBarra(p) {
 }
 
 // =====================================================================================
+// ★ ALERTA DE VENTA BAJO COSTO — bebidas embotelladas (v409) ★
+// =====================================================================================
+// Cruza VentasSR12 (precio de venta del POS) con el costo del INSUMO-botella (Ingredientes
+// unit 'pza', cargado del SR12). Empata por nombre normalizado (token overlap). Marca:
+//   🔴 rojo  = precio_venta <= costo (vende bajo costo)
+//   🟡 bajo  = margen < umbral_bajo% (sospechoso; puede ser costo que subió)
+//   🟡 alto  = margen > umbral_alto% (costo probablemente DESACTUALIZADO/mal — margen irreal)
+// ⚠️ Usa el COSTO DEL SISTEMA: si el costo está viejo, un alza real NO se ve (hay que mantener
+// los costos al día con el import de Existencias SR12). Por eso muestra el costo y su origen para
+// verificar contra factura. Solo lectura. Roles del Tablero.
+function _barraNormNombre(s){
+  s = String(s||'').toLowerCase();
+  s = s.replace(/v\.?\s*[a-z]\.?/g,' ');                          // prefijos V.T./V.E./V.R./V.B.
+  s = s.replace(/\b(bot|botella|copa|jarra|750|375|1500|187|ml|cl|lt|the|de|la|el|con)\b/g,' ');
+  s = s.replace(/[^a-z0-9 ]/g,' ');
+  return s.replace(/\s+/g,' ').trim();
+}
+function handleBarraAlertaBajoCosto(p){
+  var u = validarToken(p.token);
+  if (!u) return { ok:false, error:'Sesión inválida' };
+  if (!rolEs(u, ['admin','gerente_plaza','gerente_administrativo','auditoria'])) return { ok:false, error:'Sin permisos' };
+  var shV = getSheet('VentasSR12');
+  if (!shV) return { ok:true, sin_datos:true, items:[], sin_match:[], resumen:{} };
+  function num(v){ var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+  var umbralBajo = num(p.umbral_bajo) || 35;
+  var umbralAlto = num(p.umbral_alto) || 88;
+
+  // 1) Agregar ventas por clave → precio promedio.
+  var porClave = {};
+  rowsToObjects(shV).forEach(function(r){
+    if (r.empresa_id !== u.empresa_id) return;
+    var clave = String(r.clave||'').trim(); if (!clave) return;
+    if (!porClave[clave]) porClave[clave] = { clave:clave, descripcion:String(r.descripcion||''), grupo:String(r.grupo||''), unidades:0, venta:0 };
+    porClave[clave].unidades += num(r.cantidad);
+    porClave[clave].venta    += num(r.venta_total);
+  });
+
+  // 2) Insumos-botella (unit pza, activos) con su token-set normalizado.
+  var ingNorm = rowsToObjects(getSheet('Ingredientes'))
+    .filter(function(i){ return i.empresa_id === u.empresa_id && esActivo(i.activo) && String(i.unidad_base||'').toLowerCase() === 'pza'; })
+    .map(function(i){ return { ing:i, toks:_barraNormNombre(i.nombre).split(' ').filter(Boolean) }; });
+
+  // 3) Por cada producto vendido que parezca botella, empatar + calcular margen.
+  var items = [], sinMatch = [];
+  Object.keys(porClave).forEach(function(k){
+    var v = porClave[k];
+    if (!/\bbot\b|\d+\s*ml|\d+\s*lt/i.test(v.descripcion)) return;   // solo botellas
+    var precio = v.unidades > 0 ? v.venta / v.unidades : 0;
+    var nb = _barraNormNombre(v.descripcion).split(' ').filter(Boolean);
+    var saleAlc = /vinos|alcohol/i.test(v.grupo);   // venta es bebida alcohólica (vino/licor/cerveza)
+    var best = null, bestScore = 0;
+    ingNorm.forEach(function(c){
+      if (!c.toks.length || !nb.length) return;
+      // Guardas anti-falso-positivo: una bebida alcohólica NO empata con agua, y un
+      // refresco/agua NO empata con un vino (insumo que empieza con V.T./V.E./…).
+      if (saleAlc && /agua/i.test(c.ing.nombre)) return;
+      if (!saleAlc && /^v\.?\s*[a-z]/i.test(String(c.ing.nombre||''))) return;
+      var setb = {}; nb.forEach(function(t){ setb[t] = 1; });
+      var overlap = c.toks.filter(function(t){ return setb[t]; });
+      // Un solo token en común solo cuenta si es distintivo (≥5 caracteres) — evita
+      // empates frágiles por palabras cortas/genéricas.
+      var maxLen = overlap.reduce(function(m,t){ return Math.max(m, t.length); }, 0);
+      if (overlap.length < 2 && maxLen < 5) return;
+      var score = overlap.length / Math.min(nb.length, c.toks.length);
+      if (score > bestScore) { bestScore = score; best = c.ing; }
+    });
+    if (!best || bestScore < 0.5) { sinMatch.push({ clave:v.clave, descripcion:v.descripcion, precio:Math.round(precio), unidades:v.unidades }); return; }
+    var costo = num(best.precio_real_unitario);
+    if (costo <= 0) { sinMatch.push({ clave:v.clave, descripcion:v.descripcion, precio:Math.round(precio), unidades:v.unidades, nota:'insumo sin costo' }); return; }
+    var margen = precio > 0 ? (precio - costo) / precio * 100 : 0;
+    var sev = 'ok';
+    if (precio <= costo)        sev = 'rojo';
+    else if (margen < umbralBajo) sev = 'amarillo_bajo';
+    else if (margen > umbralAlto) sev = 'amarillo_alto';
+    items.push({ clave:v.clave, descripcion:v.descripcion, grupo:v.grupo, unidades:v.unidades,
+      precio:Math.round(precio), insumo:best.nombre, insumo_id:best.id, costo:Math.round(costo*100)/100,
+      margen:Math.round(margen), match:Math.round(bestScore*100),
+      origen:String(best.precio_origen||''), sev:sev });
+  });
+
+  var rank = { rojo:0, amarillo_bajo:1, amarillo_alto:2, ok:3 };
+  items.sort(function(a,b){ return (rank[a.sev]-rank[b.sev]) || (a.margen-b.margen); });
+  var resumen = {
+    total: items.length,
+    rojo: items.filter(function(x){ return x.sev==='rojo'; }).length,
+    amarillo: items.filter(function(x){ return x.sev.indexOf('amarillo')===0; }).length,
+    ok: items.filter(function(x){ return x.sev==='ok'; }).length,
+    sin_match: sinMatch.length
+  };
+  return { ok:true, items:items, sin_match:sinMatch, resumen:resumen, umbrales:{ bajo:umbralBajo, alto:umbralAlto } };
+}
+
+// =====================================================================================
 // ★ CRUCE: cancelaciones SR12 (POS, independiente) vs documentadas en la conciliación ★
 // =====================================================================================
 // Para el Tablero Directivo (Paso 2 de la Capa 3). Lee `CancelacionesSR12` (la verdad del POS)

@@ -7622,6 +7622,7 @@ function handleRequest(e) {
       // v306 — Importador de ventas SR12 (productos vendidos · insumo del Cuadre de Barra)
       case 'sr12_ventas_importar':        result = handleSr12VentasImportar(params);        break;
       case 'sr12_ventas_resumen':         result = handleSr12VentasResumen(params);         break;
+      case 'barra_alerta_bajo_costo':     result = handleBarraAlertaBajoCosto(params);      break;
       case 'sr12_ventas_reset':           result = handleSr12VentasReset(params);           break;
       case 'direccion_ventas_barra':      result = handleDireccionVentasBarra(params);      break;
       case 'direccion_banderas_cierre':   result = handleDireccionBanderasCierre(params);    break;
