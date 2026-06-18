@@ -1132,7 +1132,10 @@ function handleSr12VincularAltaConfianza(p) {
   var aLigar = [], claveBatch = {};
   (sug.con_sugerencia || []).forEach(function(it){
     var c = it.candidatos && it.candidatos[0];
-    if (!c || c.confianza !== 'alta' || c.ya_usada_por_otro) return;
+    // v416 — el AUTO-lote exige score ≥ 90. El tramo 85 ('alta' por similitud de tokens) produce
+    // FALSOS POSITIVOS peligrosos (Jamón→Jabón, Cerveza→Cereza, Canela→Té, Ejote→Elote) → se deja
+    // para revisión MANUAL en el sugeridor (ahí el humano confirma). No tocar el display, solo el auto-link.
+    if (!c || c.confianza !== 'alta' || (Number(c.score) || 0) < 90 || c.ya_usada_por_otro) return;
     if (claveBatch[c.clave]) return; // dos huérfanos al mismo SR12 → dejar para revisión manual
     claveBatch[c.clave] = true;
     aLigar.push({ ingrediente_id: it.id, clave_sr12: c.clave, nombre: it.nombre, nombre_sr12: c.nombre_sr12 });
