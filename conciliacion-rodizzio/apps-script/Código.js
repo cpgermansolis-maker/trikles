@@ -82,6 +82,9 @@ var ACCIONES_WRITE_OBSERVADOR_BLOQUEADAS = {
   // v406 — Pendientes manuales (dirección asigna tarea ad-hoc → Telegram)
   'pendiente_manual_add': true,
   'pendiente_manual_resolver': true,
+  // v412 — Bot: respuestas a las preguntas que la gente le escribe (las redacta Claude en sesión)
+  'bot_pregunta_responder': true,
+  'bot_pregunta_descartar': true,
   // v144 — Branding multi-empresa
   'empresa_branding_seed_fogueira': true,
   // v250 — Costos operativos
@@ -7547,6 +7550,10 @@ function handleRequest(e) {
       case 'pendiente_manual_add':      result = handlePendienteManualAdd(params);      break;
       case 'pendiente_manual_list':     result = handlePendienteManualList(params);     break;
       case 'pendiente_manual_resolver': result = handlePendienteManualResolver(params); break;
+      // Bot: preguntas de la gente → Claude las lee y responde; salen con los pendientes (v412)
+      case 'bot_preguntas_list':        result = handleBotPreguntasList(params);        break;
+      case 'bot_pregunta_responder':    result = handleBotPreguntaResponder(params);    break;
+      case 'bot_pregunta_descartar':    result = handleBotPreguntaDescartar(params);    break;
       case 'telegram_configurar':       result = handleTelegramConfigurar(params);      break;
       case 'telegram_enviar_auditoria': result = handleTelegramEnviarAuditoria(params); break;
       case 'telegram_prueba':           result = handleTelegramPrueba(params);          break;

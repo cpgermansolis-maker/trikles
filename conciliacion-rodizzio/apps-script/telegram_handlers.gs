@@ -35,6 +35,10 @@ var TG_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il
 // Roles que reciben el RESUMEN ejecutivo (además de que cada persona recibe lo suyo).
 var TG_ROLES_RESUMEN = ['admin', 'auditoria', 'gerente_administrativo', 'gerente_restaurante', 'gerente_plaza'];
 
+// v412 — Preguntas que la gente le escribe al bot. Claude las lee/responde en sesión y la
+// respuesta sale pegada a los pendientes del día siguiente. estado: pendiente → respondida → enviada (o descartada).
+var BOT_PREGUNTAS_COLS = ['id','empresa_id','usuario_email','usuario_nombre','chat_id','pregunta','creado_at','estado','respuesta','respondido_por_email','respondido_at','enviada_at'];
+
 function _tgProps() { return PropertiesService.getScriptProperties(); }
 function _tgToken(empresaId) { return String(_tgProps().getProperty('telegram_bot_token_' + empresaId) || '').trim(); }
 function _tgBotUsername(empresaId) { return String(_tgProps().getProperty('telegram_bot_username_' + empresaId) || '').trim(); }
@@ -112,6 +116,8 @@ var TG_FAQ = [
     cuerpo:'En Recetas → Ingredientes → botón 🪄 (sugeridor). El sistema te propone, para cada insumo sin vincular, el producto más parecido del SR12. Confirma "Es este" o marca "No está en SR12" si es sub-receta/decoración.\n\nPara bajar muchos de un jalón: "Vincular todas las de alta confianza".' },
   { id:'precio_ins', roles:['comprador'], titulo:'💲 Corregir precio/unidad de insumo',
     cuerpo:'En Recetas → Ingredientes, da CLIC DIRECTO sobre el número del costo (o sobre la unidad) y escribe el valor correcto.\n\nEl "precio real" se calcula solo, no lo edites. El lápiz ✏️ es para vincular con SR12, no para el precio.' },
+  { id:'precio_carne', roles:['admin','churrasca','comprador'], titulo:'🥩 De dónde sale el precio de una carne',
+    cuerpo:'El precio real de cada insumo lo MANDA el SR12 (se actualiza con las compras reales). NO se captura a mano ni se rearma en Excel.\n\n• Para ACTUALIZAR precios: el comprador re-sube el reporte de Existencias del SR12 con "Imprimir costos = SÍ" (Importadores → Existencias). Eso recorre los costos solo.\n• En Recetas → Ingredientes puedes VER el "Último costo" de cada carne. Las entradas tipo "NOMBRE X KG" vienen del SR12 y son las buenas.\n• Editar el precio a mano (clic en el número) es SOLO para arreglar un dato roto puntual que el SR12 no resuelve — no es el camino normal.\n• ¿Ves una carne duplicada (dos veces con precios distintos)? No la edites: avisa a Germán/Luis para fusionarlas (el sistema re-apunta las recetas a la del SR12 y retira la duplicada).' },
   { id:'diag', roles:['comprador'], titulo:'🩺 Diagnóstico de datos',
     cuerpo:'En Recetas → Ingredientes → botón 🩺 Diagnóstico de datos. Te lista los insumos con problemas: sin unidad, sin precio, etc. Corrige cada uno con clic directo en su celda.' },
   // --- Host ---
@@ -233,6 +239,93 @@ function handleTelegramEstado(p) {
 }
 
 // =====================================================================================
+// PREGUNTAS AL BOT (v412) — la gente le escribe; Claude lee, responde y la respuesta
+// sale pegada a los pendientes del día siguiente. No hay IA en vivo: el "cerebro" es
+// Claude en sesión con dirección.
+// =====================================================================================
+function _botGuardarPregunta(empresaId, usuario, chatId, texto) {
+  try {
+    var sh = asegurarHoja('BotPreguntas', BOT_PREGUNTAS_COLS);
+    var obj = {
+      id: 'BP-' + Utilities.getUuid().slice(0, 8),
+      empresa_id: empresaId,
+      usuario_email: String(usuario.email || '').toLowerCase(),
+      usuario_nombre: String(usuario.nombre || usuario.email || ''),
+      chat_id: String(chatId),
+      pregunta: String(texto || '').slice(0, 2000),
+      creado_at: new Date(),
+      estado: 'pendiente',
+      respuesta: '', respondido_por_email: '', respondido_at: '', enviada_at: ''
+    };
+    var headers = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+    sh.appendRow(headers.map(function(h) { return obj[h] === undefined ? '' : obj[h]; }));
+  } catch (e) { /* nunca tirar el webhook por esto */ }
+}
+
+// Lista para que Claude (dirección) lea las preguntas. Sin filtro = cola viva (pendientes + respondidas sin enviar).
+function handleBotPreguntasList(p) {
+  var u = validarToken(p.token);
+  if (!u) return { ok: false, error: 'Sesión inválida' };
+  if (!rolEs(u, PENDIENTE_MANUAL_ROLES)) return { ok: false, error: 'Sin permiso' };
+  var sh = SpreadsheetApp.getActive().getSheetByName('BotPreguntas');
+  if (!sh) return { ok: true, preguntas: [] };
+  var filtro = String(p.estado || '').trim().toLowerCase();
+  var lista = rowsToObjects(sh)
+    .filter(function(m) {
+      if (m.empresa_id !== u.empresa_id) return false;
+      var est = String(m.estado || '').toLowerCase();
+      if (filtro) return est === filtro;
+      return est === 'pendiente' || est === 'respondida';
+    })
+    .map(function(m) {
+      return { id: m.id, usuario_email: m.usuario_email, usuario_nombre: m.usuario_nombre,
+        pregunta: m.pregunta, creado_at: fechaToString(m.creado_at), estado: String(m.estado || '').toLowerCase(),
+        respuesta: m.respuesta, respondido_por_email: m.respondido_por_email,
+        respondido_at: m.respondido_at ? fechaToString(m.respondido_at) : '' };
+    });
+  return { ok: true, preguntas: lista };
+}
+
+// Claude deja su respuesta en cola (estado → respondida). El envío matutino la entrega y la marca enviada.
+function handleBotPreguntaResponder(p) {
+  var u = validarToken(p.token);
+  if (!u) return { ok: false, error: 'Sesión inválida' };
+  if (!rolEs(u, PENDIENTE_MANUAL_ROLES)) return { ok: false, error: 'Sin permiso' };
+  var id = String(p.id || '').trim();
+  var resp = String(p.respuesta || '').trim();
+  if (!id) return { ok: false, error: 'id requerido' };
+  if (resp.length < 2) return { ok: false, error: 'La respuesta es muy corta' };
+  var sh = SpreadsheetApp.getActive().getSheetByName('BotPreguntas');
+  if (!sh) return { ok: false, error: 'No hay preguntas' };
+  var headers = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  var fila = rowsToObjects(sh).find(function(m) { return m.id === id && m.empresa_id === u.empresa_id; });
+  if (!fila) return { ok: false, error: 'Pregunta no encontrada' };
+  function set(col, val) { var c = headers.indexOf(col) + 1; if (c > 0) sh.getRange(fila._row, c).setValue(val); }
+  set('respuesta', resp.slice(0, 3500));
+  set('respondido_por_email', u.email);
+  set('respondido_at', new Date());
+  set('estado', 'respondida');
+  set('enviada_at', '');
+  return { ok: true, id: id };
+}
+
+// Descartar una pregunta (spam / no aplica) sin responderla.
+function handleBotPreguntaDescartar(p) {
+  var u = validarToken(p.token);
+  if (!u) return { ok: false, error: 'Sesión inválida' };
+  if (!rolEs(u, PENDIENTE_MANUAL_ROLES)) return { ok: false, error: 'Sin permiso' };
+  var id = String(p.id || '').trim();
+  if (!id) return { ok: false, error: 'id requerido' };
+  var sh = SpreadsheetApp.getActive().getSheetByName('BotPreguntas');
+  if (!sh) return { ok: false, error: 'No hay preguntas' };
+  var headers = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  var fila = rowsToObjects(sh).find(function(m) { return m.id === id && m.empresa_id === u.empresa_id; });
+  if (!fila) return { ok: false, error: 'Pregunta no encontrada' };
+  var c = headers.indexOf('estado') + 1; if (c > 0) sh.getRange(fila._row, c).setValue('descartada');
+  return { ok: true, id: id };
+}
+
+// =====================================================================================
 // WEBHOOK — Telegram nos manda cada mensaje que recibe el bot. SIN token de sesión:
 // se valida con el secreto de la URL. Siempre responde {ok:true} (Telegram reintenta
 // los no-2xx y no queremos loops).
@@ -324,6 +417,20 @@ function handleTelegramWebhook(params, e) {
     return { ok: true };
   }
 
+  // Texto libre (no es comando): si la persona está REGISTRADA, GUARDAMOS su mensaje como
+  // "pregunta" (v412). Claude la lee en sesión, la responde, y la respuesta le llega pegada a
+  // sus pendientes del día siguiente. (No guardamos comandos sueltos "/algo" ni mensajes sin texto.)
+  var usrLibre = (texto && texto.charAt(0) !== '/')
+    ? rowsToObjects(getSheet('Usuarios')).find(function(x) {
+        return x.empresa_id === empresaId && esActivo(x.activo) && String(x.telegram_chat_id || '') === chatId;
+      })
+    : null;
+  if (usrLibre) {
+    _botGuardarPregunta(empresaId, usrLibre, chatId, texto);
+    var nomL = String(usrLibre.nombre || usrLibre.email).trim().split(' ')[0];
+    _tgEnviar(botToken, chatId, '📩 Recibí tu mensaje, ' + nomL + '. Lo paso al sistema y te respondo junto con tus pendientes (normalmente al día siguiente). Si es algo urgente, coméntalo también con tu encargado.\n\nMientras, puedes usar:\n• /ayuda — guías de cómo usar tus pantallas\n• /pendientes — tus pendientes del día anterior');
+    return { ok: true };
+  }
   _tgEnviar(botToken, chatId, 'Soy el bot del sistema Fogueira. Te puedo ayudar con:\n\n• /ayuda — guías de cómo usar tus pantallas (cargar receta, subir SR12, vincular insumos…)\n• /pendientes — tus pendientes del día anterior');
   return { ok: true };
 }
@@ -338,7 +445,8 @@ function _tgEnviarAuditoriaEmpresa(empresaId, fecha) {
   if (!botToken) return { ok: false, error: 'Bot de Telegram no configurado' };
   fecha = String(fecha || '').trim() || _agendaSumaDias(diaLogicoRestaurante(), -1);
 
-  var aud = _auditoriaMatutinaCore(empresaId, fecha, '');
+  // doWrite=true: el envío oficial AVANZA el registro de días de atraso (SeguimientoPendientes).
+  var aud = _auditoriaMatutinaCore(empresaId, fecha, '', true);
   var usuarios = rowsToObjects(getSheet('Usuarios')).filter(function(x) {
     return x.empresa_id === empresaId && esActivo(x.activo);
   });
@@ -359,14 +467,60 @@ function _tgEnviarAuditoriaEmpresa(empresaId, fecha) {
     return TG_INTRO_DIA + texto;
   }
 
-  var enviados = [], sinChat = [], errores = [];
+  // v412 — Respuestas que Claude dejó en cola (estado='respondida') → se entregan pegadas
+  // al mensaje de pendientes (o solas si la persona no tiene pendientes hoy). Tras enviarlas,
+  // se marcan 'enviada' para no repetirlas.
+  var shPreg = SpreadsheetApp.getActive().getSheetByName('BotPreguntas');
+  var respPorEmail = {}, headPreg = null;
+  if (shPreg) {
+    headPreg = shPreg.getRange(1, 1, 1, shPreg.getLastColumn()).getValues()[0];
+    rowsToObjects(shPreg).forEach(function(m) {
+      if (m.empresa_id !== empresaId) return;
+      if (String(m.estado || '').toLowerCase() !== 'respondida') return;
+      var em = String(m.usuario_email || '').toLowerCase();
+      (respPorEmail[em] = respPorEmail[em] || []).push(m);
+    });
+  }
+  function _bloqueRespuestas(email) {
+    var arr = respPorEmail[email];
+    if (!arr || !arr.length) return '';
+    var l = ['\n\n— — — — —\n💬 Respuestas a lo que preguntaste:'];
+    arr.forEach(function(m) { l.push('\n❓ ' + m.pregunta + '\n💡 ' + m.respuesta); });
+    return l.join('');
+  }
+  var respEnviadas = [];
+  function _marcarRespEnviadas(email) {
+    if (!shPreg || !headPreg) return;
+    var arr = respPorEmail[email]; if (!arr) return;
+    var cEst = headPreg.indexOf('estado') + 1, cEnv = headPreg.indexOf('enviada_at') + 1;
+    arr.forEach(function(m) {
+      if (cEst > 0) shPreg.getRange(m._row, cEst).setValue('enviada');
+      if (cEnv > 0) shPreg.getRange(m._row, cEnv).setValue(new Date());
+      respEnviadas.push(m.id);
+    });
+  }
+
+  var enviados = [], sinChat = [], errores = [], emailsConPend = {};
   (aud.personas || []).forEach(function(pe) {
     if (pe.ok) return; // solo se molesta a quien tiene pendientes
+    emailsConPend[pe.usuario_email] = true;
     var cid = chatPorEmail[pe.usuario_email];
     if (!cid) { sinChat.push(pe.usuario_nombre); return; }
-    var r = _tgEnviar(botToken, cid, _conIntro(cid, pe.mensaje_texto));
-    if (r.ok) enviados.push(pe.usuario_nombre);
+    var r = _tgEnviar(botToken, cid, _conIntro(cid, pe.mensaje_texto + _bloqueRespuestas(pe.usuario_email)));
+    if (r.ok) { enviados.push(pe.usuario_nombre); _marcarRespEnviadas(pe.usuario_email); }
     else errores.push(pe.usuario_nombre + ': ' + (r.description || 'error'));
+  });
+
+  // Personas SIN pendientes hoy pero CON respuesta en cola → igual reciben su respuesta.
+  Object.keys(respPorEmail).forEach(function(email) {
+    if (emailsConPend[email]) return; // ya se le mandó junto con sus pendientes
+    var cid = chatPorEmail[email];
+    if (!cid) return;
+    var nombre = (respPorEmail[email][0] && respPorEmail[email][0].usuario_nombre) || email;
+    var saludo = '👋 ' + String(nombre).split(' ')[0] + ' — no tienes pendientes registrados hoy. 💪';
+    var r = _tgEnviar(botToken, cid, _conIntro(cid, saludo + _bloqueRespuestas(email)));
+    if (r.ok) { enviados.push(nombre + ' (respuesta)'); _marcarRespEnviadas(email); }
+    else errores.push(nombre + ' (respuesta): ' + (r.description || 'error'));
   });
 
   // Resumen ejecutivo a supervisores registrados
@@ -390,7 +544,7 @@ function _tgEnviarAuditoriaEmpresa(empresaId, fecha) {
     if (r.ok) resumenA.push(String(x.nombre || x.email));
   });
 
-  return { ok: true, fecha: fecha, enviados: enviados, sin_chat: sinChat, errores: errores, resumen_a: resumenA };
+  return { ok: true, fecha: fecha, enviados: enviados, sin_chat: sinChat, errores: errores, resumen_a: resumenA, respuestas_enviadas: respEnviadas };
 }
 
 // Endpoint manual (botón "Enviar ahora" / pruebas). MUTATING (manda mensajes).
@@ -449,4 +603,74 @@ function instalarTriggerTelegramMatutino() {
   });
   ScriptApp.newTrigger('telegramAuditoriaMatutinaDiaria').timeBased().atHour(8).everyDays(1).create();
   console.log('Trigger diario instalado: telegramAuditoriaMatutinaDiaria ~8am (hora MX del proyecto).');
+}
+
+// =====================================================================================
+// DIAGNÓSTICO + REPARACIÓN DEL WEBHOOK (correr a mano desde el editor cuando el bot
+// deja de responder a /start /ayuda /pendientes). Síntoma: el bot queda MUDO ante
+// cualquier mensaje. Causa típica: Apps Script responde 302 → Telegram lo toma como
+// fallo y se atasca reintentando el mismo update sin avanzar. Esta función:
+//  1) muestra el estado actual (pending_update_count, último error),
+//  2) re-registra el webhook con drop_pending_updates (vacía la cola atascada),
+//  3) limpia el candado de último update_id (por si quedó en un valor que bloquea),
+//  4) confirma el estado nuevo.
+// Usa solo UrlFetchApp (scope ya autorizado) — Germán la corre y listo, sin re-OAuth.
+// =====================================================================================
+function repararBotTelegram() {
+  var empresaId = '521aef3c-7df7-49ad-b1af-583a95233cd0'; // Fogueira
+  var botToken = _tgToken(empresaId);
+  if (!botToken) { console.log('⚠️ No hay bot configurado para esta empresa.'); return; }
+  var antes = _tgApi(botToken, 'getWebhookInfo', {});
+  console.log('ANTES → ' + JSON.stringify(antes.result || antes));
+  var hookUrl = TG_WEBAPP_URL + '?action=telegram_webhook&tgsecret=' + _tgSecret() + '&e=' + encodeURIComponent(empresaId);
+  var hook = _tgApi(botToken, 'setWebhook', { url: hookUrl, allowed_updates: ['message','callback_query'], drop_pending_updates: true, max_connections: 1 });
+  console.log('setWebhook (reinicio) → ' + JSON.stringify(hook));
+  _tgProps().deleteProperty('telegram_last_update_' + empresaId); // limpia el candado por si bloqueaba
+  var despues = _tgApi(botToken, 'getWebhookInfo', {});
+  console.log('DESPUÉS → ' + JSON.stringify(despues.result || despues));
+  console.log('✅ Webhook reiniciado. Pide a la persona que abra SU link personal (?start=código) y toque INICIAR.');
+}
+
+// =====================================================================================
+// AUTO-REPARADOR DEL WEBHOOK (trigger c/5 min) — para que el bot "jale al 100%" solo.
+// =====================================================================================
+// Raíz del problema (estructural en GAS): /exec SIEMPRE responde 302 → Telegram nunca
+// recibe un 2xx, así que marca CADA entrega como fallida y reintenta. El handler SÍ
+// corrió y respondió en la 1ª entrega (el usuario ve la respuesta), pero el "fantasma"
+// de reintento queda pendiente. Esos fantasmas se acumulan y con max_connections:1 +
+// entrega en orden, eventualmente tapan la cola → el bot queda MUDO ante mensajes nuevos.
+//
+// Este job, cada 5 min, lee getWebhookInfo y SOLO si hay cola pendiente o un último error
+// re-registra el webhook con drop_pending_updates → vacía los fantasmas y nunca se atasca.
+// Seguro: drop_pending solo descarta REINTENTOS (la acción ya ocurrió en la 1ª entrega);
+// en estado ya atascado descarta updates que de todos modos no se iban a procesar (el
+// usuario solo vuelve a tocar START). NO toca el candado telegram_last_update (ese protege
+// contra re-procesar; los updates nuevos siempre traen id mayor).
+// Multi-empresa: repara cada empresa que tenga bot configurado.
+function autoRepararWebhookTelegram() {
+  var empresas = rowsToObjects(getSheet('Empresas'));
+  empresas.forEach(function(emp) {
+    try {
+      var botToken = _tgToken(emp.id);
+      if (!botToken) return; // empresa sin bot → nada que reparar
+      var info = _tgApi(botToken, 'getWebhookInfo', {});
+      var r = (info && info.result) || {};
+      var pending = Number(r.pending_update_count || 0);
+      var lastErr = String(r.last_error_message || '');
+      if (pending > 0 || lastErr) {
+        var hookUrl = TG_WEBAPP_URL + '?action=telegram_webhook&tgsecret=' + _tgSecret() + '&e=' + encodeURIComponent(emp.id);
+        _tgApi(botToken, 'setWebhook', { url: hookUrl, allowed_updates: ['message','callback_query'], drop_pending_updates: true, max_connections: 1 });
+      }
+    } catch (e) { /* nunca tirar el trigger por una empresa */ }
+  });
+}
+
+// Instalar UNA vez desde el editor (requiere OAuth de ScriptApp + UrlFetch, como el matutino).
+// Idempotente: borra el trigger previo de esta función antes de crear el nuevo.
+function instalarAutoReparadorTelegram() {
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    if (t.getHandlerFunction() === 'autoRepararWebhookTelegram') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('autoRepararWebhookTelegram').timeBased().everyMinutes(5).create();
+  console.log('✅ Auto-reparador del webhook instalado (cada 5 min). El bot ya no se quedará mudo.');
 }
