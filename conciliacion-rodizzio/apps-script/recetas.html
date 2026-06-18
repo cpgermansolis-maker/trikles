@@ -523,7 +523,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
       </div>
       <div style="margin-top:9px">
         <button id="btnValidador" class="btn" type="button" style="font-weight:600">✅ Validador de recetas</button>
-        <span style="font-size:12.5px;color:var(--muted);margin-left:10px">Semáforo por receta en 6 puntos: lógica · vínculo SR12 · costo · charola · inventario · cuadre. Dice qué falta y a quién le toca.</span>
+        <span style="font-size:12.5px;color:var(--muted);margin-left:10px">Semáforo por receta en 6 puntos: lógica · vínculo SR12 · costo · descarga · inventario · cuadre. Dice qué falta y a quién le toca.</span>
       </div>
     </div>
     <div class="filtros">
@@ -1081,8 +1081,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
         + '<p>De <b>'+(rs.total||0)+'</b> recetas: <b style="color:#1a7f37">'+(rs.verde||0)+'</b> sanas · <b style="color:#9a6e1a">'+(rs.amarillo||0)+'</b> a revisar · <b style="color:#8a1f17">'+(rs.rojo||0)+'</b> críticas.</p>'
         + '<div class="kpi-row">'+kpi('Total',rs.total||0,'#0c0907')+kpi('✅ Sanas',rs.verde||0,'#1a7f37')+kpi('🟡 Revisar',rs.amarillo||0,'#9a6e1a')+kpi('🔴 Críticas',rs.rojo||0,'#8a1f17')+'</div>'
         + '<p class="leg">Por área: '+(areaLineas||'—')+'</p>'
-        + '<p class="leg"><b>6 puntos:</b> Lógica (cantidad/instrucciones) · SR12 (precio del POS) · Costo · Charola (vinculada al descuento) · Inv. (afecta inventario) · Cuadre (comparable con SR12). &nbsp; ✓ ok · ! revisar · ✕ falla · – no aplica. &nbsp; <b>Toca a</b> = quién lo arregla (comprador=SR12/costos · chef=cantidades · admin=charola/inventario).</p>'
-        + '<table><thead><tr><th>Receta</th><th>Área</th><th>Lógica</th><th>SR12</th><th>Costo</th><th>Charola</th><th>Inv.</th><th>Cuadre</th><th style="text-align:left">Toca a</th></tr></thead><tbody>'+rows+'</tbody></table>'
+        + '<p class="leg"><b>6 puntos:</b> Lógica (cantidad/instrucciones) · SR12 (precio del POS) · Costo · Descarga (¿descuenta su insumo PRINCIPAL/la carne?) · Inv. (¿descuenta algo?) · Cuadre (comparable con SR12). &nbsp; ✓ ok · ! revisar · ✕ falla · – no aplica. &nbsp; <b>Toca a</b> = quién lo arregla (comprador=SR12/costos · chef=cantidades · admin=marcar insumos inventariables).</p>'
+        + '<table><thead><tr><th>Receta</th><th>Área</th><th>Lógica</th><th>SR12</th><th>Costo</th><th>Descarga</th><th>Inv.</th><th>Cuadre</th><th style="text-align:left">Toca a</th></tr></thead><tbody>'+rows+'</tbody></table>'
         + '<p style="margin-top:14px;font-size:11px;color:#999">Es un validador — NO cambia datos. Corrige en Ingredientes / Charolas / con el comprador.</p>'
         + '<scr'+'ipt>var F="all";function ff(b){F=b.getAttribute("data-f")||"all";fil();}'
         + 'function fil(){var q=(document.getElementById("bus").value||"").trim().toLowerCase();var rs=document.querySelectorAll("tbody tr"),n=0;for(var i=0;i<rs.length;i++){var s=rs[i].getAttribute("data-search")||"";var e=rs[i].getAttribute("data-estado")||"";var sh=(!q||s.indexOf(q)!==-1)&&(F==="all"||e===F);rs[i].style.display=sh?"":"none";if(sh)n++;}document.getElementById("cnt").textContent=n+" de "+rs.length;}fil();</scr'+'ipt>'

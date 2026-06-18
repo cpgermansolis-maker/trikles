@@ -1855,7 +1855,9 @@ function _validacionRecetasCore(empresaId, areaFiltro) {
     ingById[i.id] = {
       nombre: i.nombre,
       clave: i.clave_sr12 ? String(i.clave_sr12) : '',
-      inventariable: (i.inventariable === '' || i.inventariable == null) ? true : _truthy(i.inventariable)
+      inventariable: (i.inventariable === '' || i.inventariable == null) ? true : _truthy(i.inventariable),
+      precio: (i.precio_real_unitario !== '' && i.precio_real_unitario != null) ? Number(i.precio_real_unitario) : (Number(i.ultimo_costo) || 0),
+      unidad: i.unidad_base
     };
   });
   try {
@@ -1918,15 +1920,30 @@ function _validacionRecetasCore(empresaId, areaFiltro) {
     if (rr.lineas_sospechosas) { d3.estado='rojo'; d3.notas.push('costo sospechoso'); }
     if (rr.tiene_estimado && d3.estado==='verde') { d3.estado='amarillo'; d3.notas.push('precio estimado'); }
 
-    // 4) CHAROLA
-    var d4;
-    if (!esInv) d4 = { estado:'na', notas:[] };
-    else d4 = vincSet[r.id] ? { estado:'verde', notas:[] } : { estado:'rojo', notas:['no vinculada → no descuenta'] };
-
-    // 5) INVENTARIO
+    // 5) INVENTARIO — ¿descuenta ALGO? (≥1 insumo inventariable). El descuento se dispara por el
+    // insumo inventariable al registrar la charola; el vínculo CharolasRecetas NO interviene (solo
+    // pre-llena porciones) → v416b: ya NO se usa vincSet como señal de descuento.
     var d5, tieneInv = ingLines.some(function(l){ return invcfgSet[l.ingrediente_id]; });
     if (!esInv) d5 = { estado:'na', notas:[] };
-    else d5 = tieneInv ? { estado:'verde', notas:[] } : { estado:'rojo', notas:['ningún insumo inventariable'] };
+    else d5 = tieneInv ? { estado:'verde', notas:[] } : { estado:'rojo', notas:['no descuenta nada (ningún insumo inventariable)'] };
+
+    // 4) DESCARGA DE CHAROLAS — ¿descuenta su insumo PRINCIPAL (la carne), no solo condimentos?
+    // Principal = el insumo más caro de la receta. Si no está inventariable, sirve la carne pero el
+    // sistema solo le baja la sal/aceite → el cuadre de carne no cierra (caso Arrachera/Tomahawk).
+    var d4;
+    if (!esInv) d4 = { estado:'na', notas:[] };
+    else if (!tieneInv) d4 = { estado:'na', notas:['—'] }; // no descuenta nada → el problema lo marca Inventario
+    else {
+      var principal = null, maxc = -1;
+      ingLines.forEach(function(l){
+        if (_truthy(l.es_decoracion)) return;
+        var ig = ingById[l.ingrediente_id]; if (!ig) return;
+        var c = (Number(ig.precio)||0) * (Number(l.cantidad)||0) * _unidadFactorBase(l.unidad, ig.unidad);
+        if (c > maxc) { maxc = c; principal = { id:l.ingrediente_id, nombre: ig.nombre }; }
+      });
+      if (!principal || invcfgSet[principal.id]) d4 = { estado:'verde', notas:[] };
+      else d4 = { estado:'rojo', notas:['descuenta condimentos, NO el principal: ' + principal.nombre] };
+    }
 
     // 6) CUADRE-READY (SR12 vs mermas)
     var d6;
@@ -1970,7 +1987,7 @@ function _validacionRecetasCore(empresaId, areaFiltro) {
   if (compr > 0) pendientes.push({ rol_match:'comprador', area:'compras', clave:'valida:sr12', sev:'alta',
     titulo: compr + ' receta(s) con insumos SIN vincular al SR12 (costo/margen no confiable). Vincúlalos en Recetas → 🪄 sugeridor y revisa el ✅ Validador de recetas.' });
   if (invGap > 0) pendientes.push({ rol_match:'gerente_administrativo', area:'gte_admin', clave:'valida:inventario', sev:'media',
-    titulo: invGap + ' receta(s) de cocina/churrasca que NO descuentan inventario (sin vincular a charola o sin insumo inventariable). Revisa el ✅ Validador de recetas.' });
+    titulo: invGap + ' receta(s) de cocina/churrasca que NO descuentan bien su carne al inventario (su insumo principal no está marcado como inventariable, o no descuentan nada). Marca esas carnes en la config de inventario (Inventario churrasca) — detalle en el ✅ Validador de recetas.' });
   // Chef de cada área: sus recetas por completar (instrucciones/rendimiento/ingredientes). Distinto del aviso "costo absurdo" que ya existe.
   var AREA_ROL = { cocina:'cocina', churrasca:'churrasca', barra:'barman', panaderia:'panadero' };
   Object.keys(chefFixPorArea).forEach(function(a){
