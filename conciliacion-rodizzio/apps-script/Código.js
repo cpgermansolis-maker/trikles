@@ -8442,15 +8442,13 @@ function _auditoriaMatutinaCore(empresaId, fecha, suc, doWrite) {
   // comprador → recetas sin vínculo SR12; gte_admin → recetas que no descuentan inventario.
   try {
     var val = _validacionRecetasCore(empresaId);
+    var usuariosEmpVal = rowsToObjects(getSheet('Usuarios')).filter(function(x){ return x.empresa_id === empresaId && esActivo(x.activo); });
     (val.validacion_pendientes || []).forEach(function(vp){
-      var rolBuscado = vp.rol === 'gte_admin' ? 'gerente_administrativo' : vp.rol;
-      var areaPe = vp.rol === 'gte_admin' ? 'gte_admin' : 'compras';
-      rowsToObjects(getSheet('Usuarios')).forEach(function(x){
-        if (x.empresa_id !== empresaId || !esActivo(x.activo)) return;
-        if (String(x.rol||'').toLowerCase() !== rolBuscado) return;
+      usuariosEmpVal.forEach(function(x){
+        if (String(x.rol||'').toLowerCase() !== vp.rol_match) return;
         var em = String(x.email||'').toLowerCase();
-        ensure(em, x.nombre || em, areaPe);
-        addPend(em, x.nombre || em, areaPe, vp.titulo, vp.sev, vp.clave, '');
+        ensure(em, x.nombre || em, vp.area);
+        addPend(em, x.nombre || em, vp.area, vp.titulo, vp.sev, vp.clave, '');
       });
     });
   } catch(e){}

@@ -1884,6 +1884,7 @@ function _validacionRecetasCore(empresaId, areaFiltro) {
   });
   if (areaFiltro) recetas = recetas.filter(function(r){ return r.area === areaFiltro; });
 
+  var chefFixPorArea = {}; // recetas por completar (instrucciones/rendimiento/ingredientes) por área → pendiente al chef
   var lista = recetas.map(function(r){
     var rr = repById[r.id] || {};
     var lineas = lineasPorReceta[r.id] || [];
@@ -1899,6 +1900,8 @@ function _validacionRecetasCore(empresaId, areaFiltro) {
     if (rr.sin_instrucciones && d1.estado!=='rojo') { d1.estado='amarillo'; d1.notas.push('sin instrucciones'); }
     if (rr.sin_instrucciones && d1.estado==='rojo') d1.notas.push('sin instrucciones');
     if ((parseFloat(r.rendimiento)||0) <= 0) { if (d1.estado==='verde') d1.estado='amarillo'; d1.notas.push('rendimiento sin definir'); }
+    // Tarea de CHEF a completar (distinta de "costo absurdo", que ya tiene su propio aviso): instrucciones / rendimiento / ingredientes.
+    if (rr.sin_instrucciones || (parseFloat(r.rendimiento)||0) <= 0 || !lineas.length || huerf > 0) chefFixPorArea[r.area] = (chefFixPorArea[r.area]||0) + 1;
 
     // 2) VÍNCULO SR12
     var n = ingLines.length, linked = 0, faltan = [];
@@ -1960,14 +1963,21 @@ function _validacionRecetasCore(empresaId, areaFiltro) {
   var porArea = {};
   lista.forEach(function(x){ var a=porArea[x.area]=porArea[x.area]||{total:0,verde:0,amarillo:0,rojo:0}; a.total++; a[x.estado]++; });
 
-  // Conteos para pendientes agrupados del auditor (solo lo accionable y de un dueño claro)
+  // Pendientes AGRUPADOS para el auditor (rol_match = rol de Usuarios al que se le atribuye; area = etiqueta).
   var compr = lista.filter(function(x){ return x.checks.sr12.estado==='rojo' || x.checks.sr12.estado==='amarillo'; }).length;
   var invGap = lista.filter(function(x){ return x.checks.charola.estado==='rojo' || x.checks.inventario.estado==='rojo'; }).length;
   var pendientes = [];
-  if (compr > 0) pendientes.push({ rol:'comprador', clave:'valida:sr12', sev:'alta',
+  if (compr > 0) pendientes.push({ rol_match:'comprador', area:'compras', clave:'valida:sr12', sev:'alta',
     titulo: compr + ' receta(s) con insumos SIN vincular al SR12 (costo/margen no confiable). Vincúlalos en Recetas → 🪄 sugeridor y revisa el ✅ Validador de recetas.' });
-  if (invGap > 0) pendientes.push({ rol:'gte_admin', clave:'valida:inventario', sev:'media',
+  if (invGap > 0) pendientes.push({ rol_match:'gerente_administrativo', area:'gte_admin', clave:'valida:inventario', sev:'media',
     titulo: invGap + ' receta(s) de cocina/churrasca que NO descuentan inventario (sin vincular a charola o sin insumo inventariable). Revisa el ✅ Validador de recetas.' });
+  // Chef de cada área: sus recetas por completar (instrucciones/rendimiento/ingredientes). Distinto del aviso "costo absurdo" que ya existe.
+  var AREA_ROL = { cocina:'cocina', churrasca:'churrasca', barra:'barman', panaderia:'panadero' };
+  Object.keys(chefFixPorArea).forEach(function(a){
+    var rm = AREA_ROL[a]; if (!rm || chefFixPorArea[a] <= 0) return;
+    pendientes.push({ rol_match: rm, area: a, clave:'valida:logica:'+a, sev:'media',
+      titulo: chefFixPorArea[a] + ' receta(s) de ' + a + ' por COMPLETAR (instrucciones, rendimiento o ingredientes) — revisa el ✅ Validador de recetas.' });
+  });
 
   return { ok:true, recetas:lista, resumen:resumen, por_area:porArea, validacion_pendientes:pendientes };
 }
