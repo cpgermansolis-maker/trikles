@@ -1,0 +1,3010 @@
+﻿<? var __tokenInyectado = '';
+try { __tokenInyectado = (queryParams && queryParams.t) ? String(queryParams.t) : ''; } catch(e){} ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recetas y costeo · Fogueira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<base target="_top">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzOCc+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSdmZycgeDE9JzAnIHkxPScwJyB4Mj0nMCcgeTI9JzEnPjxzdG9wIG9mZnNldD0nMCUnIHN0b3AtY29sb3I9JyNlOGM0NmEnLz48c3RvcCBvZmZzZXQ9JzUwJScgc3RvcC1jb2xvcj0nI2M4OWE0YScvPjxzdG9wIG9mZnNldD0nMTAwJScgc3RvcC1jb2xvcj0nIzlhNzMzMCcvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGQ9J00xNiAxLjUgQyAxNyA2LDIyIDksMjMgMTQgQyAyNCAxOCwyMiAyMSwyMCAyMiBDIDIyIDI0LDI0IDI3LDI0IDMxIEMgMjQgMzUsMjEgMzcsMTYgMzcgQyAxMSAzNyw4IDM1LDggMzEgQyA4IDI4LDEwIDI2LDExIDI0IEMgOSAyMiw3IDE5LDggMTUgQyA5IDExLDEzIDExLDE0IDcgQyAxNSA1LDE2IDMsMTYgMS41WicgZmlsbD0ndXJsKCNmZyknLz48cGF0aCBkPSdNMTYgMTYgQyAxNyAxOSwxOSAyMSwxOSAyNSBDIDE5IDI4LDE3IDMwLDE2IDMwIEMgMTUgMzAsMTMgMjgsMTMgMjUgQyAxMyAyMiwxNSAxOSwxNiAxNlonIGZpbGw9JyMwYzA5MDcnIG9wYWNpdHk9Jy41NScvPjwvc3ZnPg==">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500;1,600&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* ══ Tokens handoff oficial Fogueira (v159) ══ */
+:root {
+  --ink-handoff:#0c0907; --ink-soft:#1a1310;
+  --ember:#c4322a; --ember-hot:#e04826; --ember-deep:#8a1f17;
+  --cream:#f6f1e8; --cream-warm:#efe5d2; --cream-line:#e4d9c2;
+  --bone:#fffdf8; --slate-soft:#5d6c80; --smoke:#8a8278;
+  --gold:#c89a4a; --gold-soft:#e8c46a;
+  /* Aliases legacy → handoff */
+  --navy:var(--ink-handoff); --navy-2:var(--ink-soft);
+  --sky:var(--gold); --sky-2:rgba(200,154,74,.18); --mist:var(--cream-line);
+  --ink:var(--ink-handoff); --muted:var(--slate-soft);
+  --line:var(--cream-line); --paper:var(--cream-warm);
+  --accent:var(--ember); --good:#1E7F5C; --warn:var(--gold);
+  --bad:var(--ember-deep); --purple:#7C5BD9;
+  --font-sans:'DM Sans',system-ui,-apple-system,sans-serif;
+  --font-serif:'Cormorant Garamond',Georgia,serif;
+  --font-mono:'DM Mono',ui-monospace,'SF Mono',monospace;
+  --r-sm:4px; --r-md:6px; --r-lg:7px; --r-xl:10px; --r-2xl:12px; --r-3xl:14px;
+  --shadow-card-hover:0 12px 28px -16px rgba(12,9,7,.20);
+  --shadow-modal:0 20px 60px -20px rgba(12,9,7,.45);
+  --t-fast:.15s ease; --t-base:.2s ease;
+}
+*,*::before,*::after{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font-sans);color:var(--ink);background:#fff;line-height:1.55;-webkit-font-smoothing:antialiased;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;}
+</style>
+<style>
+  :root{
+    --brand:        var(--ember);
+    --brand-deep:   var(--ember-deep);
+    --brand-tint:   rgba(196,50,42,.08);
+  }
+  body{background:var(--cream);}
+
+  /* ── Topbar oscuro (handoff Fogueira) ── */
+  header.app{
+    background:var(--ink);color:var(--cream);
+    border-bottom:1px solid rgba(200,154,74,.22);
+    position:sticky;top:0;z-index:30;
+  }
+  .head-row{
+    max-width:1480px;margin:0 auto;padding:14px 22px;
+    display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  }
+  .brand-cluster{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brand-flame{display:flex;align-items:center;gap:9px}
+  .brand-flame svg{display:block;flex-shrink:0}
+  .brand-flame .wordmark{
+    font-family:'DM Sans',sans-serif;font-weight:800;font-size:18px;
+    letter-spacing:.02em;color:var(--gold);line-height:1;
+  }
+  .brand-sep-v{width:1px;height:30px;background:rgba(246,241,232,.15);flex-shrink:0}
+  .brand-eyebrow,.topbar-sub{
+    font-family:var(--font-mono);font-size:10px;letter-spacing:.22em;
+    color:rgba(246,241,232,.5);text-transform:uppercase;font-weight:500;
+    display:block;line-height:1.2;
+  }
+  .brand-name{
+    font-family:var(--font-serif);font-style:italic;font-weight:500;
+    font-size:22px;letter-spacing:-.01em;color:var(--cream);line-height:1.1;margin-top:3px;
+  }
+  .brand-empresa{
+    font-family:'DM Sans',sans-serif;font-weight:600;font-size:10px;
+    color:var(--gold);padding:5px 12px;
+    background:rgba(200,154,74,.12);border:1px solid rgba(200,154,74,.4);
+    letter-spacing:.18em;text-transform:uppercase;
+  }
+  .head-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:9px 14px;border-radius:var(--r-md);
+    font-family:var(--font-sans);font-size:12.5px;font-weight:500;
+    border:1px solid var(--line);background:#fff;color:var(--ink);
+    cursor:pointer;transition:all var(--t-fast);text-decoration:none;
+  }
+  .btn:hover{background:var(--paper);border-color:var(--brand)}
+  .btn.primary{background:var(--ink);color:var(--gold);border-color:var(--ink)}
+  .btn.primary:hover{background:#000;border-color:#000}
+  .head-actions .btn{background:rgba(246,241,232,.04);color:var(--cream);border-color:rgba(246,241,232,.18)}
+  .head-actions .btn:hover{background:rgba(200,154,74,.12);border-color:var(--gold);color:var(--cream)}
+  .head-actions .btn.primary{background:var(--gold);color:var(--ink);border-color:var(--gold);font-weight:600}
+  .head-actions .btn.primary:hover{background:var(--gold-soft);border-color:var(--gold-soft)}
+  .btn-logout{color:rgba(246,241,232,.65) !important}
+  .btn-logout:hover{
+    background:rgba(196,50,42,.12) !important;
+    border-color:var(--ember) !important;color:var(--ember-hot) !important;
+  }
+  .btn-sm{padding:6px 10px;font-size:12px}
+
+  /* ── Main ── */
+  main{max-width:1480px;margin:0 auto;padding:22px}
+  .page-head{margin-bottom:18px}
+  .page-head h1{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:32px;letter-spacing:-.015em;margin:0;color:var(--ink)}
+  .page-head .desc{font-size:13px;color:var(--muted);margin-top:4px}
+
+  /* Tabs */
+  .tabs{display:flex;gap:6px;border-bottom:2px solid var(--line);margin-bottom:18px;flex-wrap:wrap}
+  .tab{
+    padding:10px 16px;cursor:pointer;
+    font-family:var(--font-sans);font-size:14px;font-weight:500;color:var(--muted);
+    border-bottom:2px solid transparent;margin-bottom:-2px;transition:all var(--t-fast);
+  }
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--brand);border-bottom-color:var(--brand)}
+  .tab .count{display:inline-block;padding:1px 7px;border-radius:10px;font-size:11px;background:var(--paper);margin-left:4px}
+  .tab.active .count{background:var(--brand-tint);color:var(--brand-deep)}
+
+  /* Filtros */
+  .filtros{
+    background:#fff;border:1px solid var(--line);border-radius:var(--r-xl);
+    padding:14px 18px;margin-bottom:14px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;
+  }
+  .filtros .label{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .filtros input[type=text],.filtros select{
+    border:1px solid var(--line);background:#fff;padding:7px 10px;border-radius:var(--r-md);
+    font-family:var(--font-sans);font-size:13.5px;color:var(--ink);min-width:140px;
+  }
+  .filtros input[type=text]:focus,.filtros select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-tint)}
+  .filtros .chk{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink);cursor:pointer}
+
+  /* KPIs por tab */
+  .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r-xl);padding:12px 16px}
+  .kpi .lbl{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;font-weight:500}
+  .kpi .val{font-family:var(--font-sans);font-size:24px;font-weight:500;letter-spacing:-.02em;line-height:1.05;color:var(--ink);margin-top:4px;font-variant-numeric:tabular-nums}
+  .kpi.warn{border-color:rgba(185,122,27,.4)}.kpi.warn .val{color:var(--warn)}
+  /* v165 — KPI especial de huérfanos sin vincular: clickeable + barra de progreso */
+  .kpi.kpi-huerf{
+    cursor:pointer;position:relative;
+    border-color:rgba(196,50,42,.4);background:rgba(196,50,42,.04);
+    transition:border-color .15s, background .15s, box-shadow .15s, transform .15s;
+  }
+  .kpi.kpi-huerf:hover{
+    border-color:var(--ember);background:rgba(196,50,42,.08);
+    box-shadow:0 4px 12px -6px rgba(196,50,42,.3);
+    transform:translateY(-1px);
+  }
+  .kpi.kpi-huerf .val{color:var(--ember);font-weight:600;font-size:28px}
+  .kpi.kpi-huerf.done{border-color:rgba(200,154,74,.4);background:rgba(200,154,74,.06)}
+  .kpi.kpi-huerf.done:hover{border-color:var(--gold);background:rgba(200,154,74,.10);box-shadow:0 4px 12px -6px rgba(200,154,74,.3)}
+  .kpi.kpi-huerf.done .val{color:var(--gold)}
+  .kpi-huerf-bar{
+    height:4px;background:rgba(12,9,7,.08);margin-top:8px;
+    overflow:hidden;position:relative;
+  }
+  .kpi-huerf-fill{height:100%;background:var(--ember);transition:width .6s ease,background .15s}
+  .kpi.kpi-huerf.done .kpi-huerf-fill{background:var(--gold)}
+  .kpi-huerf-sub{
+    font-family:var(--font-mono);font-size:10px;color:var(--muted);
+    margin-top:6px;letter-spacing:.04em;
+  }
+  .kpi-huerf-sub strong{color:var(--ink);font-weight:600}
+
+  /* Tablas */
+  .tabla-wrap{background:#fff;border:1px solid var(--line);border-radius:var(--r-xl);overflow:hidden}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{background:var(--paper);text-align:left;padding:10px 12px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--line);position:sticky;top:0}
+  td{padding:9px 12px;border-bottom:1px solid var(--line)}
+  tr:nth-child(even) td{background:#fdfaf8}
+  tr:hover td{background:var(--brand-tint)}
+  tr.row-clickable{cursor:pointer}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  td.editable{cursor:cell;position:relative}
+  td.editable:hover{background:rgba(64,138,191,.06)}
+  td.editable-precio{border-bottom:1px dashed var(--brand,#408abf)}
+  td.editable-precio:hover::after{content:"✏️";position:absolute;right:3px;top:50%;transform:translateY(-50%);font-size:11px}
+  td.precio-real-calc{cursor:help;color:var(--muted)}
+  td.editable input{
+    width:100%;border:2px solid var(--brand);background:#fff;padding:5px 7px;border-radius:4px;
+    font-family:var(--font-mono);font-size:13px;color:var(--ink);
+  }
+  .abc-select,.uni-select{
+    border:1px solid var(--line);background:#fff;border-radius:4px;padding:3px 5px;
+    font-family:var(--font-mono);font-size:12px;cursor:pointer;
+  }
+  .abc-select:hover,.uni-select:hover{border-color:var(--brand)}
+  .uni-select.uni-vacia{border-color:var(--bad,#c4322a);background:rgba(196,50,42,.06)}
+  .inv-toggle{display:inline-flex;align-items:center;cursor:pointer}
+  .inv-check{width:16px;height:16px;cursor:pointer;accent-color:var(--brand)}
+  .badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+  .b-good{background:rgba(30,127,92,.12);color:var(--good)}
+  .b-warn{background:rgba(185,122,27,.14);color:var(--warn)}
+  .b-bad{background:rgba(159,43,30,.12);color:var(--bad)}
+  .b-info{background:rgba(64,138,191,.14);color:#1F3A66}
+  .b-cocina{background:rgba(184,71,42,.14);color:var(--brand-deep)}
+  .b-churrasca{background:rgba(107,31,14,.14);color:var(--brand-deep)}
+  .b-barra{background:rgba(200,154,74,.20);color:#8a6d1a}
+  .b-panaderia{background:rgba(180,120,60,.18);color:#7a4a1a}
+  .b-cava{background:rgba(120,40,80,.16);color:#6b1f3e}
+  .b-sub{background:rgba(64,138,191,.12);color:#1F3A66}
+
+  .empty-state{padding:32px;text-align:center;color:var(--muted);font-size:14px}
+  .pag-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--line);background:var(--paper);font-size:13px;color:var(--muted)}
+  .pag-bar .pag-btns{display:flex;gap:6px}
+
+  /* Modal */
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(12,9,7,.65);
+    z-index:300;display:none;align-items:flex-start;justify-content:center;
+    padding:24px 16px;overflow-y:auto;
+  }
+  .modal-backdrop.open{display:flex}
+  .modal{background:#fff;border-radius:var(--r-2xl);max-width:840px;width:100%;box-shadow:var(--shadow-modal);margin:auto;animation:mdIn .2s ease-out}
+  @keyframes mdIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .modal-head{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:14px}
+  .modal-head h2{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:24px;margin:0;color:var(--ink)}
+  .modal-head .modal-sub{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+  .modal-close{background:var(--paper);border:1px solid var(--line);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--muted);flex-shrink:0}
+  .modal-close:hover{background:rgba(159,43,30,.08);color:var(--bad);border-color:var(--bad)}
+  .modal-body{padding:20px 24px}
+  .modal-foot{padding:14px 24px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;background:var(--paper);border-radius:0 0 var(--r-2xl) var(--r-2xl)}
+  .receta-foto{width:100%;max-height:240px;object-fit:cover;border-radius:var(--r-md);background:var(--paper);margin-bottom:12px}
+  .receta-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+  .meta-item{background:var(--paper);padding:8px 12px;border-radius:var(--r-md)}
+  .meta-item .lbl{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .meta-item .val{font-size:13.5px;color:var(--ink);margin-top:2px}
+  .receta-section-h{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;font-weight:600;margin:18px 0 8px}
+  .lineas-table{font-size:13px}
+  .lineas-table th{font-size:9.5px;padding:7px 10px}
+  .lineas-table td{padding:7px 10px}
+  /* Buscador de ingrediente (combobox) v325 */
+  .em-combo-input{width:100%;padding:5px 7px;font-size:13px;border:1px solid var(--line);border-radius:4px;font-family:inherit;background:#fff}
+  .em-combo-input:focus{outline:none;border-color:var(--brand)}
+  .em-combo-input.vacia{border-color:var(--bad);background:rgba(196,50,42,.04)}
+  #emComboPop{position:fixed;z-index:9999;background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:0 10px 30px rgba(12,9,7,.22);max-height:260px;overflow-y:auto;display:none;min-width:240px}
+  #emComboPop .opt{padding:8px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--paper);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #emComboPop .opt:hover,#emComboPop .opt.active{background:var(--brand-tint)}
+  #emComboPop .opt .sub{color:var(--muted);font-size:11px}
+  #emComboPop .empty{padding:12px 14px;font-size:12.5px;color:var(--muted)}
+  #emComboPop .empty b{color:var(--ink)}
+  .costo-resumen{margin-top:14px;background:var(--brand-tint);border-radius:var(--r-md);padding:14px 18px}
+  .costo-resumen .row{display:flex;justify-content:space-between;padding:4px 0;font-size:13.5px}
+  .costo-resumen .row.total{font-weight:600;font-size:15px;color:var(--brand-deep);border-top:1px solid rgba(107,31,14,.2);margin-top:6px;padding-top:8px}
+  .costo-resumen .row.precio{font-weight:600;font-size:15px;color:var(--good);border-top:2px solid rgba(30,127,92,.3);margin-top:6px;padding-top:8px}
+  .instrucciones,.uso{white-space:pre-wrap;font-size:13.5px;color:var(--ink);background:var(--paper);padding:10px 14px;border-radius:var(--r-md);max-height:240px;overflow-y:auto}
+
+  /* Toast */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--good);color:#fff;padding:11px 22px;border-radius:30px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:400;opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.show{opacity:1}
+  .toast.error{background:var(--bad)}
+  .toast.warn{background:var(--warn)}
+
+  /* Stock SR12 (F3 Fase B) — badge con desglose por área al hover/click */
+  .sr12-cell{position:relative;white-space:nowrap}
+  .sr12-badge{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:3px 9px;border-radius:14px;
+    font-family:var(--font-mono);font-size:11.5px;font-weight:500;
+    background:#fcf3dc;color:#7a5a14;border:1px solid #ecd58a;
+    cursor:help;transition:all var(--t-fast);
+  }
+  .sr12-badge:hover{background:#f7e5b0;border-color:#c9a13c}
+  .sr12-badge .caret{font-size:9px;color:#a8821e;margin-left:1px}
+  .sr12-badge.empty{background:transparent;color:var(--muted);border-color:transparent;cursor:default;font-family:var(--font-sans)}
+  .sr12-badge.huerf{background:#fcefe7;color:#8a4a26;border-color:#e7c8b4;cursor:help}
+  .sr12-badge.huerf:hover{background:#f5dfd0}
+  .sr12-tooltip{
+    position:absolute;z-index:50;
+    right:0;top:calc(100% + 4px);
+    min-width:230px;
+    background:#fff;border:1px solid var(--line);border-radius:var(--r-md);
+    box-shadow:var(--shadow-modal);
+    padding:10px 12px;font-size:12px;
+    display:none;
+    text-align:left;
+  }
+  .sr12-cell:hover .sr12-tooltip,.sr12-cell.show-tooltip .sr12-tooltip{display:block}
+  .sr12-tooltip h6{margin:0 0 8px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding-bottom:6px}
+  .sr12-tooltip .row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;gap:14px}
+  .sr12-tooltip .row .a{color:var(--muted);font-size:11.5px;text-transform:capitalize}
+  .sr12-tooltip .row .v{font-family:var(--font-mono);font-weight:500;color:var(--ink);font-size:11.5px}
+  .sr12-tooltip .row.empty .v{color:var(--muted);opacity:.5}
+  .sr12-tooltip .row.total{border-top:1px solid var(--line);margin-top:4px;padding-top:6px}
+  .sr12-tooltip .row.total .a{color:var(--ink);font-weight:500;text-transform:none}
+  .sr12-tooltip .meta{margin-top:8px;font-size:10.5px;color:var(--muted);font-family:var(--font-mono);line-height:1.4;word-break:break-word}
+  /* v163 — botón inline para vincular ingredientes huérfanos */
+  .sr12-vincular-btn{
+    display:inline-flex;align-items:center;gap:4px;
+    background:rgba(200,154,74,.12);color:var(--gold);
+    border:1px solid rgba(200,154,74,.45);
+    padding:4px 10px;border-radius:4px;cursor:pointer;
+    font-family:var(--font-mono);font-size:10.5px;font-weight:600;
+    letter-spacing:.05em;text-transform:uppercase;
+    transition:all .12s ease;line-height:1;
+  }
+  .sr12-vincular-btn:hover{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+  .sr12-vincular-btn.cambiar{padding:4px 7px;font-size:11.5px;margin-left:5px;background:transparent;color:var(--muted);border-color:var(--cream-line)}
+  .sr12-vincular-btn.cambiar:hover{background:rgba(200,154,74,.14);color:var(--ink);border-color:var(--gold)}
+  /* Modal de vincular SR12 (v163) */
+  .vlink-modal-backdrop{
+    position:fixed;inset:0;background:rgba(12,9,7,.65);z-index:400;
+    display:none;align-items:flex-start;justify-content:center;
+    padding:32px 16px;overflow-y:auto;
+  }
+  .vlink-modal-backdrop.open{display:flex}
+  .vlink-modal{
+    background:var(--bone);border:1px solid var(--cream-line);
+    max-width:680px;width:100%;
+    box-shadow:0 20px 60px -20px rgba(12,9,7,.5);
+    margin:auto;
+    animation:vlinkIn .18s ease-out;
+    display:flex;flex-direction:column;max-height:calc(100vh - 64px);
+  }
+  @keyframes vlinkIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .vlink-head{padding:20px 24px 16px;border-bottom:1px solid var(--cream-line);flex-shrink:0}
+  .vlink-head .eyebrow{
+    font-family:var(--font-mono);font-size:10.5px;letter-spacing:.22em;
+    color:var(--ember);text-transform:uppercase;font-weight:500;margin-bottom:8px;
+  }
+  .vlink-head h2{
+    font-family:var(--font-serif);font-style:italic;font-weight:500;
+    font-size:24px;letter-spacing:-.01em;color:var(--ink);margin:0;line-height:1.15;
+  }
+  .vlink-head .ing-meta{
+    font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:.04em;
+  }
+  .vlink-search{padding:14px 24px;border-bottom:1px solid var(--cream-line);background:var(--cream);flex-shrink:0}
+  .vlink-search input{
+    width:100%;border:1px solid var(--cream-line);background:#fff;
+    padding:10px 14px;border-radius:var(--r-md);
+    font-family:var(--font-sans);font-size:14px;color:var(--ink);outline:none;
+    transition:border-color .12s;
+  }
+  .vlink-search input:focus{border-color:var(--ember);box-shadow:0 0 0 3px rgba(196,50,42,.10)}
+  .vlink-search .hint{font-size:11px;color:var(--smoke);margin-top:6px;font-family:var(--font-mono);letter-spacing:.04em}
+  .vlink-list{padding:8px 12px;overflow-y:auto;flex:1;min-height:200px}
+  .vlink-list .grupo-lbl{
+    font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;
+    color:var(--smoke);text-transform:uppercase;font-weight:600;
+    padding:14px 12px 6px;border-bottom:1px solid var(--cream-line);
+  }
+  .vlink-row{
+    display:flex;gap:12px;align-items:center;
+    padding:11px 12px;border-bottom:1px solid var(--cream-line);
+    cursor:pointer;transition:background .1s;
+  }
+  .vlink-row:hover{background:rgba(200,154,74,.10)}
+  .vlink-row.selected{background:rgba(200,154,74,.22);box-shadow:inset 3px 0 0 var(--gold)}
+  .vlink-row.actual{background:rgba(196,50,42,.06);box-shadow:inset 3px 0 0 var(--ember)}
+  .vlink-row .clave{
+    font-family:var(--font-mono);font-size:12px;color:var(--ember);font-weight:600;
+    min-width:64px;letter-spacing:.04em;
+  }
+  .vlink-row .nombre-info{flex:1;min-width:0}
+  .vlink-row .nombre{
+    font-size:13.5px;color:var(--ink);font-weight:500;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .vlink-row .pres{
+    font-family:var(--font-mono);font-size:10.5px;color:var(--muted);
+    margin-top:2px;letter-spacing:.04em;
+  }
+  .vlink-row .stock{
+    font-family:var(--font-mono);font-size:11px;color:var(--muted);
+    text-align:right;min-width:64px;
+  }
+  .vlink-row .stock strong{color:var(--ink);font-weight:600;font-size:12.5px;display:block}
+  .vlink-empty{padding:30px 16px;text-align:center;color:var(--muted);font-size:13.5px}
+  .vlink-empty .small{font-size:11px;margin-top:6px;color:var(--smoke);font-family:var(--font-mono)}
+  .vlink-foot{
+    padding:14px 24px;border-top:1px solid var(--cream-line);background:var(--cream);
+    display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;flex-shrink:0;
+  }
+  .vlink-foot .actual-info{font-size:12px;color:var(--muted);flex:1;min-width:140px;font-family:var(--font-mono);letter-spacing:.04em}
+  .vlink-foot .actual-info strong{color:var(--ink)}
+  .vlink-foot .actions{display:flex;gap:8px;flex-wrap:wrap}
+  .vlink-foot .btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:9px 16px;border-radius:var(--r-md);
+    font-family:var(--font-sans);font-size:13px;font-weight:500;
+    border:1px solid var(--cream-line);background:#fff;color:var(--ink);
+    cursor:pointer;transition:all .12s;text-decoration:none;
+  }
+  .vlink-foot .btn:hover{border-color:var(--ember);color:var(--ember)}
+  .vlink-foot .btn-confirm{background:var(--ink);color:var(--gold);border-color:var(--ink);font-weight:600;letter-spacing:.04em}
+  .vlink-foot .btn-confirm:hover{background:#000;color:var(--gold);border-color:#000}
+  .vlink-foot .btn-confirm:disabled{opacity:.45;cursor:not-allowed;background:var(--cream-warm);color:var(--muted);border-color:var(--cream-line)}
+  .vlink-foot .btn-desvincular{color:var(--ember);border-color:var(--ember)}
+  .vlink-foot .btn-desvincular:hover{background:rgba(196,50,42,.08);color:var(--ember-deep);border-color:var(--ember-deep)}
+
+  /* Responsive @media al final como pide la convención del proyecto */
+  @media(max-width:720px){
+    .head-row{padding:12px 14px}
+    main{padding:16px 12px}
+    .filtros{flex-direction:column;align-items:stretch;gap:8px}
+    .filtros input[type=text],.filtros select{min-width:0;width:100%}
+    table{font-size:12.5px}
+    th{font-size:9.5px}
+    td{padding:7px 9px}
+    /* topbar-sub permanece visible solo más pequeño */
+    .topbar-sub,.brand-eyebrow{font-size:9.5px}
+    .brand-name{font-size:18px}
+  }
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="head-row">
+    <div class="brand-cluster">
+      <div class="brand-flame" aria-label="Fogueira">
+        <svg width="22" height="26" viewBox="0 0 32 38" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="flameGradRe" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e8c46a"/>
+              <stop offset="50%" stop-color="#c89a4a"/>
+              <stop offset="100%" stop-color="#9a7330"/>
+            </linearGradient>
+          </defs>
+          <path d="M16 1.5 C 17 6, 22 9, 23 14 C 24 18, 22 21, 20 22 C 22 24, 24 27, 24 31 C 24 35, 21 37, 16 37 C 11 37, 8 35, 8 31 C 8 28, 10 26, 11 24 C 9 22, 7 19, 8 15 C 9 11, 13 11, 14 7 C 15 5, 16 3, 16 1.5 Z" fill="url(#flameGradRe)"/>
+          <path d="M16 16 C 17 19, 19 21, 19 25 C 19 28, 17 30, 16 30 C 15 30, 13 28, 13 25 C 13 22, 15 19, 16 16 Z" fill="#0c0907" opacity="0.55"/>
+        </svg>
+        <span class="wordmark">FOGUEIRA</span>
+      </div>
+      <div class="brand-sep-v"></div>
+      <div>
+        <div class="brand-eyebrow topbar-sub" id="brandEyebrow">Recetas y costeo</div>
+        <div class="brand-name" id="brandName">Recetario</div>
+      </div>
+      <span class="brand-empresa" id="empresaNombre">—</span>
+    </div>
+    <div class="head-actions">
+      <a class="btn" href="?p=inicio">← Inicio</a>
+      <button class="btn btn-logout" id="btnLogout">Cerrar sesión</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="page-head">
+    <h1 id="pageTitle">Recetas y costeo</h1>
+    <div class="desc" id="pageDesc">Catálogo de ingredientes, recetas y sub-recetas. Cálculo de costo en vivo.</div>
+  </div>
+
+  <div id="notif-rechazos" style="margin-bottom:12px"></div>
+
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-tab="recetas">Recetas <span class="count" id="cntRec">—</span></div>
+    <div class="tab" data-tab="subrecetas">Sub-recetas <span class="count" id="cntSub">—</span></div>
+    <div class="tab" data-tab="ingredientes">Ingredientes <span class="count" id="cntIng">—</span></div>
+    <div class="tab" data-tab="pendientes" id="tabPendientes" style="display:none">🔄 Pendientes <span class="count" id="cntPend">—</span></div>
+    <div class="tab" data-tab="mispropuestas" id="tabMisPropuestas" style="display:none">📋 Mis propuestas <span class="count" id="cntMisProp">—</span></div>
+    <div class="tab" data-tab="rentabilidad">📊 Rentabilidad</div>
+    <div class="tab" data-tab="config" id="tabConfig" style="display:none">Configuración</div>
+  </div>
+
+  <!-- ====== Tab: Recetas / Sub-recetas (mismo contenedor, filtra por tipo) ====== -->
+  <section class="tab-pane" id="paneRecetas">
+    <div class="kpi-row" id="recKpiRow">
+      <div class="kpi"><div class="lbl">Total recetas</div><div class="val" id="kpiRecTot">—</div></div>
+      <div class="kpi"><div class="lbl">Con instrucciones</div><div class="val" id="kpiRecConInstr">—</div></div>
+      <div class="kpi warn"><div class="lbl">📝 Sin instrucciones</div><div class="val" id="kpiRecSinInstr">—</div></div>
+    </div>
+    <div class="filtros">
+      <span class="label">Buscar:</span>
+      <input type="text" id="recQ" placeholder="Nombre de receta…">
+      <span class="label">Área:</span>
+      <select id="recArea">
+        <option value="">Todas</option>
+        <option value="cocina">Cocina</option>
+        <option value="churrasca">Churrasca</option>
+        <option value="barra">Barra</option>
+        <option value="panaderia">Panadería</option>
+        <option value="cava">Cava</option>
+      </select>
+      <span class="label">Categoría:</span>
+      <select id="recCat"><option value="">Todas</option></select>
+      <label class="chk"><input type="checkbox" id="recSoloActivas" checked> Solo activas</label>
+      <label class="chk"><input type="checkbox" id="recSinInstr"> 📝 Solo sin instrucciones</label>
+      <button class="btn" id="btnImprimirLista" type="button" style="margin-left:auto" title="Genera un documento imprimible / PDF con las recetas que muestran los filtros actuales (para firma)">🖨 Imprimir lista</button>
+      <button class="btn primary" id="btnNuevaReceta" type="button" style="display:none">+ Nueva receta</button>
+    </div>
+    <div class="tabla-wrap">
+      <table id="tblRec">
+        <thead><tr>
+          <th>Nombre</th><th>Categoría</th><th>Área</th><th>Chef</th>
+          <th class="num">Rendimiento</th><th>Estado</th>
+        </tr></thead>
+        <tbody><tr><td colspan="6" class="empty-state">Cargando…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ====== Tab: Ingredientes ====== -->
+  <section class="tab-pane" id="paneIngredientes" style="display:none">
+    <div class="kpi-row">
+      <div class="kpi"><div class="lbl">Total ingredientes</div><div class="val" id="kpiIngTot">—</div></div>
+      <div class="kpi"><div class="lbl">Con precio real</div><div class="val" id="kpiIngReal">—</div></div>
+      <div class="kpi warn"><div class="lbl">📍 Estimados</div><div class="val" id="kpiIngEst">—</div></div>
+      <div class="kpi"><div class="lbl">Sin precio</div><div class="val" id="kpiIngSin">—</div></div>
+      <div class="kpi"><div class="lbl">📦 Con stock SR12</div><div class="val" id="kpiIngStock" title="Ingredientes vinculados a SR12 con existencia &gt; 0">—</div></div>
+      <div class="kpi kpi-huerf" id="kpiIngHuerfCard" title="Click para filtrar la lista a sólo huérfanos">
+        <div class="lbl">🔸 Huérfanos sin vincular</div>
+        <div class="val" id="kpiIngHuerf">—</div>
+        <div class="kpi-huerf-bar"><div class="kpi-huerf-fill" id="kpiIngHuerfBar"></div></div>
+        <div class="kpi-huerf-sub" id="kpiIngHuerfSub">—</div>
+      </div>
+    </div>
+    <div id="huerfActions" style="display:none;margin:2px 0 14px;padding:11px 14px;background:rgba(200,154,74,.10);border:1px solid var(--gold)">
+      <div>
+        <a id="btnSugeridorReceta" class="btn" href="#" target="_top" style="background:var(--ink);border-color:var(--ink);color:var(--gold);font-weight:600">🪄 Abrir sugeridor de vínculos</a>
+        <span style="font-size:12.5px;color:var(--muted);margin-left:10px">Empareja los huérfanos con su producto del SR12 — el sistema propone y tú confirmas con un clic (incluye "vincular todas las de alta confianza").</span>
+      </div>
+      <div style="margin-top:9px">
+        <button id="btnDiagDatos" class="btn" type="button" style="font-weight:600">🩺 Diagnóstico de datos</button>
+        <span style="font-size:12.5px;color:var(--muted);margin-left:10px">Lista de ingredientes con datos sospechosos (sin unidad, sin precio, costos raros) — la chamba de limpieza, ya señalada.</span>
+      </div>
+      <div style="margin-top:9px">
+        <button id="btnValidador" class="btn" type="button" style="font-weight:600">✅ Validador de recetas</button>
+        <span style="font-size:12.5px;color:var(--muted);margin-left:10px">Semáforo por receta en 6 puntos: lógica · vínculo SR12 · costo · charola · inventario · cuadre. Dice qué falta y a quién le toca.</span>
+      </div>
+    </div>
+    <div class="filtros">
+      <span class="label">Buscar:</span>
+      <input type="text" id="ingQ" placeholder="Nombre de ingrediente…">
+      <span class="label">Categoría:</span>
+      <select id="ingCat"><option value="">Todas</option></select>
+      <label class="chk"><input type="checkbox" id="ingSoloEst"> 📍 Solo estimados</label>
+      <label class="chk"><input type="checkbox" id="ingSoloNoInv"> 🚫 Solo NO inventariables</label>
+      <label class="chk" title="Solo ingredientes con existencia SR12 > 0"><input type="checkbox" id="ingSoloStock"> 📦 Con stock SR12</label>
+      <label class="chk" title="Ingredientes sin equivalente SR12 (huérfanos)"><input type="checkbox" id="ingSoloHuerf"> 🔸 Solo huérfanos</label>
+    </div>
+    <div class="tabla-wrap" style="overflow-x:auto">
+      <table id="tblIng">
+        <thead><tr>
+          <th>Nombre</th><th>Cat.</th><th>ABC</th><th>Inv.</th><th>Unidad</th>
+          <th class="num" title="Costo de la última compra (estilo SoftRestaurant)">Último costo</th>
+          <th class="num" title="Promedio ponderado histórico">Costo prom.</th>
+          <th class="num" title="Agua perdida al descongelar">Deshielo %</th>
+          <th class="num" title="Recortes que se reusan en otras recetas (caldos, picadillos)">M. Aprov %</th>
+          <th class="num" title="Lo que se tira (huesos, grasa no usable)">M. NO Aprov %</th>
+          <th class="num">Merma total</th>
+          <th class="num" title="Si Marcos hizo pruebas reales, este es el factor calculado">Factor rend.</th>
+          <th class="num">Precio real</th>
+          <th class="num" title="Existencia total SR12 (almacén+barra+cava+churrasca+cocina+piso)">📦 Stock SR12</th>
+          <th>Origen</th>
+        </tr></thead>
+        <tbody><tr><td colspan="15" class="empty-state">Cargando…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="pag-bar" id="ingPagBar" style="display:none">
+      <span id="ingPagInfo">—</span>
+      <div class="pag-btns">
+        <button class="btn btn-sm" id="ingPagPrev">← Anterior</button>
+        <button class="btn btn-sm" id="ingPagNext">Siguiente →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== Tab: Configuración ====== -->
+  <section class="tab-pane" id="paneConfig" style="display:none">
+    <div class="filtros" style="flex-direction:column;align-items:stretch">
+      <h3 style="margin:0;font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:22px;color:var(--ink)">Configuración del módulo de recetas</h3>
+      <p style="font-size:13px;color:var(--muted);margin:0 0 8px">Estos parámetros aplican a TODAS las recetas que no los sobreescriban individualmente.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px">
+        <div>
+          <label class="label" style="display:block;margin-bottom:5px">% Costo indirecto global</label>
+          <input type="number" id="cfgCI" min="0" max="100" step="0.5" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-md)">
+          <small style="color:var(--muted);font-size:11.5px">Gas, luz, mano de obra prorrateada</small>
+        </div>
+        <div>
+          <label class="label" style="display:block;margin-bottom:5px">% Costo ideal (food cost)</label>
+          <input type="number" id="cfgPI" min="1" max="100" step="0.5" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-md)">
+          <small style="color:var(--muted);font-size:11.5px">Para sugerir precio de venta</small>
+        </div>
+        <div>
+          <label class="label" style="display:block;margin-bottom:5px">% IVA default</label>
+          <input type="number" id="cfgIVA" min="0" max="50" step="0.5" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-md)">
+        </div>
+      </div>
+      <button class="btn primary" id="cfgSave" style="margin-top:10px;align-self:flex-start">Guardar configuración</button>
+    </div>
+  </section>
+
+  <!-- ====== Tab: Pendientes (autorización) ====== -->
+  <section class="tab-pane" id="panePendientes" style="display:none">
+    <div class="kpi-row">
+      <div class="kpi warn"><div class="lbl">🔄 Pendientes</div><div class="val" id="kpiPendPend">—</div></div>
+      <div class="kpi"><div class="lbl">✓ Autorizadas</div><div class="val" id="kpiPendAut">—</div></div>
+      <div class="kpi"><div class="lbl">✗ Rechazadas</div><div class="val" id="kpiPendRech">—</div></div>
+    </div>
+    <div class="filtros">
+      <span class="label">Mostrar:</span>
+      <select id="pendEstado">
+        <option value="pendiente">Pendientes</option>
+        <option value="autorizada">Autorizadas</option>
+        <option value="rechazada">Rechazadas</option>
+        <option value="todos">Todos</option>
+      </select>
+      <button class="btn" id="pendRefrescar" style="margin-left:auto">↻ Actualizar</button>
+    </div>
+    <div class="tabla-wrap">
+      <table id="tblPend">
+        <thead><tr>
+          <th>Tipo</th><th>Receta</th><th>Cambio propuesto</th><th>Propuesto por</th><th>Fecha</th><th>Estado</th><th></th>
+        </tr></thead>
+        <tbody><tr><td colspan="7" class="empty-state">Cargando…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ====== Tab: Rentabilidad ====== -->
+  <section class="tab-pane" id="paneRentab" style="display:none">
+    <div class="kpi-row" id="rentKpiRow">
+      <div class="kpi"><div class="lbl">Recetas activas</div><div class="val" id="kpiRtAct">—</div></div>
+      <div class="kpi"><div class="lbl">Costo prom. / porción</div><div class="val" id="kpiRtCosto">—</div></div>
+      <div class="kpi warn"><div class="lbl">📍 Con precio estimado</div><div class="val" id="kpiRtEst">—</div></div>
+      <div class="kpi warn"><div class="lbl">📝 Sin instrucciones</div><div class="val" id="kpiRtSinInstr">—</div></div>
+      <div class="kpi"><div class="lbl">📷 Sin foto</div><div class="val" id="kpiRtSinFoto">—</div></div>
+    </div>
+    <div class="filtros">
+      <span class="label">Buscar:</span>
+      <input type="text" id="rtQ" placeholder="Nombre…">
+      <span class="label">Área:</span>
+      <select id="rtArea">
+        <option value="">Todas</option>
+        <option value="cocina">Cocina</option>
+        <option value="churrasca">Churrasca</option>
+        <option value="barra">Barra</option>
+        <option value="panaderia">Panadería</option>
+        <option value="cava">Cava</option>
+      </select>
+      <span class="label">Tipo:</span>
+      <select id="rtTipo">
+        <option value="">Todas</option>
+        <option value="platillo">Solo platillos</option>
+        <option value="subreceta">Solo sub-recetas</option>
+      </select>
+      <span class="label">Ordenar:</span>
+      <select id="rtOrden">
+        <option value="costo_desc">Costo porción (mayor a menor)</option>
+        <option value="costo_asc">Costo porción (menor a mayor)</option>
+        <option value="precio_desc">Precio venta (mayor a menor)</option>
+        <option value="nombre_asc">Nombre A→Z</option>
+      </select>
+      <label class="chk"><input type="checkbox" id="rtSoloEst"> Solo con precio estimado</label>
+      <button class="btn" id="rtRefrescar" style="margin-left:auto">↻ Actualizar</button>
+    </div>
+    <div class="tabla-wrap">
+      <table id="tblRt">
+        <thead><tr>
+          <th>Receta</th><th>Área</th><th class="num">Costo total</th><th class="num">Costo / porción</th><th class="num">Precio sugerido</th><th class="num">Precio + IVA</th><th>Banderas</th>
+        </tr></thead>
+        <tbody><tr><td colspan="7" class="empty-state">Carga el tab para ver el reporte</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ====== Tab: Mis propuestas (chef) ====== -->
+  <section class="tab-pane" id="paneMisPropuestas" style="display:none">
+    <div class="filtros">
+      <span class="label">Tus propuestas y su estado. Nada se aplica hasta que el Gerente Administrativo lo autoriza.</span>
+      <button class="btn" id="misPropRefrescar" type="button" style="margin-left:auto">↻ Actualizar</button>
+    </div>
+    <div class="tabla-wrap">
+      <table id="tblMisProp">
+        <thead><tr>
+          <th>Tipo</th><th>Receta</th><th>Detalle</th><th>Estado</th><th>Enviada</th>
+        </tr></thead>
+        <tbody><tr><td colspan="5" class="empty-state">Cargando…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<!-- Modal: detalle de receta -->
+<div class="modal-backdrop" id="recModal" role="dialog" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2 id="rmTitle">—</h2>
+        <div class="modal-sub" id="rmSub">—</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" id="btnSubirFoto" style="display:none">📷 Foto</button>
+        <input type="file" id="inpFotoReceta" accept="image/*" capture="environment" style="display:none">
+        <button class="btn" id="btnEditarReceta" style="display:none">✎ Editar receta</button>
+        <button class="btn" id="btnSuspReact" style="display:none"></button>
+        <button class="modal-close" id="rmClose" type="button">×</button>
+      </div>
+    </div>
+    <div class="modal-body" id="rmBody">Cargando…</div>
+  </div>
+</div>
+
+<!-- Modal: editar / proponer cambio de receta -->
+<div class="modal-backdrop" id="editModal" role="dialog" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2 id="emTitle">Proponer cambio de receta</h2>
+        <div class="modal-sub">El cambio se enviará para autorización del Gerente Administrativo. No aplica al instante.</div>
+      </div>
+      <button class="modal-close" id="emClose" type="button">×</button>
+    </div>
+    <div class="modal-body" id="emBody">
+      <input type="hidden" id="emRecId">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div>
+          <label style="font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;font-weight:600">Nombre</label>
+          <input type="text" id="emNombre" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-md);font-family:inherit;font-size:14px;margin-top:4px">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div>
+            <label style="font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;font-weight:600">Categoría culinaria</label>
+            <input type="text" id="emCat" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-md);font-family:inherit;font-size:14px;margin-top:4px">
+          </div>
+          <div>
+            <label style="font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;font-weight:600">Área</label>
+            <select id="emArea" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-md);font-family:inherit;font-size:14px;margin-top:4px">
+              <option value="cocina">Cocina</option>
+              <option value="churrasca">Churrasca</option>
+              <option value="barra">Barra</option>
+              <option value="panaderia">Panadería</option>
+              <option value="cava">Cava</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;font-weight:600">Rendimiento</label>
+            <div style="display:flex;gap:4px;margin-top:4px">
+              <input type="number" id="emRend" min="0" step="0.5" style="width:60%;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-md);font-family:inherit;font-size:14px">
+              <input type="text" id="emUnid" placeholder="porc" style="width:40%;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-md);font-family:inherit;font-size:14px">
+            </div>
+          </div>
+        </div>
+        <div>
+          <label style="font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;font-weight:600">Instrucciones</label>
+          <textarea id="emInstr" rows="6" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-md);font-family:inherit;font-size:13.5px;margin-top:4px;resize:vertical" placeholder="1.- Paso uno...&#10;2.- Paso dos..."></textarea>
+        </div>
+        <div>
+          <label style="font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;font-weight:600">Uso y aplicación</label>
+          <textarea id="emUso" rows="2" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-md);font-family:inherit;font-size:13.5px;margin-top:4px;resize:vertical"></textarea>
+        </div>
+        <div>
+          <label style="font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;font-weight:600">Decoración (opcional)</label>
+          <textarea id="emDeco" rows="2" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-md);font-family:inherit;font-size:13.5px;margin-top:4px;resize:vertical"></textarea>
+        </div>
+        <div>
+          <label style="font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;font-weight:600">Observación para quien autoriza (opcional)</label>
+          <textarea id="emObs" rows="2" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-md);font-family:inherit;font-size:13.5px;margin-top:4px;resize:vertical" placeholder="Nota para el gerente que autoriza (no es parte de la receta)."></textarea>
+        </div>
+
+        <!-- R1: Tabla editable de ingredientes -->
+        <div>
+          <label style="font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;font-weight:600;display:flex;justify-content:space-between;align-items:center">
+            <span>Ingredientes / sub-recetas</span>
+            <span id="emCheckLineas" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;text-transform:none;letter-spacing:0">
+              <input type="checkbox" id="emEditarLineas" style="margin:0">
+              <label for="emEditarLineas" style="cursor:pointer;font-size:11px;color:var(--muted)">Quiero modificar ingredientes</label>
+            </span>
+          </label>
+          <div id="emLineasWrap" style="display:none;margin-top:6px">
+            <div style="background:rgba(185,122,27,.08);border-left:3px solid var(--warn);padding:8px 12px;border-radius:var(--r-md);font-size:12px;color:#7a4f0d;margin-bottom:8px">
+              ⚠️ <strong>Reemplazo total:</strong> al guardar, se sustituye <em>toda</em> la lista de ingredientes por lo que esté en la tabla. Quita líneas con el botón ✗.
+            </div>
+            <div class="tabla-wrap" style="max-height:280px;overflow:auto">
+              <table class="lineas-table" id="emLineasTbl" style="font-size:13px">
+                <thead><tr>
+                  <th style="width:40%">Ingrediente / sub-receta</th>
+                  <th style="width:14%" class="num">Cantidad</th>
+                  <th style="width:14%">Unidad</th>
+                  <th style="width:10%" class="num">Merma %</th>
+                  <th style="width:10%">Decoración</th>
+                  <th style="width:8%">—</th>
+                </tr></thead>
+                <tbody id="emLineasBody"></tbody>
+              </table>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn btn-sm" id="emAddIngrediente" type="button">+ Ingrediente</button>
+              <button class="btn btn-sm" id="emAddSubreceta" type="button">+ Sub-receta</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--line);padding-top:14px">
+          <button class="btn" id="emCancel">Cancelar</button>
+          <button class="btn primary" id="emEnviar">📤 Enviar para autorización</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: detalle de pendiente para autorizar/rechazar -->
+<div class="modal-backdrop" id="pendModal" role="dialog" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2>Cambio pendiente de autorización</h2>
+        <div class="modal-sub" id="pmSub">—</div>
+      </div>
+      <button class="modal-close" id="pmClose" type="button">×</button>
+    </div>
+    <div class="modal-body" id="pmBody">Cargando…</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+  var API_URL = 'https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec';
+
+  // ---------- Sesión ----------
+  function getQuery(name){
+    var m = (location.search.match(new RegExp('[?&]' + name + '=([^&]*)')) || [])[1];
+    return m ? decodeURIComponent(m) : '';
+  }
+  var token = getQuery('t') || '<?!= __tokenInyectado ?>';
+  var user, empresa;
+  if (token) { try { sessionStorage.setItem('fogueira_token', token); } catch(e){} }
+  if (!token) { try { token = sessionStorage.getItem('fogueira_token'); } catch(e){} }
+  if (!token) { (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})(); return; }
+  try {
+    user = JSON.parse(sessionStorage.getItem('fogueira_user') || 'null');
+    empresa = JSON.parse(sessionStorage.getItem('fogueira_empresa') || 'null');
+  } catch(e){}
+  var ROLES_LECTURA = ['admin','gerente_administrativo','auditoria','cocina','churrasca','barman','panadero','comprador'];
+  var rol = '', puedeEditarPrecios = false, puedeEditarConfig = false, USER_PUEDE_VINCULAR = false;
+  var PUEDE_ENLAZAR_VENTA = false, ventaProductos = [], ventaProdMap = {};  // Cuadre de Barra (v332)
+  var _sesionUIAplicada = false;
+  function aplicarSesionUI() {
+    if (_sesionUIAplicada) return true;
+    _sesionUIAplicada = true;
+    rol = String(user ? user.rol : '').trim().toLowerCase();
+    if (ROLES_LECTURA.indexOf(rol) === -1) {
+      alert('Tu rol no tiene acceso al módulo de recetas.');
+      (function(_u){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sin acceso</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Esta pantalla no es para tu rol</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Toca el botón de abajo para ir a tu inicio, donde verás las pantallas que sí puedes usar.</p><a href="'+_u+'" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">← Ir a mi inicio</a></div>';document.body.appendChild(_o);})(API_URL+'?p=inicio&t='+encodeURIComponent(token||''));
+      return false;
+    }
+    (function(){ try { var b=API_URL+'?p=inicio&t='+encodeURIComponent(token||'')+(user?'&urol='+encodeURIComponent(user.rol||'')+'&unom='+encodeURIComponent(user.nombre||user.email||''):''); document.querySelectorAll('a[href*="p=inicio"]').forEach(function(a){a.href=b;}); }catch(e){} })();
+    document.getElementById('empresaNombre').textContent = (empresa && empresa.nombre) || 'Sin empresa';
+    // UI privilegiada sincrónica — antes del primer pintado
+    puedeEditarPrecios = ['admin','gerente_administrativo','comprador'].indexOf(rol) !== -1;
+    puedeEditarConfig  = ['admin','gerente_administrativo','auditoria'].indexOf(rol) !== -1;
+    USER_PUEDE_VINCULAR = ['admin','gerente_administrativo','cocina','churrasca','comprador'].indexOf(rol) !== -1;
+    if (puedeEditarConfig) document.getElementById('tabConfig').style.display = '';
+    // Acceso al sugeridor de vínculos desde el catálogo (donde vive el número de huérfanos).
+    if (['admin','gerente_administrativo','comprador','auditoria'].indexOf(rol) !== -1) {
+      var _hs = document.getElementById('btnSugeridorReceta');
+      if (_hs) _hs.href = API_URL + '?p=sugerencias-sr12&t=' + encodeURIComponent(token || '');
+      var _ha = document.getElementById('huerfActions');
+      if (_ha) _ha.style.display = '';
+      var _bd = document.getElementById('btnDiagDatos');
+      if (_bd) _bd.addEventListener('click', verDiagnostico);
+      var _bv = document.getElementById('btnValidador');
+      if (_bv) _bv.addEventListener('click', verValidador);
+    }
+    // Cuadre de Barra: quién puede enlazar receta→producto de venta + precargar el catálogo de ventas.
+    PUEDE_ENLAZAR_VENTA = ['admin','gerente_administrativo','auditoria','barman'].indexOf(rol) !== -1;
+    if (PUEDE_ENLAZAR_VENTA) {
+      apiCall({ action:'sr12_ventas_productos', token: token }, function(res){
+        if (res && res.ok) {
+          ventaProductos = res.productos || [];
+          ventaProdMap = {};
+          ventaProductos.forEach(function(p){ ventaProdMap[p.clave] = p.descripcion; });
+        }
+      });
+    }
+    // Chefs: ven SOLO su área (ocultamos el filtro de área) + acceso a "Mis propuestas".
+    if (rol === 'cocina' || rol === 'churrasca' || rol === 'barman' || rol === 'panadero') {
+      var _areaSel = document.getElementById('recArea');
+      if (_areaSel) {
+        _areaSel.value = rol;
+        _areaSel.style.display = 'none';
+        var _lbl = _areaSel.previousElementSibling;
+        if (_lbl && _lbl.classList && _lbl.classList.contains('label')) _lbl.style.display = 'none';
+      }
+      var _tabMP = document.getElementById('tabMisPropuestas');
+      if (_tabMP) _tabMP.style.display = 'inline-flex';
+    }
+    (function(){ if (!token) return; var _cb='_brand_'+Date.now(); window[_cb]=function(d){ try{delete window[_cb];}catch(e){} if(!d||!d.ok||!d.branding||d.origen!=='empresa_config') return; var b=d.branding,rs=document.documentElement.style; if(b.color_primario) rs.setProperty('--gold',b.color_primario); if(b.color_secundario) rs.setProperty('--ink',b.color_secundario); if(b.color_acento) rs.setProperty('--ember',b.color_acento); if(b.color_fondo) rs.setProperty('--cream',b.color_fondo); if(b.nombre_comercial) document.querySelectorAll('.brand-flame .wordmark').forEach(function(w){ w.textContent=String(b.nombre_comercial).toUpperCase(); }); }; var _s=document.createElement('script'); _s.src=API_URL+'?action=empresa_branding_get&token='+encodeURIComponent(token)+'&callback='+_cb; _s.async=true; document.head.appendChild(_s); })();
+    return true;
+  }
+  if (user && !aplicarSesionUI()) return;
+
+  // ---------- API JSONP ----------
+  function apiCall(params, cb){
+    var cbName = '_jcb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+    var script = document.createElement('script');
+    var cleanup = function(){ try{ delete window[cbName];}catch(e){window[cbName]=undefined;} if(script.parentNode) script.parentNode.removeChild(script); };
+    var t = setTimeout(function(){ cleanup(); cb({ok:false,error:'timeout'}); }, 30000);
+    window[cbName] = function(d){ clearTimeout(t); cleanup(); cb(d); };
+    var qs = Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
+    script.onerror = function(){ clearTimeout(t); cleanup(); cb({ok:false,error:'network'}); };
+    script.src = API_URL + '?' + qs + '&callback=' + cbName;
+    document.body.appendChild(script);
+  }
+
+  // ---------- Carga robusta (reintento + recuperación visible) ----------
+  // El servidor responde por JSONP; un parpadeo de red o un redeploy momentáneo hacían que la
+  // tabla quedara en "Cargando…" PARA SIEMPRE (solo salía un toast que se va solo, sin reintento).
+  // Estos ayudantes reintentan los fallos transitorios y, si aun así falla, muestran un botón
+  // "Reintentar" en lugar de dejar la pantalla colgada. SOLO usar en llamadas de lectura.
+  function _esErrTransitorio(res){
+    if (!res) return true;
+    if (res.ok) return false;
+    var e = String(res.error || '').toLowerCase();
+    return e === 'network' || e.indexOf('timeout') !== -1;
+  }
+  function apiCallReintento(params, cb, intentos){
+    intentos = (intentos == null) ? 2 : intentos;
+    apiCall(params, function(res){
+      if (res && res.ok) { cb(res); return; }
+      if (intentos > 0 && _esErrTransitorio(res)) {
+        setTimeout(function(){ apiCallReintento(params, cb, intentos - 1); }, 1200);
+        return;
+      }
+      cb(res); // fallo final → el caller decide cómo mostrarlo
+    });
+  }
+  function _errorTabla(selector, colspan, msg, onRetry){
+    var tb = document.querySelector(selector);
+    if (!tb) return;
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.colSpan = colspan; td.className = 'empty-state'; td.style.padding = '26px 12px';
+    var p = document.createElement('div');
+    p.textContent = msg || 'No se pudo cargar.'; p.style.marginBottom = '12px';
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'btn'; b.textContent = '↻ Reintentar';
+    b.onclick = function(){ tb.innerHTML = '<tr><td colspan="' + colspan + '" class="empty-state">Cargando…</td></tr>'; onRetry(); };
+    td.appendChild(p); td.appendChild(b); tr.appendChild(td);
+    tb.innerHTML = ''; tb.appendChild(tr);
+  }
+
+  // ---------- POST para payloads GRANDES (fotos) ----------
+  // JSONP mete TODO en la URL; una imagen en base64 la desborda → script.onerror → 'network'
+  // (la foto nunca llega al servidor). fetch POST manda el cuerpo aparte; el backend
+  // (handleRequest) ya lee e.postData.contents. Sin headers → request "simple", sin preflight CORS.
+  function apiCallPost(params, cb){
+    var done = false;
+    var t = setTimeout(function(){ if (done) return; done = true; cb({ ok:false, error:'timeout' }); }, 45000);
+    fetch(API_URL, { method:'POST', body: JSON.stringify(params), redirect:'follow' })
+      .then(function(r){ return r.json(); })
+      .then(function(d){ if (done) return; done = true; clearTimeout(t); cb(d); })
+      .catch(function(){ if (done) return; done = true; clearTimeout(t); cb({ ok:false, error:'network' }); });
+  }
+
+  // ---------- Diagnóstico de calidad de datos (reporte imprimible, solo lectura) ----------
+  function verDiagnostico(){
+    var btn = document.getElementById('btnDiagDatos');
+    if (btn){ btn.disabled = true; btn.textContent = '⏳ Analizando…'; }
+    apiCall({ action:'ingredientes_diagnostico', token: token }, function(res){
+      if (btn){ btn.disabled = false; btn.textContent = '🩺 Diagnóstico de datos'; }
+      if (!res || !res.ok){ toast((res&&res.error)||'Error', 'error'); return; }
+      var MOT = {
+        sin_unidad:    { t:'Sin unidad', c:'#8a1f17' },
+        unidad_rara:   { t:'Unidad rara', c:'#9a6e1a' },
+        sin_precio:    { t:'Sin precio', c:'#8a1f17' },
+        precio_alto:   { t:'Costo muy alto (¿corrupto?)', c:'#8a1f17' },
+        precio_bajo_kg:{ t:'Costo muy bajo p/ kg-lt (¿está en gramos?)', c:'#9a6e1a' }
+      };
+      var cn = res.conteo || {};
+      function money(v){ return v!=null ? ('$'+Number(v).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2})) : '—'; }
+      var rows = (res.flagged||[]).map(function(it){
+        var badges = (it.motivos||[]).map(function(m){ var d=MOT[m]||{t:m,c:'#555'}; return '<span style="display:inline-block;background:'+d.c+'14;color:'+d.c+';border:1px solid '+d.c+'55;padding:1px 7px;font-size:10.5px;margin:1px 2px;white-space:nowrap">'+d.t+'</span>'; }).join('');
+        var ds = ((it.nombre||'')+' '+(it.categoria||'')).toLowerCase().replace(/"/g,'');
+        return '<tr data-search="'+esc(ds)+'">'
+          + '<td style="font-weight:600">'+esc(it.nombre||'')+'</td>'
+          + '<td style="color:#5d6c80">'+esc(it.categoria||'—')+'</td>'
+          + '<td style="text-align:center">'+esc(it.unidad_base||'—')+'</td>'
+          + '<td style="text-align:right;font-family:monospace">'+money(it.ultimo_costo)+'</td>'
+          + '<td style="text-align:right;font-family:monospace">'+money(it.precio_real_unitario)+'</td>'
+          + '<td style="text-align:center">'+(it.usos>0?('<b style="color:#8a1f17">'+it.usos+'</b>'):'<span style="color:#aaa">0</span>')+'</td>'
+          + '<td>'+badges+'</td></tr>';
+      }).join('');
+      var kpi = function(l,v,c){ return '<div class="kpi" style="border-top-color:'+(c||'#c4322a')+'"><div class="kpi-l">'+l+'</div><div class="kpi-v" style="color:'+(c||'#111')+'">'+v+'</div></div>'; };
+      var w = window.open('','_blank');
+      if (!w){ toast('Permite ventanas emergentes para ver el reporte', 'error'); return; }
+      var html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Diagnóstico de datos · Fogueira</title>'
+        + '<style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#111;background:#f6f1e8;margin:0;padding:24px}'
+        + 'h1{font-size:19px;margin:0 0 4px}p{font-size:13px;color:#5d6c80;margin:0 0 16px}'
+        + 'table{width:100%;border-collapse:collapse;background:#fff;font-size:12.5px}'
+        + 'th{background:#0c0907;color:#f6f1e8;padding:8px 10px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em}'
+        + 'td{padding:7px 10px;border-bottom:1px solid #e4d9c2;vertical-align:top}tr:hover td{background:#fffdf8}'
+        + '.kpi-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}.kpi{flex:1;min-width:120px;padding:10px 14px;background:#fff;border:1px solid #e4d9c2;border-top:3px solid #c4322a}'
+        + '.kpi-v{font-size:22px;font-weight:800}.kpi-l{font-size:10px;text-transform:uppercase;color:#5d6c80}'
+        + '.toolbar{position:sticky;top:0;z-index:10;display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#0c0907;margin:-24px -24px 18px;padding:12px 24px}'
+        + '.toolbar input{flex:1;min-width:200px;max-width:460px;padding:9px 12px;font-size:13px;border:1px solid #c89a4a;background:#fffdf8;color:#111}'
+        + '.toolbar button{padding:9px 16px;font-size:12.5px;font-weight:700;border:none;cursor:pointer}'
+        + '.tb-v{background:#c89a4a;color:#0c0907}.tb-p{background:#1a1310;color:#c89a4a;border:1px solid #c89a4a!important}'
+        + '.tb-c{color:#c89a4a;font-size:12px;font-family:monospace;white-space:nowrap}'
+        + '@media print{.toolbar{display:none}body{padding:0}@page{size:A4 landscape;margin:10mm}}</style></head><body>'
+        + '<div class="toolbar"><button class="tb-v" onclick="try{window.close()}catch(e){}">← Cerrar</button>'
+        + '<input id="bus" type="search" placeholder="Buscar ingrediente…" oninput="fil()"><span class="tb-c" id="cnt"></span>'
+        + '<button class="tb-p" onclick="window.print()">🖨 Imprimir</button></div>'
+        + '<h1>Diagnóstico de calidad del catálogo · Fogueira</h1>'
+        + '<p><b>'+res.total_flagged+'</b> ingredientes con datos a revisar, de '+res.total_ingredientes+' activos.</p>'
+        + '<div class="kpi-row">'
+        + kpi('Sin unidad', cn.sin_unidad||0, '#8a1f17')
+        + kpi('Unidad rara', cn.unidad_rara||0, '#9a6e1a')
+        + kpi('Sin precio', cn.sin_precio||0, '#8a1f17')
+        + kpi('Costo muy alto', cn.precio_alto||0, '#8a1f17')
+        + kpi('Costo muy bajo (kg/lt)', cn.precio_bajo_kg||0, '#9a6e1a')
+        + '</div>'
+        + '<table><thead><tr><th>Ingrediente</th><th>Categoría</th><th style="text-align:center">Unidad</th><th style="text-align:right">Último costo</th><th style="text-align:right">Precio receta</th><th style="text-align:center">Recetas</th><th>Problemas</th></tr></thead><tbody>'+rows+'</tbody></table>'
+        + '<p style="margin-top:14px;font-size:11px;color:#999">Es un diagnóstico — NO cambia datos. Corrige cada uno en la pestaña Ingredientes.</p>'
+        + '<scr'+'ipt>function fil(){var q=(document.getElementById("bus").value||"").trim().toLowerCase();var rs=document.querySelectorAll("tbody tr"),n=0;for(var i=0;i<rs.length;i++){var s=rs[i].getAttribute("data-search")||"";var sh=!q||s.indexOf(q)!==-1;rs[i].style.display=sh?"":"none";if(sh)n++;}document.getElementById("cnt").textContent=q?(n+" de "+rs.length):(rs.length+" ingredientes");}fil();</scr'+'ipt>'
+        + '</body></html>';
+      w.document.write(html); w.document.close();
+    });
+  }
+
+  // ---------- Validador de recetas (6 dimensiones, semáforo, solo lectura) ----------
+  function verValidador(){
+    var btn = document.getElementById('btnValidador');
+    if (btn){ btn.disabled = true; btn.textContent = '⏳ Validando…'; }
+    apiCall({ action:'recetas_validacion', token: token }, function(res){
+      if (btn){ btn.disabled = false; btn.textContent = '✅ Validador de recetas'; }
+      if (!res || !res.ok){ toast((res&&res.error)||'Error', 'error'); return; }
+      var rs = res.resumen || {};
+      function ec(e){ return {verde:'#1a7f37',amarillo:'#9a6e1a',rojo:'#8a1f17',na:'#b8b8b8',gris:'#b8b8b8'}[e]||'#777'; }
+      function sym(e){ return {verde:'✓',amarillo:'!',rojo:'✕',na:'–',gris:'·'}[e]||'?'; }
+      function cell(d, extra){
+        var c = ec(d.estado);
+        var lbl = extra || (d.notas && d.notas.length ? d.notas.join(', ') : (d.estado==='verde'?'':(d.estado==='na'?'n/a':'')));
+        return '<td style="text-align:center;background:'+c+'12">'
+          + '<span style="font-weight:800;color:'+c+'">'+sym(d.estado)+'</span>'
+          + (lbl?'<div style="font-size:9.5px;color:#5d6c80;line-height:1.15;margin-top:1px">'+esc(lbl)+'</div>':'')
+          + '</td>';
+      }
+      var rows = (res.recetas||[]).map(function(r){
+        var c = r.checks||{};
+        var ds = ((r.nombre||'')+' '+(r.area||'')).toLowerCase().replace(/"/g,'');
+        var sr12extra = (c.sr12.estado!=='verde' && c.sr12.estado!=='gris') ? (c.sr12.pct+'% SR12') : '';
+        return '<tr data-estado="'+r.estado+'" data-search="'+esc(ds)+'">'
+          + '<td style="font-weight:600">'+esc(r.nombre||'')+'</td>'
+          + '<td style="color:#5d6c80">'+esc(r.area||'')+'</td>'
+          + cell(c.logica) + cell(c.sr12, sr12extra) + cell(c.costo) + cell(c.charola) + cell(c.inventario) + cell(c.cuadre)
+          + '<td style="font-size:11px;color:#8a1f17">'+(r.roles&&r.roles.length?esc(r.roles.join(', ')):'<span style="color:#1a7f37">—</span>')+'</td>'
+          + '</tr>';
+      }).join('');
+      var kpi = function(l,v,c){ return '<div class="kpi" style="border-top-color:'+(c||'#c4322a')+'"><div class="kpi-l">'+l+'</div><div class="kpi-v" style="color:'+(c||'#111')+'">'+v+'</div></div>'; };
+      var pa = res.por_area || {};
+      var areaLineas = Object.keys(pa).map(function(a){ var x=pa[a]; return '<b>'+esc(a)+'</b>: '+x.verde+' ✅ · '+x.amarillo+' 🟡 · '+x.rojo+' 🔴'; }).join(' &nbsp;|&nbsp; ');
+      var w = window.open('','_blank');
+      if (!w){ toast('Permite ventanas emergentes para ver el reporte', 'error'); return; }
+      var html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Validador de recetas · Fogueira</title>'
+        + '<style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#111;background:#f6f1e8;margin:0;padding:24px}'
+        + 'h1{font-size:19px;margin:0 0 4px}p{font-size:13px;color:#5d6c80;margin:0 0 12px}'
+        + 'table{width:100%;border-collapse:collapse;background:#fff;font-size:12px}'
+        + 'th{background:#0c0907;color:#f6f1e8;padding:7px 8px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.03em}'
+        + 'th:first-child,th:nth-child(2){text-align:left}td{padding:6px 8px;border-bottom:1px solid #e4d9c2;vertical-align:middle}tr:hover td{filter:brightness(.97)}'
+        + '.kpi-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}.kpi{flex:1;min-width:110px;padding:10px 14px;background:#fff;border:1px solid #e4d9c2;border-top:3px solid #c4322a}'
+        + '.kpi-v{font-size:22px;font-weight:800}.kpi-l{font-size:10px;text-transform:uppercase;color:#5d6c80}'
+        + '.toolbar{position:sticky;top:0;z-index:10;display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#0c0907;margin:-24px -24px 16px;padding:12px 24px}'
+        + '.toolbar input{flex:1;min-width:180px;max-width:420px;padding:9px 12px;font-size:13px;border:1px solid #c89a4a;background:#fffdf8;color:#111}'
+        + '.toolbar button{padding:8px 13px;font-size:12px;font-weight:700;border:none;cursor:pointer}'
+        + '.tb-v{background:#c89a4a;color:#0c0907}.tb-f{background:#1a1310;color:#c89a4a;border:1px solid #c89a4a!important}.tb-c{color:#c89a4a;font-size:12px;font-family:monospace;white-space:nowrap}'
+        + '.leg{font-size:11px;color:#5d6c80;margin:0 0 14px}.leg b{color:#111}'
+        + '@media print{.toolbar{display:none}body{padding:0}@page{size:A4 landscape;margin:8mm}}</style></head><body>'
+        + '<div class="toolbar"><button class="tb-v" onclick="try{window.close()}catch(e){}">← Cerrar</button>'
+        + '<input id="bus" type="search" placeholder="Buscar receta…" oninput="fil()"><span class="tb-c" id="cnt"></span>'
+        + '<button class="tb-f" data-f="all" onclick="ff(this)">Todas</button>'
+        + '<button class="tb-f" data-f="rojo" onclick="ff(this)">🔴 Críticas</button>'
+        + '<button class="tb-f" data-f="amarillo" onclick="ff(this)">🟡 Revisar</button>'
+        + '<button class="tb-f" data-f="verde" onclick="ff(this)">✅ Sanas</button>'
+        + '<button class="tb-f" onclick="window.print()">🖨 Imprimir</button></div>'
+        + '<h1>Validador de recetas · Fogueira</h1>'
+        + '<p>De <b>'+(rs.total||0)+'</b> recetas: <b style="color:#1a7f37">'+(rs.verde||0)+'</b> sanas · <b style="color:#9a6e1a">'+(rs.amarillo||0)+'</b> a revisar · <b style="color:#8a1f17">'+(rs.rojo||0)+'</b> críticas.</p>'
+        + '<div class="kpi-row">'+kpi('Total',rs.total||0,'#0c0907')+kpi('✅ Sanas',rs.verde||0,'#1a7f37')+kpi('🟡 Revisar',rs.amarillo||0,'#9a6e1a')+kpi('🔴 Críticas',rs.rojo||0,'#8a1f17')+'</div>'
+        + '<p class="leg">Por área: '+(areaLineas||'—')+'</p>'
+        + '<p class="leg"><b>6 puntos:</b> Lógica (cantidad/instrucciones) · SR12 (precio del POS) · Costo · Charola (vinculada al descuento) · Inv. (afecta inventario) · Cuadre (comparable con SR12). &nbsp; ✓ ok · ! revisar · ✕ falla · – no aplica. &nbsp; <b>Toca a</b> = quién lo arregla (comprador=SR12/costos · chef=cantidades · admin=charola/inventario).</p>'
+        + '<table><thead><tr><th>Receta</th><th>Área</th><th>Lógica</th><th>SR12</th><th>Costo</th><th>Charola</th><th>Inv.</th><th>Cuadre</th><th style="text-align:left">Toca a</th></tr></thead><tbody>'+rows+'</tbody></table>'
+        + '<p style="margin-top:14px;font-size:11px;color:#999">Es un validador — NO cambia datos. Corrige en Ingredientes / Charolas / con el comprador.</p>'
+        + '<scr'+'ipt>var F="all";function ff(b){F=b.getAttribute("data-f")||"all";fil();}'
+        + 'function fil(){var q=(document.getElementById("bus").value||"").trim().toLowerCase();var rs=document.querySelectorAll("tbody tr"),n=0;for(var i=0;i<rs.length;i++){var s=rs[i].getAttribute("data-search")||"";var e=rs[i].getAttribute("data-estado")||"";var sh=(!q||s.indexOf(q)!==-1)&&(F==="all"||e===F);rs[i].style.display=sh?"":"none";if(sh)n++;}document.getElementById("cnt").textContent=n+" de "+rs.length;}fil();</scr'+'ipt>'
+        + '</body></html>';
+      w.document.write(html); w.document.close();
+    });
+  }
+
+  // ---------- Toast ----------
+  var toastTimer = null;
+  function toast(msg, type){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (type ? ' ' + type : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function fmtMoney(n){ if (n == null || isNaN(n)) return '—'; return '$' + Number(n).toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+  function fmtNum(n, dec){ if (n == null || isNaN(n)) return '—'; return Number(n).toLocaleString('es-MX', {maximumFractionDigits: dec || 2}); }
+
+  // ---------- State ----------
+  var state = {
+    tab: 'recetas',
+    recetas: [],
+    ingredientes: [],
+    pendientes: [],
+    recetaActualId: null,
+    recetaActualData: null,
+    ingPag: 0,
+    ingPagSize: 50,
+    config: null
+  };
+
+  // ---------- Tabs ----------
+  var TAB_PANES = {
+    recetas:      'paneRecetas',
+    subrecetas:   'paneRecetas',
+    ingredientes: 'paneIngredientes',
+    pendientes:   'panePendientes',
+    mispropuestas:'paneMisPropuestas',
+    rentabilidad: 'paneRentab',
+    config:       'paneConfig'
+  };
+  document.querySelectorAll('#tabs .tab').forEach(function(t){
+    t.addEventListener('click', function(){
+      var tab = t.getAttribute('data-tab');
+      cambiarTab(tab);
+    });
+  });
+  function cambiarTab(tab) {
+    state.tab = tab;
+    document.querySelectorAll('#tabs .tab').forEach(function(x){ x.classList.toggle('active', x.getAttribute('data-tab') === tab); });
+    Object.keys(TAB_PANES).forEach(function(k){
+      var el = document.getElementById(TAB_PANES[k]);
+      if (el) el.style.display = (TAB_PANES[k] === TAB_PANES[tab]) ? '' : 'none';
+    });
+    if (tab === 'recetas' || tab === 'subrecetas') renderRecetas();
+    if (tab === 'ingredientes') renderIngredientes();
+    if (tab === 'config') cargarConfig();
+    if (tab === 'pendientes') cargarPendientes();
+    if (tab === 'mispropuestas') cargarMisPropuestas();
+    if (tab === 'rentabilidad') cargarRentabilidad();
+  }
+
+  // ---------- Cargar datos iniciales ----------
+  function cargarTodo(){
+    apiCallReintento({ action:'recetas_list', token: token }, function(res){
+      if (res.ok) {
+        state.recetas = res.recetas;
+        var cntPlat = res.recetas.filter(function(r){ return !r.es_elaborado; }).length;
+        var cntSub  = res.recetas.filter(function(r){ return r.es_elaborado; }).length;
+        document.getElementById('cntRec').textContent = cntPlat;
+        document.getElementById('cntSub').textContent = cntSub;
+        // KPIs de instrucciones (vienen del backend)
+        if (res.kpis) {
+          document.getElementById('kpiRecTot').textContent = res.kpis.total;
+          document.getElementById('kpiRecConInstr').textContent = res.kpis.con_instrucciones;
+          document.getElementById('kpiRecSinInstr').textContent = res.kpis.sin_instrucciones;
+        }
+        // Llenar select de categorías culinarias
+        var cats = {};
+        res.recetas.forEach(function(r){ if (r.categoria_culinaria) cats[r.categoria_culinaria] = true; });
+        var sel = document.getElementById('recCat');
+        Object.keys(cats).sort().forEach(function(c){
+          var o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o);
+        });
+        renderRecetas();
+      } else {
+        toast(res.error || 'Error al cargar recetas', 'error');
+        _errorTabla('#tblRec tbody', 6, 'No se pudieron cargar las recetas. Revisa tu conexión a internet.', cargarTodo);
+      }
+    });
+    apiCallReintento({ action:'ingredientes_list', token: token }, function(res){
+      if (res.ok) {
+        state.ingredientes = res.ingredientes;
+        document.getElementById('cntIng').textContent = res.ingredientes.length;
+        document.getElementById('kpiIngTot').textContent = res.ingredientes.length;
+        document.getElementById('kpiIngReal').textContent = res.ingredientes.filter(function(i){ return !i.ultimo_costo_estimado && i.ultimo_costo; }).length;
+        document.getElementById('kpiIngEst').textContent = res.ingredientes.filter(function(i){ return i.ultimo_costo_estimado; }).length;
+        document.getElementById('kpiIngSin').textContent = res.ingredientes.filter(function(i){ return !i.ultimo_costo && !i.es_subreceta_catalogo; }).length;
+        // F3 Fase B — KPI stock SR12 (con existencia > 0).
+        var conStock = res.ingredientes.filter(function(i){ return i.sr12 && i.sr12.total > 0; }).length;
+        document.getElementById('kpiIngStock').textContent = conStock;
+        // v165 — KPI huérfanos sin vincular (sin sr12 Y sin clave_sr12) con barra de progreso
+        actualizarKpiHuerfanos();
+        // Llenar select de categorías
+        var cats = {};
+        res.ingredientes.forEach(function(i){ if (i.categoria) cats[i.categoria] = true; });
+        var sel = document.getElementById('ingCat');
+        Object.keys(cats).sort().forEach(function(c){
+          var o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o);
+        });
+        if (state.tab === 'ingredientes') renderIngredientes();
+      } else {
+        toast(res.error || 'Error al cargar ingredientes', 'error');
+        _errorTabla('#tblIng tbody', 15, 'No se pudieron cargar los ingredientes. Revisa tu conexión a internet.', cargarTodo);
+      }
+    });
+  }
+
+  // ---------- Render Recetas ----------
+  function renderRecetas(){
+    var q = (document.getElementById('recQ').value || '').toLowerCase().trim();
+    var area = document.getElementById('recArea').value;
+    var cat = document.getElementById('recCat').value;
+    var soloActivas = document.getElementById('recSoloActivas').checked;
+    var soloSinInstr = document.getElementById('recSinInstr').checked;
+    var modoSub = state.tab === 'subrecetas';
+    var lista = state.recetas.filter(function(r){
+      if (modoSub && !r.es_elaborado) return false;
+      if (!modoSub && r.es_elaborado) return false;
+      if (q && r.nombre.toLowerCase().indexOf(q) === -1) return false;
+      if (area && r.area !== area) return false;
+      if (cat && r.categoria_culinaria !== cat) return false;
+      if (soloActivas && !r.activa) return false;
+      if (soloSinInstr && !r.sin_instrucciones) return false;
+      return true;
+    });
+    var tb = document.querySelector('#tblRec tbody');
+    if (!lista.length) {
+      tb.innerHTML = '<tr><td colspan="6" class="empty-state">Sin resultados</td></tr>';
+      return;
+    }
+    tb.innerHTML = lista.map(function(r){
+      var areaB = r.area === 'churrasca' ? '<span class="badge b-churrasca">Churrasca</span>' : r.area === 'barra' ? '<span class="badge b-barra">Barra</span>' : r.area === 'panaderia' ? '<span class="badge b-panaderia">Panadería</span>' : r.area === 'cava' ? '<span class="badge b-cava">Cava</span>' : '<span class="badge b-cocina">Cocina</span>';
+      var stB = r.activa ? '<span class="badge b-good">Activa</span>' : '<span class="badge b-bad">Inactiva</span>';
+      if (r.es_elaborado) stB = '<span class="badge b-sub">Sub-receta</span>';
+      var rend = r.rendimiento ? (Math.round(Number(r.rendimiento) * 1000) / 1000) + ' ' + (r.unidad_rendimiento || 'porc') : '—';
+      var marca = r.sin_instrucciones ? ' <span title="Sin instrucciones documentadas" style="color:var(--warn);font-size:11px">📝</span>' : '';
+      return '<tr class="row-clickable" data-id="' + r.id + '">' +
+        '<td><strong>' + esc(r.nombre) + '</strong>' + marca + '</td>' +
+        '<td>' + esc(r.categoria_culinaria || '—') + '</td>' +
+        '<td>' + areaB + '</td>' +
+        '<td>' + esc((r.chef_responsable_email || '').split('@')[0]) + '</td>' +
+        '<td class="num">' + rend + '</td>' +
+        '<td>' + stB + '</td>' +
+      '</tr>';
+    }).join('');
+    tb.querySelectorAll('tr[data-id]').forEach(function(tr){
+      tr.addEventListener('click', function(){ abrirReceta(tr.getAttribute('data-id')); });
+    });
+  }
+  ['recQ','recArea','recCat','recSoloActivas','recSinInstr'].forEach(function(id){
+    var el = document.getElementById(id);
+    el.addEventListener('input', renderRecetas);
+    el.addEventListener('change', renderRecetas);
+  });
+
+  // ---------- Imprimir / exportar enlistado de recetas (respeta los filtros actuales) ----------
+  function imprimirEnlistado(){
+    var q = (document.getElementById('recQ').value || '').toLowerCase().trim();
+    var area = document.getElementById('recArea').value;
+    var cat = document.getElementById('recCat').value;
+    var soloActivas = document.getElementById('recSoloActivas').checked;
+    var soloSinInstr = document.getElementById('recSinInstr').checked;
+    var modoSub = state.tab === 'subrecetas';
+    var lista = state.recetas.filter(function(r){
+      if (modoSub && !r.es_elaborado) return false;
+      if (!modoSub && r.es_elaborado) return false;
+      if (q && r.nombre.toLowerCase().indexOf(q) === -1) return false;
+      if (area && r.area !== area) return false;
+      if (cat && r.categoria_culinaria !== cat) return false;
+      if (soloActivas && !r.activa) return false;
+      if (soloSinInstr && !r.sin_instrucciones) return false;
+      return true;
+    });
+    if (!lista.length){ toast('No hay recetas con esos filtros para imprimir', 'error'); return; }
+    var AREA_NOM = {cocina:'Cocina',churrasca:'Churrasca',barra:'Barra',panaderia:'Panadería',cava:'Cava'};
+    lista.sort(function(a,b){ return String(a.nombre||'').localeCompare(String(b.nombre||''), 'es'); });
+    var sinCount = 0;
+    var filas = lista.map(function(r, i){
+      var rend = r.rendimiento ? (Math.round(Number(r.rendimiento)*1000)/1000) + ' ' + (r.unidad_rendimiento || 'porc') : '—';
+      var instr = r.sin_instrucciones ? '<span style="color:#9a6e1a;font-weight:700">📝 Sin proc.</span>' : '<span style="color:#1f7a3d">✓ Con proc.</span>';
+      if (r.sin_instrucciones) sinCount++;
+      var chef = (r.chef_responsable_email || '').split('@')[0] || '—';
+      return '<tr>'
+        + '<td style="text-align:right;color:#999">'+(i+1)+'</td>'
+        + '<td style="font-weight:600">'+esc(r.nombre||'')+'</td>'
+        + '<td style="color:#5d6c80">'+esc(r.categoria_culinaria||'—')+'</td>'
+        + '<td>'+esc(AREA_NOM[r.area]||r.area||'—')+'</td>'
+        + '<td>'+esc(chef)+'</td>'
+        + '<td style="text-align:right;font-family:monospace">'+esc(rend)+'</td>'
+        + '<td style="text-align:center">'+instr+'</td>'
+        + '<td style="text-align:center">'+(r.activa?'Activa':'Inactiva')+'</td>'
+        + '</tr>';
+    }).join('');
+    var filtros = [];
+    filtros.push(modoSub ? 'Sub-recetas' : 'Recetas');
+    filtros.push('Área: ' + (area ? (AREA_NOM[area]||area) : 'Todas'));
+    if (cat) filtros.push('Categoría: ' + cat);
+    filtros.push(soloSinInstr ? 'Solo SIN procedimiento' : 'Con y sin procedimiento');
+    filtros.push(soloActivas ? 'Solo activas' : 'Activas e inactivas');
+    if (q) filtros.push('Búsqueda: "' + q + '"');
+    var h = new Date();
+    var fechaStr = h.getFullYear()+'-'+String(h.getMonth()+1).padStart(2,'0')+'-'+String(h.getDate()).padStart(2,'0');
+    var w = window.open('', '_blank');
+    if (!w){ toast('Permite ventanas emergentes para ver el enlistado', 'error'); return; }
+    var html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Enlistado de recetas · Fogueira</title>'
+      + '<style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#111;background:#f6f1e8;margin:0;padding:24px}'
+      + 'h1{font-size:19px;margin:0 0 4px}p.sub{font-size:12.5px;color:#5d6c80;margin:0 0 14px}'
+      + 'table{width:100%;border-collapse:collapse;background:#fff;font-size:12px}'
+      + 'th{background:#0c0907;color:#f6f1e8;padding:7px 9px;text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em}'
+      + 'td{padding:6px 9px;border-bottom:1px solid #e4d9c2}tr:nth-child(even) td{background:#fbf7ef}'
+      + '.firma{margin-top:30px;display:flex;gap:40px;font-size:13px}.firma div{flex:1;border-top:1px solid #111;padding-top:6px;text-align:center;color:#5d6c80}'
+      + '.toolbar{position:sticky;top:0;z-index:10;display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#0c0907;margin:-24px -24px 18px;padding:12px 24px}'
+      + '.toolbar button{padding:9px 16px;font-size:12.5px;font-weight:700;border:none;cursor:pointer}'
+      + '.tb-v{background:#c89a4a;color:#0c0907}.tb-p{background:#1a1310;color:#c89a4a;border:1px solid #c89a4a!important}'
+      + '@media print{.toolbar{display:none}body{padding:0}@page{size:A4 portrait;margin:12mm}tr:nth-child(even) td{background:#fff}}</style></head><body>'
+      + '<div class="toolbar"><button class="tb-v" onclick="try{window.close()}catch(e){}">← Cerrar</button>'
+      + '<button class="tb-p" onclick="window.print()">🖨 Imprimir / Guardar PDF</button></div>'
+      + '<h1>Enlistado de recetas · Fogueira</h1>'
+      + '<p class="sub">' + esc(filtros.join('  ·  ')) + '  —  <b>' + lista.length + '</b> recetas'
+      + (sinCount ? (' ('+sinCount+' sin procedimiento)') : '') + '  ·  Generado ' + fechaStr + '</p>'
+      + '<table><thead><tr><th style="text-align:right">#</th><th>Nombre</th><th>Categoría</th><th>Área</th><th>Chef</th><th style="text-align:right">Rendimiento</th><th style="text-align:center">Procedimiento</th><th style="text-align:center">Estado</th></tr></thead><tbody>'+filas+'</tbody></table>'
+      + '<div class="firma"><div>Elaboró / chef</div><div>Revisó · Supervisión de Operaciones</div><div>Fecha</div></div>'
+      + '</body></html>';
+    w.document.write(html); w.document.close();
+  }
+  document.getElementById('btnImprimirLista').addEventListener('click', imprimirEnlistado);
+
+  // === Botón "+ Nueva receta" (R6) ===
+  document.getElementById('btnNuevaReceta').addEventListener('click', function(){
+    state.emModo = 'crear';
+    document.getElementById('emRecId').value = '';
+    document.getElementById('emTitle').textContent = 'Nueva receta';
+    document.getElementById('emNombre').value = '';
+    document.getElementById('emCat').value = '';
+    document.getElementById('emArea').value = (user && user.rol === 'churrasca') ? 'churrasca' : (user && user.rol === 'barman') ? 'barra' : (user && user.rol === 'panadero') ? 'panaderia' : 'cocina';
+    document.getElementById('emRend').value = 1;
+    document.getElementById('emUnid').value = 'porciones';
+    document.getElementById('emInstr').value = '';
+    document.getElementById('emUso').value = '';
+    document.getElementById('emDeco').value = '';
+    document.getElementById('emObs').value = '';
+    state.emLineas = [];
+    // En modo crear, las líneas son obligatorias — checkbox checked y oculto
+    document.getElementById('emEditarLineas').checked = true;
+    document.getElementById('emCheckLineas').style.display = 'none';
+    document.getElementById('emLineasWrap').style.display = '';
+    renderEmLineas();
+    document.getElementById('editModal').classList.add('open');
+  });
+  // Restaurar checkbox cuando se cierre el modal
+  ['emClose','emCancel'].forEach(function(id){
+    document.getElementById(id).addEventListener('click', function(){
+      document.getElementById('emCheckLineas').style.display = '';
+    });
+  });
+
+  // ---------- F3 Fase B — Render celda Stock SR12 ----------
+  // Devuelve <td> con:
+  //   • badge dorado mostrando total + caret si hay match SR12
+  //   • tooltip oculto con desglose por área al hover/click
+  //   • badge "—" tenue si no hay vínculo SR12
+  //   • badge naranja-tenue "🔸" si tiene clave_sr12 ligada pero no aparece en la última importación
+  function fmtStockNum(v) {
+    if (!v) return '0';
+    if (v >= 1000) return fmtNum(v, 0);
+    if (v >= 10)   return fmtNum(v, 1);
+    return fmtNum(v, 2);
+  }
+  function renderStockSR12Cell(i) {
+    var s = i.sr12;
+    var puedeVincular = USER_PUEDE_VINCULAR;
+    if (!s) {
+      // Huérfano (sin ningún match SR12) o ligado a una clave que no existe en la última importación.
+      if (i.clave_sr12) {
+        var btnCambiar = puedeVincular
+          ? '<button class="sr12-vincular-btn cambiar" data-ing-id="' + esc(i.id) + '" data-ing-nombre="' + esc(i.nombre) + '" data-clave-actual="' + esc(i.clave_sr12) + '" title="Cambiar el vínculo SR12 de este ingrediente">✏️</button>'
+          : '';
+        return '<td class="num sr12-cell">' +
+          '<span class="sr12-badge huerf" title="Ligado a SR12 ' + esc(i.clave_sr12) + ' pero sin existencias en la última importación">🔸 ligado</span>' +
+          btnCambiar +
+          '<div class="sr12-tooltip">' +
+            '<h6>Vínculo SR12</h6>' +
+            '<div class="meta">Clave: ' + esc(i.clave_sr12) + '<br>Sin existencias en la última importación.</div>' +
+          '</div>' +
+        '</td>';
+      }
+      if (puedeVincular) {
+        return '<td class="num sr12-cell">' +
+          '<button class="sr12-vincular-btn" data-ing-id="' + esc(i.id) + '" data-ing-nombre="' + esc(i.nombre) + '" title="Ligar este ingrediente a una clave del catálogo SR12">🔗 Vincular</button>' +
+        '</td>';
+      }
+      return '<td class="num sr12-cell"><span class="sr12-badge empty">—</span></td>';
+    }
+    var unidad = s.unidad_base || '';
+    var areas = [
+      { k:'almacen',   l:'Almacén',   v:s.almacen   },
+      { k:'cocina',    l:'Cocina',    v:s.cocina    },
+      { k:'churrasca', l:'Churrasca', v:s.churrasca },
+      { k:'barra',     l:'Barra',     v:s.barra     },
+      { k:'cava',      l:'Cava',      v:s.cava      },
+      { k:'piso',      l:'Piso',      v:s.piso      }
+    ];
+    var rowsHtml = areas.map(function(a){
+      var cls = a.v > 0 ? '' : ' empty';
+      var val = a.v > 0 ? (fmtStockNum(a.v) + (unidad ? ' ' + esc(unidad) : '')) : '—';
+      return '<div class="row' + cls + '"><span class="a">' + a.l + '</span><span class="v">' + val + '</span></div>';
+    }).join('');
+    var totalCls = s.total > 0 ? '' : ' empty';
+    var meta = 'SR12: ' + esc(s.clave) +
+      (s.nombre_sr12 ? '<br>' + esc(s.nombre_sr12) : '') +
+      (s.presentacion_descripcion && s.presentacion_descripcion !== s.nombre_sr12 ? '<br>' + esc(s.presentacion_descripcion) : '');
+    var badgeTxt = s.total > 0
+      ? fmtStockNum(s.total) + (unidad ? ' ' + esc(unidad) : '')
+      : '0';
+    var badgeCls = s.total > 0 ? 'sr12-badge' : 'sr12-badge huerf';
+    var btnCambiarLigado = puedeVincular
+      ? '<button class="sr12-vincular-btn cambiar" data-ing-id="' + esc(i.id) + '" data-ing-nombre="' + esc(i.nombre) + '" data-clave-actual="' + esc(s.clave) + '" title="Cambiar el vínculo SR12">✏️</button>'
+      : '';
+    return '<td class="num sr12-cell">' +
+      '<span class="' + badgeCls + '" title="Click para ver desglose por área">' + badgeTxt + ' <span class="caret">▾</span></span>' +
+      btnCambiarLigado +
+      '<div class="sr12-tooltip">' +
+        '<h6>Existencia por área</h6>' +
+        rowsHtml +
+        '<div class="row total' + totalCls + '"><span class="a">Total</span><span class="v">' + (s.total > 0 ? (fmtStockNum(s.total) + (unidad ? ' ' + esc(unidad) : '')) : '—') + '</span></div>' +
+        '<div class="meta">' + meta + '</div>' +
+      '</div>' +
+    '</td>';
+  }
+  // Click fuera cierra cualquier tooltip abierto.
+  document.addEventListener('click', function(ev){
+    if (ev.target.closest && ev.target.closest('.sr12-cell')) return;
+    document.querySelectorAll('.sr12-cell.show-tooltip').forEach(function(c){ c.classList.remove('show-tooltip'); });
+  });
+
+  // ---------- Render Ingredientes ----------
+  function renderIngredientes(){
+    // v165 — recalcular KPI huérfanos en cada render para mantener sincronizado
+    // tras vincular/desvincular (no depende del re-fetch de la lista).
+    if (typeof actualizarKpiHuerfanos === 'function') actualizarKpiHuerfanos();
+    var q = (document.getElementById('ingQ').value || '').toLowerCase().trim();
+    var cat = document.getElementById('ingCat').value;
+    var soloEst = document.getElementById('ingSoloEst').checked;
+    var soloNoInv = document.getElementById('ingSoloNoInv').checked;
+    var soloStock = document.getElementById('ingSoloStock').checked;
+    var soloHuerf = document.getElementById('ingSoloHuerf').checked;
+    var lista = state.ingredientes.filter(function(i){
+      if (q && i.nombre.toLowerCase().indexOf(q) === -1) return false;
+      if (cat && i.categoria !== cat) return false;
+      if (soloEst && !i.ultimo_costo_estimado) return false;
+      if (soloNoInv && i.inventariable) return false;
+      if (soloStock && !(i.sr12 && i.sr12.total > 0)) return false;
+      if (soloHuerf && (i.sr12 || i.clave_sr12)) return false;
+      return true;
+    });
+    // Paginación
+    var total = lista.length;
+    var paginas = Math.max(1, Math.ceil(total / state.ingPagSize));
+    if (state.ingPag >= paginas) state.ingPag = 0;
+    var start = state.ingPag * state.ingPagSize;
+    var pageList = lista.slice(start, start + state.ingPagSize);
+
+    var tb = document.querySelector('#tblIng tbody');
+    if (!pageList.length) {
+      tb.innerHTML = '<tr><td colspan="15" class="empty-state">Sin resultados</td></tr>';
+      document.getElementById('ingPagBar').style.display = 'none';
+      return;
+    }
+    tb.innerHTML = pageList.map(function(i){
+      var origenB = '';
+      if (i.precio_origen === 'capturado_real') origenB = '<span class="badge b-good">Real</span>';
+      else if (i.ultimo_costo_estimado) origenB = '<span class="badge b-warn">📍 Estimado</span>';
+      else if (i.es_subreceta_catalogo) origenB = '<span class="badge b-sub">Sub-receta</span>';
+      else if (i.dato_incompleto) origenB = '<span class="badge b-bad">Incompleto</span>';
+      else origenB = '<span class="badge b-info">' + esc(i.precio_origen || '—') + '</span>';
+
+      var precioCell = puedeEditarPrecios
+        ? '<td class="num editable editable-precio" data-id="' + i.id + '" data-campo="ultimo_costo" data-actual="' + (i.ultimo_costo || '') + '" title="✏️ Clic para editar el precio. (El PRECIO REAL se recalcula solo a partir de aquí.)">' + (i.ultimo_costo ? fmtMoney(i.ultimo_costo) : '—') + '</td>'
+        : '<td class="num">' + (i.ultimo_costo ? fmtMoney(i.ultimo_costo) : '—') + '</td>';
+      var promCell = puedeEditarPrecios
+        ? '<td class="num editable" data-id="' + i.id + '" data-campo="costo_promedio" data-actual="' + (i.costo_promedio || '') + '" style="color:var(--muted);font-size:12.5px">' + (i.costo_promedio ? fmtMoney(i.costo_promedio) : '—') + '</td>'
+        : '<td class="num" style="color:var(--muted);font-size:12.5px">' + (i.costo_promedio ? fmtMoney(i.costo_promedio) : '—') + '</td>';
+      function celdaMermaEdit(campo, val) {
+        return puedeEditarPrecios
+          ? '<td class="num editable" data-id="' + i.id + '" data-campo="' + campo + '" data-actual="' + (val || 0) + '">' + (val ? fmtNum(val, 2) + '%' : '—') + '</td>'
+          : '<td class="num">' + (val ? fmtNum(val, 2) + '%' : '—') + '</td>';
+      }
+      var deshCell = celdaMermaEdit('merma_deshielo_pct', i.merma_deshielo_pct);
+      var apvCell  = celdaMermaEdit('merma_aprovechable_pct', i.merma_aprovechable_pct);
+      var napCell  = celdaMermaEdit('merma_no_aprovechable_pct', i.merma_no_aprovechable_pct);
+      var totMermaCell = '<td class="num"><strong>' + (i.merma_pct ? fmtNum(i.merma_pct, 2) + '%' : '—') + '</strong></td>';
+      var frBadge = i.factor_rendimiento_origen && i.factor_rendimiento_origen.indexOf('pruebas_marcos') === 0 ? ' <span class="badge b-good" title="Con pruebas reales de Marcos">🔬</span>' : '';
+      var frCell = puedeEditarPrecios
+        ? '<td class="num editable" data-id="' + i.id + '" data-campo="factor_rendimiento" data-actual="' + (i.factor_rendimiento || 1) + '">' + fmtNum(i.factor_rendimiento || 1, 4) + frBadge + '</td>'
+        : '<td class="num">' + fmtNum(i.factor_rendimiento || 1, 4) + frBadge + '</td>';
+
+      // ABC y Inventariable
+      var abcCell = puedeEditarPrecios
+        ? '<td class="abc-cell" data-id="' + i.id + '">' +
+            '<select class="abc-select" data-id="' + i.id + '" title="Clasificación ABC: A=20% que generan 80% del costo, B=medios, C=bajo impacto">' +
+              '<option value=""' + (!i.tipo_abc ? ' selected' : '') + '>—</option>' +
+              '<option value="A"' + (i.tipo_abc === 'A' ? ' selected' : '') + '>A</option>' +
+              '<option value="B"' + (i.tipo_abc === 'B' ? ' selected' : '') + '>B</option>' +
+              '<option value="C"' + (i.tipo_abc === 'C' ? ' selected' : '') + '>C</option>' +
+            '</select></td>'
+        : '<td>' + (i.tipo_abc || '—') + '</td>';
+      var invCell = puedeEditarPrecios
+        ? '<td><label class="inv-toggle" title="Inventariable: si se descuenta como ingrediente. Aceite/gas/sal van NO inventariable."><input type="checkbox" class="inv-check" data-id="' + i.id + '"' + (i.inventariable ? ' checked' : '') + '></label></td>'
+        : '<td>' + (i.inventariable ? '✓' : '🚫') + '</td>';
+      // Unidad editable (la unidad en que se COMPRA/cotiza este insumo → así se entiende su precio).
+      var UNI_OPTS = ['kg','lt','gr','ml','pieza'];
+      var uniAct = String(i.unidad_base || '').toLowerCase();
+      var uniVacia = !uniAct ? ' uni-vacia' : '';
+      var uniCell = puedeEditarPrecios
+        ? '<td><select class="uni-select' + uniVacia + '" data-id="' + i.id + '" title="Unidad en la que compras/cotizas este insumo. El precio se entiende POR esta unidad (ej. kg → $/kilo).">' +
+            '<option value=""' + (!uniAct ? ' selected' : '') + '>—</option>' +
+            UNI_OPTS.map(function(o){ return '<option value="' + o + '"' + (uniAct === o ? ' selected' : '') + '>' + o + '</option>'; }).join('') +
+            (uniAct && UNI_OPTS.indexOf(uniAct) === -1 ? '<option value="' + esc(i.unidad_base) + '" selected>' + esc(i.unidad_base) + '</option>' : '') +
+          '</select></td>'
+        : '<td>' + esc(i.unidad_base || '—') + '</td>';
+
+      var aliasesTip = (i.aliases && i.aliases.length) ? ' <span class="badge b-info" style="margin-left:6px;cursor:help" title="Aliases: ' + esc(i.aliases.join(', ')) + '">📛 ' + i.aliases.length + '</span>' : '';
+      var sr12Cell = renderStockSR12Cell(i);
+      return '<tr>' +
+        '<td><strong>' + esc(i.nombre) + '</strong>' +
+          aliasesTip +
+          (i.dato_incompleto ? ' <span class="badge b-warn" style="margin-left:6px">⚠ Incompleto</span>' : '') +
+          (!i.inventariable ? ' <span class="badge b-info" style="margin-left:6px">🚫 No inv.</span>' : '') +
+        '</td>' +
+        '<td>' + esc(i.categoria) + '</td>' +
+        abcCell + invCell +
+        uniCell +
+        precioCell + promCell + deshCell + apvCell + napCell + totMermaCell + frCell +
+        '<td class="num precio-real-calc"' + (puedeEditarPrecios ? ' title="Se calcula solo: Último costo × factor de merma/rendimiento. Para cambiarlo, edita la columna ÚLTIMO COSTO."' : '') + '>' + (i.precio_real_unitario ? fmtMoney(i.precio_real_unitario) : '—') + '</td>' +
+        sr12Cell +
+        '<td>' + origenB + '</td>' +
+      '</tr>';
+    }).join('');
+    // Toggle del tooltip al click (para móvil/tablet — el hover ya funciona en desktop).
+    tb.querySelectorAll('.sr12-cell .sr12-badge:not(.empty)').forEach(function(b){
+      b.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        var cell = b.closest('.sr12-cell');
+        var ya = cell.classList.contains('show-tooltip');
+        // cerrar otros tooltips abiertos
+        tb.querySelectorAll('.sr12-cell.show-tooltip').forEach(function(c){ c.classList.remove('show-tooltip'); });
+        if (!ya) cell.classList.add('show-tooltip');
+      });
+    });
+    // v163 — botones "🔗 Vincular" / "✏️ Cambiar" del modal de vinculación manual SR12
+    tb.querySelectorAll('.sr12-vincular-btn').forEach(function(btn){
+      btn.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        var ingId = btn.getAttribute('data-ing-id');
+        var ingNombre = btn.getAttribute('data-ing-nombre');
+        var claveActual = btn.getAttribute('data-clave-actual') || '';
+        abrirModalVincular(ingId, ingNombre, claveActual);
+      });
+    });
+    // Habilitar selects ABC e checkboxes inventariable
+    if (puedeEditarPrecios) {
+      tb.querySelectorAll('.abc-select').forEach(function(sel){
+        sel.addEventListener('change', function(){ guardarCampoIng(sel.getAttribute('data-id'), 'tipo_abc', sel.value); });
+      });
+      tb.querySelectorAll('.uni-select').forEach(function(sel){
+        sel.addEventListener('change', function(){ guardarCampoIng(sel.getAttribute('data-id'), 'unidad_base', sel.value); });
+      });
+      tb.querySelectorAll('.inv-check').forEach(function(chk){
+        chk.addEventListener('change', function(){ guardarCampoIng(chk.getAttribute('data-id'), 'inventariable', chk.checked ? 'true' : 'false'); });
+      });
+    }
+    // Habilitar edición inline
+    if (puedeEditarPrecios) tb.querySelectorAll('td.editable').forEach(function(td){
+      td.addEventListener('click', function(){ activarEdicionCelda(td); });
+    });
+    // Paginación
+    var pb = document.getElementById('ingPagBar');
+    if (paginas > 1) {
+      pb.style.display = '';
+      document.getElementById('ingPagInfo').textContent =
+        'Página ' + (state.ingPag + 1) + ' de ' + paginas + ' · ' + total + ' resultados';
+      document.getElementById('ingPagPrev').disabled = state.ingPag === 0;
+      document.getElementById('ingPagNext').disabled = state.ingPag >= paginas - 1;
+    } else {
+      pb.style.display = 'none';
+    }
+  }
+  ['ingQ','ingCat','ingSoloEst','ingSoloNoInv','ingSoloStock','ingSoloHuerf'].forEach(function(id){
+    var el = document.getElementById(id);
+    var handler = function(){ state.ingPag = 0; renderIngredientes(); };
+    el.addEventListener('input', handler);
+    el.addEventListener('change', handler);
+  });
+
+  // Guardar un campo del ingrediente (usado por selects ABC y checkbox inventariable)
+  function guardarCampoIng(id, campo, valor){
+    var params = { action:'ingrediente_update', token: token, id: id };
+    params[campo] = valor;
+    apiCall(params, function(res){
+      if (res.ok) {
+        if (res.alerta_masiva) toast('⚠ Edición masiva (>20 cambios en 5 min)', 'warn');
+        else if (!res.sin_cambios) toast('Guardado · queda en historial');
+        var ing = state.ingredientes.find(function(i){ return i.id === id; });
+        if (ing) {
+          if (campo === 'inventariable') ing.inventariable = valor === 'true';
+          else ing[campo] = valor;
+        }
+        renderIngredientes();
+      } else {
+        toast(res.error || 'Error al guardar', 'error');
+        renderIngredientes(); // revertir UI a estado anterior
+      }
+    });
+  }
+  document.getElementById('ingPagPrev').addEventListener('click', function(){ if (state.ingPag > 0) { state.ingPag--; renderIngredientes(); } });
+  document.getElementById('ingPagNext').addEventListener('click', function(){ state.ingPag++; renderIngredientes(); });
+
+  // ---------- Edición inline de celda ----------
+  function activarEdicionCelda(td){
+    var id = td.getAttribute('data-id');
+    var campo = td.getAttribute('data-campo');
+    var actual = td.getAttribute('data-actual');
+    var input = document.createElement('input');
+    input.type = 'number';
+    input.step = campo === 'factor_rendimiento' ? '0.001' : '0.01';
+    input.min = '0';
+    input.value = actual;
+    var prev = td.innerHTML;
+    td.innerHTML = '';
+    td.appendChild(input);
+    input.focus();
+    input.select();
+    var guardar = function(){
+      var val = input.value;
+      if (val === '' || val === actual || isNaN(Number(val))) {
+        td.innerHTML = prev;
+        return;
+      }
+      var params = { action:'ingrediente_update', token: token, id: id };
+      params[campo] = val;
+      td.innerHTML = '<span style="color:var(--muted);font-size:11px">Guardando…</span>';
+      apiCall(params, function(res){
+        if (res.ok) {
+          if (res.alerta_masiva) toast('⚠ Edición masiva detectada (>20 cambios en 5 min). Queda en historial.', 'warn');
+          else if (!res.sin_cambios) toast('Guardado · queda en historial');
+          // Actualizar el ingrediente local y re-render
+          var ing = state.ingredientes.find(function(i){ return i.id === id; });
+          if (ing) {
+            ing[campo] = Number(val);
+            if (campo === 'ultimo_costo') {
+              ing.ultimo_costo_estimado = false;
+              ing.precio_origen = 'capturado_real';
+            }
+            // Recalcular precio_real_unitario localmente
+            var precio = Number(ing.ultimo_costo) || 0;
+            var merma = Number(ing.merma_pct) || 0;
+            var fr = Number(ing.factor_rendimiento) || 1;
+            var factor = Math.max(1 + merma / 100, fr);
+            ing.precio_real_unitario = precio > 0 ? Number((precio * factor).toFixed(4)) : null;
+          }
+          renderIngredientes();
+        } else {
+          toast(res.error || 'Error al guardar', 'error');
+          td.innerHTML = prev;
+        }
+      });
+    };
+    input.addEventListener('blur', guardar);
+    input.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+      if (e.key === 'Escape') { td.innerHTML = prev; }
+    });
+  }
+
+  // ---------- Avisos de cantidad/costo absurdo en líneas (mismos umbrales que el backend) ----------
+  // Previenen errores de captura ×1000 (ej. "500 kg de miel" en vez de 0.5).
+  var _RECETA_CANT_UMBRAL = { gr:100000, ml:100000, kg:100, lt:100, pza:500 };
+  function _recetaUnidadFamilia(u){
+    u = String(u||'').trim().toLowerCase();
+    if (['gr','g','gramo','gramos','grs'].indexOf(u) !== -1) return 'gr';
+    if (['ml','mililitro','mililitros','cc'].indexOf(u) !== -1) return 'ml';
+    if (['kg','kilo','kilos','kilogramo','kilogramos','kgs'].indexOf(u) !== -1) return 'kg';
+    if (['lt','l','litro','litros','lts'].indexOf(u) !== -1) return 'lt';
+    if (['pza','pieza','piezas','pz','pzas','unidad','unidades','u'].indexOf(u) !== -1) return 'pza';
+    return '';
+  }
+  function _recetaCantSospechosa(cantidad, unidad){
+    var c = parseFloat(cantidad)||0; if (c<=0) return false;
+    var fam = _recetaUnidadFamilia(unidad); var um = _RECETA_CANT_UMBRAL[fam];
+    return um != null && c > um;
+  }
+  function _recetaLineaAviso(cantidad, unidad, costo){
+    if (_recetaCantSospechosa(cantidad, unidad)){
+      var fam = _recetaUnidadFamilia(unidad);
+      if (fam === 'gr' || fam === 'ml') return 'Más de 100 kg/L expresados en gramos/ml. ¿Sobra un cero? (ej. 500 en vez de 0.5)';
+      if (fam === 'kg' || fam === 'lt') return 'Más de 100 kg/L de un solo insumo. ¿Es correcto? (ej. 500 kg en vez de 0.5 kg)';
+      return 'Más de 500 piezas de un solo insumo. ¿Es correcto?';
+    }
+    if ((parseFloat(costo)||0) > 3000) return 'Esta línea cuesta más de $3,000 — suele ser un error de cantidad o de unidad.';
+    return '';
+  }
+
+  // ---------- Modal de detalle de receta ----------
+  var ROLES_EDITAN_RECETAS = ['admin','gerente_administrativo','cocina','churrasca','barman','panadero'];
+  var ROLES_AUTORIZAN = ['admin','gerente_administrativo'];
+  function abrirReceta(id){
+    state.recetaActualId = id;
+    document.getElementById('rmTitle').textContent = 'Cargando…';
+    document.getElementById('rmBody').innerHTML = '<div class="empty-state">Cargando…</div>';
+    document.getElementById('recModal').classList.add('open');
+    // Mostrar botones "Editar" / "Foto" solo si el usuario tiene rol que puede proponer cambios
+    var btnEd = document.getElementById('btnEditarReceta');
+    var btnFoto = document.getElementById('btnSubirFoto');
+    var rolU = (user && user.rol || '').toLowerCase();
+    if (btnEd) btnEd.style.display = ROLES_EDITAN_RECETAS.indexOf(rolU) !== -1 ? 'inline-flex' : 'none';
+    if (btnFoto) btnFoto.style.display = ROLES_EDITAN_RECETAS.indexOf(rolU) !== -1 ? 'inline-flex' : 'none';
+    apiCall({ action:'receta_get', token: token, id: id }, function(res){
+      if (!res.ok) {
+        document.getElementById('rmBody').innerHTML = '<div class="empty-state" style="color:var(--bad)">' + esc(res.error || 'Error') + '</div>';
+        return;
+      }
+      state.recetaActualData = res;
+      renderRecetaDetalle(res);
+    });
+  }
+  function renderRecetaDetalle(res){
+    var r = res.receta, lineas = res.lineas, costos = res.costos;
+    document.getElementById('rmTitle').textContent = r.nombre;
+    // Botón proponer suspender / reactivar (según esté activa o no). Solo roles que proponen.
+    var btnSR = document.getElementById('btnSuspReact');
+    if (btnSR) {
+      var rolU2 = (user && user.rol || '').toLowerCase();
+      if (ROLES_EDITAN_RECETAS.indexOf(rolU2) !== -1) {
+        var esActiva = (r.activa === true || String(r.activa).toLowerCase() === 'true');
+        if (esActiva) { btnSR.textContent = '⏸ Proponer suspender'; btnSR.setAttribute('data-accion','desactivar'); }
+        else { btnSR.textContent = '▶ Proponer reactivar'; btnSR.setAttribute('data-accion','reactivar'); }
+        btnSR.style.display = 'inline-flex';
+      } else {
+        btnSR.style.display = 'none';
+      }
+    }
+    var sub = (r.es_elaborado ? 'Sub-receta' : 'Receta') + ' · ' + (r.area === 'churrasca' ? 'Churrasca' : r.area === 'barra' ? 'Barra' : r.area === 'panaderia' ? 'Panadería' : r.area === 'cava' ? 'Cava' : 'Cocina') + (r.categoria_culinaria ? ' · ' + r.categoria_culinaria : '');
+    document.getElementById('rmSub').textContent = sub;
+
+    var foto = r.foto_url ? '<img class="receta-foto" src="' + esc(r.foto_url) + '" alt="' + esc(r.nombre) + '" onerror="this.style.display=\'none\'">' : '';
+    var meta = '<div class="receta-meta">' +
+      '<div class="meta-item"><div class="lbl">Rendimiento</div><div class="val">' + (r.rendimiento ? fmtNum(r.rendimiento, 2) + ' ' + (r.unidad_rendimiento || 'porc') : '—') + '</div></div>' +
+      '<div class="meta-item"><div class="lbl">Chef</div><div class="val">' + esc((r.chef_responsable_email || '').split('@')[0]) + '</div></div>' +
+      '<div class="meta-item"><div class="lbl">Estado</div><div class="val">' + (r.activa ? 'Activa' : 'Inactiva') + '</div></div>' +
+    '</div>';
+
+    var ingTbl = '';
+    if (lineas && lineas.length) {
+      var rowsLin = lineas.filter(function(l){ return !l.es_decoracion; }).map(function(l){
+        var nombre = esc(l.referencia_nombre || '—');
+        var tipoB = l.tipo === 'subreceta' ? '<span class="badge b-sub">Sub</span>' :
+                    l.tipo === 'huerfano' ? '<span class="badge b-bad">⚠ Sin match</span>' :
+                    (l.precio_estimado ? '<span class="badge b-warn">📍 Est.</span>' : '');
+        // Alerta si es ingrediente NO inventariable (según manual SoftRestaurant no debería estar aquí)
+        if (l.tipo === 'ingrediente' && l.inventariable === false) {
+          tipoB += ' <span class="badge b-bad" title="Este insumo está marcado como NO inventariable. Según el manual, no debería estar como ingrediente de receta — es costo indirecto (aceite, gas, sal, etc.). Considera quitarlo de la receta.">🚫 No inv.</span>';
+        }
+        var adv = l.advertencia ? '<br><small style="color:var(--warn)">⚠ ' + esc(l.advertencia) + '</small>' : '';
+        var avisoAuto = _recetaLineaAviso(l.cantidad, l.unidad, l.costo_calc);
+        var advAuto = avisoAuto ? '<br><small style="color:var(--bad);font-weight:600">🔎 ' + esc(avisoAuto) + '</small>' : '';
+        return '<tr' + (avisoAuto ? ' style="background:rgba(196,50,42,.06)"' : '') + '>' +
+          '<td>' + nombre + ' ' + tipoB + adv + advAuto + '</td>' +
+          '<td class="num">' + (l.cantidad != null ? fmtNum(l.cantidad, 4) : '—') + '</td>' +
+          '<td>' + esc(l.unidad || '—') + '</td>' +
+          '<td class="num">' + (l.precio_unitario_linea ? fmtMoney(l.precio_unitario_linea) : (l.precio_unitario ? fmtMoney(l.precio_unitario) : '—')) + '</td>' +
+          '<td class="num">' + fmtMoney(l.costo_calc) + '</td>' +
+        '</tr>';
+      }).join('');
+      ingTbl = '<div class="receta-section-h">Ingredientes</div>' +
+        '<div class="tabla-wrap"><table class="lineas-table"><thead><tr>' +
+          '<th>Nombre</th><th class="num">Cant.</th><th>Unidad</th><th class="num">Precio</th><th class="num">Costo</th>' +
+        '</tr></thead><tbody>' + (rowsLin || '<tr><td colspan="5" class="empty-state">Sin ingredientes</td></tr>') + '</tbody></table></div>';
+      var deco = lineas.filter(function(l){ return l.es_decoracion; });
+      if (deco.length) {
+        var rowsD = deco.map(function(l){
+          return '<tr><td>' + esc(l.referencia_nombre || '—') + '</td>' +
+            '<td class="num">' + (l.cantidad != null ? fmtNum(l.cantidad, 4) : '—') + '</td>' +
+            '<td>' + esc(l.unidad || '—') + '</td>' +
+            '<td class="num">' + fmtMoney(l.costo_calc) + '</td></tr>';
+        }).join('');
+        ingTbl += '<div class="receta-section-h">Decoración</div>' +
+          '<div class="tabla-wrap"><table class="lineas-table"><thead><tr>' +
+            '<th>Nombre</th><th class="num">Cant.</th><th>Unidad</th><th class="num">Costo</th>' +
+          '</tr></thead><tbody>' + rowsD + '</tbody></table></div>';
+      }
+    }
+
+    var resumenCosto = '<div class="costo-resumen">' +
+      '<div class="row"><span>Costo ingredientes</span><span>' + fmtMoney(costos.ingredientes) + '</span></div>' +
+      (costos.decoracion ? '<div class="row"><span>Costo decoración</span><span>' + fmtMoney(costos.decoracion) + '</span></div>' : '') +
+      '<div class="row"><span>Costo indirecto (' + costos.indirecto_pct + '%)</span><span>' + fmtMoney(costos.indirecto) + '</span></div>' +
+      '<div class="row total"><span>Costo total receta</span><span>' + fmtMoney(costos.total_receta) + '</span></div>' +
+      (r.rendimiento ? '<div class="row"><span>Costo por porción (rend ' + fmtNum(r.rendimiento, 2) + ')</span><span>' + fmtMoney(costos.por_porcion) + '</span></div>' : '') +
+      '<div class="row precio"><span>Precio venta sugerido (' + costos.pct_costo_ideal + '% costo + ' + costos.iva_pct + '% IVA)</span><span>' + fmtMoney(costos.precio_venta_con_imp) + '</span></div>' +
+    '</div>';
+
+    // Detectar placeholder vacío del Excel (numeración "1.- 2.- 3.-" sin contenido real)
+    var instrTxt = String(r.instrucciones || '').trim();
+    var instrLimpio = instrTxt.replace(/[\d\.\-\s]/g, '');
+    var esPlaceholder = instrTxt && instrLimpio.length < 5;
+    var instr = '';
+    if (instrTxt && !esPlaceholder) {
+      instr = '<div class="receta-section-h">Instrucciones</div><div class="instrucciones">' + esc(instrTxt) + '</div>';
+    } else {
+      instr = '<div class="receta-section-h">Instrucciones</div>' +
+        '<div style="background:rgba(185,122,27,.08);border-left:4px solid var(--warn);padding:14px 18px;border-radius:var(--r-md);font-size:13px;color:#7a4f0d;line-height:1.55">' +
+        '📝 <strong>Instrucciones pendientes</strong> — Esta receta aún no tiene procedimiento documentado. ' +
+        'El chef puede agregarlas cuando edite la receta. <em>(Esto NO afecta el cálculo de costo.)</em>' +
+        '</div>';
+    }
+    var uso = r.uso_aplicacion ? '<div class="receta-section-h">Uso y aplicación</div><div class="uso">' + esc(r.uso_aplicacion) + '</div>' : '';
+
+    // Cuadre de Barra: enlace a producto de venta SR12 (solo recetas de barra/cava).
+    var ventaLink = '';
+    if ((r.area === 'barra' || r.area === 'cava') && PUEDE_ENLAZAR_VENTA) {
+      var cv = r.clave_venta_sr12 || '';
+      var nom = cv ? (ventaProdMap[cv] || ('clave ' + cv)) : '';
+      ventaLink = '<div class="receta-section-h">Producto de venta · Cuadre de Barra</div>' +
+        '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(124,91,217,.06);border:1px solid rgba(124,91,217,.3);padding:10px 14px;border-radius:var(--r-md)">' +
+        (cv
+          ? '<span style="font-size:13px">🍸 Enlazada a <b>' + esc(nom) + '</b> <span style="color:var(--muted);font-family:monospace;font-size:11px">(' + esc(cv) + ')</span></span>'
+          : '<span style="font-size:13px;color:var(--muted)">Sin enlazar — el detector de fuga necesita saber qué se vende en el POS al pedir esta bebida.</span>') +
+        '<button class="btn btn-sm" id="btnEnlazarVenta" data-rec="' + esc(r.id) + '" type="button" style="margin-left:auto">' + (cv ? '✎ Cambiar' : '🔗 Enlazar') + '</button>' +
+        '</div>';
+    }
+
+    document.getElementById('rmBody').innerHTML = foto + meta + ventaLink + ingTbl + resumenCosto + instr + uso;
+    var _bev = document.getElementById('btnEnlazarVenta');
+    if (_bev) _bev.addEventListener('click', function(){ abrirVentaModal(this.getAttribute('data-rec')); });
+  }
+  document.getElementById('rmClose').addEventListener('click', function(){ document.getElementById('recModal').classList.remove('open'); });
+  document.getElementById('recModal').addEventListener('click', function(e){ if (e.target === this) document.getElementById('recModal').classList.remove('open'); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && document.getElementById('recModal').classList.contains('open')) document.getElementById('recModal').classList.remove('open');
+  });
+
+  // ---------- Enlazar producto de venta (Cuadre de Barra) ----------
+  var ventaRecId = '';
+  function abrirVentaModal(recId){
+    ventaRecId = recId;
+    document.getElementById('ventaBuscar').value = '';
+    renderVentaLista('');
+    document.getElementById('ventaBackdrop').classList.add('open');
+    setTimeout(function(){ try{ document.getElementById('ventaBuscar').focus(); }catch(e){} }, 50);
+  }
+  function renderVentaLista(q){
+    q = (q || '').trim().toLowerCase();
+    var el = document.getElementById('ventaLista');
+    if (!ventaProductos.length){ el.innerHTML = '<div style="padding:14px;color:var(--muted);font-size:13px">Aún no hay ventas SR12 importadas. Súbelas en "Importar Ventas SR12" y vuelve.</div>'; return; }
+    var lista = q ? ventaProductos.filter(function(p){ return ((p.descripcion||'')+' '+(p.clave||'')+' '+(p.grupo||'')).toLowerCase().indexOf(q) !== -1; }) : ventaProductos;
+    if (!lista.length){ el.innerHTML = '<div style="padding:14px;color:var(--muted);font-size:13px">Sin resultados.</div>'; return; }
+    el.innerHTML = lista.slice(0, 80).map(function(p){
+      return '<div class="venta-opt" data-clave="' + esc(p.clave) + '" style="padding:9px 12px;border-bottom:1px solid var(--paper);cursor:pointer;font-size:13px">' +
+        '<b>' + esc(p.descripcion || '(sin nombre)') + '</b> <span style="color:var(--muted);font-family:monospace;font-size:11px">' + esc(p.clave) + '</span>' +
+        (p.grupo ? (' <span style="color:var(--muted);font-size:11px">· ' + esc(p.grupo) + '</span>') : '') +
+        '</div>';
+    }).join('');
+    el.querySelectorAll('.venta-opt').forEach(function(o){
+      o.addEventListener('click', function(){ enlazarVenta(this.getAttribute('data-clave')); });
+      o.addEventListener('mouseover', function(){ this.style.background = 'var(--brand-tint)'; });
+      o.addEventListener('mouseout', function(){ this.style.background = ''; });
+    });
+  }
+  function enlazarVenta(clave){
+    apiCall({ action:'receta_vincular_venta', token: token, data: JSON.stringify({ receta_id: ventaRecId, clave_venta_sr12: clave || '' }) }, function(res){
+      if (!res || !res.ok){ toast((res && res.error) || 'Error', 'error'); return; }
+      toast(clave ? ('✓ Enlazada a ' + (res.descripcion || clave)) : '✓ Enlace quitado');
+      document.getElementById('ventaBackdrop').classList.remove('open');
+      if (state.recetaActualData && state.recetaActualData.receta && state.recetaActualData.receta.id === ventaRecId){
+        state.recetaActualData.receta.clave_venta_sr12 = clave || '';
+        renderRecetaDetalle(state.recetaActualData);
+      }
+    });
+  }
+  // Listeners del modal de venta. ¡IMPORTANTE! El HTML (#ventaBackdrop) está MÁS ABAJO que este
+  // <script> (igual que #vlinkBackdrop). Si los conectamos aquí en seco, getElementById devuelve
+  // null y el TypeError REVIENTA TODO el init → la pantalla se queda en "Cargando…" para siempre.
+  // Mismo patrón seguro que _wireVlinkModal: diferir a DOMContentLoaded (o conectar ya si existe).
+  function _wireVentaModal(){
+    var bd = document.getElementById('ventaBackdrop');
+    if (!bd) return;
+    document.getElementById('ventaClose').addEventListener('click', function(){ bd.classList.remove('open'); });
+    document.getElementById('ventaCancel').addEventListener('click', function(){ bd.classList.remove('open'); });
+    bd.addEventListener('click', function(e){ if (e.target === this) this.classList.remove('open'); });
+    document.getElementById('ventaBuscar').addEventListener('input', function(){ renderVentaLista(this.value); });
+    document.getElementById('ventaQuitar').addEventListener('click', function(){ enlazarVenta(''); });
+  }
+  if (document.getElementById('ventaBackdrop')) _wireVentaModal();
+  else document.addEventListener('DOMContentLoaded', _wireVentaModal);
+
+  // ---------- Configuración ----------
+  function cargarConfig(){
+    if (state.config) return;  // ya cargada
+    apiCall({ action:'recetario_config_get', token: token }, function(res){
+      if (res.ok) {
+        state.config = res.config;
+        document.getElementById('cfgCI').value = res.config.costo_indirecto_pct;
+        document.getElementById('cfgPI').value = res.config.pct_costo_ideal;
+        document.getElementById('cfgIVA').value = res.config.iva_default;
+        if (!puedeEditarConfig) {
+          ['cfgCI','cfgPI','cfgIVA','cfgSave'].forEach(function(id){ document.getElementById(id).disabled = true; });
+        }
+      } else toast(res.error || 'Error', 'error');
+    });
+  }
+  document.getElementById('cfgSave').addEventListener('click', function(){
+    if (!puedeEditarConfig) return;
+    apiCall({
+      action: 'recetario_config_set', token: token,
+      costo_indirecto_pct: document.getElementById('cfgCI').value,
+      pct_costo_ideal: document.getElementById('cfgPI').value,
+      iva_default: document.getElementById('cfgIVA').value
+    }, function(res){
+      if (res.ok) toast('Configuración guardada');
+      else toast(res.error || 'Error', 'error');
+    });
+  });
+
+  // ---------- Logout ----------
+  document.getElementById('btnLogout').addEventListener('click', function(){
+    if (!confirm('¿Cerrar sesión?')) return;
+    sessionStorage.clear();
+    (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+  });
+
+  // ============================================================================
+  // WORKFLOW DE AUTORIZACIÓN — Modelo B
+  // ============================================================================
+
+  // Estado del editor de líneas
+  state.emModo = 'modificar';   // 'modificar' | 'crear'
+  state.emLineas = [];          // [{tipo: 'ingrediente'|'subreceta', ref_id, cantidad, unidad, merma_extra_pct, es_decoracion}]
+
+  // === Abrir modal "Editar receta" desde el modal de detalle ===
+  document.getElementById('btnEditarReceta').addEventListener('click', function(){
+    if (!state.recetaActualData || !state.recetaActualData.receta) return;
+    var r = state.recetaActualData.receta;
+    var lineas = state.recetaActualData.lineas || [];
+    state.emModo = 'modificar';
+    document.getElementById('emRecId').value = r.id;
+    document.getElementById('emTitle').textContent = 'Proponer cambio: ' + r.nombre;
+    document.getElementById('emNombre').value = r.nombre || '';
+    document.getElementById('emCat').value = r.categoria_culinaria || '';
+    document.getElementById('emArea').value = r.area || 'cocina';
+    document.getElementById('emRend').value = r.rendimiento || 1;
+    document.getElementById('emUnid').value = r.unidad_rendimiento || 'porciones';
+    // Limpiar instrucciones placeholder vacío para edición
+    var instrTxt = String(r.instrucciones || '').trim();
+    var limpio = instrTxt.replace(/[\d\.\-\s]/g, '');
+    if (limpio.length < 5) instrTxt = '';
+    document.getElementById('emInstr').value = instrTxt;
+    document.getElementById('emUso').value = r.uso_aplicacion || '';
+    document.getElementById('emDeco').value = r.decoracion_texto || '';
+    document.getElementById('emObs').value = '';
+    // Cargar líneas actuales (para R1)
+    state.emLineas = lineas.map(function(l){
+      return {
+        tipo: l.tipo === 'subreceta' ? 'subreceta' : 'ingrediente',
+        // handleRecetaGet devuelve el id en `referencia_id` (no ingrediente_id/subreceta_id);
+        // sin esto las líneas existentes salían sin nombre y perdían la referencia al guardar.
+        ref_id: l.referencia_id || (l.tipo === 'subreceta' ? l.subreceta_id : l.ingrediente_id) || '',
+        cantidad: parseFloat(l.cantidad) || 0,
+        unidad: l.unidad || '',
+        merma_extra_pct: parseFloat(l.merma_extra_pct) || 0,
+        es_decoracion: !!l.es_decoracion
+      };
+    });
+    document.getElementById('emEditarLineas').checked = false;
+    document.getElementById('emLineasWrap').style.display = 'none';
+    renderEmLineas();
+    document.getElementById('recModal').classList.remove('open');
+    document.getElementById('editModal').classList.add('open');
+  });
+
+  // === Toggle: mostrar/ocultar editor de líneas ===
+  document.getElementById('emEditarLineas').addEventListener('change', function(){
+    document.getElementById('emLineasWrap').style.display = this.checked ? '' : 'none';
+  });
+
+  // ── Buscador de ingrediente / sub-receta (combobox flotante anclado al body, sin recortes) v325 ──
+  var emIngActivos = [], emSubActivos = [];
+  var emComboState = { idx:-1, input:null, opts:[], active:-1, esSub:false };
+  function emComboPopEl(){
+    var el = document.getElementById('emComboPop');
+    if (!el){
+      el = document.createElement('div');
+      el.id = 'emComboPop';
+      document.body.appendChild(el);
+      el.addEventListener('mousedown', function(ev){
+        var o = ev.target.closest ? ev.target.closest('.opt') : null;
+        if (!o) return;
+        ev.preventDefault(); // mantiene el foco en el input y evita que el blur cancele el click
+        emComboSelect(o.getAttribute('data-id'), o.getAttribute('data-name'));
+      });
+    }
+    return el;
+  }
+  function emNorm(s){ return String(s==null?'':s).toLowerCase().replace(/[áàäâ]/g,'a').replace(/[éèëê]/g,'e').replace(/[íìïî]/g,'i').replace(/[óòöô]/g,'o').replace(/[úùüû]/g,'u').replace(/ñ/g,'n'); }
+  function emComboOpen(idx, input){
+    emComboState.idx = idx; emComboState.input = input; emComboState.active = -1;
+    var linea = state.emLineas[idx];
+    emComboState.esSub = !!(linea && linea.tipo === 'subreceta');
+    var fuente = emComboState.esSub ? emSubActivos : emIngActivos;
+    var q = emNorm(input.value);
+    var lista = fuente;
+    if (q){
+      lista = fuente.filter(function(x){ return emNorm(x.nombre).indexOf(q) !== -1; });
+      lista.sort(function(a,b){
+        var aa = emNorm(a.nombre).indexOf(q)===0 ? 0 : 1;
+        var bb = emNorm(b.nombre).indexOf(q)===0 ? 0 : 1;
+        if (aa!==bb) return aa-bb;
+        return String(a.nombre).localeCompare(String(b.nombre));
+      });
+    }
+    emComboState.opts = lista.slice(0, 40);
+    emComboRender();
+  }
+  function emComboRender(){
+    var el = emComboPopEl();
+    var input = emComboState.input;
+    if (!input){ el.style.display='none'; return; }
+    if (!emComboState.opts.length){
+      el.innerHTML = '<div class="empty">Sin resultados.' + (emComboState.esSub ? '' : '<br>Si el ingrediente no existe, pídele al <b>administrador</b> que lo dé de alta.') + '</div>';
+    } else {
+      el.innerHTML = emComboState.opts.map(function(x, i){
+        var sub = '';
+        if (!emComboState.esSub){ var uu = x.unidad_base ? (' · ' + x.unidad_base) : ''; var ss = (x.categoria||'') + uu; if (ss.trim()) sub = ' <span class="sub">' + esc(ss) + '</span>'; }
+        return '<div class="opt' + (i===emComboState.active?' active':'') + '" data-id="' + esc(x.id) + '" data-name="' + esc(x.nombre) + '">' + esc(x.nombre) + sub + '</div>';
+      }).join('');
+    }
+    var r = input.getBoundingClientRect();
+    el.style.left = Math.round(r.left) + 'px';
+    el.style.top = Math.round(r.bottom + 2) + 'px';
+    el.style.minWidth = Math.round(r.width) + 'px';
+    el.style.display = 'block';  // 'block' explícito: el CSS de #emComboPop trae display:none por defecto,
+                                 // y poner '' NO lo anula → el dropdown quedaba oculto (bug del listado que no aparecía).
+  }
+  function emComboSelect(id, name){
+    var idx = emComboState.idx;
+    if (idx < 0 || !state.emLineas[idx]) return;
+    state.emLineas[idx].ref_id = id;
+    if (emComboState.input){ emComboState.input.value = name; emComboState.input.classList.remove('vacia'); }
+    emComboHide();
+  }
+  function emComboBlur(idx, input){
+    var linea = state.emLineas[idx];
+    if (linea){
+      var fuente = linea.tipo === 'subreceta' ? emSubActivos : emIngActivos;
+      // Tolerancia: si el texto escrito coincide EXACTO con un ingrediente, lo seleccionamos
+      // aunque no hayan dado clic en la lista (evita que "se borre" al guardar).
+      var typed = emNorm(input.value);
+      if (typed){
+        var exacto = fuente.find(function(x){ return emNorm(x.nombre) === typed; });
+        if (exacto) linea.ref_id = exacto.id;
+      }
+      var sel = linea.ref_id ? (state[linea.tipo === 'subreceta' ? 'recetas' : 'ingredientes'] || []).find(function(x){ return x.id === linea.ref_id; }) : null;
+      input.value = sel ? sel.nombre : '';
+      input.classList.toggle('vacia', !sel);
+    }
+    emComboHide();
+  }
+  function emComboHide(){ var el = document.getElementById('emComboPop'); if (el) el.style.display='none'; emComboState.idx=-1; emComboState.input=null; }
+  function emComboKeydown(ev){
+    var el = document.getElementById('emComboPop');
+    if (!el || el.style.display==='none') return;
+    if (ev.key === 'ArrowDown'){ ev.preventDefault(); emComboState.active = Math.min(emComboState.active+1, emComboState.opts.length-1); emComboRender(); }
+    else if (ev.key === 'ArrowUp'){ ev.preventDefault(); emComboState.active = Math.max(emComboState.active-1, 0); emComboRender(); }
+    else if (ev.key === 'Enter'){
+      if (emComboState.active >= 0 && emComboState.opts[emComboState.active]){ ev.preventDefault(); var x = emComboState.opts[emComboState.active]; emComboSelect(x.id, x.nombre); }
+    } else if (ev.key === 'Escape'){ emComboHide(); }
+  }
+  // Al hacer scroll (modal o página) o redimensionar, ocultamos el buscador para que no quede flotando.
+  window.addEventListener('scroll', function(){ if (emComboState.input) emComboHide(); }, true);
+  window.addEventListener('resize', function(){ if (emComboState.input) emComboHide(); });
+
+  // === Render de la tabla editable de líneas ===
+  // Pinta/oculta el aviso de cantidad absurda bajo el campo de cantidad de una línea (en vivo).
+  function _emActualizarAviso(tr, l){
+    var av = tr && tr.querySelector('.em-cant-aviso'); if (!av) return;
+    var msg = _recetaCantSospechosa(l.cantidad, l.unidad) ? _recetaLineaAviso(l.cantidad, l.unidad, 0) : '';
+    if (msg){ av.innerHTML = '🔎 ' + esc(msg); av.style.display = ''; } else { av.style.display = 'none'; av.innerHTML = ''; }
+  }
+  function renderEmLineas(){
+    var tb = document.getElementById('emLineasBody');
+    if (!state.emLineas.length) {
+      tb.innerHTML = '<tr><td colspan="6" class="empty-state" style="font-size:12px">Sin líneas. Agrega ingredientes o sub-recetas.</td></tr>';
+      return;
+    }
+    var ingredientesActivos = (state.ingredientes || []).filter(function(i){ return i.activo !== false; });
+    var subrecetasActivas = (state.recetas || []).filter(function(r){ return r.es_elaborado && r.activa !== false; });
+    // Lifted a scope de módulo para que el buscador (combobox) pueda filtrar.
+    emIngActivos = ingredientesActivos;
+    emSubActivos = subrecetasActivas;
+    var html = state.emLineas.map(function(l, idx){
+      // Nombre actualmente seleccionado (para mostrarlo en el buscador). Busca en el catálogo
+      // COMPLETO (no solo activos) para que una línea que use un ingrediente inactivo igual lo muestre.
+      var selName = '';
+      if (l.ref_id) {
+        if (l.tipo === 'subreceta') { var _sr = (state.recetas || []).find(function(r){ return r.id === l.ref_id; }); selName = _sr ? _sr.nombre : ''; }
+        else { var _ig = (state.ingredientes || []).find(function(i){ return i.id === l.ref_id; }); selName = _ig ? _ig.nombre : ''; }
+      }
+      var tipoBadge = l.tipo === 'subreceta' ? '<span class="badge b-sub" style="font-size:10px">Sub</span>' : '';
+      var ph = l.tipo === 'subreceta' ? 'Escribe para buscar sub-receta…' : 'Escribe para buscar ingrediente…';
+      return '<tr data-idx="' + idx + '">' +
+        '<td>' + tipoBadge + '<input type="text" class="em-combo-input' + (l.ref_id ? '' : ' vacia') + '" data-idx="' + idx + '" value="' + esc(selName) + '" placeholder="' + ph + '" autocomplete="off">' + '</td>' +
+        '<td><input type="number" step="0.0001" min="0" class="em-line-cant" value="' + (l.cantidad || '') + '" style="width:100%;padding:4px 6px;font-size:13px;border:1px solid var(--line);border-radius:4px;text-align:right"><div class="em-cant-aviso" style="display:none;font-size:10px;color:var(--bad);margin-top:3px;line-height:1.25;font-weight:600"></div></td>' +
+        '<td><input type="text" class="em-line-unid" value="' + esc(l.unidad || '') + '" style="width:100%;padding:4px 6px;font-size:13px;border:1px solid var(--line);border-radius:4px"></td>' +
+        '<td><input type="number" step="0.5" min="0" max="100" class="em-line-merma" value="' + (l.merma_extra_pct || 0) + '" style="width:100%;padding:4px 6px;font-size:13px;border:1px solid var(--line);border-radius:4px;text-align:right"></td>' +
+        '<td style="text-align:center"><input type="checkbox" class="em-line-deco"' + (l.es_decoracion ? ' checked' : '') + '></td>' +
+        '<td style="text-align:center"><button type="button" class="btn btn-sm em-line-del" style="padding:2px 8px;color:var(--bad);border-color:var(--bad)">✗</button></td>' +
+      '</tr>';
+    }).join('');
+    tb.innerHTML = html;
+    // Listeners de cambios
+    tb.querySelectorAll('tr[data-idx]').forEach(function(tr){
+      var idx = parseInt(tr.getAttribute('data-idx'), 10);
+      var combo = tr.querySelector('.em-combo-input');
+      combo.addEventListener('focus', function(){ emComboOpen(idx, this); });
+      combo.addEventListener('input', function(){ emComboOpen(idx, this); });
+      combo.addEventListener('keydown', emComboKeydown);
+      combo.addEventListener('blur', function(){ var inp = this; setTimeout(function(){ emComboBlur(idx, inp); }, 160); });
+      tr.querySelector('.em-line-cant').addEventListener('input', function(){ state.emLineas[idx].cantidad = parseFloat(this.value) || 0; _emActualizarAviso(tr, state.emLineas[idx]); });
+      tr.querySelector('.em-line-unid').addEventListener('input', function(){ state.emLineas[idx].unidad = this.value.trim(); _emActualizarAviso(tr, state.emLineas[idx]); });
+      _emActualizarAviso(tr, state.emLineas[idx]); // estado inicial (líneas ya capturadas con cantidad absurda)
+      tr.querySelector('.em-line-merma').addEventListener('input', function(){ state.emLineas[idx].merma_extra_pct = parseFloat(this.value) || 0; });
+      tr.querySelector('.em-line-deco').addEventListener('change', function(){ state.emLineas[idx].es_decoracion = this.checked; });
+      tr.querySelector('.em-line-del').addEventListener('click', function(){
+        state.emLineas.splice(idx, 1);
+        renderEmLineas();
+      });
+    });
+  }
+  document.getElementById('emAddIngrediente').addEventListener('click', function(){
+    state.emLineas.push({ tipo:'ingrediente', ref_id:'', cantidad: 0, unidad:'kg', merma_extra_pct: 0, es_decoracion: false });
+    renderEmLineas();
+  });
+  document.getElementById('emAddSubreceta').addEventListener('click', function(){
+    state.emLineas.push({ tipo:'subreceta', ref_id:'', cantidad: 0, unidad:'porc', merma_extra_pct: 0, es_decoracion: false });
+    renderEmLineas();
+  });
+  document.getElementById('emClose').addEventListener('click', function(){ document.getElementById('editModal').classList.remove('open'); });
+  document.getElementById('emCancel').addEventListener('click', function(){ document.getElementById('editModal').classList.remove('open'); });
+  document.getElementById('editModal').addEventListener('click', function(e){ if (e.target === this) document.getElementById('editModal').classList.remove('open'); });
+
+  // === Subir foto desde el modal de detalle ===
+  document.getElementById('btnSubirFoto').addEventListener('click', function(){
+    if (!state.recetaActualData || !state.recetaActualData.receta) return;
+    document.getElementById('inpFotoReceta').click();
+  });
+  document.getElementById('inpFotoReceta').addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast('Imagen demasiado grande (máx 5 MB)', 'error'); e.target.value=''; return; }
+    if (!/^image\//.test(file.type)) { toast('Solo imágenes (jpg/png/webp)', 'error'); e.target.value=''; return; }
+    var rec = state.recetaActualData.receta;
+    var btnF = document.getElementById('btnSubirFoto');
+    var txtAntes = btnF.textContent; btnF.disabled = true; btnF.textContent = '⏳ Subiendo…';
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      var dataUrl = ev.target.result;
+      apiCallPost({
+        action:'receta_foto_upload', token: token,
+        receta_id: rec.id, base64: dataUrl,
+        mime: file.type, filename: file.name
+      }, function(res){
+        btnF.disabled = false; btnF.textContent = txtAntes;
+        e.target.value = '';
+        if (!res.ok) { toast(res.error || 'Error al subir foto', 'error'); return; }
+        if (res.aplicada_directamente) {
+          toast('✓ Foto vinculada');
+          // Refrescar imagen en el modal
+          state.recetaActualData.receta.foto_url = res.foto_url;
+          renderRecetaDetalle(state.recetaActualData);
+        } else {
+          toast('Foto subida — esperando autorización del gerente');
+        }
+      });
+    };
+    reader.onerror = function(){ btnF.disabled = false; btnF.textContent = txtAntes; toast('Error leyendo archivo', 'error'); };
+    reader.readAsDataURL(file);
+  });
+
+  // === Enviar cambio para autorización ===
+  document.getElementById('emEnviar').addEventListener('click', function(){
+    var btn = this;
+    var modo = state.emModo || 'modificar';
+    var recId = document.getElementById('emRecId').value;
+    if (modo === 'modificar' && !recId) { toast('Falta receta_id', 'error'); return; }
+    var cambios = {
+      nombre: document.getElementById('emNombre').value.trim(),
+      categoria_culinaria: document.getElementById('emCat').value.trim(),
+      area: document.getElementById('emArea').value,
+      rendimiento: Number(document.getElementById('emRend').value) || 1,
+      unidad_rendimiento: document.getElementById('emUnid').value.trim() || 'porciones',
+      instrucciones: document.getElementById('emInstr').value.trim(),
+      uso_aplicacion: document.getElementById('emUso').value.trim(),
+      decoracion_texto: document.getElementById('emDeco').value.trim()
+    };
+    if (!cambios.nombre || cambios.nombre.length < 3) { toast('Nombre requerido (mín 3 caracteres)', 'error'); return; }
+
+    // ¿Mandar líneas también? — solo si checkbox activado o si es CREAR
+    var enviarLineas = document.getElementById('emEditarLineas').checked || modo === 'crear';
+    var lineasJson = null;
+    if (enviarLineas) {
+      if (!state.emLineas.length) { toast('Una receta nueva necesita al menos 1 ingrediente', 'error'); return; }
+      // Validar y construir payload
+      var lineasPayload = [];
+      for (var i = 0; i < state.emLineas.length; i++) {
+        var l = state.emLineas[i];
+        if (!l.ref_id) { toast('Línea ' + (i+1) + ': selecciona ingrediente o sub-receta', 'error'); return; }
+        if (!(l.cantidad > 0)) { toast('Línea ' + (i+1) + ': cantidad debe ser > 0', 'error'); return; }
+        if (!l.unidad) { toast('Línea ' + (i+1) + ': falta unidad', 'error'); return; }
+        var item = {
+          cantidad: l.cantidad, unidad: l.unidad,
+          merma_extra_pct: l.merma_extra_pct || 0,
+          es_decoracion: !!l.es_decoracion,
+          orden: i + 1
+        };
+        if (l.tipo === 'subreceta') item.subreceta_id = l.ref_id;
+        else item.ingrediente_id = l.ref_id;
+        lineasPayload.push(item);
+      }
+      lineasJson = JSON.stringify(lineasPayload);
+    }
+
+    btn.disabled = true; btn.textContent = '⏳ Enviando…';
+    var payload = {
+      action:'receta_proponer_cambio', token: token,
+      tipo_cambio: modo === 'crear' ? 'crear' : 'modificar',
+      receta_id: modo === 'crear' ? '' : recId,
+      cambios_json: JSON.stringify(cambios)
+    };
+    var _emObs = document.getElementById('emObs'); if (_emObs && _emObs.value.trim()) payload.motivo = _emObs.value.trim();
+    if (lineasJson) payload.lineas_json = lineasJson;
+    apiCall(payload, function(res){
+      btn.disabled = false; btn.textContent = '📤 Enviar para autorización';
+      if (res.ok) {
+        toast('✓ ' + (modo === 'crear' ? 'Receta nueva' : 'Cambio') + ' enviado para autorización');
+        document.getElementById('editModal').classList.remove('open');
+        // Refrescar pendientes si admin tiene el tab abierto
+        if (state.tab === 'pendientes') cargarPendientes();
+      } else {
+        toast(res.error || 'Error al enviar', 'error');
+      }
+    });
+  });
+
+  // === Botón "Proponer suspender / reactivar" (desde el detalle de receta) ===
+  (function(){
+    var b = document.getElementById('btnSuspReact');
+    if (!b) return;
+    b.addEventListener('click', function(){
+      var accion = b.getAttribute('data-accion');
+      var r = state.recetaActualData && state.recetaActualData.receta;
+      if (!r || !accion) return;
+      var verbo = accion === 'desactivar' ? 'suspender' : 'reactivar';
+      var motivo = prompt('¿Por qué quieres ' + verbo + ' la receta "' + r.nombre + '"?\n\nEscribe el motivo (lo revisará el Gerente Administrativo):', '');
+      if (motivo === null) return;
+      motivo = String(motivo).trim();
+      if (motivo.length < 5) { toast('El motivo debe tener al menos 5 caracteres', 'error'); return; }
+      b.disabled = true;
+      apiCall({ action:'receta_proponer_cambio', token: token, tipo_cambio: accion, receta_id: r.id, motivo: motivo, cambios_json: '{}' }, function(res){
+        b.disabled = false;
+        if (res && res.ok) {
+          toast('✓ Propuesta de ' + verbo + ' enviada para autorización');
+          document.getElementById('recModal').classList.remove('open');
+          if (state.tab === 'pendientes') cargarPendientes();
+          if (state.tab === 'mispropuestas') cargarMisPropuestas();
+        } else {
+          toast((res && res.error) || 'Error al enviar', 'error');
+        }
+      });
+    });
+  })();
+
+  // === Tab "Mis propuestas" (chef) — ve SOLO sus propias propuestas y su estado ===
+  var MISPROP_TIPO = { crear:'+ Nueva', modificar:'✎ Modificación', desactivar:'⏸ Suspender', reactivar:'▶ Reactivar' };
+  var MISPROP_ESTADO = {
+    pendiente:  '<span class="badge b-warn">⏳ Pendiente</span>',
+    autorizada: '<span class="badge b-good">✓ Autorizada</span>',
+    rechazada:  '<span class="badge b-bad">✗ Rechazada</span>'
+  };
+  function cargarMisPropuestas(){
+    var tb = document.querySelector('#tblMisProp tbody');
+    if (tb) tb.innerHTML = '<tr><td colspan="5" class="empty-state">Cargando…</td></tr>';
+    apiCall({ action:'recetas_mis_propuestas', token: token }, function(res){
+      if (!tb) return;
+      if (!res || !res.ok) { tb.innerHTML = '<tr><td colspan="5" class="empty-state" style="color:var(--bad)">' + esc((res&&res.error)||'Error') + '</td></tr>'; return; }
+      var props = res.propuestas || [];
+      var cnt = document.getElementById('cntMisProp'); if (cnt) cnt.textContent = props.length;
+      if (!props.length) { tb.innerHTML = '<tr><td colspan="5" class="empty-state">Aún no has enviado propuestas. Desde una receta puedes proponer cambios, suspenderla o reactivarla.</td></tr>'; return; }
+      tb.innerHTML = props.map(function(p){
+        var est = MISPROP_ESTADO[String(p.estado).toLowerCase()] || esc(p.estado);
+        var detalle = esc(p.resumen || '');
+        if (String(p.estado).toLowerCase() === 'rechazada' && p.motivo_rechazo) {
+          detalle += '<div style="color:var(--bad);font-size:11.5px;margin-top:3px">✗ Motivo del rechazo: ' + esc(p.motivo_rechazo) + '</div>';
+        }
+        return '<tr><td>' + esc(MISPROP_TIPO[p.tipo] || p.tipo) + '</td>'
+          + '<td>' + esc(p.nombre) + '</td>'
+          + '<td style="font-size:12.5px">' + detalle + '</td>'
+          + '<td>' + est + '</td>'
+          + '<td style="font-size:11.5px;color:var(--muted);white-space:nowrap">' + esc(String(p.propuesto_at||'').slice(0,16)) + '</td></tr>';
+      }).join('');
+    });
+  }
+  (function(){ var b = document.getElementById('misPropRefrescar'); if (b) b.addEventListener('click', cargarMisPropuestas); })();
+
+  // === Tab Pendientes — solo para admin/gerente_administrativo ===
+  function mostrarTabPendientesSiAdmin(){
+    var rolU = (user && user.rol || '').toLowerCase();
+    if (ROLES_AUTORIZAN.indexOf(rolU) !== -1) {
+      document.getElementById('tabPendientes').style.display = 'inline-flex';
+    }
+  }
+
+  function cargarPendientes(){
+    var estado = document.getElementById('pendEstado').value || 'pendiente';
+    var tb = document.querySelector('#tblPend tbody');
+    tb.innerHTML = '<tr><td colspan="7" class="empty-state">Cargando…</td></tr>';
+    apiCall({ action:'recetas_pendientes_list', token: token, estado: estado === 'todos' ? 'todos' : estado }, function(res){
+      if (!res.ok) {
+        tb.innerHTML = '<tr><td colspan="7" class="empty-state" style="color:var(--bad)">' + esc(res.error || 'Error') + '</td></tr>';
+        return;
+      }
+      state.pendientes = res.pendientes;
+      // Calcular KPIs por estado (rápido — solo del listado actual cuando estado=todos)
+      // Si el filtro NO es "todos", pedimos counts aparte
+      apiCall({ action:'recetas_pendientes_list', token: token, estado: 'todos' }, function(rt){
+        if (rt.ok) {
+          var pp = rt.pendientes;
+          document.getElementById('kpiPendPend').textContent = pp.filter(function(p){ return p.estado === 'pendiente'; }).length;
+          document.getElementById('kpiPendAut').textContent = pp.filter(function(p){ return p.estado === 'autorizada'; }).length;
+          document.getElementById('kpiPendRech').textContent = pp.filter(function(p){ return p.estado === 'rechazada'; }).length;
+          document.getElementById('cntPend').textContent = pp.filter(function(p){ return p.estado === 'pendiente'; }).length;
+        }
+      });
+      if (!res.pendientes.length) {
+        tb.innerHTML = '<tr><td colspan="7" class="empty-state">No hay cambios ' + estado + 's</td></tr>';
+        return;
+      }
+      tb.innerHTML = res.pendientes.map(function(p){
+        var tipoB = p.tipo_cambio === 'crear' ? '<span class="badge b-good">+ Crear</span>' :
+                    p.tipo_cambio === 'desactivar' ? '<span class="badge b-bad">⏸ Suspender</span>' :
+                    p.tipo_cambio === 'reactivar' ? '<span class="badge b-good">▶ Reactivar</span>' :
+                    '<span class="badge b-warn">✎ Modificar</span>';
+        var stB;
+        if (p.estado === 'pendiente') stB = '<span class="badge b-warn">🔄 Pendiente</span>';
+        else if (p.estado === 'autorizada') stB = '<span class="badge b-good">✓ Autorizada</span>';
+        else stB = '<span class="badge b-bad">✗ Rechazada</span>';
+        var fechaCorta = String(p.propuesto_at || '').slice(0, 16).replace('T', ' ');
+        var resumenCorto = String(p.cambios_resumen || '').slice(0, 80);
+        if ((p.cambios_resumen || '').length > 80) resumenCorto += '…';
+        var accion = p.estado === 'pendiente'
+          ? '<button class="btn btn-sm" data-id="' + p.id + '">Revisar</button>'
+          : '—';
+        return '<tr>' +
+          '<td>' + tipoB + '</td>' +
+          '<td><strong>' + esc(p.receta_nombre) + '</strong></td>' +
+          '<td style="font-size:12.5px;color:var(--muted)">' + esc(resumenCorto) + '</td>' +
+          '<td>' + esc((p.propuesto_por_email || '').split('@')[0]) + '</td>' +
+          '<td>' + esc(fechaCorta) + '</td>' +
+          '<td>' + stB + '</td>' +
+          '<td>' + accion + '</td>' +
+        '</tr>';
+      }).join('');
+      tb.querySelectorAll('button[data-id]').forEach(function(btn){
+        btn.addEventListener('click', function(){ abrirPendiente(btn.getAttribute('data-id')); });
+      });
+    });
+  }
+
+  // === Render dictamen de auditoría IA ===
+  function renderDictamenHtml(dictamen) {
+    var colores = { 'APROBADA': 'var(--good)', 'APROBADA_CON_OBSERVACIONES': '#c89a4a', 'RECHAZADA': 'var(--bad)' };
+    var veredicto = String(dictamen.veredicto || '');
+    var color = colores[veredicto] || 'var(--muted)';
+    var hallazgos = Array.isArray(dictamen.hallazgos) ? dictamen.hallazgos : [];
+    var sevColor = { 'info':'#2a6db5', 'advertencia':'#c89a4a', 'critico':'var(--bad)' };
+    var hallazgosHtml = hallazgos.map(function(h){
+      var sc = sevColor[h.severidad] || 'var(--muted)';
+      return '<div style="margin-bottom:6px;padding:9px 11px;border-left:3px solid ' + sc + ';background:rgba(0,0,0,.025)">' +
+        '<div style="font-weight:700;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:' + sc + '">' + esc(h.severidad||'') + ' · ' + esc(h.titulo||'') + '</div>' +
+        '<div style="font-size:12.5px;margin-top:3px">' + esc(h.descripcion||'') + '</div>' +
+      '</div>';
+    }).join('');
+    return '<div style="margin:14px 0;padding:14px 16px;border:2px solid ' + color + '">' +
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
+        '<span style="font-weight:700;font-size:13px;color:' + color + '">🤖 ' + esc(veredicto) + '</span>' +
+        '<span style="font-size:11.5px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase">Auditoría IA</span>' +
+      '</div>' +
+      '<div style="font-size:13px;margin-bottom:' + (hallazgos.length ? '10px' : '0') + '">' + esc(dictamen.resumen||'') + '</div>' +
+      (hallazgos.length ? '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-bottom:7px">Hallazgos</div>' + hallazgosHtml : '') +
+    '</div>';
+  }
+
+  // === Modal: revisar pendiente con autorizar/rechazar ===
+  function abrirPendiente(id){
+    document.getElementById('pmBody').innerHTML = '<div class="empty-state">Cargando…</div>';
+    document.getElementById('pendModal').classList.add('open');
+    apiCall({ action:'receta_pendiente_get', token: token, id: id }, function(res){
+      if (!res.ok) {
+        document.getElementById('pmBody').innerHTML = '<div class="empty-state" style="color:var(--bad)">' + esc(res.error || 'Error') + '</div>';
+        return;
+      }
+      var p = res.pendiente;
+      var actual = res.receta_actual || {};
+      var prop = res.snapshot_propuesto || {};
+      document.getElementById('pmSub').textContent = p.tipo_cambio.toUpperCase() + ' · propuesto por ' + p.propuesto_por_email + ' · ' + String(p.propuesto_at || '').slice(0, 16);
+      // Construir tabla de diff
+      var camposComparar = ['nombre','categoria_culinaria','area','rendimiento','unidad_rendimiento','instrucciones','uso_aplicacion','decoracion_texto','activa'];
+      var diffRows = camposComparar.map(function(k){
+        var ant = actual[k] != null ? String(actual[k]) : '';
+        var nuevo = prop[k] != null ? String(prop[k]) : '';
+        var hayDiff = ant !== nuevo;
+        var antTxt = ant.length > 100 ? ant.slice(0, 100) + '…' : ant;
+        var nuevoTxt = nuevo.length > 100 ? nuevo.slice(0, 100) + '…' : nuevo;
+        return '<tr style="' + (hayDiff ? 'background:rgba(185,122,27,.08)' : '') + '">' +
+          '<td style="font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;font-weight:600">' + esc(k) + '</td>' +
+          '<td style="font-size:13px;white-space:pre-wrap">' + esc(antTxt || '—') + '</td>' +
+          '<td style="font-size:13px;white-space:pre-wrap;' + (hayDiff ? 'color:var(--brand);font-weight:500' : '') + '">' + esc(nuevoTxt || '—') + '</td>' +
+        '</tr>';
+      }).join('');
+      // Panel de auditoría IA
+      var aiPanel = '';
+      if (p.auditoria_json) {
+        try { aiPanel = renderDictamenHtml(JSON.parse(p.auditoria_json)); } catch(e){}
+      } else if (p.estado === 'pendiente' && ['admin','gerente_administrativo'].indexOf(rol) !== -1) {
+        aiPanel = '<div id="pmAIWrap" style="margin:14px 0">' +
+          '<button class="btn" id="pmAuditarIA" style="border-color:var(--gold);color:var(--gold)">🤖 Auditar con IA</button>' +
+          '<span id="pmAIMsg" style="font-size:12px;color:var(--muted);margin-left:10px"></span>' +
+        '</div>';
+      }
+      var html =
+        '<div style="margin-bottom:14px;padding:12px 16px;background:var(--paper);font-size:13px"><strong>Resumen:</strong> ' + esc(p.cambios_resumen) + '</div>' +
+        '<table style="width:100%;border-collapse:collapse;margin-bottom:14px">' +
+        '<thead><tr style="background:var(--brand);color:#fff"><th style="padding:8px 12px;text-align:left;width:160px">Campo</th><th style="padding:8px 12px;text-align:left">Actual</th><th style="padding:8px 12px;text-align:left">Propuesto</th></tr></thead>' +
+        '<tbody>' + diffRows + '</tbody>' +
+        '</table>' +
+        aiPanel +
+        (p.estado === 'pendiente' ?
+          '<div id="pmAcciones">' +
+            '<div style="display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--line);padding-top:14px;margin-top:14px">' +
+              '<button class="btn" id="pmRechazar" style="border-color:var(--bad);color:var(--bad)">✗ Rechazar</button>' +
+              '<button class="btn primary" id="pmAutorizar" style="background:var(--good);border-color:var(--good)">✓ Autorizar y aplicar</button>' +
+            '</div>' +
+            '<div id="pmRejForm" style="display:none;margin-top:14px;border-top:1px solid var(--line);padding-top:14px">' +
+              '<label style="font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px">Mensaje para el chef</label>' +
+              '<textarea id="pmRejMotivo" rows="6" style="width:100%;box-sizing:border-box;padding:10px 12px;font-size:13px;font-family:var(--font-body);border:1px solid var(--line);resize:vertical;background:var(--paper)">' + esc(function(){
+                if (!p.auditoria_json) return '';
+                try {
+                  var d = JSON.parse(p.auditoria_json);
+                  var malos = (d.hallazgos||[]).filter(function(h){ return h.severidad !== 'info'; });
+                  if (!malos.length) return d.resumen || '';
+                  var txt = 'Tu receta fue revisada y necesita correcciones antes de aprobarse:\n\n';
+                  malos.forEach(function(h){ txt += '• ' + h.titulo + ': ' + h.descripcion + '\n'; });
+                  txt += '\nPor favor corrígela y vuelve a proponer el cambio.';
+                  return txt;
+                } catch(e){ return ''; }
+              }()) + '</textarea>' +
+              '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">' +
+                '<button class="btn" id="pmRejCancelar">Cancelar</button>' +
+                '<button class="btn" id="pmRejConfirmar" style="border-color:var(--bad);color:var(--bad)">Confirmar rechazo</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>'
+          : '<div style="font-size:12.5px;color:var(--muted);padding:14px 0">' +
+              (p.estado === 'rechazado' && p.motivo_rechazo
+                ? '<strong>Motivo del rechazo:</strong><br><span style="white-space:pre-wrap">' + esc(p.motivo_rechazo) + '</span>'
+                : 'Este pendiente ya fue ' + esc(p.estado)) +
+            '</div>');
+      document.getElementById('pmBody').innerHTML = html;
+      // Botón auditoría IA
+      var btnIA = document.getElementById('pmAuditarIA');
+      if (btnIA) btnIA.addEventListener('click', function(){
+        btnIA.disabled = true; btnIA.textContent = '⏳ Auditando…';
+        var msgEl = document.getElementById('pmAIMsg');
+        if (msgEl) msgEl.textContent = 'Consultando IA, espera unos segundos…';
+        apiCall({ action:'receta_auditar_ia', token: token, id: id }, function(r){
+          if (r.ok) {
+            var wrap = document.getElementById('pmAIWrap');
+            if (wrap) wrap.outerHTML = renderDictamenHtml(r.dictamen);
+          } else {
+            btnIA.disabled = false; btnIA.textContent = '🤖 Auditar con IA';
+            if (msgEl) msgEl.textContent = 'Error: ' + (r.error || 'Error desconocido');
+          }
+        });
+      });
+      var btnAut = document.getElementById('pmAutorizar');
+      var btnRej = document.getElementById('pmRechazar');
+      if (btnAut) btnAut.addEventListener('click', function(){
+        if (!confirm('¿Autorizar este cambio? Se aplicará inmediatamente al sheet de Recetas.')) return;
+        btnAut.disabled = true; btnAut.textContent = '⏳ Autorizando…';
+        apiCall({ action:'receta_autorizar', token: token, id: id }, function(r){
+          if (r.ok) {
+            toast('✓ Cambio autorizado y aplicado');
+            document.getElementById('pendModal').classList.remove('open');
+            cargarPendientes();
+            apiCall({ action:'recetas_list', token: token }, function(rr){ if (rr.ok) { state.recetas = rr.recetas; if (state.tab === 'recetas' || state.tab === 'subrecetas') renderRecetas(); } });
+          } else {
+            btnAut.disabled = false; btnAut.textContent = '✓ Autorizar y aplicar';
+            toast(r.error || 'Error al autorizar', 'error');
+          }
+        });
+      });
+      if (btnRej) btnRej.addEventListener('click', function(){
+        document.getElementById('pmRejForm').style.display = 'block';
+        btnRej.style.display = 'none';
+        if (btnAut) btnAut.style.display = 'none';
+      });
+      var btnRejCancelar = document.getElementById('pmRejCancelar');
+      if (btnRejCancelar) btnRejCancelar.addEventListener('click', function(){
+        document.getElementById('pmRejForm').style.display = 'none';
+        if (btnRej) btnRej.style.display = '';
+        if (btnAut) btnAut.style.display = '';
+      });
+      var btnRejConfirmar = document.getElementById('pmRejConfirmar');
+      if (btnRejConfirmar) btnRejConfirmar.addEventListener('click', function(){
+        var motivo = (document.getElementById('pmRejMotivo').value || '').trim();
+        if (motivo.length < 5) { toast('El mensaje es demasiado corto', 'error'); return; }
+        btnRejConfirmar.disabled = true; btnRejConfirmar.textContent = '⏳ Rechazando…';
+        apiCall({ action:'receta_rechazar', token: token, id: id, motivo: motivo }, function(r){
+          if (r.ok) {
+            toast('Cambio rechazado');
+            document.getElementById('pendModal').classList.remove('open');
+            cargarPendientes();
+          } else {
+            btnRejConfirmar.disabled = false; btnRejConfirmar.textContent = 'Confirmar rechazo';
+            toast(r.error || 'Error al rechazar', 'error');
+          }
+        });
+      });
+    });
+  }
+  document.getElementById('pmClose').addEventListener('click', function(){ document.getElementById('pendModal').classList.remove('open'); });
+  document.getElementById('pendModal').addEventListener('click', function(e){ if (e.target === this) document.getElementById('pendModal').classList.remove('open'); });
+  document.getElementById('pendEstado').addEventListener('change', cargarPendientes);
+  document.getElementById('pendRefrescar').addEventListener('click', cargarPendientes);
+
+  // ============================================================================
+  // TAB: RENTABILIDAD (R4)
+  // ============================================================================
+  state.rentab = null;
+  function cargarRentabilidad(){
+    var tb = document.querySelector('#tblRt tbody');
+    tb.innerHTML = '<tr><td colspan="7" class="empty-state">Calculando…</td></tr>';
+    apiCall({ action:'recetario_reporte_rentabilidad', token: token }, function(res){
+      if (!res.ok) {
+        tb.innerHTML = '<tr><td colspan="7" class="empty-state" style="color:var(--bad)">' + esc(res.error || 'Error') + '</td></tr>';
+        return;
+      }
+      state.rentab = res.recetas;
+      var rs = res.resumen;
+      document.getElementById('kpiRtAct').textContent = rs.activas;
+      document.getElementById('kpiRtCosto').textContent = fmtMoney(rs.costo_promedio_porcion || 0);
+      document.getElementById('kpiRtEst').textContent = rs.con_estimado;
+      document.getElementById('kpiRtSinInstr').textContent = rs.sin_instrucciones;
+      document.getElementById('kpiRtSinFoto').textContent = rs.sin_foto;
+      renderRentab();
+    });
+  }
+  function renderRentab(){
+    if (!state.rentab) return;
+    var q = (document.getElementById('rtQ').value || '').toLowerCase().trim();
+    var area = document.getElementById('rtArea').value;
+    var tipo = document.getElementById('rtTipo').value;
+    var orden = document.getElementById('rtOrden').value;
+    var soloEst = document.getElementById('rtSoloEst').checked;
+    var lista = state.rentab.filter(function(r){
+      if (!r.activa) return false;
+      if (q && r.nombre.toLowerCase().indexOf(q) === -1) return false;
+      if (area && r.area !== area) return false;
+      if (tipo === 'platillo' && r.es_subreceta) return false;
+      if (tipo === 'subreceta' && !r.es_subreceta) return false;
+      if (soloEst && !r.tiene_estimado) return false;
+      return true;
+    });
+    var sortFns = {
+      costo_desc: function(a,b){ return b.costo_por_porcion - a.costo_por_porcion; },
+      costo_asc:  function(a,b){ return a.costo_por_porcion - b.costo_por_porcion; },
+      precio_desc:function(a,b){ return b.precio_venta_con_iva - a.precio_venta_con_iva; },
+      nombre_asc: function(a,b){ return String(a.nombre||'').localeCompare(String(b.nombre||'')); }
+    };
+    lista.sort(sortFns[orden] || sortFns.costo_desc);
+    var tb = document.querySelector('#tblRt tbody');
+    if (!lista.length) {
+      tb.innerHTML = '<tr><td colspan="7" class="empty-state">Sin resultados</td></tr>';
+      return;
+    }
+    tb.innerHTML = lista.map(function(r){
+      var areaB = r.area === 'churrasca' ? '<span class="badge b-churrasca">Churrasca</span>' : r.area === 'barra' ? '<span class="badge b-barra">Barra</span>' : r.area === 'panaderia' ? '<span class="badge b-panaderia">Panadería</span>' : r.area === 'cava' ? '<span class="badge b-cava">Cava</span>' : '<span class="badge b-cocina">Cocina</span>';
+      var subB = r.es_subreceta ? ' <span class="badge b-sub">Sub</span>' : '';
+      var banderas = '';
+      if (r.tiene_estimado) banderas += '<span class="badge b-warn" title="Tiene ingredientes con precio estimado">📍 Est.</span> ';
+      if (r.sin_instrucciones) banderas += '<span class="badge b-warn" title="Sin instrucciones documentadas">📝</span> ';
+      if (r.sin_foto) banderas += '<span class="badge b-info" title="Sin foto">📷</span> ';
+      if (r.lineas_sin_precio) banderas += '<span class="badge b-bad" title="' + r.lineas_sin_precio + ' líneas sin precio">⚠ ' + r.lineas_sin_precio + '</span> ';
+      if (r.lineas_sospechosas) banderas += '<span class="badge b-bad" title="' + r.lineas_sospechosas + ' línea(s) con cantidad o costo que se ve absurdo (posible error de captura, tipo 500 kg en vez de 0.5). Abre la receta para revisar.">🔎 ' + r.lineas_sospechosas + '</span> ';
+      return '<tr data-id="' + esc(r.id) + '" style="cursor:pointer">' +
+        '<td><strong>' + esc(r.nombre) + '</strong>' + subB + '<br><small style="color:var(--muted)">' + esc(r.categoria || '—') + ' · ' + fmtNum(r.rendimiento, 1) + ' ' + esc(r.unidad_rendimiento || 'porc') + '</small></td>' +
+        '<td>' + areaB + '</td>' +
+        '<td class="num">' + fmtMoney(r.costo_total) + '</td>' +
+        '<td class="num"><strong>' + fmtMoney(r.costo_por_porcion) + '</strong></td>' +
+        '<td class="num">' + fmtMoney(r.precio_venta_sugerido) + '</td>' +
+        '<td class="num">' + fmtMoney(r.precio_venta_con_iva) + '</td>' +
+        '<td>' + (banderas || '—') + '</td>' +
+      '</tr>';
+    }).join('');
+    tb.querySelectorAll('tr[data-id]').forEach(function(tr){
+      tr.addEventListener('click', function(){ abrirReceta(tr.getAttribute('data-id')); });
+    });
+  }
+  ['rtQ','rtArea','rtTipo','rtOrden','rtSoloEst'].forEach(function(id){
+    var el = document.getElementById(id);
+    el.addEventListener('input', renderRentab);
+    el.addEventListener('change', renderRentab);
+  });
+  document.getElementById('rtRefrescar').addEventListener('click', cargarRentabilidad);
+
+  // ---------- Notificaciones de rechazo al chef ----------
+  function cargarNotifRechazos() {
+    apiCall({ action:'recetas_pendientes_notif', token: token }, function(res){
+      if (!res.ok || !res.notifs || !res.notifs.length) return;
+      var wrap = document.getElementById('notif-rechazos');
+      if (!wrap) return;
+      wrap.innerHTML = res.notifs.map(function(n){
+        var motivo = n.motivo.length > 180 ? n.motivo.slice(0, 180) + '…' : n.motivo;
+        return '<div data-notif-id="' + esc(n.id) + '" style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;margin-bottom:8px;border-left:3px solid var(--ember);background:rgba(196,50,42,.05)">' +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ember);margin-bottom:4px">Receta rechazada · ' + esc(n.receta_nombre) + '</div>' +
+            '<div style="font-size:13px;color:var(--ink);white-space:pre-wrap;line-height:1.55">' + esc(motivo) + '</div>' +
+            '<button data-ver-id="' + esc(n.id) + '" style="margin-top:8px;font-size:12px;font-family:var(--font-mono);letter-spacing:.06em;text-transform:uppercase;background:none;border:1px solid var(--ember);color:var(--ember);padding:4px 10px;cursor:pointer">Ver detalles →</button>' +
+          '</div>' +
+          '<button data-cerrar-id="' + esc(n.id) + '" title="Marcar como visto" style="background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer;flex-shrink:0;line-height:1;padding:0">×</button>' +
+        '</div>';
+      }).join('');
+      // Botones Ver detalles → abrir el modal de pendiente
+      wrap.querySelectorAll('button[data-ver-id]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var pid = btn.getAttribute('data-ver-id');
+          // Activar tab pendientes si está oculto
+          var tabPend = document.getElementById('tabPendientes');
+          if (tabPend) { tabPend.style.display = ''; cambiarTab('pendientes'); }
+          abrirPendiente(pid);
+        });
+      });
+      // Botones × → marcar como visto y quitar banner
+      wrap.querySelectorAll('button[data-cerrar-id]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var pid = btn.getAttribute('data-cerrar-id');
+          var card = wrap.querySelector('[data-notif-id="' + pid + '"]');
+          if (card) card.remove();
+          apiCall({ action:'receta_notif_marcar_visto', token: token, id: pid }, function(){});
+        });
+      });
+    });
+  }
+
+  // ---------- Init ----------
+  function iniciar(){
+  apiCallReintento({ action:'me', token: token }, function(res){
+    if (!res.ok) {
+      // Parpadeo de red / servidor momentáneo: NO tirar la sesión ni mandar a login.
+      // Mostramos un reintento; la sesión sigue viva.
+      if (_esErrTransitorio(res)) {
+        toast('Sin conexión con el servidor. Reintenta.', 'error');
+        _errorTabla('#tblRec tbody', 6, 'No se pudo conectar con el servidor. Revisa tu internet.', iniciar);
+        return;
+      }
+      sessionStorage.clear();
+      alert('Tu sesión expiró.');
+      (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+      return;
+    }
+    // Actualizar user/empresa (recuperación iOS: sessionStorage estaba vacío)
+    user = res.user || user;
+    empresa = res.empresa || empresa || null;
+    try {
+      sessionStorage.setItem('fogueira_token', token);
+      sessionStorage.setItem('fogueira_user', JSON.stringify(user));
+      sessionStorage.setItem('fogueira_empresa', JSON.stringify(empresa));
+      sessionStorage.setItem('fogueira_sucursales', JSON.stringify(res.sucursales || []));
+    } catch(e){}
+    if (!aplicarSesionUI()) return;
+    mostrarTabPendientesSiAdmin();
+    if (ROLES_EDITAN_RECETAS.indexOf(rol) !== -1) {
+      document.getElementById('btnNuevaReceta').style.display = 'inline-flex';
+    }
+    cargarTodo();
+    if (['cocina','churrasca','barman','panadero'].indexOf(rol) !== -1) cargarNotifRechazos();
+  });
+  }
+  iniciar();
+
+  // ════════════════════════════════════════════════════════════════════
+  // v165 — KPI "Huérfanos sin vincular" con barra de progreso.
+  // Se actualiza junto con la carga de ingredientes y cada vez que se
+  // vincula/desvincula uno (renderIngredientes lo dispara).
+  // Click en la card → activa el filtro "🔸 Solo huérfanos".
+  // ════════════════════════════════════════════════════════════════════
+  function actualizarKpiHuerfanos(){
+    var ings = state.ingredientes || [];
+    var activos = ings.filter(function(i){ return i.activo !== false; });
+    var huerfanos = activos.filter(function(i){ return !i.sr12 && !i.clave_sr12; }).length;
+    var total = activos.length;
+    var vinculados = total - huerfanos;
+    var pctVinculado = total > 0 ? Math.round((vinculados / total) * 100) : 0;
+
+    document.getElementById('kpiIngHuerf').textContent = huerfanos;
+    document.getElementById('kpiIngHuerfBar').style.width = pctVinculado + '%';
+    document.getElementById('kpiIngHuerfSub').innerHTML =
+      huerfanos === 0
+        ? '<strong>¡Todos vinculados!</strong> 🎉 ' + total + ' / ' + total
+        : '<strong>' + vinculados + '</strong> / ' + total + ' vinculados · <strong>' + pctVinculado + '%</strong>';
+
+    var card = document.getElementById('kpiIngHuerfCard');
+    if (huerfanos === 0) card.classList.add('done');
+    else card.classList.remove('done');
+  }
+
+  // Click en la card → activa filtro "Solo huérfanos" y va arriba de la tabla
+  document.getElementById('kpiIngHuerfCard').addEventListener('click', function(){
+    var chk = document.getElementById('ingSoloHuerf');
+    if (!chk) return;
+    chk.checked = !chk.checked;
+    // Trigger change para que el handler existente recargue la tabla
+    chk.dispatchEvent(new Event('change'));
+    // Scroll suave al inicio de la tabla
+    var tabla = document.getElementById('tblIng');
+    if (tabla) tabla.scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+
+  // ════════════════════════════════════════════════════════════════════
+  // v163 — Vinculación manual de huérfanos SR12
+  // Modal con búsqueda en vivo + auto-sugerencias por similitud.
+  // ════════════════════════════════════════════════════════════════════
+  var VLINK_CATALOGO = null;     // cache del catálogo SR12 (lazy load)
+  var VLINK_CARGANDO = false;
+  var VLINK_ESTADO = { ingId:'', ingNombre:'', claveActual:'', seleccionada:'' };
+
+  function abrirModalVincular(ingId, ingNombre, claveActual){
+    VLINK_ESTADO.ingId = ingId;
+    VLINK_ESTADO.ingNombre = ingNombre;
+    VLINK_ESTADO.claveActual = claveActual || '';
+    VLINK_ESTADO.seleccionada = claveActual || '';
+    document.getElementById('vlinkTitle').textContent = claveActual ? 'Cambiar vínculo SR12' : 'Vincular a una clave SR12';
+    document.getElementById('vlinkIngNombre').textContent = ingNombre;
+    var meta = document.getElementById('vlinkIngMeta');
+    meta.textContent = claveActual
+      ? 'Actualmente ligado a: ' + claveActual
+      : 'Sin vínculo SR12 — selecciona la clave equivalente del catálogo.';
+    document.getElementById('vlinkBuscar').value = '';
+    document.getElementById('vlinkFoot').querySelector('.actual-info').innerHTML = claveActual
+      ? 'Vínculo actual: <strong>' + esc(claveActual) + '</strong>'
+      : '';
+    document.getElementById('vlinkBtnDesvincular').style.display = claveActual ? '' : 'none';
+    document.getElementById('vlinkBtnConfirm').disabled = !claveActual; // si ya hay vínculo, permite reconfirmar
+    document.getElementById('vlinkBackdrop').classList.add('open');
+    // Lazy load del catálogo SR12 la primera vez
+    if (!VLINK_CATALOGO && !VLINK_CARGANDO) cargarCatalogoSr12();
+    else renderListaCandidatos();
+    setTimeout(function(){ document.getElementById('vlinkBuscar').focus(); }, 50);
+  }
+
+  function cerrarModalVincular(){
+    document.getElementById('vlinkBackdrop').classList.remove('open');
+  }
+
+  function cargarCatalogoSr12(){
+    VLINK_CARGANDO = true;
+    document.getElementById('vlinkLista').innerHTML = '<div class="vlink-empty">Cargando catálogo SR12…<div class="small">Primera vez puede tardar unos segundos.</div></div>';
+    apiCall({ action:'sr12_catalogo_list', token: token }, function(res){
+      VLINK_CARGANDO = false;
+      if (!res || !res.ok) {
+        document.getElementById('vlinkLista').innerHTML = '<div class="vlink-empty">No se pudo cargar el catálogo SR12.<div class="small">' + esc((res && res.error) || 'Error desconocido') + '</div></div>';
+        return;
+      }
+      VLINK_CATALOGO = res.productos || [];
+      renderListaCandidatos();
+    });
+  }
+
+  // Score de similitud simple: palabras compartidas entre nombre Fogueira y nombre SR12.
+  // No es perfecto pero da sugerencias razonables para auto-ordenar al abrir.
+  function scoreSimilitud(textoIng, textoSr12){
+    var norm = function(s){ return String(s||'').toLowerCase()
+      .replace(/[áàäâ]/g,'a').replace(/[éèëê]/g,'e').replace(/[íìïî]/g,'i')
+      .replace(/[óòöô]/g,'o').replace(/[úùüû]/g,'u').replace(/ñ/g,'n')
+      .replace(/[^a-z0-9 ]/g,' ').trim(); };
+    var STOPWORDS = {'de':1,'la':1,'el':1,'y':1,'a':1,'en':1,'con':1,'para':1,'por':1,'sin':1,'kg':1,'lt':1,'pza':1,'pz':1,'gr':1,'ml':1};
+    var palabrasIng = norm(textoIng).split(/\s+/).filter(function(w){ return w.length >= 3 && !STOPWORDS[w]; });
+    var palabrasSr12 = norm(textoSr12).split(/\s+/).filter(function(w){ return w.length >= 3 && !STOPWORDS[w]; });
+    if (palabrasIng.length === 0 || palabrasSr12.length === 0) return 0;
+    var coincidencias = 0;
+    palabrasIng.forEach(function(w){
+      if (palabrasSr12.indexOf(w) !== -1) coincidencias++;
+      else if (palabrasSr12.some(function(s){ return s.indexOf(w) !== -1 || w.indexOf(s) !== -1; })) coincidencias += 0.5;
+    });
+    return coincidencias / Math.max(palabrasIng.length, palabrasSr12.length);
+  }
+
+  function renderListaCandidatos(){
+    var cont = document.getElementById('vlinkLista');
+    if (!VLINK_CATALOGO) { cont.innerHTML = '<div class="vlink-empty">Cargando…</div>'; return; }
+    var q = String(document.getElementById('vlinkBuscar').value || '').toLowerCase().trim();
+    var resultados;
+    var modoSugerencia = (!q && !VLINK_ESTADO.claveActual);
+
+    if (q) {
+      // Búsqueda manual — filtrar por nombre, clave o presentación
+      resultados = VLINK_CATALOGO.filter(function(s){
+        var hay = String(s.clave_sr12||'').toLowerCase() + ' ' + String(s.nombre_sr12||'').toLowerCase() + ' ' + String(s.presentacion_descripcion||'').toLowerCase();
+        return hay.indexOf(q) !== -1;
+      });
+    } else if (modoSugerencia) {
+      // Sin búsqueda y sin vínculo previo: ordenar por similitud al nombre Fogueira (top 100)
+      resultados = VLINK_CATALOGO.map(function(s){
+        return { s: s, score: scoreSimilitud(VLINK_ESTADO.ingNombre, (s.nombre_sr12 || '') + ' ' + (s.presentacion_descripcion || '')) };
+      }).sort(function(a,b){ return b.score - a.score; }).slice(0, 80).map(function(r){ return r.s; });
+    } else {
+      // Sin búsqueda pero con vínculo previo: mostrar todo, con el actual al principio
+      resultados = VLINK_CATALOGO.slice().sort(function(a,b){
+        if (a.clave_sr12 === VLINK_ESTADO.claveActual) return -1;
+        if (b.clave_sr12 === VLINK_ESTADO.claveActual) return 1;
+        return String(a.nombre_sr12||'').localeCompare(String(b.nombre_sr12||''));
+      });
+    }
+
+    if (resultados.length === 0) {
+      cont.innerHTML = '<div class="vlink-empty">Sin coincidencias para "<strong>' + esc(q) + '</strong>"<div class="small">Prueba con menos palabras o el código exacto.</div></div>';
+      return;
+    }
+
+    var html = '';
+    if (modoSugerencia) html += '<div class="grupo-lbl">Sugerencias por similitud al nombre Fogueira</div>';
+    else if (!q) html += '<div class="grupo-lbl">Catálogo SR12 (' + resultados.length + ' claves)</div>';
+    else html += '<div class="grupo-lbl">' + resultados.length + ' coincidencia' + (resultados.length === 1 ? '' : 's') + '</div>';
+
+    html += resultados.slice(0, 200).map(function(s){
+      var esActual = String(s.clave_sr12) === VLINK_ESTADO.claveActual;
+      var esSeleccionada = String(s.clave_sr12) === VLINK_ESTADO.seleccionada;
+      var cls = 'vlink-row';
+      if (esActual) cls += ' actual';
+      if (esSeleccionada && !esActual) cls += ' selected';
+      var unidad = s.unidad_base ? ' ' + esc(s.unidad_base) : '';
+      var totalNum = Number(s.existencia_total || 0);
+      var stockHtml = totalNum > 0
+        ? '<strong>' + (totalNum >= 1000 ? totalNum.toLocaleString('es-MX', {maximumFractionDigits:0}) : (totalNum >= 10 ? totalNum.toFixed(1) : totalNum.toFixed(2))) + '</strong>' + unidad
+        : '<span style="color:var(--smoke)">sin stock</span>';
+      var pres = s.presentacion_descripcion && s.presentacion_descripcion !== s.nombre_sr12 ? s.presentacion_descripcion : '';
+      return '<div class="' + cls + '" data-clave="' + esc(s.clave_sr12) + '">' +
+        '<span class="clave">' + esc(s.clave_sr12) + '</span>' +
+        '<div class="nombre-info">' +
+          '<div class="nombre">' + esc(s.nombre_sr12 || '—') + (esActual ? ' <span style="font-family:var(--font-mono);font-size:10px;color:var(--ember);letter-spacing:.1em;text-transform:uppercase">· actual</span>' : '') + '</div>' +
+          (pres ? '<div class="pres">' + esc(pres) + '</div>' : '') +
+        '</div>' +
+        '<div class="stock">' + stockHtml + '</div>' +
+      '</div>';
+    }).join('');
+
+    cont.innerHTML = html;
+    cont.querySelectorAll('.vlink-row').forEach(function(row){
+      row.addEventListener('click', function(){
+        cont.querySelectorAll('.vlink-row.selected').forEach(function(r){ r.classList.remove('selected'); });
+        if (row.classList.contains('actual')) {
+          VLINK_ESTADO.seleccionada = VLINK_ESTADO.claveActual;
+        } else {
+          row.classList.add('selected');
+          VLINK_ESTADO.seleccionada = row.getAttribute('data-clave');
+        }
+        document.getElementById('vlinkBtnConfirm').disabled = (VLINK_ESTADO.seleccionada === VLINK_ESTADO.claveActual);
+      });
+    });
+  }
+
+  function confirmarVincular(){
+    if (!VLINK_ESTADO.seleccionada) return;
+    if (VLINK_ESTADO.seleccionada === VLINK_ESTADO.claveActual) { cerrarModalVincular(); return; }
+    var btn = document.getElementById('vlinkBtnConfirm');
+    var orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Vinculando…';
+    apiCall({
+      action: 'sr12_ingrediente_vincular',
+      token: token,
+      data: JSON.stringify({
+        ingrediente_id: VLINK_ESTADO.ingId,
+        clave_sr12: VLINK_ESTADO.seleccionada
+      })
+    }, function(res){
+      btn.disabled = false;
+      btn.textContent = orig;
+      if (!res || !res.ok) {
+        alert('No se pudo vincular: ' + ((res && res.error) || 'error desconocido'));
+        return;
+      }
+      // Refrescar la fila localmente
+      var ing = (state.ingredientes || []).find(function(x){ return String(x.id) === String(VLINK_ESTADO.ingId); });
+      if (ing) {
+        ing.clave_sr12 = res.clave_sr12;
+        ing.sr12 = res.sr12;
+      }
+      cerrarModalVincular();
+      if (state.tab === 'ingredientes') renderIngredientes();
+    });
+  }
+
+  function desvincular(){
+    if (!VLINK_ESTADO.claveActual) return;
+    if (!confirm('¿Quitar el vínculo SR12 de "' + VLINK_ESTADO.ingNombre + '"? El ingrediente volverá a aparecer como huérfano.')) return;
+    var btn = document.getElementById('vlinkBtnDesvincular');
+    btn.disabled = true;
+    apiCall({
+      action: 'sr12_ingrediente_vincular',
+      token: token,
+      data: JSON.stringify({ ingrediente_id: VLINK_ESTADO.ingId, clave_sr12: '' })
+    }, function(res){
+      btn.disabled = false;
+      if (!res || !res.ok) {
+        alert('No se pudo desvincular: ' + ((res && res.error) || 'error desconocido'));
+        return;
+      }
+      var ing = (state.ingredientes || []).find(function(x){ return String(x.id) === String(VLINK_ESTADO.ingId); });
+      if (ing) { ing.clave_sr12 = ''; ing.sr12 = null; }
+      cerrarModalVincular();
+      if (state.tab === 'ingredientes') renderIngredientes();
+    });
+  }
+
+  // Listeners del modal. ¡IMPORTANTE! El HTML del modal (#vlinkBackdrop) está MÁS ABAJO en el
+  // documento, DESPUÉS de este <script>. Si conectamos aquí en seco, getElementById devuelve null
+  // y revienta toda la conexión (Vincular/Cancelar/Cerrar/búsqueda quedaban muertos). Por eso lo
+  // diferimos hasta que el modal exista (DOMContentLoaded), o lo conectamos ya si por orden existe.
+  function _wireVlinkModal(){
+    var bd = document.getElementById('vlinkBackdrop');
+    if (!bd) return;
+    bd.addEventListener('click', function(ev){ if (ev.target.id === 'vlinkBackdrop') cerrarModalVincular(); });
+    document.getElementById('vlinkClose').addEventListener('click', cerrarModalVincular);
+    document.getElementById('vlinkBtnCancel').addEventListener('click', cerrarModalVincular);
+    document.getElementById('vlinkBtnConfirm').addEventListener('click', confirmarVincular);
+    document.getElementById('vlinkBtnDesvincular').addEventListener('click', desvincular);
+    var vlinkBusquedaTimer = null;
+    document.getElementById('vlinkBuscar').addEventListener('input', function(){
+      if (vlinkBusquedaTimer) clearTimeout(vlinkBusquedaTimer);
+      vlinkBusquedaTimer = setTimeout(renderListaCandidatos, 120);
+    });
+    document.addEventListener('keydown', function(ev){
+      if (ev.key === 'Escape' && document.getElementById('vlinkBackdrop').classList.contains('open')) cerrarModalVincular();
+    });
+  }
+  if (document.getElementById('vlinkBackdrop')) _wireVlinkModal();
+  else document.addEventListener('DOMContentLoaded', _wireVlinkModal);
+
+})();
+</script>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     v163 — Modal de vinculación manual de huérfanos SR12.
+     Se abre desde el botón "🔗 Vincular" o "✏️ Cambiar" en la tabla
+     de ingredientes (sólo visible para admin / comprador).
+     ════════════════════════════════════════════════════════════════════ -->
+<div class="vlink-modal-backdrop" id="vlinkBackdrop" role="dialog" aria-modal="true" aria-labelledby="vlinkTitle">
+  <div class="vlink-modal" role="document">
+    <div class="vlink-head">
+      <div class="eyebrow">Vínculo SR12</div>
+      <h2 id="vlinkTitle">Vincular a una clave SR12</h2>
+      <div class="ing-meta">
+        Ingrediente: <strong id="vlinkIngNombre">—</strong><br>
+        <span id="vlinkIngMeta">—</span>
+      </div>
+      <button class="modal-close" id="vlinkClose" type="button" style="position:absolute;top:18px;right:20px;width:32px;height:32px;background:transparent;border:1px solid var(--cream-line);cursor:pointer;font-size:18px;color:var(--muted)">×</button>
+    </div>
+    <div class="vlink-search">
+      <input type="search" id="vlinkBuscar" placeholder="Buscar por nombre, clave o presentación…" autocomplete="off">
+      <div class="hint">Tip: escribe palabras parciales (ej. "carne", "salm", "1046"). La lista se filtra al instante.</div>
+    </div>
+    <div class="vlink-list" id="vlinkLista">
+      <div class="vlink-empty">Carga el catálogo al abrir el modal…</div>
+    </div>
+    <div class="vlink-foot" id="vlinkFoot">
+      <div class="actual-info"></div>
+      <div class="actions">
+        <button class="btn btn-desvincular" id="vlinkBtnDesvincular" type="button" style="display:none">Desvincular</button>
+        <button class="btn" id="vlinkBtnCancel" type="button">Cancelar</button>
+        <button class="btn btn-confirm" id="vlinkBtnConfirm" type="button" disabled>Vincular</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: enlazar receta de bebida → producto de venta SR12 (Cuadre de Barra) v332 -->
+<div class="modal-backdrop" id="ventaBackdrop" role="dialog" aria-hidden="true">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-head">
+      <div><h2 id="ventaTitle">Enlazar producto de venta</h2><div class="modal-sub">Para el Cuadre de Barra: qué se vende en el POS al pedir esta receta</div></div>
+      <button class="modal-close" id="ventaClose" type="button">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="search" id="ventaBuscar" placeholder="Buscar producto vendido (nombre o clave)…" autocomplete="off" style="width:100%;padding:10px 12px;border:1px solid var(--line);font-size:13px;margin-bottom:10px">
+      <div id="ventaLista" style="max-height:340px;overflow:auto;border:1px solid var(--line)"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sm" id="ventaQuitar" type="button" style="color:var(--bad);border-color:var(--bad)">Quitar enlace</button>
+      <button class="btn btn-sm" id="ventaCancel" type="button">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

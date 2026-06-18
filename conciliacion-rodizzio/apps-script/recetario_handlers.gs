@@ -1829,6 +1829,150 @@ function _reporteRentabilidadCore(empresaId) {
 }
 
 // =============================================================================
+// VALIDADOR DE RECETAS (v413) — control permanente, 6 dimensiones por receta.
+// Read-only. Reusa _reporteRentabilidadCore para costos+banderas y agrega:
+//   1 Lógica (instrucciones/cantidades/rendimiento)  2 Vínculo SR12  3 Costo
+//   4 Vinculada a charola  5 Afecta inventario  6 Cuadre-ready (SR12 vs mermas)
+// Devuelve scorecard por receta + KPIs + pendientes agrupados por rol (los usa el auditor).
+// =============================================================================
+function handleRecetasValidacion(p) {
+  var u = validarToken(p.token);
+  if (!u) return { ok:false, error:'Sesión inválida' };
+  var rolesOK = ['admin','gerente_administrativo','gerente_restaurante','gerente_plaza','auditoria','comprador','cocina','churrasca','barman','panadero'];
+  if (rolesOK.indexOf(String(u.rol||'').toLowerCase()) === -1) return { ok:false, error:'Sin permisos' };
+  return _validacionRecetasCore(u.empresa_id, String(p.area||'').trim());
+}
+
+function _validacionRecetasCore(empresaId, areaFiltro) {
+  var AREAS_INV = ['cocina','churrasca']; // las que descuentan inventario por charola
+  var rep = _reporteRentabilidadCore(empresaId);
+  var repById = {}; (rep.recetas||[]).forEach(function(r){ repById[r.id] = r; });
+
+  // Catálogo de ingredientes: clave SR12 (directa o vía Match) + inventariable
+  var ingById = {};
+  rowsToObjects(getSheet('Ingredientes')).forEach(function(i){
+    if (i.empresa_id !== empresaId) return;
+    ingById[i.id] = {
+      nombre: i.nombre,
+      clave: i.clave_sr12 ? String(i.clave_sr12) : '',
+      inventariable: (i.inventariable === '' || i.inventariable == null) ? true : _truthy(i.inventariable)
+    };
+  });
+  try {
+    var shM = SpreadsheetApp.getActive().getSheetByName('IngredientesSR12Match');
+    if (shM) rowsToObjects(shM).forEach(function(m){
+      if (m.empresa_id === empresaId && m.ingrediente_id_fogueira && m.clave_sr12) {
+        var ig = ingById[m.ingrediente_id_fogueira];
+        if (ig && !ig.clave) ig.clave = String(m.clave_sr12);
+      }
+    });
+  } catch(e){}
+
+  var lineasPorReceta = {};
+  rowsToObjects(getSheet('IngredientesReceta')).forEach(function(ir){
+    (lineasPorReceta[ir.receta_id] = lineasPorReceta[ir.receta_id] || []).push(ir);
+  });
+  var vincSet = {};
+  try { rowsToObjects(asegurarHoja('CharolasRecetas', CHAROLAS_RECETAS_COLS)).forEach(function(cr){
+    if (cr.empresa_id === empresaId && cr.activo !== false) vincSet[cr.receta_id] = true; }); } catch(e){}
+  var invcfgSet = {};
+  try { rowsToObjects(getSheet('InventarioChurrascaConfig')).forEach(function(c){
+    if (c.empresa_id === empresaId && _truthy(c.activo)) invcfgSet[c.ingrediente_id] = true; }); } catch(e){}
+
+  var recetas = rowsToObjects(getSheet('Recetas')).filter(function(r){
+    return r.empresa_id === empresaId && _truthy(r.activa) && !_truthy(r.es_elaborado);
+  });
+  if (areaFiltro) recetas = recetas.filter(function(r){ return r.area === areaFiltro; });
+
+  var lista = recetas.map(function(r){
+    var rr = repById[r.id] || {};
+    var lineas = lineasPorReceta[r.id] || [];
+    var ingLines = lineas.filter(function(l){ return l.ingrediente_id; });
+    var esInv = AREAS_INV.indexOf(r.area) !== -1;
+
+    // 1) LÓGICA
+    var d1 = { estado:'verde', notas:[] };
+    if (!lineas.length) { d1.estado='rojo'; d1.notas.push('sin ingredientes'); }
+    var huerf = lineas.filter(function(l){ return !l.ingrediente_id && !l.subreceta_id; }).length;
+    if (huerf) { d1.estado='rojo'; d1.notas.push(huerf+' línea(s) rota(s)'); }
+    if (rr.lineas_sospechosas) { d1.estado='rojo'; d1.notas.push(rr.lineas_sospechosas+' cantidad/costo absurdo'); }
+    if (rr.sin_instrucciones && d1.estado!=='rojo') { d1.estado='amarillo'; d1.notas.push('sin instrucciones'); }
+    if (rr.sin_instrucciones && d1.estado==='rojo') d1.notas.push('sin instrucciones');
+    if ((parseFloat(r.rendimiento)||0) <= 0) { if (d1.estado==='verde') d1.estado='amarillo'; d1.notas.push('rendimiento sin definir'); }
+
+    // 2) VÍNCULO SR12
+    var n = ingLines.length, linked = 0, faltan = [];
+    ingLines.forEach(function(l){ var ig = ingById[l.ingrediente_id]; if (ig && ig.clave) linked++; else faltan.push(ig ? ig.nombre : l.ingrediente_id); });
+    var d2 = { estado:'verde', pct: n ? Math.round(100*linked/n) : 100, faltan: faltan, notas:[] };
+    if (n === 0) d2.estado = 'gris';
+    else if (linked === n) d2.estado = 'verde';
+    else if (linked*2 >= n) { d2.estado='amarillo'; d2.notas.push(faltan.length+' sin SR12'); }
+    else { d2.estado='rojo'; d2.notas.push(faltan.length+' sin SR12'); }
+
+    // 3) COSTO
+    var d3 = { estado:'verde', notas:[], costo_total: rr.costo_total||0, costo_porcion: rr.costo_por_porcion||0 };
+    if (rr.lineas_sin_precio) { d3.estado='rojo'; d3.notas.push(rr.lineas_sin_precio+' sin precio'); }
+    if (rr.lineas_sospechosas) { d3.estado='rojo'; d3.notas.push('costo sospechoso'); }
+    if (rr.tiene_estimado && d3.estado==='verde') { d3.estado='amarillo'; d3.notas.push('precio estimado'); }
+
+    // 4) CHAROLA
+    var d4;
+    if (!esInv) d4 = { estado:'na', notas:[] };
+    else d4 = vincSet[r.id] ? { estado:'verde', notas:[] } : { estado:'rojo', notas:['no vinculada → no descuenta'] };
+
+    // 5) INVENTARIO
+    var d5, tieneInv = ingLines.some(function(l){ return invcfgSet[l.ingrediente_id]; });
+    if (!esInv) d5 = { estado:'na', notas:[] };
+    else d5 = tieneInv ? { estado:'verde', notas:[] } : { estado:'rojo', notas:['ningún insumo inventariable'] };
+
+    // 6) CUADRE-READY (SR12 vs mermas)
+    var d6;
+    if (!esInv) d6 = { estado:'na', notas:['vía Cuadre de Barra'] };
+    else {
+      var invConSr12 = ingLines.some(function(l){ return invcfgSet[l.ingrediente_id] && ingById[l.ingrediente_id] && ingById[l.ingrediente_id].clave; });
+      if (d4.estado==='verde' && d5.estado==='verde' && invConSr12) d6 = { estado:'verde', notas:[] };
+      else if (d5.estado==='verde') d6 = { estado:'amarillo', notas:['inventariable sin SR12 → comparación parcial'] };
+      else d6 = { estado:'rojo', notas:['no comparable aún'] };
+    }
+
+    var checks = { logica:d1, sr12:d2, costo:d3, charola:d4, inventario:d5, cuadre:d6 };
+    var rojo = 0, amar = 0;
+    ['logica','sr12','costo','charola','inventario','cuadre'].forEach(function(k){
+      if (checks[k].estado === 'rojo') rojo++; else if (checks[k].estado === 'amarillo') amar++;
+    });
+    var estado = rojo ? 'rojo' : (amar ? 'amarillo' : 'verde');
+    var roles = {};
+    if (d1.estado === 'rojo' || d1.estado === 'amarillo') roles['chef'] = true;
+    if (d2.estado === 'rojo' || d2.estado === 'amarillo') roles['comprador'] = true;
+    if (d3.estado === 'rojo' || d3.estado === 'amarillo') roles['comprador'] = true;
+    if (d4.estado === 'rojo') roles['admin'] = true;
+    if (d5.estado === 'rojo') roles['admin'] = true;
+
+    return { id:r.id, nombre:r.nombre, area:r.area, categoria:r.categoria_culinaria, estado:estado, checks:checks, roles:Object.keys(roles) };
+  });
+
+  lista.sort(function(a,b){ var o={rojo:0,amarillo:1,verde:2}; if (o[a.estado]!==o[b.estado]) return o[a.estado]-o[b.estado]; return String(a.nombre||'').localeCompare(String(b.nombre||'')); });
+
+  var resumen = { total:lista.length,
+    verde: lista.filter(function(x){return x.estado==='verde';}).length,
+    amarillo: lista.filter(function(x){return x.estado==='amarillo';}).length,
+    rojo: lista.filter(function(x){return x.estado==='rojo';}).length };
+  var porArea = {};
+  lista.forEach(function(x){ var a=porArea[x.area]=porArea[x.area]||{total:0,verde:0,amarillo:0,rojo:0}; a.total++; a[x.estado]++; });
+
+  // Conteos para pendientes agrupados del auditor (solo lo accionable y de un dueño claro)
+  var compr = lista.filter(function(x){ return x.checks.sr12.estado==='rojo' || x.checks.sr12.estado==='amarillo'; }).length;
+  var invGap = lista.filter(function(x){ return x.checks.charola.estado==='rojo' || x.checks.inventario.estado==='rojo'; }).length;
+  var pendientes = [];
+  if (compr > 0) pendientes.push({ rol:'comprador', clave:'valida:sr12', sev:'alta',
+    titulo: compr + ' receta(s) con insumos SIN vincular al SR12 (costo/margen no confiable). Vincúlalos en Recetas → 🪄 sugeridor y revisa el ✅ Validador de recetas.' });
+  if (invGap > 0) pendientes.push({ rol:'gte_admin', clave:'valida:inventario', sev:'media',
+    titulo: invGap + ' receta(s) de cocina/churrasca que NO descuentan inventario (sin vincular a charola o sin insumo inventariable). Revisa el ✅ Validador de recetas.' });
+
+  return { ok:true, recetas:lista, resumen:resumen, por_area:porArea, validacion_pendientes:pendientes };
+}
+
+// =============================================================================
 // CHAROLAS ↔ RECETAS (R5)
 // Cada charola del buffet tiene N porciones de una receta. Permite vincular
 // charola_id → receta_id + porciones para que el costeo de buffet sea automático.

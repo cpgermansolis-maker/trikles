@@ -7596,6 +7596,7 @@ function handleRequest(e) {
       case 'receta_rechazar':       result = handleRecetaRechazar(params);      break;
       case 'receta_foto_upload':    result = handleRecetaFotoUpload(params);    break;
       case 'recetario_reporte_rentabilidad': result = handleRecetarioReporteRentabilidad(params); break;
+      case 'recetas_validacion':    result = handleRecetasValidacion(params);   break;
       case 'charolas_recetas_list': result = handleCharolasRecetasList(params); break;
       case 'charola_receta_set':    result = handleCharolaRecetaSet(params);    break;
       // F3 — Importador SR12 (v128)
@@ -8435,6 +8436,23 @@ function _auditoriaMatutinaCore(empresaId, fecha, suc, doWrite) {
         addPend(emPM, nomPM, 'tarea', txtPM, String(m.sev||'alta').toLowerCase(), 'manual:'+m.id, fechaToString(m.creado_at));
       });
     }
+  } catch(e){}
+
+  // Validador de recetas (v413): pendientes AGRUPADOS al dueño claro (no por-receta, evita spam).
+  // comprador → recetas sin vínculo SR12; gte_admin → recetas que no descuentan inventario.
+  try {
+    var val = _validacionRecetasCore(empresaId);
+    (val.validacion_pendientes || []).forEach(function(vp){
+      var rolBuscado = vp.rol === 'gte_admin' ? 'gerente_administrativo' : vp.rol;
+      var areaPe = vp.rol === 'gte_admin' ? 'gte_admin' : 'compras';
+      rowsToObjects(getSheet('Usuarios')).forEach(function(x){
+        if (x.empresa_id !== empresaId || !esActivo(x.activo)) return;
+        if (String(x.rol||'').toLowerCase() !== rolBuscado) return;
+        var em = String(x.email||'').toLowerCase();
+        ensure(em, x.nombre || em, areaPe);
+        addPend(em, x.nombre || em, areaPe, vp.titulo, vp.sev, vp.clave, '');
+      });
+    });
   } catch(e){}
 
   var personasArr = Object.keys(personas).map(function(k){ return personas[k]; });
