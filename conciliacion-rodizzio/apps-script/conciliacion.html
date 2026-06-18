@@ -1938,39 +1938,38 @@ img, svg { display: block; max-width: 100%; }
     tb.innerHTML = ''; tb.appendChild(tr);
   }
 
-  // Indicador con UX tranquilizadora: solo muestra "Guardando" si tarda >600ms
-  var savesPendientesC = 0;
+  // Indicador con UX tranquilizadora: solo muestra "Guardando" si la operación tarda >600ms.
+  // ⚠ NO usar un contador de saves pendientes (bug real reportado por las cajeras, "Guardando…"
+  // eterno): los saves son DEBOUNCED (muchas teclas → 1 guardado real al servidor), así que un
+  // contador que sube +1 por tecla y baja −1 por guardado NUNCA vuelve a 0 → el letrero se queda
+  // PEGADO en "Guardando…" aunque ya guardó bien y aunque no se capture nada. En su lugar: un solo
+  // timer arma "Guardando…" y cualquier estado terminal (saved/error/idle) lo cancela y fija texto.
   var savingTimerUIC = null;
+  function _limpiaSavingTimer(){
+    if (savingTimerUIC) { clearTimeout(savingTimerUIC); savingTimerUIC = null; }
+  }
   function setSaveIndicator(estado, msg){
     var el = document.getElementById('saveIndicator');
     if (!el) return;
     if (estado === 'saving') {
-      savesPendientesC++;
-      if (savingTimerUIC) return;
+      if (savingTimerUIC) return; // ya armado: no re-armar
       savingTimerUIC = setTimeout(function(){
         savingTimerUIC = null;
-        if (savesPendientesC > 0) {
-          el.classList.remove('error');
-          el.classList.add('saving');
-          el.textContent = '💾 Guardando…';
-        }
+        el.classList.remove('error');
+        el.classList.add('saving');
+        el.textContent = '💾 Guardando…';
       }, 600);
     } else if (estado === 'error') {
-      savesPendientesC = Math.max(0, savesPendientesC - 1);
-      if (savesPendientesC === 0) {
-        if (savingTimerUIC) { clearTimeout(savingTimerUIC); savingTimerUIC = null; }
-        el.classList.remove('saving');
-        el.classList.add('error');
-        el.textContent = '⚠ ' + (msg || 'Error');
-      }
+      _limpiaSavingTimer();
+      el.classList.remove('saving');
+      el.classList.add('error');
+      el.textContent = '⚠ ' + (msg || 'Error');
     } else if (estado === 'saved') {
-      savesPendientesC = Math.max(0, savesPendientesC - 1);
-      if (savesPendientesC === 0) {
-        if (savingTimerUIC) { clearTimeout(savingTimerUIC); savingTimerUIC = null; }
-        el.classList.remove('saving','error');
-        el.textContent = '✓ Guardado';
-      }
+      _limpiaSavingTimer();
+      el.classList.remove('saving','error');
+      el.textContent = '✓ Guardado';
     } else if (estado === 'idle') {
+      _limpiaSavingTimer();
       el.classList.remove('saving','error');
       el.textContent = '✓ Sin cambios';
     }
@@ -2136,8 +2135,7 @@ img, svg { display: block; max-width: 100%; }
       } else if (/cerrad/i.test(String(res.error||''))) {
         // v407 — El corte ya está finalizado/bloqueado: NO reintentar (evitaría el loop
         // "reintentando" eterno). Reflejar el bloqueo y parar.
-        clearTimeout(saveRetryTimerC); savesPendientesC = 0;
-        if (savingTimerUIC) { clearTimeout(savingTimerUIC); savingTimerUIC = null; }
+        clearTimeout(saveRetryTimerC); _limpiaSavingTimer();
         conciliacionEstado = 'cerrada';
         bloquearCorteUI(); actualizarFinalizarCorteUI();
         var _sl = document.getElementById('saveIndicator');
@@ -2147,16 +2145,14 @@ img, svg { display: block; max-width: 100%; }
         // confundía — bug real reportado por ambas cajeras). La captura sigue respaldada en
         // localStorage → al re-entrar se recupera. Avisar claro y mandar a login.
         clearTimeout(saveRetryTimerC);
-        savesPendientesC = 0;
-        if (savingTimerUIC) { clearTimeout(savingTimerUIC); savingTimerUIC = null; }
+        _limpiaSavingTimer();
         mostrarSesionExpirada();
       } else {
         // Error TRANSITORIO (red/servidor): reintentos con backoff (2s,5s,10s,20s,40s,luego 60s).
         // El localStorage tiene el snapshot reciente como red de seguridad. A diferencia de antes,
         // el indicador ahora dice "reintentando" en vez de quedarse en "Guardando…".
         saveRetryCountC++;
-        savesPendientesC = 0;
-        if (savingTimerUIC) { clearTimeout(savingTimerUIC); savingTimerUIC = null; }
+        _limpiaSavingTimer();
         var _si = document.getElementById('saveIndicator');
         if (_si) { _si.classList.remove('saving'); _si.classList.add('error'); _si.textContent = '⚠ Sin conexión — reintentando…'; }
         var esperas = [2000, 5000, 10000, 20000, 40000];
