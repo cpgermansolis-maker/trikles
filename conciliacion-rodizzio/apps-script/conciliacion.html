@@ -1191,12 +1191,12 @@ img, svg { display: block; max-width: 100%; }
       </div>
     </div>
 
-    <!-- v407 — Estado de mi corte: quién capturó + finalizar/bloqueo (reporte Moni) -->
+    <!-- v407 — Responsable de la captura (junto a los sellos, para supervisión — reporte Moni).
+         El botón "Finalizar mi corte" vive al FINAL del panel de Cierre (donde la cajera termina). -->
     <div class="card" id="estadoCorteCard">
-      <h3><span class="num">06</span> Estado de mi corte</h3>
-      <p class="section-sub">Quién capturó este corte y, cuando termines, finalízalo para dejarlo firmado y bloqueado.</p>
-      <div style="font-size:13.5px;color:var(--muted);margin:10px 0 14px">Capturado / última edición por: <strong id="corteCapturadoPor" style="color:var(--ink)">—</strong></div>
-      <div id="corteFinalizarZona"></div>
+      <h3><span class="num">06</span> Responsable de la captura</h3>
+      <p class="section-sub">Quién rellenó / editó este corte por última vez. Las firmas de apertura y cierre se ven arriba en el tablero de sellos.</p>
+      <div style="font-size:13.5px;color:var(--muted);margin:10px 0 4px">Capturado / última edición por: <strong id="corteCapturadoPor" style="color:var(--ink)">—</strong></div>
     </div>
   </section>
 
@@ -1758,6 +1758,12 @@ img, svg { display: block; max-width: 100%; }
 
     <!-- Firmas legacy quitadas: ahora se firman desde el tablero de sellos en sección 05
          de Apertura, donde cada usuario sella autenticado con su propia sesión. -->
+
+    <!-- v407 — Finalizar mi corte: al FINAL del Cierre, donde la cajera termina su trabajo. -->
+    <div class="card" id="finalizarCorteCard">
+      <h3>🔒 Finalizar mi corte</h3>
+      <div id="corteFinalizarZona"></div>
+    </div>
   </section>
 
   <!-- ============================ ROLES ============================ -->
