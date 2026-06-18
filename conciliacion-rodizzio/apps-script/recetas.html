@@ -482,7 +482,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
       <select id="recCat"><option value="">Todas</option></select>
       <label class="chk"><input type="checkbox" id="recSoloActivas" checked> Solo activas</label>
       <label class="chk"><input type="checkbox" id="recSinInstr"> 📝 Solo sin instrucciones</label>
-      <button class="btn" id="btnImprimirLista" type="button" style="margin-left:auto" title="Genera un documento imprimible / PDF con las recetas que muestran los filtros actuales (para firma)">🖨 Imprimir lista</button>
+      <button class="btn" id="btnValidadorRec" type="button" style="margin-left:auto;display:none;font-weight:600" title="Semáforo de validación de cada receta: lógica · vínculo SR12 · costo · charola · inventario · cuadre">✅ Validador</button>
+      <button class="btn" id="btnImprimirLista" type="button" title="Genera un documento imprimible / PDF con las recetas que muestran los filtros actuales (para firma)">🖨 Imprimir lista</button>
       <button class="btn primary" id="btnNuevaReceta" type="button" style="display:none">+ Nueva receta</button>
     </div>
     <div class="tabla-wrap">
@@ -862,6 +863,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
       if (_bd) _bd.addEventListener('click', verDiagnostico);
       var _bv = document.getElementById('btnValidador');
       if (_bv) _bv.addEventListener('click', verValidador);
+      var _bvr = document.getElementById('btnValidadorRec');
+      if (_bvr) { _bvr.style.display = 'inline-flex'; _bvr.addEventListener('click', verValidador); }
     }
     // Cuadre de Barra: quién puede enlazar receta→producto de venta + precargar el catálogo de ventas.
     PUEDE_ENLAZAR_VENTA = ['admin','gerente_administrativo','auditoria','barman'].indexOf(rol) !== -1;
