@@ -991,6 +991,8 @@ img, svg { display: block; max-width: 100%; }
     <div class="head-actions no-print">
       <label for="fecha" class="fecha-lbl">Fecha</label>
       <input type="date" id="fecha">
+      <button class="btn no-print" id="btnHoy" style="display:none;border-color:var(--ember);color:var(--ember)" title="Volver al corte de HOY">📅 Ir a HOY</button>
+      <span class="no-print" id="fechaAviso" style="display:none;color:var(--ember);font-weight:600;font-size:12px"></span>
       <span class="save-indicator" id="saveIndicator" title="Se guarda automáticamente">✓ Guardado</span>
       <button class="btn btn-primary" id="btnGuardar" title="Guarda ahora lo que capturaste. También se guarda solo, pero aquí lo confirmas antes de cerrar o actualizar.">💾 Guardar</button>
       <button class="btn hide-cajera" id="btnAutoFill" title="Tomar todas las bitácoras del día y consolidar Mix Host, horas y folios automáticamente">🔄 Auto-llenar del día</button>
@@ -3600,6 +3602,16 @@ img, svg { display: block; max-width: 100%; }
   function bindHeader(){
     var fechaEl = document.getElementById('fecha');
     fechaEl.addEventListener('change', function(){
+      try { localStorage.setItem('fogueira_concil_fecha', fechaEl.value); } catch(e){}
+      load();
+      updateMetaFecha();
+    });
+    var btnHoy = document.getElementById('btnHoy');
+    if (btnHoy) btnHoy.addEventListener('click', function(){
+      var d = new Date();
+      var hoy = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      fechaEl.value = hoy;
+      try { localStorage.setItem('fogueira_concil_fecha', hoy); } catch(e){}
       load();
       updateMetaFecha();
     });
@@ -3794,6 +3806,20 @@ img, svg { display: block; max-width: 100%; }
     var f = document.getElementById('fecha').value;
     setText('metaFecha', f || '—');
     setVal('ci_corte_fecha_label', f || '—');
+    // Aviso "no es hoy": evita el susto de creer que "se borró" la captura al re-entrar y caer en
+    // otra fecha. Cada día es un corte distinto; los de otros días siguen a salvo en el servidor.
+    try {
+      var d = new Date();
+      var hoy = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      var noEsHoy = !!(f && f !== hoy);
+      var btnHoy = document.getElementById('btnHoy');
+      var avi = document.getElementById('fechaAviso');
+      if (btnHoy) btnHoy.style.display = noEsHoy ? '' : 'none';
+      if (avi) {
+        avi.style.display = noEsHoy ? '' : 'none';
+        avi.textContent = noEsHoy ? ('⚠ Estás viendo el corte del ' + f + ', no el de hoy.') : '';
+      }
+    } catch(e){}
   }
 
   // ---------- Tooltips contextuales ----------
@@ -4238,8 +4264,13 @@ img, svg { display: block; max-width: 100%; }
       fechaEl.value = decodeURIComponent(fechaURL);
     } else {
       var d = new Date();
-      var iso = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-      fechaEl.value = iso;
+      var hoy = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      // Recuerda la última fecha que la cajera estaba capturando (localStorage) para que al refrescar
+      // o re-entrar NO salte a HOY y PAREZCA que "se borró" la captura. Cada día es un corte distinto;
+      // el trabajo de otros días sigue a salvo en el servidor bajo SU fecha. Caso Saret 2026-06-19 (v429).
+      var recordada = '';
+      try { recordada = localStorage.getItem('fogueira_concil_fecha') || ''; } catch(e){}
+      fechaEl.value = /^\d{4}-\d{2}-\d{2}$/.test(recordada) ? recordada : hoy;
     }
     bindInputs();
     bindTabs();
