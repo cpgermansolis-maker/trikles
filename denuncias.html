@@ -1339,6 +1339,27 @@ async function withRetry(fn, maxRetries, onRetry){
   throw last;
 }
 
+// Traduce un error de la tubería de IA (Claude/Gemini) a un mensaje AMABLE para
+// el usuario. NUNCA expone el error crudo del proveedor (request_id, saldo, etc.).
+// El detalle completo se sigue guardando en consola (console.error) para diagnóstico.
+function mensajeIAUsuario(e){
+  const raw = String((e && e.message) || '');
+  const m = raw.toLowerCase();
+  // ¿Es un error CRUDO del proveedor? (menciona el proveedor + trae status HTTP o cuerpo JSON)
+  const esProveedor = /\b(claude|gemini|anthropic)\b/.test(m) && (/\b\d{3}\b/.test(m) || raw.indexOf('{') >= 0);
+  if(esProveedor){
+    if(/credit|balance|billing|saldo|insufficient|quota|purchase|payment|fund/.test(m))
+      return 'El servicio de inteligencia artificial no está disponible en este momento. Por favor avisa al administrador del sistema.';
+    if(/\b401\b|\b403\b|unauthorized|forbidden|authentication|permission|api.?key/.test(m))
+      return 'El servicio de inteligencia artificial no está configurado correctamente. Contacta al administrador del sistema.';
+    if(/\b429\b|\b503\b|\b529\b|\b500\b|\b502\b|\b504\b|overload|unavailable|too many|rate.?limit/.test(m))
+      return 'El servicio está saturado en este momento. Intenta de nuevo en unos minutos.';
+    return 'No se pudo completar el procesamiento con la inteligencia artificial. Intenta de nuevo más tarde.';
+  }
+  // Mensaje ya limpio (backend, validación, etc.) → tal cual
+  return raw || 'Inténtalo de nuevo.';
+}
+
 const STATE = {
   session: null,
   authorized: false,
@@ -1711,7 +1732,8 @@ async function guardarNuevoCaso(){
       params.minutaAudio = minuta;
       params.transcripcionAudio = transcripcion;
     } catch(e){
-      toast('error','Falló el procesamiento del audio inicial', e.message || 'Igual intentaré abrir el caso sin ese audio.');
+      console.error(e);
+      toast('error','Falló el procesamiento del audio inicial', mensajeIAUsuario(e) + ' Abriré el caso sin ese audio.');
     }
   }
 
@@ -2838,7 +2860,8 @@ async function autoLlenarInforme(){
     renderInformeModal();
     toast('success','Borrador generado','Revisa cada tab y ajusta lo que falte');
   } catch(e){
-    toast('error','Falló el auto-llenado', e.message || 'Inténtalo de nuevo');
+    console.error(e);
+    toast('error','Falló el auto-llenado', mensajeIAUsuario(e));
   }
   btn.disabled = false; btn.textContent = '🪄 Auto-llenar con IA';
 }
@@ -2945,7 +2968,8 @@ async function autoFillSection(section){
     if(tabMap[section]) selectInfTab(tabMap[section]);
     toast('success','Sección actualizada','Revisa el contenido sugerido');
   } catch(e){
-    toast('error','Falló el llenado', e.message || 'Inténtalo de nuevo');
+    console.error(e);
+    toast('error','Falló el llenado', mensajeIAUsuario(e));
     if(btn){ btn.disabled = false; btn.textContent = origText; }
   }
 }
@@ -3081,7 +3105,8 @@ async function procesarEntrevista(){
     closeModal('NewInterview');
     openDetail(STATE.currentCaso.id);
   } catch(e){
-    toast('error','Falló', e.message || 'Inténtalo de nuevo');
+    console.error(e);
+    toast('error','Falló', mensajeIAUsuario(e));
     btn.disabled = false;
   }
 }
@@ -3436,7 +3461,8 @@ async function generarEvaluacion(){
     document.getElementById('evalVeredictoBox').innerHTML = badge;
     document.getElementById('evalTextoEdit').value = clean;
   } catch(e){
-    toast('error','Falló la evaluación', e.message || 'Inténtalo de nuevo');
+    console.error(e);
+    toast('error','Falló la evaluación', mensajeIAUsuario(e));
     document.getElementById('evalStep2').style.display = 'none';
     document.getElementById('evalStep1').style.display = 'block';
   }
@@ -3647,7 +3673,8 @@ async function procesarDictamen(){
     const cleanDictamen = dictamen.replace(/^VEREDICTO_MACHINE:.*\n?/i,'').trim();
     document.getElementById('closeDictamenEdit').value = cleanDictamen;
   } catch(e){
-    toast('error','Falló el dictamen', e.message || 'Inténtalo de nuevo');
+    console.error(e);
+    toast('error','Falló el dictamen', mensajeIAUsuario(e));
     document.getElementById('closeStep2').style.display = 'none';
     document.getElementById('closeStep1').style.display = 'block';
   }
