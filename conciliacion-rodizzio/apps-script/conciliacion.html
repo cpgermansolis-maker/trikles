@@ -1449,6 +1449,13 @@ img, svg { display: block; max-width: 100%; }
         <div class="arq-row arq-tot"><span class="arq-lbl">= Efectivo teórico</span><span class="arq-val" id="arq_d_teorico">$0.00</span></div>
       </div>
 
+      <div id="arq_aviso_neg" class="no-print" style="display:none;margin-top:12px;border:2px solid var(--ember);background:#fff3f0;padding:12px 14px">
+        <div id="arq_aviso_neg_msg" style="font-weight:600;color:var(--ember);margin-bottom:8px"></div>
+        <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;max-width:280px">💵 Cobros en efectivo del día (lo que cobraste en efectivo a los clientes)
+          <input type="number" min="0" step=".01" id="quickEfeCobro" placeholder="0.00" style="border-left:3px solid var(--ember);background:#fff7f2">
+        </label>
+      </div>
+
       <div class="grid g3" style="margin-top:14px">
         <div><label>Faltante / sobrante asumido por<button class="info-icon no-print" data-tip="Si hay diferencia entre contado y teórico (Δ ≠ 0), nombre de quien asume la responsabilidad: típicamente el cajero del turno." type="button">i</button></label><input type="text" data-k="ci_arq_resp"></div>
         <div style="grid-column:span 2"></div>
@@ -2310,6 +2317,7 @@ img, svg { display: block; max-width: 100%; }
     }
     wire('quickPropTar', 'ci_retiro_propinas');
     wire('quickTransfer', 'ci_cobro_transfer');
+    wire('quickEfeCobro', 'ci_cobro_efectivo');
   }
   // ¿El corte cargado tiene captura REAL (no solo encabezado)? Mismos campos que el backend.
   function corteTieneDatos(st){
@@ -3180,6 +3188,25 @@ img, svg { display: block; max-width: 100%; }
     setText('arq_d_dep1', '−' + fmtMoney(dep1));
     setText('arq_d_dep2', '−' + fmtMoney(dep2));
     setText('arq_d_teorico', fmtMoney(teorico));
+    // Aviso SIMPLE cuando el efectivo teórico sale NEGATIVO (imposible) → casi siempre falta capturar
+    // los cobros en efectivo del día. Se lo decimos en palabras llanas y le dejamos capturarlo aquí
+    // mismo (regla de Germán 2026-06-19: el sistema debe ser MUY simple, cajeras de nivel básico).
+    var avisoNeg = document.getElementById('arq_aviso_neg');
+    if (avisoNeg) {
+      if (teorico < 0) {
+        var msgN = document.getElementById('arq_aviso_neg_msg');
+        if (msgN) {
+          msgN.textContent = (efeAp + efeCi) === 0
+            ? '⚠ El efectivo teórico salió en NEGATIVO. No es que falte dinero: falta capturar los COBROS EN EFECTIVO del día (lo que cobraste en efectivo a los clientes). Escríbelo aquí abajo.'
+            : '⚠ El efectivo teórico salió en NEGATIVO. Revisa que los cobros en efectivo, los retiros de propina y los depósitos estén bien capturados.';
+        }
+        avisoNeg.style.display = '';
+      } else {
+        avisoNeg.style.display = 'none';
+      }
+    }
+    var _qe = document.getElementById('quickEfeCobro');
+    if (_qe && document.activeElement !== _qe) _qe.value = (state.ci_cobro_efectivo == null ? '' : state.ci_cobro_efectivo);
 
     // Δ Arqueo = efectivo final del corte − teórico
     var arqDelta = efeFinal - teorico;
