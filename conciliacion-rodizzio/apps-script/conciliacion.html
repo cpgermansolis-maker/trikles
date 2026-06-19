@@ -1137,7 +1137,7 @@ img, svg { display: block; max-width: 100%; }
       <p class="help" style="margin-bottom:10px"><strong>Entrega de propina tarjeta al encargado de piso</strong> (se retira efectivo del cajón equivalente, porque el banco liquida con delay):</p>
       <div class="grid g3">
         <div><label>Propina tarjeta del servicio (auto)</label><input type="text" id="ap_propTar_lbl" readonly style="background:var(--bg)"></div>
-        <div><label>Efectivo retirado para entrega</label><input type="number" min="0" step=".01" data-k="ap_retiro_propinas"></div>
+        <div><label>Efectivo retirado para entrega<button class="info-icon no-print" data-tip="Este monto aparece en el <strong>Resumen de totales del día</strong> como 'Pagadas prop./tarjeta' y suma al GRAN TOTAL DEL DÍA. No se teclea en el resumen: se llena aquí." type="button">i</button></label><input type="number" min="0" step=".01" data-k="ap_retiro_propinas"></div>
         <div><label>Δ Retiro vs propina (auto)</label><input type="text" id="ap_retiro_delta" readonly style="background:var(--bg)"></div>
       </div>
       <p class="help">Tolerancia: ± $10 (redondeos). Si Δ es mayor, indica faltante en caja o pago de menos al personal — bandera roja.</p>
@@ -1288,7 +1288,7 @@ img, svg { display: block; max-width: 100%; }
       <p class="help" style="margin-bottom:10px"><strong>Entrega de propina tarjeta al encargado de piso</strong> (se retira efectivo del cajón equivalente, porque el banco liquida con delay):</p>
       <div class="grid g3">
         <div><label>Propina tarjeta del servicio (auto)</label><input type="text" id="ci_propTar_lbl" readonly style="background:var(--bg)"></div>
-        <div><label>Efectivo retirado para entrega</label><input type="number" min="0" step=".01" data-k="ci_retiro_propinas"></div>
+        <div><label>Efectivo retirado para entrega<button class="info-icon no-print" data-tip="Este monto aparece en el <strong>Resumen de totales del día</strong> como 'Pagadas prop./tarjeta' y suma al GRAN TOTAL DEL DÍA. No se teclea en el resumen: se llena aquí." type="button">i</button></label><input type="number" min="0" step=".01" data-k="ci_retiro_propinas"></div>
         <div><label>Δ Retiro vs propina (auto)</label><input type="text" id="ci_retiro_delta" readonly style="background:var(--bg)"></div>
       </div>
       <p class="help">Tolerancia: ± $10 (redondeos). Si Δ es mayor, indica faltante en caja o pago de menos al personal — bandera roja.</p>
@@ -1370,7 +1370,7 @@ img, svg { display: block; max-width: 100%; }
         <table class="data">
           <tbody>
             <tr><td>Efectivo final</td><td class="num-cell" id="ci_corte_res_efe">$0.00</td></tr>
-            <tr><td>Pagadas prop. / tarjeta<button class="info-icon no-print" data-tip="<strong>Efectivo retirado del cajón para pagar a piso las propinas cobradas con tarjeta</strong> (Apertura + Cierre). Ese efectivo salió del cajón el mismo día (el banco liquida la tarjeta con delay), por eso no aparece en el efectivo final — pero sí formó parte del dinero del día, así que se suma al GRAN TOTAL." type="button">i</button></td><td class="num-cell" id="ci_corte_res_prop_tar">$0.00</td></tr>
+            <tr><td>Pagadas prop. / tarjeta<button class="info-icon no-print" data-tip="<strong>Efectivo retirado del cajón para pagar a piso las propinas cobradas con tarjeta</strong> (Apertura + Cierre). Ese efectivo salió del cajón el mismo día (el banco liquida la tarjeta con delay), por eso no aparece en el efectivo final — pero sí formó parte del dinero del día, así que se suma al GRAN TOTAL. <strong>Dónde se captura:</strong> sección 03 'Cobros y propinas del servicio', campo 'Efectivo retirado para entrega' (en Apertura y en Cierre). No se edita aquí." type="button">i</button></td><td class="num-cell" id="ci_corte_res_prop_tar">$0.00</td></tr>
             <tr><td>T. Débito</td><td class="num-cell" id="ci_corte_res_debito">$0.00</td></tr>
             <tr><td>T. Crédito</td><td class="num-cell" id="ci_corte_res_credito">$0.00</td></tr>
             <tr><td>BZPAY</td><td class="num-cell" id="ci_corte_res_bzpay">$0.00</td></tr>
