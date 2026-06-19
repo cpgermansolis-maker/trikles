@@ -8401,11 +8401,23 @@ function _auditoriaMatutinaCore(empresaId, fecha, suc, doWrite) {
   });
   if (gteAdmins.length) {
     var ga = _auditGteAdminEstado(empresaId);
+    // Botellas vendidas BAJO COSTO (cruce ventas SR12 vs costo del insumo-botella). Se avisa a
+    // gte_admin (Luis) porque decide el precio / valida la factura. Mismo motor del Tablero → 🍸
+    // Barra (_barraAlertaBajoCostoCore). Solo dispara con hallazgos 'rojo' (precio ≤ costo). v423.
+    var bcRojo = [];
+    try {
+      var bc = _barraAlertaBajoCostoCore(empresaId, 35, 88);
+      if (bc && bc.ok && bc.items) bcRojo = bc.items.filter(function(x){ return x.sev === 'rojo'; });
+    } catch(e){}
     gteAdmins.forEach(function(c){
       var em = String(c.email||'').toLowerCase();
       ensure(em, c.nombre, 'gte_admin');
       if (ga.canc.caras_sin_doc > 0) {
         addPend(em, c.nombre, 'gte_admin', ga.canc.caras_sin_doc + ' cancelación(es) caras del POS sin documentar en la conciliación §07 (de ' + ga.canc.sin_doc + ' sin documentar en total).', 'critica', 'gteadmin:cancelaciones_sin_doc', ga.canc.desde);
+      }
+      if (bcRojo.length) {
+        var ejBC = bcRojo.slice(0,2).map(function(x){ return x.descripcion + ' (vende $' + x.precio + ', cuesta $' + x.costo + ')'; }).join('; ');
+        addPend(em, c.nombre, 'gte_admin', bcRojo.length + ' botella(s) vendiéndose BAJO COSTO (se pierde dinero en cada venta): ' + ejBC + '. Revisa el costo y el precio en el Tablero → 🍸 Barra.', 'alta', 'gteadmin:botellas_bajo_costo', '');
       }
       if (ga.faltan_barman || ga.faltan_panadero) {
         var faltan = [];

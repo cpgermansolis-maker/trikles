@@ -3084,16 +3084,24 @@ function handleBarraAlertaBajoCosto(p){
   var u = validarToken(p.token);
   if (!u) return { ok:false, error:'Sesión inválida' };
   if (!rolEs(u, ['admin','gerente_plaza','gerente_administrativo','auditoria'])) return { ok:false, error:'Sin permisos' };
+  function _n(v){ var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+  return _barraAlertaBajoCostoCore(u.empresa_id, _n(p.umbral_bajo) || 35, _n(p.umbral_alto) || 88);
+}
+
+// Núcleo sin token: cruza VentasSR12 vs costo del insumo-botella (pza) y marca las botellas
+// vendidas bajo costo / margen sospechoso. Lo reusan el handler del Tablero y el auditor matutino
+// (pendiente a gte_admin sobre botellas vendidas bajo costo). Solo lectura.
+function _barraAlertaBajoCostoCore(empresaId, umbralBajo, umbralAlto){
   var shV = getSheet('VentasSR12');
   if (!shV) return { ok:true, sin_datos:true, items:[], sin_match:[], resumen:{} };
   function num(v){ var n = parseFloat(v); return isNaN(n) ? 0 : n; }
-  var umbralBajo = num(p.umbral_bajo) || 35;
-  var umbralAlto = num(p.umbral_alto) || 88;
+  umbralBajo = umbralBajo || 35;
+  umbralAlto = umbralAlto || 88;
 
   // 1) Agregar ventas por clave → precio promedio.
   var porClave = {};
   rowsToObjects(shV).forEach(function(r){
-    if (r.empresa_id !== u.empresa_id) return;
+    if (r.empresa_id !== empresaId) return;
     var clave = String(r.clave||'').trim(); if (!clave) return;
     if (!porClave[clave]) porClave[clave] = { clave:clave, descripcion:String(r.descripcion||''), grupo:String(r.grupo||''), unidades:0, venta:0 };
     porClave[clave].unidades += num(r.cantidad);
@@ -3102,7 +3110,7 @@ function handleBarraAlertaBajoCosto(p){
 
   // 2) Insumos-botella (unit pza, activos) con su token-set normalizado.
   var ingNorm = rowsToObjects(getSheet('Ingredientes'))
-    .filter(function(i){ return i.empresa_id === u.empresa_id && esActivo(i.activo) && String(i.unidad_base||'').toLowerCase() === 'pza'; })
+    .filter(function(i){ return i.empresa_id === empresaId && esActivo(i.activo) && String(i.unidad_base||'').toLowerCase() === 'pza'; })
     .map(function(i){ return { ing:i, toks:_barraNormNombre(i.nombre).split(' ').filter(Boolean) }; });
 
   // 3) Por cada producto vendido que parezca botella, empatar + calcular margen.
