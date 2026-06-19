@@ -1288,7 +1288,7 @@ img, svg { display: block; max-width: 100%; }
       <p class="help" style="margin-bottom:10px"><strong>Entrega de propina tarjeta al encargado de piso</strong> (se retira efectivo del cajón equivalente, porque el banco liquida con delay):</p>
       <div class="grid g3">
         <div><label>Propina tarjeta del servicio (auto)</label><input type="text" id="ci_propTar_lbl" readonly style="background:var(--bg)"></div>
-        <div><label>Pagadas prop. / tarjeta <span style="font-weight:400;font-size:11px;opacity:.65">(efectivo retirado del cajón)</span><button class="info-icon no-print" data-tip="Efectivo que sacas del cajón para pagarle al encargado de piso las propinas cobradas con TARJETA (el banco las liquida con retraso). En tu corte de papel es el renglón 'PAGADAS PROP./TARJETA'. El mismo monto aparece en el Resumen de totales del día y suma al GRAN TOTAL." type="button">i</button></label><input type="number" min="0" step=".01" data-k="ci_retiro_propinas"></div>
+        <div><label>Pagadas prop. / tarjeta <span style="font-weight:400;font-size:11px;opacity:.65">(efectivo retirado del cajón)</span><button class="info-icon no-print" data-tip="Efectivo que sacas del cajón para pagarle al encargado de piso las propinas cobradas con TARJETA (el banco las liquida con retraso). En tu corte de papel es el renglón 'PAGADAS PROP./TARJETA'. El mismo monto aparece en el Resumen de totales del día y suma al GRAN TOTAL." type="button">i</button></label><input type="number" min="0" step=".01" data-k="ci_retiro_propinas" style="border-left:3px solid var(--ember);background:#fff7f2"></div>
         <div><label>Δ Retiro vs propina (auto)</label><input type="text" id="ci_retiro_delta" readonly style="background:var(--bg)"></div>
       </div>
       <p class="help">Tolerancia: ± $10 (redondeos). Si Δ es mayor, indica faltante en caja o pago de menos al personal — bandera roja.</p>
@@ -1347,7 +1347,7 @@ img, svg { display: block; max-width: 100%; }
             <tr><td>$5</td><td><input type="number" min="0" data-k="ci_corte_d5_cant" data-denom="5"></td><td class="num-cell" id="ci_corte_d5_imp">$0.00</td></tr>
             <tr><td>$2</td><td><input type="number" min="0" data-k="ci_corte_d2_cant" data-denom="2"></td><td class="num-cell" id="ci_corte_d2_imp">$0.00</td></tr>
             <tr><td>$1</td><td><input type="number" min="0" data-k="ci_corte_d1_cant" data-denom="1"></td><td class="num-cell" id="ci_corte_d1_imp">$0.00</td></tr>
-            <tr><td>Comisión</td><td class="num-cell">—</td><td><input type="number" min="0" step=".01" data-k="ci_corte_comision"></td></tr>
+            <tr><td><strong>Comisión</strong> <span style="font-size:11px;color:var(--ember)">✍ captúrala (no la olvides)</span></td><td class="num-cell">—</td><td><input type="number" min="0" step=".01" data-k="ci_corte_comision" style="border-left:3px solid var(--ember);background:#fff7f2"></td></tr>
             <tr style="background:var(--bg);font-weight:600"><td>TOTAL EFECTIVO FINAL</td><td>—</td><td class="num-cell" id="ci_corte_efe_total">$0.00</td></tr>
           </tbody>
         </table>
@@ -1379,6 +1379,12 @@ img, svg { display: block; max-width: 100%; }
           </tbody>
         </table>
       </div>
+      <p class="help" style="margin-top:8px;line-height:1.7">📍 <strong>¿De dónde sale cada total?</strong> Este recuadro NO se edita: todo se llena ARRIBA.<br>
+      • <strong>Efectivo final</strong> → tu tabla de billetes (Retiros + billetes + Comisión).<br>
+      • <strong>Pagadas prop. / tarjeta</strong> → sección «03 Cobros y propinas del servicio», bloque «Entrega de propina tarjeta al encargado de piso».<br>
+      • <strong>T. Débito / Crédito / BZPAY</strong> → «Tarjetas bancarias», en este mismo Corte de Caja.<br>
+      • <strong>Transferencia</strong> → sección «03 Cobros y propinas del servicio», campo «Transferencia».<br>
+      Si el GRAN TOTAL no cuadra con tu corte de papel, revisa cuál de estos renglones está en $0.00 y captúralo arriba.</p>
 
       <div class="divider"></div>
 
