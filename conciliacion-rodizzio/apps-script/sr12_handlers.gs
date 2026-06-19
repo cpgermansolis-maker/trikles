@@ -3121,7 +3121,7 @@ function _barraAlertaBajoCostoCore(empresaId, umbralBajo, umbralAlto){
     var precio = v.unidades > 0 ? v.venta / v.unidades : 0;
     var nb = _barraNormNombre(v.descripcion).split(' ').filter(Boolean);
     var saleAlc = /vinos|alcohol/i.test(v.grupo);   // venta es bebida alcohólica (vino/licor/cerveza)
-    var best = null, bestScore = 0;
+    var cand = [];
     ingNorm.forEach(function(c){
       if (!c.toks.length || !nb.length) return;
       // Guardas anti-falso-positivo: una bebida alcohólica NO empata con agua, y un
@@ -3135,10 +3135,23 @@ function _barraAlertaBajoCostoCore(empresaId, umbralBajo, umbralAlto){
       var maxLen = overlap.reduce(function(m,t){ return Math.max(m, t.length); }, 0);
       if (overlap.length < 2 && maxLen < 5) return;
       var score = overlap.length / Math.min(nb.length, c.toks.length);
-      if (score > bestScore) { bestScore = score; best = c.ing; }
+      cand.push({ ing: c.ing, score: score });
     });
+    cand.sort(function(a,b){ return b.score - a.score; });
+    var best = cand.length ? cand[0].ing : null;
+    var bestScore = cand.length ? cand[0].score : 0;
     if (!best || bestScore < 0.5) { sinMatch.push({ clave:v.clave, descripcion:v.descripcion, precio:Math.round(precio), unidades:v.unidades }); return; }
-    var costo = num(best.precio_real_unitario);
+    // Guard de AMBIGÜEDAD (reporte de Luis 2026-06-19, caso "Catena Alta" vs "Catena Malbec"): si otro
+    // insumo DISTINTO empata casi igual de bien (score dentro de 0.12) pero con costo muy diferente,
+    // no se puede saber cuál se vendió → NO se levanta bandera (mejor callar que dar falsa alarma).
+    var costoBest = num(best.precio_real_unitario);
+    var ambiguo = cand.some(function(m){
+      if (m.ing.id === best.id || (bestScore - m.score) > 0.12) return false;
+      var cm = num(m.ing.precio_real_unitario);
+      return Math.abs(cm - costoBest) > Math.max(50, costoBest * 0.15);
+    });
+    if (ambiguo) { sinMatch.push({ clave:v.clave, descripcion:v.descripcion, precio:Math.round(precio), unidades:v.unidades, nota:'varios productos con nombre parecido y costo distinto (no se sabe cuál se vendió)' }); return; }
+    var costo = costoBest;
     if (costo <= 0) { sinMatch.push({ clave:v.clave, descripcion:v.descripcion, precio:Math.round(precio), unidades:v.unidades, nota:'insumo sin costo' }); return; }
     var margen = precio > 0 ? (precio - costo) / precio * 100 : 0;
     var sev = 'ok';
