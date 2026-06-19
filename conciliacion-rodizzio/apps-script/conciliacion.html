@@ -1373,6 +1373,7 @@ img, svg { display: block; max-width: 100%; }
             <tr><td>T. Débito</td><td class="num-cell" id="ci_corte_res_debito">$0.00</td></tr>
             <tr><td>T. Crédito</td><td class="num-cell" id="ci_corte_res_credito">$0.00</td></tr>
             <tr><td>BZPAY</td><td class="num-cell" id="ci_corte_res_bzpay">$0.00</td></tr>
+            <tr><td>Transferencia<button class="info-icon no-print" data-tip="Cobros recibidos por transferencia bancaria (SPEI) durante el día (Apertura + Cierre). No pasan por el cajón ni por las terminales, pero sí son ingreso del día → suman al GRAN TOTAL. Se capturan en la sección 03 (Cobros y propinas del servicio)." type="button">i</button></td><td class="num-cell" id="ci_corte_res_transfer">$0.00</td></tr>
             <tr style="background:var(--bg);font-weight:600;font-size:16px"><td>GRAN TOTAL DEL DÍA</td><td class="num-cell" id="ci_corte_gran_total">$0.00</td></tr>
           </tbody>
         </table>
@@ -3002,12 +3003,17 @@ img, svg { display: block; max-width: 100%; }
     // está en el efectivo final ni en retiros/comisión → se suma para reconstruir el total del día.
     // Sin él, el GRAN TOTAL quedaba corto justo por ese monto (reporte de Mónica, 2026-06-18).
     var propTarPagada = num(state.ap_retiro_propinas) + num(state.ci_retiro_propinas);
+    // Transferencias (SPEI) del día: ingreso real que NO pasa por cajón ni terminales (Mónica
+    // confirmó que sí hay clientes que pagan por transferencia) → se suma al gran total. Se captura
+    // en §03 Cobros del servicio (ap_cobro_transfer + ci_cobro_transfer).
+    var transferDia = num(state.ap_cobro_transfer) + num(state.ci_cobro_transfer);
     setText('ci_corte_res_efe',      fmtMoney(efeFinal));
     setText('ci_corte_res_prop_tar', fmtMoney(propTarPagada));
     setText('ci_corte_res_debito',   fmtMoney(tDeb));
     setText('ci_corte_res_credito',  fmtMoney(tCred));
     setText('ci_corte_res_bzpay',    fmtMoney(tBzp));
-    setText('ci_corte_gran_total',   fmtMoney(efeFinal + tarTotal + propTarPagada));
+    setText('ci_corte_res_transfer', fmtMoney(transferDia));
+    setText('ci_corte_gran_total',   fmtMoney(efeFinal + tarTotal + propTarPagada + transferDia));
     // Cortesías (tabla dinámica)
     ensureCortesiasArray();
     var totCort = 0;
