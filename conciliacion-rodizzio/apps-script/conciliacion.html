@@ -1435,7 +1435,7 @@ img, svg { display: block; max-width: 100%; }
         <button class="info-icon no-print" data-tip="<strong>Fórmula contable del cajón:</strong><br><br>+ Fondo asignado<br>+ Cobros efectivo (Apertura + Cierre)<br>− Retiro propinas tarjeta (Apertura + Cierre) — sale del cajón para entregar al encargado de piso<br>− Depósito 1 (venta del día)<br>− Depósito 2 (comisiones bancarias)<br>= <strong>Efectivo teórico que debería estar en el cajón</strong><br><br>El aporte del 7% al fondo de servicio entra y sale del cajón el mismo día (lo aportan los meseros, se reparte al personal al cierre), por eso netea a cero y no aparece." type="button">i</button>
       </h4>
       <div class="grid g3">
-        <div><label>Efectivo contado (suma desglose)</label><input type="text" id="ci_arq_contado_lbl" readonly style="background:var(--bg)"></div>
+        <div><label>Efectivo en cajón (lo que quedó)</label><input type="text" id="ci_arq_contado_lbl" readonly style="background:var(--bg)"></div>
         <div><label>Efectivo teórico (calculado)</label><input type="text" id="ci_arq_teorico" readonly style="background:var(--bg);font-weight:600"></div>
         <div><label>Δ Arqueo (auto)</label><input type="text" id="ci_arq_delta" readonly style="background:var(--bg)"></div>
       </div>
@@ -1451,11 +1451,21 @@ img, svg { display: block; max-width: 100%; }
         <div class="arq-row arq-tot"><span class="arq-lbl">= Efectivo teórico</span><span class="arq-val" id="arq_d_teorico">$0.00</span></div>
       </div>
 
+      <!-- Captura para el arqueo (cajera): los 2 datos que el cajón necesita y que suelen faltar -->
+      <div class="no-print" style="margin-top:12px;border:2px solid var(--gold);background:#fffdf7;padding:12px 14px">
+        <div style="font-weight:600;font-size:12px;margin-bottom:8px;opacity:.85">Para que el cajón cuadre, captura estos dos (si te faltan):</div>
+        <div style="display:flex;gap:18px;flex-wrap:wrap">
+          <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600">💵 Cobros en efectivo del día (del POS)
+            <input type="number" min="0" step=".01" id="quickEfeCobro" placeholder="0.00" style="max-width:170px;border-left:3px solid var(--ember);background:#fff7f2">
+          </label>
+          <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600">🏦 Depósito de la venta (comprobante)
+            <input type="number" min="0" step=".01" id="quickDep1" placeholder="0.00" style="max-width:170px;border-left:3px solid var(--ember);background:#fff7f2">
+          </label>
+        </div>
+      </div>
+
       <div id="arq_aviso_neg" class="no-print" style="display:none;margin-top:12px;border:2px solid var(--ember);background:#fff3f0;padding:12px 14px">
-        <div id="arq_aviso_neg_msg" style="font-weight:600;color:var(--ember);margin-bottom:8px"></div>
-        <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;max-width:280px">💵 Cobros en efectivo del día (lo que cobraste en efectivo a los clientes)
-          <input type="number" min="0" step=".01" id="quickEfeCobro" placeholder="0.00" style="border-left:3px solid var(--ember);background:#fff7f2">
-        </label>
+        <div id="arq_aviso_neg_msg" style="font-weight:600;color:var(--ember)"></div>
       </div>
 
       <div class="grid g3" style="margin-top:14px">
@@ -2320,6 +2330,7 @@ img, svg { display: block; max-width: 100%; }
     wire('quickPropTar', 'ci_retiro_propinas');
     wire('quickTransfer', 'ci_cobro_transfer');
     wire('quickEfeCobro', 'ci_cobro_efectivo');
+    wire('quickDep1', 'ci_dep1_monto');
   }
   // ¿El corte cargado tiene captura REAL (no solo encabezado)? Mismos campos que el backend.
   function corteTieneDatos(st){
@@ -3170,51 +3181,52 @@ img, svg { display: block; max-width: 100%; }
     var dep2 = num(state.ci_dep2_monto);
     setVal('ci_dep_total', fmtMoney(dep1 + dep2));
 
-    // === Conciliación del cajón: efectivo teórico ===
-    // Fórmula: + Fondo asignado + Cobros efectivo (ap+ci) − Retiro propinas tarjeta (ap+ci) − Depósito 1 − Depósito 2.
-    // El aporte del 7% al fondo de servicio entra y sale del cajón el mismo día → netea a cero, no aparece.
+    // === Conciliación del cajón: efectivo teórico (modelo confirmado por Germán 2026-06-19) ===
+    // Fondo FIJO: al cierre, el efectivo que QUEDA en el cajón debe ser ≈ el fondo (lo demás se deposita).
+    // Por eso el "contado" del arqueo son los BILLETES que quedan (sumDenoms), NO los retiros (salieron a
+    // depositarse) ni la comisión (se deposita: comisión = Depósito 2). ⚠ Debe ir 1:1 con _banderasDeConciliacion.
+    //   teórico = Fondo + Cobros efectivo − Propina pagada − Depósito venta − Comisión(=Depósito 2)
     var fondo = num(state.ci_corte_fondo);
     var efeAp = num(state.ap_cobro_efectivo);
     var efeCi = num(state.ci_cobro_efectivo);
-    var retAp = num(state.ap_retiro_propinas);
-    var retCi = num(state.ci_retiro_propinas);
-    var teorico = fondo + efeAp + efeCi - retAp - retCi - dep1 - dep2;
+    var retAp = num(state.ap_retiro_propinas);   // propina tarjeta pagada (apertura)
+    var retCi = num(state.ci_retiro_propinas);   // propina tarjeta pagada (cierre)
+    var depComision = (dep2 > 0 ? dep2 : comisionCorte);   // comisión = Depósito 2 (mismo dinero)
+    var teorico = fondo + efeAp + efeCi - retAp - retCi - dep1 - depComision;
     state.ci_arq_teorico = teorico;
     setVal('ci_arq_teorico', fmtMoney(teorico));
-    setVal('ci_arq_contado_lbl', fmtMoney(efeFinal));
+    setVal('ci_arq_contado_lbl', fmtMoney(sumDenoms));    // billetes que QUEDAN en el cajón (≈ fondo)
     setText('arq_d_fondo', fmtMoney(fondo));
     setText('arq_d_efe_ap', fmtMoney(efeAp));
     setText('arq_d_efe_ci', fmtMoney(efeCi));
     setText('arq_d_ret_ap', '−' + fmtMoney(retAp));
     setText('arq_d_ret_ci', '−' + fmtMoney(retCi));
     setText('arq_d_dep1', '−' + fmtMoney(dep1));
-    setText('arq_d_dep2', '−' + fmtMoney(dep2));
+    setText('arq_d_dep2', '−' + fmtMoney(depComision));
     setText('arq_d_teorico', fmtMoney(teorico));
-    // Aviso SIMPLE cuando el efectivo teórico sale NEGATIVO (imposible) → casi siempre falta capturar
-    // los cobros en efectivo del día. Se lo decimos en palabras llanas y le dejamos capturarlo aquí
-    // mismo (regla de Germán 2026-06-19: el sistema debe ser MUY simple, cajeras de nivel básico).
+    var arqDelta = sumDenoms - teorico;
+    // Mantener en sync los campos rápidos del arqueo (cobros efectivo + depósito de la venta).
+    var _qe = document.getElementById('quickEfeCobro');
+    if (_qe && document.activeElement !== _qe) _qe.value = (state.ci_cobro_efectivo == null ? '' : state.ci_cobro_efectivo);
+    var _qd1 = document.getElementById('quickDep1');
+    if (_qd1 && document.activeElement !== _qd1) _qd1.value = (state.ci_dep1_monto == null ? '' : state.ci_dep1_monto);
+    // Aviso SIMPLE cuando el cajón NO cuadra por un monto grande → casi siempre falta capturar un dato
+    // (cobros en efectivo o el depósito). Un Δ chico es faltante/sobrante real (lo marca el semáforo).
     var avisoNeg = document.getElementById('arq_aviso_neg');
     if (avisoNeg) {
-      if (teorico < 0) {
+      if ((teorico < 0) || (Math.abs(arqDelta) > 500)) {
         var msgN = document.getElementById('arq_aviso_neg_msg');
-        if (msgN) {
-          msgN.textContent = (efeAp + efeCi) === 0
-            ? '⚠ El efectivo teórico salió en NEGATIVO. No es que falte dinero: falta capturar los COBROS EN EFECTIVO del día (lo que cobraste en efectivo a los clientes). Escríbelo aquí abajo.'
-            : '⚠ El efectivo teórico salió en NEGATIVO. Revisa que los cobros en efectivo, los retiros de propina y los depósitos estén bien capturados.';
-        }
+        if (msgN) msgN.textContent = '⚠ El cajón no cuadra por ' + fmtMoney(Math.abs(arqDelta)) + '. Casi siempre falta capturar algo. Revisa abajo: los COBROS EN EFECTIVO del día (del POS) y tu DEPÓSITO de la venta (del comprobante).';
         avisoNeg.style.display = '';
       } else {
         avisoNeg.style.display = 'none';
       }
     }
-    var _qe = document.getElementById('quickEfeCobro');
-    if (_qe && document.activeElement !== _qe) _qe.value = (state.ci_cobro_efectivo == null ? '' : state.ci_cobro_efectivo);
 
-    // Δ Arqueo = efectivo final del corte − teórico
-    var arqDelta = efeFinal - teorico;
+    // Δ Arqueo = efectivo en cajón (billetes) − teórico
     var arqDeltaEl = document.getElementById('ci_arq_delta');
     if (arqDeltaEl) {
-      if (efeFinal === 0 && teorico === 0) {
+      if (sumDenoms === 0 && teorico === 0) {
         arqDeltaEl.value = '—';
         arqDeltaEl.style.color = '';
       } else {
@@ -3272,7 +3284,7 @@ img, svg { display: block; max-width: 100%; }
     setVal('ci_app_total', fmtMoney(apps));
     return { arqDelta: arqDelta, termDelta: termDelta, fDelta: fDelta, extra: extra, apps: apps,
              sumLote: sumLote, sumOps: sumOps, problemasPorTerminal: problemasPorTerminal,
-             arqTeorico: teorico, arqContado: efeFinal, totCort: totCort };
+             arqTeorico: teorico, arqContado: sumDenoms, totCort: totCort };
   }
 
   function recalcAll(){

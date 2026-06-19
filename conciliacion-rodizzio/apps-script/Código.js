@@ -5248,11 +5248,16 @@ function _banderasDeConciliacion(payload) {
   // Arqueo del cajón
   var DENOMS = [1000,500,200,100,50,20,10,5,2,1]; var sumDenoms = 0;
   DENOMS.forEach(function(d){ sumDenoms += _bcNum(P['ci_corte_d'+d+'_cant']) * d; });
-  var efeFinal = _bcNum(P.ci_corte_retiros) + sumDenoms + _bcNum(P.ci_corte_comision);
+  var comisionCorte = _bcNum(P.ci_corte_comision);
+  var efeFinal = _bcNum(P.ci_corte_retiros) + sumDenoms + comisionCorte;  // total de efectivo manejado (para gran total)
   var dep1 = _bcNum(P.ci_dep1_monto), dep2 = _bcNum(P.ci_dep2_monto);
+  // Modelo arqueo (Germán 2026-06-19): fondo FIJO → el efectivo que QUEDA en el cajón (contado) son los
+  // billetes (sumDenoms, ≈ fondo). El retiro salió a depositarse (no cuenta como efectivo del cajón) y
+  // la comisión = Depósito 2 (mismo dinero, se cuenta una vez). Debe ir 1:1 con recalcCierre (conciliacion.html).
+  var depComision = (dep2 > 0 ? dep2 : comisionCorte);
   var teorico = _bcNum(P.ci_corte_fondo) + _bcNum(P.ap_cobro_efectivo) + _bcNum(P.ci_cobro_efectivo)
-              - _bcNum(P.ap_retiro_propinas) - _bcNum(P.ci_retiro_propinas) - dep1 - dep2;
-  var arqDelta = efeFinal - teorico;
+              - _bcNum(P.ap_retiro_propinas) - _bcNum(P.ci_retiro_propinas) - dep1 - depComision;
+  var arqDelta = sumDenoms - teorico;
 
   // Terminales (con migración del schema viejo de campo único)
   var terms = Array.isArray(P.ci_terminales) ? P.ci_terminales : [];
@@ -5308,7 +5313,7 @@ function _banderasDeConciliacion(payload) {
   var B = {};
   B.comensales  = { sev: sev(Math.abs(apMix.delta) > 2 || Math.abs(ciMix.delta) > 2, (apMix.host+apMix.pos+ciMix.host+ciMix.pos) > 0),
                     val: 'Ap '+(apMix.delta>0?'+':'')+apMix.delta+' · Ci '+(ciMix.delta>0?'+':'')+ciMix.delta };
-  B.arqueo      = { sev: sev(Math.abs(arqDelta) > 200, !(efeFinal === 0 && teorico === 0)), val: _bcMon(arqDelta) };
+  B.arqueo      = { sev: sev(Math.abs(arqDelta) > 200, !(sumDenoms === 0 && teorico === 0)), val: _bcMon(arqDelta) };
   B.terminal    = { sev: sev(Math.abs(termDelta) > 0.5, !(sumLote === 0 && _bcNum(P.ci_term_pos) === 0)), val: _bcMon(termDelta) };
   B.pct_canc    = { sev: sev(pctCanc > 3, cobrosDia > 0), val: pctCanc.toFixed(1)+'%' };
   B.nosales     = { sev: sev(nosalesDia > 2, true), val: String(nosalesDia) };
