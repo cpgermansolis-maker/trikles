@@ -97,3 +97,60 @@ Hoy están marcadas 8 "proteínas" que **ningún** espada parece usar (probablem
 4. Limpieza de los duplicados marcados que no se usan.
 
 > Estado de partida (2026-06-19, validador churrasca): 54 recetas → 2 verdes / 7 amarillas / 45 rojas. 21 descuentan condimentos pero no su carne; 20 no descuentan nada.
+
+---
+
+# PARTE 2 — Análisis completo (2026-06-19): la causa raíz y el mapa de duplicados
+
+## La causa raíz, en una frase
+
+**Hay DOS catálogos de carne en paralelo:**
+- **Las viejas** (del arranque del sistema, ids `ING-014x` / `ING-015x`) → son las que hoy están **MARCADAS** para contarse.
+- **Las del SR12** (importadas del POS, ids largos tipo `uuid` o `ING-050x`) → son las que las **RECETAS usan de verdad**.
+
+Como están marcadas las viejas y las recetas gastan las del SR12, **nunca se cruzan → no descuenta.** El arreglo no es marcar más: es **marcar las del SR12 (las que usan las recetas)** y limpiar las viejas.
+
+## Carne de las 20 espadas que hoy no descuentan nada (Grupo 3, ya identificada)
+
+| Espada | Su carne | id | SR12 |
+|---|---|---|---|
+| Baby beef | Baby beef | ING-0522 | sin SR12 |
+| Calabreza con chile | Calabreza brasileña | uuid 2188… | **8015** |
+| Chistorra | Chistorra x kg | uuid 39c6… | **4001** |
+| Chorizo brasileño | Chorizo argentino x kg | uuid d899… | **4011** |
+| Corte búfalo | Corte búfalo | ING-0528 | sin SR12 |
+| Costilla de res ahumada (x2) | Costilla flecha x kg / Costilla de res | uuid 0516… / ING-0526 | **8004** / sin SR12 |
+| Espada muslo a la cerveza | Pierna y muslo x kg | uuid be56… | **9003** |
+| Espada picaña de cerdo / Lomo parmesano | Lomo de cerdo | ING-0519 | sin SR12 |
+| Mamiña al ajo | Mamiña | ING-0525 | sin SR12 |
+| Molleja de res / Molleja prep. | Molleja x kg | uuid 494a… | **8005** |
+| Pechuga con tocino | Pechuga fresca x kg | uuid 613c… | **9002** |
+| Pollo churrasca | Pierna y muslo deshuesada | ING-0508 | **9003** |
+| Espada de piña con canela | Piña asada (no es carne) | ING-0324 | 17014 |
+| Pan con ajo / Crema de ajo / Nopales con queso | pan / mayonesa / nopal (no es carne) | — | — |
+
+## Mapa de duplicados (qué está marcado mal vs qué usan las recetas)
+
+| Carne | ✅ La buena (SR12, la usan las recetas) | ❌ Marcada hoy pero NO la usan (duplicado a retirar) |
+|---|---|---|
+| Pechuga | PECHUGA FRESCA X KG · SR12 9002 | Pechuga de pollo · ING-0145 (sin SR12) |
+| Pierna y muslo | PIERNA Y MUSLO deshuesada · ING-0508 (9003) | Pierna y muslo de pollo · ING-0148 |
+| Costilla | Costilla flecha · SR12 8004 / Costilla de res · ING-0526 | Costilla de cerdo · ING-0140 (8009) |
+| Chorizo | Chorizo argentino · SR12 4011 | Chorizo brasileño · ING-0150 (4002) |
+| Picaña | *(no hay una limpia en SR12 — hueco)* | Picahna · ING-0146 (sin SR12, huérfana) |
+| Filete / Top sirlon / Lomo canadiense | — | ING-0141 / ING-0149 / ING-0156 (verificar si se usan en otra área antes de quitar) |
+
+⚠️ **Picaña tiene un problema aparte:** ninguna espada referencia una "picaña" limpia; la receta "espada picaña de cerdo" apunta a **Lomo de cerdo**. Hay que: dar de alta la picaña real en el SR12 (Weslley) y corregir esa receta. Tarea de datos, no de marcado.
+
+## Lista CONSOLIDADA para marcar (todo lo que las recetas usan)
+
+**A — con SR12 (costo confiable, marcar primero):**
+Pierna de cerdo ING-0147 (8008) · Corazón de pollo uuid (9001) · Muslo de pollo uuid (8012) · Pechuga fresca uuid (9002) · Pierna y muslo deshuesada ING-0508 (9003) · Chistorra uuid (4001) · Chorizo argentino uuid (4011) · Calabreza brasileña uuid (8015) · Costilla flecha uuid (8004) · Molleja uuid (8005)
+
+**B — sin SR12 (premium, costo estimado hasta darlos de alta):**
+Arrachera ING-0520 · Tomahawk ING-0521 · Corte Capitão ING-0527 · Costilla de res ING-0526 · Lomo de cerdo ING-0519 · Baby beef ING-0522 · Corte búfalo ING-0528 · Mamiña ING-0525
+
+**C — retirar después (huérfanas marcadas que ninguna receta usa):**
+Pechuga de pollo ING-0145 · Pierna y muslo de pollo ING-0148 · Picahna ING-0146 · Costilla de cerdo ING-0140 · Chorizo brasileño ING-0150 · (revisar Filete ING-0141 / Top sirlon ING-0149 / Lomo canadiense ING-0156).
+
+> Con esto, en cuanto Estefanía diga qué cortes se cuentan a diario, el marcado es directo (ids ya verificados) y la limpieza de duplicados también.
