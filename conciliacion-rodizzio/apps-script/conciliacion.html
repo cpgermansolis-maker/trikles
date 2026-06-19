@@ -952,6 +952,8 @@ img, svg { display: block; max-width: 100%; }
   body.role-cajera .mix-table th:nth-child(4),
   body.role-cajera .mix-table td:nth-child(2),
   body.role-cajera .mix-table td:nth-child(4){display:none !important}
+  /* Etiqueta en lenguaje simple que SOLO ve la cajera (par de hide-cajera) */
+  body:not(.role-cajera) .solo-cajera{display:none !important}
   /* Notice para cajera */
   body.role-cajera .cajera-notice{
     display:block;background:var(--brasa-tint);border-left:3px solid var(--brasa);
@@ -1041,7 +1043,7 @@ img, svg { display: block; max-width: 100%; }
 <nav class="tabs">
   <div class="tabs-inner">
     <button class="tab-btn active" data-tab="apertura">Apertura</button>
-    <button class="tab-btn" data-tab="cierre">Cierre <span class="bdg" style="background:var(--brasa-deep)">PROFUNDO</span></button>
+    <button class="tab-btn" data-tab="cierre">Cierre <span class="bdg hide-cajera" style="background:var(--brasa-deep)">PROFUNDO</span></button>
     <button class="tab-btn hide-cajera" data-tab="resumen">Resumen <span class="badge" id="flagBadge" style="display:none">0</span></button>
   </div>
 </nav>
@@ -1050,7 +1052,7 @@ img, svg { display: block; max-width: 100%; }
 
   <!-- Aviso visible solo para cajera -->
   <div class="cajera-notice">
-    <strong>Modo cajera:</strong> tu vista está reducida. En <em>Apertura</em> y <em>Cierre</em>, captura solo la columna <strong>POS</strong> del Mix de comensales. En <em>Cierre profundo</em>, llena el <strong>Corte de Caja</strong> (denominaciones, tarjetas y cortesías). El resto lo administra la administradora.
+    <strong>Modo simple.</strong> Solo capturas dos cosas: <strong>1)</strong> cuántos comensales (abajo, en las pestañas Apertura y Cierre); <strong>2)</strong> tu <strong>Corte de Caja</strong> en la pestaña <em>Cierre</em> — cuenta el efectivo, las tarjetas, la propina y la transferencia. La app calcula todo lo demás sola y, si algo no cuadra, te avisa en rojo qué falta. El resto lo ve tu administradora.
   </div>
 
 
@@ -1081,10 +1083,10 @@ img, svg { display: block; max-width: 100%; }
     </div>
 
     <div class="card cajera-only">
-      <h3><span class="num">02</span> Mix de comensales — Host vs POS<button class="info-icon no-print" data-tip="Compara cuántos comensales <strong>contó el host</strong> al ingreso (columna izquierda) vs cuántos <strong>cobró el POS</strong> (columna derecha), desglosado por tarifa. La columna Δ muestra la diferencia. <strong>Si |Δ| > 2 en cualquier tarifa, se enciende bandera roja</strong>. La columna Host se prellena automáticamente al cargar el JSON de la bitácora." type="button">i</button></h3>
+      <h3><span class="num">02</span> <span class="solo-cajera">¿Cuántos comensales? <span style="font-weight:400;opacity:.65">(los que cobró la caja)</span></span><span class="hide-cajera">Mix de comensales — Host vs POS</span><button class="info-icon no-print hide-cajera" data-tip="Compara cuántos comensales <strong>contó el host</strong> al ingreso (columna izquierda) vs cuántos <strong>cobró el POS</strong> (columna derecha), desglosado por tarifa. La columna Δ muestra la diferencia. <strong>Si |Δ| > 2 en cualquier tarifa, se enciende bandera roja</strong>. La columna Host se prellena automáticamente al cargar el JSON de la bitácora." type="button">i</button></h3>
       <div class="table-wrap">
         <table class="data mix-table">
-          <thead><tr><th>Tarifa</th><th class="num-cell">Host (bitácora)</th><th class="num-cell">POS</th><th class="num-cell">Δ</th></tr></thead>
+          <thead><tr><th>Tarifa</th><th class="num-cell">Host (bitácora)</th><th class="num-cell"><span class="hide-cajera">POS</span><span class="solo-cajera">Comensales</span></th><th class="num-cell">Δ</th></tr></thead>
           <tbody id="ap_mix_tbody">
             <tr><td>Adulto</td><td><input type="number" min="0" data-k="ap_mix_adulto_host" data-mix-host="adulto"></td><td><input type="number" min="0" data-k="ap_mix_adulto_pos" data-mix-pos="adulto"></td><td class="delta" id="ap_mix_adulto_delta">0</td></tr>
             <tr><td>Niño (5–12)</td><td><input type="number" min="0" data-k="ap_mix_nino_host" data-mix-host="nino"></td><td><input type="number" min="0" data-k="ap_mix_nino_pos" data-mix-pos="nino"></td><td class="delta" id="ap_mix_nino_delta">0</td></tr>
@@ -1233,10 +1235,10 @@ img, svg { display: block; max-width: 100%; }
     </div>
 
     <div class="card cajera-only">
-      <h3><span class="num">02</span> Mix de comensales del servicio — Host vs POS<button class="info-icon no-print" data-tip="Igual que en Apertura, pero para el servicio de cena. Compara comensales contados por el host vs cobrados en POS, por tarifa. Carga el JSON de la bitácora del host del bloque de cena con el botón de abajo." type="button">i</button></h3>
+      <h3><span class="num">02</span> <span class="solo-cajera">¿Cuántos comensales? <span style="font-weight:400;opacity:.65">(los que cobró la caja)</span></span><span class="hide-cajera">Mix de comensales del servicio — Host vs POS</span><button class="info-icon no-print hide-cajera" data-tip="Igual que en Apertura, pero para el servicio de cena. Compara comensales contados por el host vs cobrados en POS, por tarifa. Carga el JSON de la bitácora del host del bloque de cena con el botón de abajo." type="button">i</button></h3>
       <div class="table-wrap">
         <table class="data mix-table">
-          <thead><tr><th>Tarifa</th><th class="num-cell">Host</th><th class="num-cell">POS</th><th class="num-cell">Δ</th></tr></thead>
+          <thead><tr><th>Tarifa</th><th class="num-cell">Host</th><th class="num-cell"><span class="hide-cajera">POS</span><span class="solo-cajera">Comensales</span></th><th class="num-cell">Δ</th></tr></thead>
           <tbody>
             <tr><td>Adulto</td><td><input type="number" min="0" data-k="ci_mix_adulto_host"></td><td><input type="number" min="0" data-k="ci_mix_adulto_pos"></td><td class="delta" id="ci_mix_adulto_delta">0</td></tr>
             <tr><td>Niño (5–12)</td><td><input type="number" min="0" data-k="ci_mix_nino_host"></td><td><input type="number" min="0" data-k="ci_mix_nino_pos"></td><td class="delta" id="ci_mix_nino_delta">0</td></tr>
