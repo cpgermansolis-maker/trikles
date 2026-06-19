@@ -1142,7 +1142,7 @@ img, svg { display: block; max-width: 100%; }
       <p class="help" style="margin-bottom:10px"><strong>Entrega de propina tarjeta al encargado de piso</strong> (se retira efectivo del cajón equivalente, porque el banco liquida con delay):</p>
       <div class="grid g3">
         <div><label>Propina tarjeta del servicio (auto)</label><input type="text" id="ap_propTar_lbl" readonly style="background:var(--bg)"></div>
-        <div><label>Pagadas prop. / tarjeta <span style="font-weight:400;font-size:11px;opacity:.65">(efectivo retirado del cajón)</span><button class="info-icon no-print" data-tip="Efectivo que sacas del cajón para pagarle al encargado de piso las propinas cobradas con TARJETA (el banco las liquida con retraso). En tu corte de papel es el renglón 'PAGADAS PROP./TARJETA'. El mismo monto aparece en el Resumen de totales del día y suma al GRAN TOTAL." type="button">i</button></label><input type="number" min="0" step=".01" data-k="ap_retiro_propinas"></div>
+        <div><label>Pagadas prop. / tarjeta <span style="font-weight:400;font-size:11px;opacity:.65">(efectivo retirado del cajón)</span><button class="info-icon no-print" data-tip="Efectivo que sacas del cajón para pagarle al encargado de piso las propinas cobradas con TARJETA (el banco las liquida con retraso). Aparece en el Resumen de totales del día como «Pagadas prop. / tarjeta» y suma al GRAN TOTAL." type="button">i</button></label><input type="number" min="0" step=".01" data-k="ap_retiro_propinas"></div>
         <div><label>Δ Retiro vs propina (auto)</label><input type="text" id="ap_retiro_delta" readonly style="background:var(--bg)"></div>
       </div>
       <p class="help">Tolerancia: ± $10 (redondeos). Si Δ es mayor, indica faltante en caja o pago de menos al personal — bandera roja.</p>
@@ -1293,7 +1293,7 @@ img, svg { display: block; max-width: 100%; }
       <p class="help" style="margin-bottom:10px"><strong>Entrega de propina tarjeta al encargado de piso</strong> (se retira efectivo del cajón equivalente, porque el banco liquida con delay):</p>
       <div class="grid g3">
         <div><label>Propina tarjeta del servicio (auto)</label><input type="text" id="ci_propTar_lbl" readonly style="background:var(--bg)"></div>
-        <div><label>Pagadas prop. / tarjeta <span style="font-weight:400;font-size:11px;opacity:.65">(efectivo retirado del cajón)</span><button class="info-icon no-print" data-tip="Efectivo que sacas del cajón para pagarle al encargado de piso las propinas cobradas con TARJETA (el banco las liquida con retraso). En tu corte de papel es el renglón 'PAGADAS PROP./TARJETA'. El mismo monto aparece en el Resumen de totales del día y suma al GRAN TOTAL." type="button">i</button></label><input type="number" min="0" step=".01" data-k="ci_retiro_propinas" style="border-left:3px solid var(--ember);background:#fff7f2"></div>
+        <div><label>Pagadas prop. / tarjeta <span style="font-weight:400;font-size:11px;opacity:.65">(efectivo retirado del cajón)</span><button class="info-icon no-print" data-tip="Efectivo que sacas del cajón para pagarle al encargado de piso las propinas cobradas con TARJETA (el banco las liquida con retraso). Aparece en el Resumen de totales del día como «Pagadas prop. / tarjeta» y suma al GRAN TOTAL." type="button">i</button></label><input type="number" min="0" step=".01" data-k="ci_retiro_propinas" style="border-left:3px solid var(--ember);background:#fff7f2"></div>
         <div><label>Δ Retiro vs propina (auto)</label><input type="text" id="ci_retiro_delta" readonly style="background:var(--bg)"></div>
       </div>
       <p class="help">Tolerancia: ± $10 (redondeos). Si Δ es mayor, indica faltante en caja o pago de menos al personal — bandera roja.</p>
@@ -1387,29 +1387,22 @@ img, svg { display: block; max-width: 100%; }
         </table>
       </div>
       <div id="ci_corte_cuadre_check" class="no-print" style="margin-top:14px;border:2px solid var(--gold);background:#fffdf7;padding:12px 14px">
-        <label style="display:block;font-weight:600;margin-bottom:8px">✅ Verifica que cuadra — escribe aquí el <strong>GRAN TOTAL</strong> de tu corte de papel:</label>
-        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-          <input type="number" min="0" step=".01" data-k="ci_corte_gt_papel" placeholder="Ej. 36762.23" style="max-width:200px;border-left:3px solid var(--gold)">
-          <span id="ci_corte_cuadre_msg" style="font-weight:600;flex:1;min-width:200px">Escribe el total de tu papel para comparar.</span>
-        </div>
-        <div style="margin-top:12px;border-top:1px dashed var(--gold);padding-top:10px">
-          <div style="font-weight:600;font-size:12px;margin-bottom:8px;opacity:.85">Los 2 datos que más se olvidan — captúralos aquí mismo si te faltan:</div>
-          <div style="display:flex;gap:18px;flex-wrap:wrap">
-            <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600">💵 Pagadas prop. / tarjeta (efectivo del cajón)
-              <input type="number" min="0" step=".01" id="quickPropTar" placeholder="0.00" style="max-width:160px;border-left:3px solid var(--ember);background:#fff7f2">
-            </label>
-            <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600">🏦 Transferencia (SPEI) del día
-              <input type="number" min="0" step=".01" id="quickTransfer" placeholder="0.00" style="max-width:160px;border-left:3px solid var(--ember);background:#fff7f2">
-            </label>
-          </div>
+        <div style="font-weight:600;margin-bottom:8px">💡 Datos que se suelen olvidar — captúralos aquí mismo si te faltan:</div>
+        <div style="display:flex;gap:18px;flex-wrap:wrap">
+          <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600">💵 Pagadas prop. / tarjeta (efectivo del cajón)
+            <input type="number" min="0" step=".01" id="quickPropTar" placeholder="0.00" style="max-width:160px;border-left:3px solid var(--ember);background:#fff7f2">
+          </label>
+          <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600">🏦 Transferencia (SPEI) del día
+            <input type="number" min="0" step=".01" id="quickTransfer" placeholder="0.00" style="max-width:160px;border-left:3px solid var(--ember);background:#fff7f2">
+          </label>
         </div>
       </div>
-      <p class="help" style="margin-top:8px;line-height:1.7">📍 <strong>Este recuadro es el espejo de tu corte de papel</strong> — mismos renglones, mismo orden. NO se edita aquí: cada número se llena ARRIBA. Compáralo renglón por renglón con tu ticket; el <strong>GRAN TOTAL debe quedar idéntico</strong>.<br>
-      • <strong>Efectivo final / Retiros / Comisión</strong> → tu tabla de billetes (cada uno es su propio renglón, igual que en tu papel).<br>
-      • <strong>Pagadas prop. / tarjeta</strong> → sección «03 Cobros y propinas del servicio», bloque «Entrega de propina tarjeta al encargado de piso».<br>
+      <p class="help" style="margin-top:8px;line-height:1.7">📍 <strong>¿De dónde sale cada total?</strong> Este recuadro NO se edita: cada número se llena ARRIBA, en su sección.<br>
+      • <strong>Efectivo final / Retiros / Comisión</strong> → tu tabla de billetes (cada uno es su propio renglón).<br>
+      • <strong>Pagadas prop. / tarjeta</strong> → aquí mismo en los campos de arriba, o en «03 Cobros y propinas del servicio», bloque «Entrega de propina tarjeta al encargado de piso».<br>
       • <strong>T. Débito / Crédito / BZPAY</strong> → «Tarjetas bancarias», en este mismo Corte de Caja.<br>
-      • <strong>Transferencia</strong> → sección «03 Cobros y propinas del servicio», campo «Transferencia».<br>
-      Si un renglón no coincide con tu papel (lo típico: <strong>«Pagadas prop. / tarjeta» en $0.00</strong>), captúralo arriba y el GRAN TOTAL se ajusta solo.</p>
+      • <strong>Transferencia</strong> → aquí mismo en los campos de arriba, o en «03 Cobros y propinas del servicio», campo «Transferencia».<br>
+      Si un renglón sale en <strong>$0.00</strong> y no debería, captúralo arriba y el GRAN TOTAL se ajusta solo.</p>
 
       <div class="divider"></div>
 
@@ -3150,44 +3143,13 @@ img, svg { display: block; max-width: 100%; }
     setText('ci_corte_res_transfer', fmtMoney(transferDia));
     var granTotal = efeFinal + tarTotal + propTarPagada + transferDia;
     setText('ci_corte_gran_total',   fmtMoney(granTotal));
-    // === Red de seguridad: comparar el GRAN TOTAL del sistema contra el del corte de PAPEL ===
-    // La cajera escribe el gran total de su ticket; la app confirma si cuadra y, si no, le dice
-    // cuánto falta y cuál renglón en $0 es el sospechoso (pedido de Germán 2026-06-19 para cerrar
-    // de raíz el "no me cuadra"). Es solo ayuda visual: no bloquea ni cambia el cálculo.
-    // Sincroniza los campos rápidos con el estado (sin pisarlos mientras la cajera teclea en ellos).
+    // Sincroniza los 2 campos rápidos (propina tarjeta / transferencia) con el estado, sin pisarlos
+    // mientras la cajera teclea en ellos. Escriben al mismo dato que §03 (ci_retiro_propinas /
+    // ci_cobro_transfer) para capturar en la app lo que más se olvida, sin ir a buscarlo a §03.
     var _qp = document.getElementById('quickPropTar');
     if (_qp && document.activeElement !== _qp) _qp.value = (state.ci_retiro_propinas == null ? '' : state.ci_retiro_propinas);
     var _qt = document.getElementById('quickTransfer');
     if (_qt && document.activeElement !== _qt) _qt.value = (state.ci_cobro_transfer == null ? '' : state.ci_cobro_transfer);
-    var msgCuadre = document.getElementById('ci_corte_cuadre_msg');
-    if (msgCuadre) {
-      var papelGT = num(state.ci_corte_gt_papel);
-      if (!state.ci_corte_gt_papel || papelGT === 0) {
-        msgCuadre.textContent = 'Escribe el total de tu papel para comparar.';
-        msgCuadre.style.color = '';
-      } else {
-        var diff = papelGT - granTotal;            // + = el sistema va corto (falta capturar algo)
-        if (Math.abs(diff) <= 0.5) {
-          msgCuadre.textContent = '✅ ¡Cuadra! Coincide con tu corte. Ya puedes Guardar y cerrar.';
-          msgCuadre.style.color = 'var(--verde)';
-        } else {
-          var ceros = [];
-          if (propTarPagada === 0) ceros.push('«Pagadas prop. / tarjeta»');
-          if (transferDia === 0)   ceros.push('«Transferencia»');
-          if (comisionCorte === 0) ceros.push('«Comisión»');
-          var pista;
-          if (diff > 0 && ceros.length) {
-            pista = ' Lo más probable: te falta capturar ' + ceros.join(' o ') + ' (está en $0). Captúralo arriba.';
-          } else if (diff > 0) {
-            pista = ' Falta capturar un ingreso; compara renglón por renglón cuál tienes distinto a tu papel.';
-          } else {
-            pista = ' El sistema tiene MÁS que tu papel; revisa que no hayas tecleado un número de más.';
-          }
-          msgCuadre.textContent = (diff > 0 ? '⚠️ Te faltan ' : '⚠️ Sobran ') + fmtMoney(Math.abs(diff)) + '.' + pista;
-          msgCuadre.style.color = 'var(--rojo)';
-        }
-      }
-    }
     // Cortesías (tabla dinámica)
     ensureCortesiasArray();
     var totCort = 0;
