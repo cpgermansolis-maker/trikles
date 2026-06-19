@@ -487,6 +487,27 @@ async function withRetry(fn, maxRetries, onRetry){
   throw last;
 }
 
+// Traduce un error de la tubería de IA (Claude/Gemini) a un mensaje AMABLE para
+// el usuario. NUNCA expone el error crudo del proveedor (request_id, saldo, etc.).
+// El detalle completo se sigue guardando en consola (console.error) para diagnóstico.
+function mensajeIAUsuario(e){
+  const raw = String((e && e.message) || '');
+  const m = raw.toLowerCase();
+  // ¿Es un error CRUDO del proveedor? (menciona el proveedor + trae status HTTP o cuerpo JSON)
+  const esProveedor = /\b(claude|gemini|anthropic)\b/.test(m) && (/\b\d{3}\b/.test(m) || raw.indexOf('{') >= 0);
+  if(esProveedor){
+    if(/credit|balance|billing|saldo|insufficient|quota|purchase|payment|fund/.test(m))
+      return 'El servicio de inteligencia artificial no está disponible en este momento. Por favor avisa al administrador del sistema.';
+    if(/\b401\b|\b403\b|unauthorized|forbidden|authentication|permission|api.?key/.test(m))
+      return 'El servicio de inteligencia artificial no está configurado correctamente. Contacta al administrador del sistema.';
+    if(/\b429\b|\b503\b|\b529\b|\b500\b|\b502\b|\b504\b|overload|unavailable|too many|rate.?limit/.test(m))
+      return 'El servicio está saturado en este momento. Intenta de nuevo en unos minutos.';
+    return 'No se pudo completar el procesamiento con la inteligencia artificial. Intenta de nuevo más tarde.';
+  }
+  // Mensaje ya limpio (backend, validación, etc.) → tal cual
+  return raw || 'Inténtalo de nuevo.';
+}
+
 // Estado en memoria (NO se persiste; las keys se borran al cerrar pestaña)
 const STATE = {
   session: null,      // sesión del usuario
@@ -979,7 +1000,7 @@ async function procesar(){
 
     toast('success', 'Listo', 'Revisa la minuta y guárdala en Drive cuando estés conforme.');
   } catch(e) {
-    toast('error', 'Falló el procesamiento', e.message || 'Inténtalo de nuevo.');
+    toast('error', 'Falló el procesamiento', mensajeIAUsuario(e));
     console.error(e);
   }
   STATE.processing = false;
