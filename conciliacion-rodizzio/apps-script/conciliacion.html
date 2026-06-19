@@ -1005,6 +1005,9 @@ img, svg { display: block; max-width: 100%; }
   </div>
 </header>
 
+<!-- Guía proactiva: si el corte abierto está vacío, ofrece abrir de un toque los que SÍ tienen datos -->
+<div id="cortesDatosBanner" class="no-print" style="display:none;margin:0 16px 12px;border:2px solid var(--gold);background:#fffdf7;padding:12px 14px"></div>
+
 <!-- Modal: Histórico de cambios (auditoría granular T2 fase 2) -->
 <div class="audit-overlay no-print" id="auditOverlay" role="dialog" aria-modal="true" aria-labelledby="auditTitle">
   <div class="audit-modal">
@@ -2267,6 +2270,14 @@ img, svg { display: block; max-width: 100%; }
           // Backup coincide con backend → el server ya tiene todo, limpiamos localStorage.
           lbClear(fecha);
         }
+        // Guía proactiva (v430): si este corte está vacío, ofrece abrir de un toque los cortes
+        // recientes que SÍ tienen datos — así la cajera no pelea con el selector de fecha del
+        // teléfono (caso Saret: su captura estaba en otra fecha y "no aparecía").
+        if (corteTieneDatos(state)) {
+          var _bn = document.getElementById('cortesDatosBanner'); if (_bn) _bn.style.display = 'none';
+        } else {
+          ofrecerCortesConDatos(fecha);
+        }
       } else if (_esErrSesion(res)) {
         // Lectura rebotó por sesión vencida (caso "engañoso": la UI se pintó de caché pero
         // los datos validan en vivo y fallan). Avisar claro en vez de dejar "error" mudo.
@@ -2275,6 +2286,50 @@ img, svg { display: block; max-width: 100%; }
         setSaveIndicator('error', res.error);
       }
       initialLoadDone = true;
+    });
+  }
+  // ¿El corte cargado tiene captura REAL (no solo encabezado)? Mismos campos que el backend.
+  function corteTieneDatos(st){
+    st = st || {};
+    var campos = ['ci_corte_d1000_cant','ci_corte_d500_cant','ci_corte_d200_cant','ci_corte_d100_cant','ci_corte_d50_cant','ci_corte_d20_cant','ci_corte_d10_cant','ci_corte_d5_cant','ci_corte_d2_cant','ci_corte_d1_cant','ci_corte_retiros','ci_corte_comision','ci_corte_tar_debito','ci_corte_tar_credito','ci_corte_tar_bzpay','ap_cobro_efectivo','ci_cobro_efectivo','ap_cobro_tarjeta','ci_cobro_tarjeta'];
+    return campos.some(function(k){ var v=st[k]; return v!==undefined && v!==null && v!=='' && v!=='0' && v!==0; });
+  }
+  // Si el corte abierto está vacío, busca cortes recientes CON datos y los ofrece de un toque.
+  function ofrecerCortesConDatos(fechaActual){
+    var banner = document.getElementById('cortesDatosBanner');
+    if (!banner) return;
+    function isoMenos(dias){
+      var d = new Date(); d.setDate(d.getDate()-dias);
+      return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    }
+    apiCallReintento({ action:'conciliaciones_list', token: token, fecha_desde: isoMenos(14), fecha_hasta: isoMenos(0),
+              sucursal_id: (sucursales[0] && sucursales[0].id) || '' }, function(res){
+      if (!res || !res.ok || !res.conciliaciones) { banner.style.display='none'; return; }
+      var conDatos = res.conciliaciones.filter(function(c){ return c.tiene_datos && c.fecha !== fechaActual; });
+      if (!conDatos.length) { banner.style.display='none'; return; }
+      banner.innerHTML = '';
+      var p = document.createElement('div');
+      p.style.cssText = 'font-weight:600;margin-bottom:8px';
+      p.textContent = '📂 Este corte (' + fechaActual + ') está vacío. Tu captura está aquí — toca para abrirla:';
+      banner.appendChild(p);
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+      conDatos.slice(0,3).forEach(function(c){
+        var b = document.createElement('button');
+        b.className = 'btn btn-primary';
+        b.textContent = '📅 Abrir corte del ' + c.fecha;
+        b.addEventListener('click', function(){
+          var fEl = document.getElementById('fecha');
+          fEl.value = c.fecha;
+          try { localStorage.setItem('fogueira_concil_fecha', c.fecha); } catch(e){}
+          banner.style.display='none';
+          load();
+          updateMetaFecha();
+        });
+        row.appendChild(b);
+      });
+      banner.appendChild(row);
+      banner.style.display = '';
     });
   }
   function applyStateToInputs(){

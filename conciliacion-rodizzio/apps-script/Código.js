@@ -5024,17 +5024,26 @@ function handleConciliacionesList(p) {
   // Ordenar por fecha descendente (más reciente arriba)
   conciliaciones.sort(function(a,b){ return String(fechaToString(b.fecha)).localeCompare(String(fechaToString(a.fecha))); });
 
+  // Campos que indican que un corte tiene captura REAL (no solo encabezado). Sirve para que la
+  // cajera vea de un vistazo en qué fecha está su trabajo y lo abra de un toque (caso Saret v430:
+  // el selector de fecha del iPhone es difícil → mejor un botón "abrir el corte con datos").
+  var CAMPOS_CON_DATOS = ['ci_corte_d1000_cant','ci_corte_d500_cant','ci_corte_d200_cant','ci_corte_d100_cant','ci_corte_d50_cant','ci_corte_d20_cant','ci_corte_d10_cant','ci_corte_d5_cant','ci_corte_d2_cant','ci_corte_d1_cant','ci_corte_retiros','ci_corte_comision','ci_corte_tar_debito','ci_corte_tar_credito','ci_corte_tar_bzpay','ap_cobro_efectivo','ci_cobro_efectivo','ap_cobro_tarjeta','ci_cobro_tarjeta'];
   var resultado = conciliaciones.map(function(c){
     var payload = {}; try { payload = JSON.parse(c.payload_json || '{}'); } catch(e){}
     // KPIs reales desde _banderasDeConciliacion (fuente única, alineada con el Resumen del día).
     // Antes usaba calcularKpisConciliacion, que leía campos inexistentes → siempre 0 (bug Histórico).
     var bc = _banderasDeConciliacion(payload);
     var k = bc.kpis || {};
+    var tieneDatos = CAMPOS_CON_DATOS.some(function(kk){
+      var v = payload[kk];
+      return v !== undefined && v !== null && v !== '' && v !== '0' && v !== 0;
+    });
     return {
       id: c.id,
       sucursal_id: c.sucursal_id || '',
       fecha: fechaToString(c.fecha),
       estado: c.estado,
+      tiene_datos: tieneDatos,
       cerrada_at: c.cerrada_at instanceof Date ? c.cerrada_at.toISOString() : (c.cerrada_at || ''),
       kpis: {
         total_comensales: k.total_comensales || 0,
