@@ -1381,6 +1381,13 @@ img, svg { display: block; max-width: 100%; }
           </tbody>
         </table>
       </div>
+      <div id="ci_corte_cuadre_check" class="no-print" style="margin-top:14px;border:2px solid var(--gold);background:#fffdf7;padding:12px 14px">
+        <label style="display:block;font-weight:600;margin-bottom:8px">✅ Verifica que cuadra — escribe aquí el <strong>GRAN TOTAL</strong> de tu corte de papel:</label>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <input type="number" min="0" step=".01" data-k="ci_corte_gt_papel" placeholder="Ej. 36762.23" style="max-width:200px;border-left:3px solid var(--gold)">
+          <span id="ci_corte_cuadre_msg" style="font-weight:600;flex:1;min-width:200px">Escribe el total de tu papel para comparar.</span>
+        </div>
+      </div>
       <p class="help" style="margin-top:8px;line-height:1.7">📍 <strong>Este recuadro es el espejo de tu corte de papel</strong> — mismos renglones, mismo orden. NO se edita aquí: cada número se llena ARRIBA. Compáralo renglón por renglón con tu ticket; el <strong>GRAN TOTAL debe quedar idéntico</strong>.<br>
       • <strong>Efectivo final / Retiros / Comisión</strong> → tu tabla de billetes (cada uno es su propio renglón, igual que en tu papel).<br>
       • <strong>Pagadas prop. / tarjeta</strong> → sección «03 Cobros y propinas del servicio», bloque «Entrega de propina tarjeta al encargado de piso».<br>
@@ -3054,7 +3061,41 @@ img, svg { display: block; max-width: 100%; }
     setText('ci_corte_res_credito',  fmtMoney(tCred));
     setText('ci_corte_res_bzpay',    fmtMoney(tBzp));
     setText('ci_corte_res_transfer', fmtMoney(transferDia));
-    setText('ci_corte_gran_total',   fmtMoney(efeFinal + tarTotal + propTarPagada + transferDia));
+    var granTotal = efeFinal + tarTotal + propTarPagada + transferDia;
+    setText('ci_corte_gran_total',   fmtMoney(granTotal));
+    // === Red de seguridad: comparar el GRAN TOTAL del sistema contra el del corte de PAPEL ===
+    // La cajera escribe el gran total de su ticket; la app confirma si cuadra y, si no, le dice
+    // cuánto falta y cuál renglón en $0 es el sospechoso (pedido de Germán 2026-06-19 para cerrar
+    // de raíz el "no me cuadra"). Es solo ayuda visual: no bloquea ni cambia el cálculo.
+    var msgCuadre = document.getElementById('ci_corte_cuadre_msg');
+    if (msgCuadre) {
+      var papelGT = num(state.ci_corte_gt_papel);
+      if (!state.ci_corte_gt_papel || papelGT === 0) {
+        msgCuadre.textContent = 'Escribe el total de tu papel para comparar.';
+        msgCuadre.style.color = '';
+      } else {
+        var diff = papelGT - granTotal;            // + = el sistema va corto (falta capturar algo)
+        if (Math.abs(diff) <= 0.5) {
+          msgCuadre.textContent = '✅ ¡Cuadra! Coincide con tu corte. Ya puedes Guardar y cerrar.';
+          msgCuadre.style.color = 'var(--verde)';
+        } else {
+          var ceros = [];
+          if (propTarPagada === 0) ceros.push('«Pagadas prop. / tarjeta»');
+          if (transferDia === 0)   ceros.push('«Transferencia»');
+          if (comisionCorte === 0) ceros.push('«Comisión»');
+          var pista;
+          if (diff > 0 && ceros.length) {
+            pista = ' Lo más probable: te falta capturar ' + ceros.join(' o ') + ' (está en $0). Captúralo arriba.';
+          } else if (diff > 0) {
+            pista = ' Falta capturar un ingreso; compara renglón por renglón cuál tienes distinto a tu papel.';
+          } else {
+            pista = ' El sistema tiene MÁS que tu papel; revisa que no hayas tecleado un número de más.';
+          }
+          msgCuadre.textContent = (diff > 0 ? '⚠️ Te faltan ' : '⚠️ Sobran ') + fmtMoney(Math.abs(diff)) + '.' + pista;
+          msgCuadre.style.color = 'var(--rojo)';
+        }
+      }
+    }
     // Cortesías (tabla dinámica)
     ensureCortesiasArray();
     var totCort = 0;
