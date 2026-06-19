@@ -1369,6 +1369,7 @@ img, svg { display: block; max-width: 100%; }
         <table class="data">
           <tbody>
             <tr><td>Efectivo final</td><td class="num-cell" id="ci_corte_res_efe">$0.00</td></tr>
+            <tr><td>Pagadas prop. / tarjeta<button class="info-icon no-print" data-tip="<strong>Efectivo retirado del cajón para pagar a piso las propinas cobradas con tarjeta</strong> (Apertura + Cierre). Ese efectivo salió del cajón el mismo día (el banco liquida la tarjeta con delay), por eso no aparece en el efectivo final — pero sí formó parte del dinero del día, así que se suma al GRAN TOTAL." type="button">i</button></td><td class="num-cell" id="ci_corte_res_prop_tar">$0.00</td></tr>
             <tr><td>T. Débito</td><td class="num-cell" id="ci_corte_res_debito">$0.00</td></tr>
             <tr><td>T. Crédito</td><td class="num-cell" id="ci_corte_res_credito">$0.00</td></tr>
             <tr><td>BZPAY</td><td class="num-cell" id="ci_corte_res_bzpay">$0.00</td></tr>
@@ -2996,11 +2997,17 @@ img, svg { display: block; max-width: 100%; }
     var tarTotal = tDeb + tCred + tBzp; // BZPAY sí suma al total del día
     setVal('ci_corte_tar_total', fmtMoney(tarTotal));
     // Resumen y gran total
-    setText('ci_corte_res_efe',     fmtMoney(efeFinal));
-    setText('ci_corte_res_debito',  fmtMoney(tDeb));
-    setText('ci_corte_res_credito', fmtMoney(tCred));
-    setText('ci_corte_res_bzpay',   fmtMoney(tBzp));
-    setText('ci_corte_gran_total',  fmtMoney(efeFinal + tarTotal));
+    // "Pagadas prop./tarjeta" = efectivo retirado del cajón para entregar a piso las propinas
+    // cobradas con tarjeta (Apertura + Cierre). Ese efectivo SALIÓ del cajón el mismo día pero no
+    // está en el efectivo final ni en retiros/comisión → se suma para reconstruir el total del día.
+    // Sin él, el GRAN TOTAL quedaba corto justo por ese monto (reporte de Mónica, 2026-06-18).
+    var propTarPagada = num(state.ap_retiro_propinas) + num(state.ci_retiro_propinas);
+    setText('ci_corte_res_efe',      fmtMoney(efeFinal));
+    setText('ci_corte_res_prop_tar', fmtMoney(propTarPagada));
+    setText('ci_corte_res_debito',   fmtMoney(tDeb));
+    setText('ci_corte_res_credito',  fmtMoney(tCred));
+    setText('ci_corte_res_bzpay',    fmtMoney(tBzp));
+    setText('ci_corte_gran_total',   fmtMoney(efeFinal + tarTotal + propTarPagada));
     // Cortesías (tabla dinámica)
     ensureCortesiasArray();
     var totCort = 0;
