@@ -992,6 +992,7 @@ img, svg { display: block; max-width: 100%; }
       <label for="fecha" class="fecha-lbl">Fecha</label>
       <input type="date" id="fecha">
       <span class="save-indicator" id="saveIndicator" title="Se guarda automáticamente">✓ Guardado</span>
+      <button class="btn btn-primary" id="btnGuardar" title="Guarda ahora lo que capturaste. También se guarda solo, pero aquí lo confirmas antes de cerrar o actualizar.">💾 Guardar</button>
       <button class="btn hide-cajera" id="btnAutoFill" title="Tomar todas las bitácoras del día y consolidar Mix Host, horas y folios automáticamente">🔄 Auto-llenar del día</button>
       <button class="btn" id="btnAuditoria" style="display:none" title="Histórico de cambios sobre esta conciliación (quién y cuándo modificó qué)">📜 Cambios</button>
       <button class="btn" id="btnPrint">🖨 PDF</button>
@@ -2108,11 +2109,13 @@ img, svg { display: block; max-width: 100%; }
       maxSaveTimerC = setTimeout(function(){ maxSaveTimerC = null; doSave(); }, 2000);
     }
   }
-  function doSave(estadoOverride){
+  // onDone(ok, motivo) es OPCIONAL — lo usa el botón "Guardar" manual para confirmar al usuario.
+  // motivo en el fallo: 'cerrada' | 'sesion' | 'transitorio'. Los guardados automáticos no lo pasan.
+  function doSave(estadoOverride, onDone){
     clearTimeout(saveTimer); saveTimer = null;
     clearTimeout(maxSaveTimerC); maxSaveTimerC = null;
     var fecha = document.getElementById('fecha').value;
-    if (!fecha) { setSaveIndicator('error','Sin fecha'); return; }
+    if (!fecha) { setSaveIndicator('error','Sin fecha'); if (typeof onDone === 'function') onDone(false,'transitorio'); return; }
     var data = {
       id: conciliacionId,
       fecha: fecha,
@@ -2134,6 +2137,7 @@ img, svg { display: block; max-width: 100%; }
         saveRetryCountC = 0;
         // Server confirmó: el backup local ya cumplió su función, lo borramos.
         lbClear(fecha);
+        if (typeof onDone === 'function') onDone(true);
       } else if (/cerrad/i.test(String(res.error||''))) {
         // v407 — El corte ya está finalizado/bloqueado: NO reintentar (evitaría el loop
         // "reintentando" eterno). Reflejar el bloqueo y parar.
@@ -2142,6 +2146,7 @@ img, svg { display: block; max-width: 100%; }
         bloquearCorteUI(); actualizarFinalizarCorteUI();
         var _sl = document.getElementById('saveIndicator');
         if (_sl) { _sl.classList.remove('saving'); _sl.classList.add('error'); _sl.textContent = '🔒 Corte finalizado'; }
+        if (typeof onDone === 'function') onDone(false,'cerrada');
       } else if (_esErrSesion(res)) {
         // ⚠ Sesión vencida: NO reintentar en silencio (eso dejaba "Guardando…" ETERNO y
         // confundía — bug real reportado por ambas cajeras). La captura sigue respaldada en
@@ -2149,6 +2154,7 @@ img, svg { display: block; max-width: 100%; }
         clearTimeout(saveRetryTimerC);
         _limpiaSavingTimer();
         mostrarSesionExpirada();
+        if (typeof onDone === 'function') onDone(false,'sesion');
       } else {
         // Error TRANSITORIO (red/servidor): reintentos con backoff (2s,5s,10s,20s,40s,luego 60s).
         // El localStorage tiene el snapshot reciente como red de seguridad. A diferencia de antes,
@@ -2161,10 +2167,31 @@ img, svg { display: block; max-width: 100%; }
         var espera = esperas[Math.min(saveRetryCountC - 1, esperas.length - 1)] || 60000;
         clearTimeout(saveRetryTimerC);
         saveRetryTimerC = setTimeout(function(){ setSaveIndicator('saving'); doSave(estadoOverride); }, espera);
+        if (typeof onDone === 'function') onDone(false,'transitorio');
       }
     });
   }
   function save(){ scheduleSave(); }   // alias para no tocar todas las llamadas existentes
+
+  // Guardado MANUAL (botón "💾 Guardar"): las cajeras esperan un botón explícito y no confiaban
+  // en el autoguardado invisible → refrescaban y sentían que "se borró". Esto fuerza el guardado
+  // YA y confirma de forma inequívoca. (El autoguardado sigue activo en paralelo.)
+  function guardarManual(){
+    var btn = document.getElementById('btnGuardar');
+    if (btn) { btn.disabled = true; btn.textContent = '💾 Guardando…'; }
+    doSave(undefined, function(ok, motivo){
+      if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar'; }
+      if (ok) {
+        alert('✓ Guardado.\n\nTu captura ya quedó guardada. Puedes actualizar o cerrar la página sin perder nada.');
+      } else if (motivo === 'sesion') {
+        // mostrarSesionExpirada() ya pintó el aviso de volver a iniciar sesión.
+      } else if (motivo === 'cerrada') {
+        alert('Este corte ya está finalizado y bloqueado: no se puede modificar.');
+      } else {
+        alert('⚠ No se pudo guardar en este momento (parece un problema de conexión).\n\nTranquila: tu captura quedó respaldada en este dispositivo. El sistema lo seguirá intentando solo; espera unos segundos y el indicador mostrará "✓ Guardado". NO cierres la página todavía.');
+      }
+    });
+  }
 
   // Save de EMERGENCIA al cerrar/ocultar la pestaña (sendBeacon = se garantiza envío)
   window.addEventListener('pagehide', function(){
@@ -3523,6 +3550,8 @@ img, svg { display: block; max-width: 100%; }
     });
     // (Botones legacy "Cargar bitácora JSON" eliminados — el sistema usa "Auto-llenar del día"
     //  que carga las bitácoras directamente desde el backend, sin archivos manuales.)
+    var btnG = document.getElementById('btnGuardar');
+    if (btnG) btnG.addEventListener('click', guardarManual);
     document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
     document.getElementById('btnLogout').addEventListener('click', function(){
       if (!confirm('¿Cerrar sesión?')) return;
