@@ -3458,9 +3458,13 @@ function _registrarAcceso(u){
 }
 
 function handleLogin(p) {
-  var email = String(p.email || '').toLowerCase().trim(), password = p.password || '';
+  // Normaliza el correo: minúsculas, sin espacios y SIN punto(s) final(es). El teclado de iPhone
+  // suele insertar un punto al final ("cruz.josue16@yahoo.com.") o un espacio, lo que rompía el
+  // login con "Credenciales incorrectas" (caso chef Josué, 2026-06-19). Un correo nunca termina
+  // legítimamente en punto ni contiene espacios → quitarlos es seguro.
+  var email = String(p.email || '').toLowerCase().replace(/\s+/g, '').replace(/\.+$/, ''), password = p.password || '';
   if (!email || !password) return { ok:false, error:'Email y contraseña requeridos' };
-  var u = rowsToObjects(getSheet('Usuarios')).find(function(x){ return String(x.email).toLowerCase() === email && esActivo(x.activo); });
+  var u = rowsToObjects(getSheet('Usuarios')).find(function(x){ return String(x.email).toLowerCase().replace(/\s+/g, '').replace(/\.+$/, '') === email && esActivo(x.activo); });
   if (!u || u.password_hash !== hashPassword(password)) return { ok:false, error:'Credenciales incorrectas' };
   var empresa = rowsToObjects(getSheet('Empresas')).find(function(e){ return e.id === u.empresa_id; });
   var sucursales = rowsToObjects(getSheet('Sucursales')).filter(function(s){ return s.empresa_id === u.empresa_id && esActivo(s.activa); });

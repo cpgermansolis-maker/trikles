@@ -1348,7 +1348,7 @@ img, svg { display: block; max-width: 100%; }
             <tr><td>$2</td><td><input type="number" min="0" data-k="ci_corte_d2_cant" data-denom="2"></td><td class="num-cell" id="ci_corte_d2_imp">$0.00</td></tr>
             <tr><td>$1</td><td><input type="number" min="0" data-k="ci_corte_d1_cant" data-denom="1"></td><td class="num-cell" id="ci_corte_d1_imp">$0.00</td></tr>
             <tr><td><strong>Comisión</strong> <span style="font-size:11px;color:var(--ember)">✍ captúrala (no la olvides)</span></td><td class="num-cell">—</td><td><input type="number" min="0" step=".01" data-k="ci_corte_comision" style="border-left:3px solid var(--ember);background:#fff7f2"></td></tr>
-            <tr style="background:var(--bg);font-weight:600"><td>TOTAL EFECTIVO FINAL</td><td>—</td><td class="num-cell" id="ci_corte_efe_total">$0.00</td></tr>
+            <tr style="background:var(--bg);font-weight:600"><td>TOTAL EN CAJÓN <span style="font-size:11px;opacity:.6;font-weight:400">(billetes + retiros + comisión)</span></td><td>—</td><td class="num-cell" id="ci_corte_efe_total">$0.00</td></tr>
           </tbody>
         </table>
       </div>
@@ -1369,7 +1369,9 @@ img, svg { display: block; max-width: 100%; }
       <div class="table-wrap">
         <table class="data">
           <tbody>
-            <tr><td>Efectivo final</td><td class="num-cell" id="ci_corte_res_efe">$0.00</td></tr>
+            <tr><td>Efectivo final <span style="font-size:11px;opacity:.6">(billetes contados)</span></td><td class="num-cell" id="ci_corte_res_efe">$0.00</td></tr>
+            <tr><td>Retiros</td><td class="num-cell" id="ci_corte_res_retiros">$0.00</td></tr>
+            <tr><td>Comisión</td><td class="num-cell" id="ci_corte_res_comision">$0.00</td></tr>
             <tr><td>Pagadas prop. / tarjeta<button class="info-icon no-print" data-tip="<strong>Efectivo retirado del cajón para pagar a piso las propinas cobradas con tarjeta</strong> (Apertura + Cierre). Ese efectivo salió del cajón el mismo día (el banco liquida la tarjeta con delay), por eso no aparece en el efectivo final — pero sí formó parte del dinero del día, así que se suma al GRAN TOTAL. <strong>Dónde se captura:</strong> arriba, en 'Cobros y propinas del servicio', en el campo 'Pagadas prop. / tarjeta' (debajo del título 'Entrega de propina tarjeta al encargado de piso'). No se edita aquí." type="button">i</button></td><td class="num-cell" id="ci_corte_res_prop_tar">$0.00</td></tr>
             <tr><td>T. Débito</td><td class="num-cell" id="ci_corte_res_debito">$0.00</td></tr>
             <tr><td>T. Crédito</td><td class="num-cell" id="ci_corte_res_credito">$0.00</td></tr>
@@ -1379,12 +1381,12 @@ img, svg { display: block; max-width: 100%; }
           </tbody>
         </table>
       </div>
-      <p class="help" style="margin-top:8px;line-height:1.7">📍 <strong>¿De dónde sale cada total?</strong> Este recuadro NO se edita: todo se llena ARRIBA.<br>
-      • <strong>Efectivo final</strong> → tu tabla de billetes (Retiros + billetes + Comisión).<br>
+      <p class="help" style="margin-top:8px;line-height:1.7">📍 <strong>Este recuadro es el espejo de tu corte de papel</strong> — mismos renglones, mismo orden. NO se edita aquí: cada número se llena ARRIBA. Compáralo renglón por renglón con tu ticket; el <strong>GRAN TOTAL debe quedar idéntico</strong>.<br>
+      • <strong>Efectivo final / Retiros / Comisión</strong> → tu tabla de billetes (cada uno es su propio renglón, igual que en tu papel).<br>
       • <strong>Pagadas prop. / tarjeta</strong> → sección «03 Cobros y propinas del servicio», bloque «Entrega de propina tarjeta al encargado de piso».<br>
       • <strong>T. Débito / Crédito / BZPAY</strong> → «Tarjetas bancarias», en este mismo Corte de Caja.<br>
       • <strong>Transferencia</strong> → sección «03 Cobros y propinas del servicio», campo «Transferencia».<br>
-      Si el GRAN TOTAL no cuadra con tu corte de papel, revisa cuál de estos renglones está en $0.00 y captúralo arriba.</p>
+      Si un renglón no coincide con tu papel (lo típico: <strong>«Pagadas prop. / tarjeta» en $0.00</strong>), captúralo arriba y el GRAN TOTAL se ajusta solo.</p>
 
       <div class="divider"></div>
 
@@ -3040,7 +3042,13 @@ img, svg { display: block; max-width: 100%; }
     // confirmó que sí hay clientes que pagan por transferencia) → se suma al gran total. Se captura
     // en §03 Cobros del servicio (ap_cobro_transfer + ci_cobro_transfer).
     var transferDia = num(state.ap_cobro_transfer) + num(state.ci_cobro_transfer);
-    setText('ci_corte_res_efe',      fmtMoney(efeFinal));
+    // Resumen "espejo del corte de papel": billetes / retiros / comisión van SEPARADOS (igual que
+    // en el ticket de la cajera) para que pueda comparar renglón por renglón. Los tres suman al
+    // efeFinal, así que el GRAN TOTAL no cambia (reporte de Mónica 2026-06-19: "no cuadra" = no
+    // podían comparar contra su papel porque la app escondía Retiros y Comisión en "Efectivo final").
+    setText('ci_corte_res_efe',      fmtMoney(sumDenoms));       // = "EFECTIVO FINAL" del papel (solo billetes)
+    setText('ci_corte_res_retiros',  fmtMoney(retiros));
+    setText('ci_corte_res_comision', fmtMoney(comisionCorte));
     setText('ci_corte_res_prop_tar', fmtMoney(propTarPagada));
     setText('ci_corte_res_debito',   fmtMoney(tDeb));
     setText('ci_corte_res_credito',  fmtMoney(tCred));
