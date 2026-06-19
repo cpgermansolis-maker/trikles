@@ -1392,6 +1392,17 @@ img, svg { display: block; max-width: 100%; }
           <input type="number" min="0" step=".01" data-k="ci_corte_gt_papel" placeholder="Ej. 36762.23" style="max-width:200px;border-left:3px solid var(--gold)">
           <span id="ci_corte_cuadre_msg" style="font-weight:600;flex:1;min-width:200px">Escribe el total de tu papel para comparar.</span>
         </div>
+        <div style="margin-top:12px;border-top:1px dashed var(--gold);padding-top:10px">
+          <div style="font-weight:600;font-size:12px;margin-bottom:8px;opacity:.85">Los 2 datos que más se olvidan — captúralos aquí mismo si te faltan:</div>
+          <div style="display:flex;gap:18px;flex-wrap:wrap">
+            <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600">💵 Pagadas prop. / tarjeta (efectivo del cajón)
+              <input type="number" min="0" step=".01" id="quickPropTar" placeholder="0.00" style="max-width:160px;border-left:3px solid var(--ember);background:#fff7f2">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600">🏦 Transferencia (SPEI) del día
+              <input type="number" min="0" step=".01" id="quickTransfer" placeholder="0.00" style="max-width:160px;border-left:3px solid var(--ember);background:#fff7f2">
+            </label>
+          </div>
+        </div>
       </div>
       <p class="help" style="margin-top:8px;line-height:1.7">📍 <strong>Este recuadro es el espejo de tu corte de papel</strong> — mismos renglones, mismo orden. NO se edita aquí: cada número se llena ARRIBA. Compáralo renglón por renglón con tu ticket; el <strong>GRAN TOTAL debe quedar idéntico</strong>.<br>
       • <strong>Efectivo final / Retiros / Comisión</strong> → tu tabla de billetes (cada uno es su propio renglón, igual que en tu papel).<br>
@@ -2288,6 +2299,25 @@ img, svg { display: block; max-width: 100%; }
       initialLoadDone = true;
     });
   }
+  // Campos rápidos dentro de la casilla de verificación: capturan los 2 datos que más se olvidan
+  // (propina tarjeta y transferencia) DONDE la cajera está mirando, sin que tenga que ir a buscarlos
+  // a §03 en el teléfono (caso Xochitl: "no me deja capturar la propina" = no la encontraba). Escriben
+  // al MISMO dato que §03 (ci_retiro_propinas / ci_cobro_transfer) y se mantienen sincronizados.
+  function bindQuickCorte(){
+    function wire(quickId, stateKey){
+      var qi = document.getElementById(quickId);
+      if (!qi) return;
+      qi.addEventListener('input', function(){
+        state[stateKey] = qi.value;
+        var src = document.querySelector('[data-k="'+stateKey+'"]');
+        if (src) src.value = qi.value;   // mantiene el campo de §03 en sync
+        recalcAll();
+        save();
+      });
+    }
+    wire('quickPropTar', 'ci_retiro_propinas');
+    wire('quickTransfer', 'ci_cobro_transfer');
+  }
   // ¿El corte cargado tiene captura REAL (no solo encabezado)? Mismos campos que el backend.
   function corteTieneDatos(st){
     st = st || {};
@@ -3124,6 +3154,11 @@ img, svg { display: block; max-width: 100%; }
     // La cajera escribe el gran total de su ticket; la app confirma si cuadra y, si no, le dice
     // cuánto falta y cuál renglón en $0 es el sospechoso (pedido de Germán 2026-06-19 para cerrar
     // de raíz el "no me cuadra"). Es solo ayuda visual: no bloquea ni cambia el cálculo.
+    // Sincroniza los campos rápidos con el estado (sin pisarlos mientras la cajera teclea en ellos).
+    var _qp = document.getElementById('quickPropTar');
+    if (_qp && document.activeElement !== _qp) _qp.value = (state.ci_retiro_propinas == null ? '' : state.ci_retiro_propinas);
+    var _qt = document.getElementById('quickTransfer');
+    if (_qt && document.activeElement !== _qt) _qt.value = (state.ci_cobro_transfer == null ? '' : state.ci_cobro_transfer);
     var msgCuadre = document.getElementById('ci_corte_cuadre_msg');
     if (msgCuadre) {
       var papelGT = num(state.ci_corte_gt_papel);
@@ -4328,6 +4363,7 @@ img, svg { display: block; max-width: 100%; }
       fechaEl.value = /^\d{4}-\d{2}-\d{2}$/.test(recordada) ? recordada : hoy;
     }
     bindInputs();
+    bindQuickCorte();
     bindTabs();
     bindHeader();
     bindTooltips();
