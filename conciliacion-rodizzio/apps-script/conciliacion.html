@@ -1432,36 +1432,28 @@ img, svg { display: block; max-width: 100%; }
 
       <h4 style="margin:0 0 10px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">
         Conciliación del cajón
-        <button class="info-icon no-print" data-tip="<strong>Fórmula contable del cajón:</strong><br><br>+ Fondo asignado<br>+ Cobros efectivo (Apertura + Cierre)<br>− Retiro propinas tarjeta (Apertura + Cierre) — sale del cajón para entregar al encargado de piso<br>− Depósito 1 (venta del día)<br>− Depósito 2 (comisiones bancarias)<br>= <strong>Efectivo teórico que debería estar en el cajón</strong><br><br>El aporte del 7% al fondo de servicio entra y sale del cajón el mismo día (lo aportan los meseros, se reparte al personal al cierre), por eso netea a cero y no aparece." type="button">i</button>
+        <button class="info-icon no-print" data-tip="<strong>Cómo cuadra el efectivo (igual que tu corte de papel):</strong><br><br><strong>Efectivo contado</strong> = Efectivo final + Retiros + Comisión (lo que cuentas y depositas).<br><br><strong>Efectivo que debiste tener</strong> = Cobros en efectivo (el EFECTIVO total del POS) − Propina tarjeta pagada.<br><br>Los dos deben ser iguales (Δ ≈ 0). El <strong>fondo</strong> se queda en el cajón (fijo): entra y sale, por eso no aparece aquí." type="button">i</button>
       </h4>
       <div class="grid g3">
-        <div><label>Efectivo en cajón (lo que quedó)</label><input type="text" id="ci_arq_contado_lbl" readonly style="background:var(--bg)"></div>
+        <div><label>Efectivo contado (final + retiros + comisión)</label><input type="text" id="ci_arq_contado_lbl" readonly style="background:var(--bg)"></div>
         <div><label>Efectivo teórico (calculado)</label><input type="text" id="ci_arq_teorico" readonly style="background:var(--bg);font-weight:600"></div>
         <div><label>Δ Arqueo (auto)</label><input type="text" id="ci_arq_delta" readonly style="background:var(--bg)"></div>
       </div>
 
       <div id="ci_arq_desglose" class="arq-desglose">
-        <div class="arq-row"><span class="arq-lbl">+ Fondo asignado</span><span class="arq-val" id="arq_d_fondo">$0.00</span></div>
-        <div class="arq-row"><span class="arq-lbl">+ Cobros efectivo Apertura</span><span class="arq-val" id="arq_d_efe_ap">$0.00</span></div>
-        <div class="arq-row"><span class="arq-lbl">+ Cobros efectivo Cierre</span><span class="arq-val" id="arq_d_efe_ci">$0.00</span></div>
-        <div class="arq-row"><span class="arq-lbl">− Retiro propinas tarjeta Apertura</span><span class="arq-val" id="arq_d_ret_ap">$0.00</span></div>
-        <div class="arq-row"><span class="arq-lbl">− Retiro propinas tarjeta Cierre</span><span class="arq-val" id="arq_d_ret_ci">$0.00</span></div>
-        <div class="arq-row"><span class="arq-lbl">− Depósito 1 (venta)</span><span class="arq-val" id="arq_d_dep1">$0.00</span></div>
-        <div class="arq-row"><span class="arq-lbl">− Depósito 2 (comisiones bancarias)</span><span class="arq-val" id="arq_d_dep2">$0.00</span></div>
-        <div class="arq-row arq-tot"><span class="arq-lbl">= Efectivo teórico</span><span class="arq-val" id="arq_d_teorico">$0.00</span></div>
+        <div class="arq-row"><span class="arq-lbl">+ Cobros en efectivo (Apertura)</span><span class="arq-val" id="arq_d_efe_ap">$0.00</span></div>
+        <div class="arq-row"><span class="arq-lbl">+ Cobros en efectivo (Cierre)</span><span class="arq-val" id="arq_d_efe_ci">$0.00</span></div>
+        <div class="arq-row"><span class="arq-lbl">− Propina tarjeta pagada (Apertura)</span><span class="arq-val" id="arq_d_ret_ap">$0.00</span></div>
+        <div class="arq-row"><span class="arq-lbl">− Propina tarjeta pagada (Cierre)</span><span class="arq-val" id="arq_d_ret_ci">$0.00</span></div>
+        <div class="arq-row arq-tot"><span class="arq-lbl">= Efectivo que debiste tener</span><span class="arq-val" id="arq_d_teorico">$0.00</span></div>
       </div>
 
-      <!-- Captura para el arqueo (cajera): los 2 datos que el cajón necesita y que suelen faltar -->
+      <!-- Captura para el arqueo (cajera): el dato que el cajón necesita y que suele faltar -->
       <div class="no-print" style="margin-top:12px;border:2px solid var(--gold);background:#fffdf7;padding:12px 14px">
-        <div style="font-weight:600;font-size:12px;margin-bottom:8px;opacity:.85">Para que el cajón cuadre, captura estos dos (si te faltan):</div>
-        <div style="display:flex;gap:18px;flex-wrap:wrap">
-          <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600">💵 Cobros en efectivo del día (del POS)
-            <input type="number" min="0" step=".01" id="quickEfeCobro" placeholder="0.00" style="max-width:170px;border-left:3px solid var(--ember);background:#fff7f2">
-          </label>
-          <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600">🏦 Depósito de la venta (comprobante)
-            <input type="number" min="0" step=".01" id="quickDep1" placeholder="0.00" style="max-width:170px;border-left:3px solid var(--ember);background:#fff7f2">
-          </label>
-        </div>
+        <div style="font-weight:600;font-size:12px;margin-bottom:8px;opacity:.85">Para que el cajón cuadre, captura el cobro en efectivo del día:</div>
+        <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;max-width:340px">💵 Cobros en efectivo — el <strong>EFECTIVO total del POS</strong> (no los billetes finales)
+          <input type="number" min="0" step=".01" id="quickEfeCobro" placeholder="0.00" style="max-width:170px;border-left:3px solid var(--ember);background:#fff7f2">
+        </label>
       </div>
 
       <div id="arq_aviso_neg" class="no-print" style="display:none;margin-top:12px;border:2px solid var(--ember);background:#fff3f0;padding:12px 14px">
@@ -2330,7 +2322,6 @@ img, svg { display: block; max-width: 100%; }
     wire('quickPropTar', 'ci_retiro_propinas');
     wire('quickTransfer', 'ci_cobro_transfer');
     wire('quickEfeCobro', 'ci_cobro_efectivo');
-    wire('quickDep1', 'ci_dep1_monto');
   }
   // ¿El corte cargado tiene captura REAL (no solo encabezado)? Mismos campos que el backend.
   function corteTieneDatos(st){
@@ -3181,52 +3172,46 @@ img, svg { display: block; max-width: 100%; }
     var dep2 = num(state.ci_dep2_monto);
     setVal('ci_dep_total', fmtMoney(dep1 + dep2));
 
-    // === Conciliación del cajón: efectivo teórico (modelo confirmado por Germán 2026-06-19) ===
-    // Fondo FIJO: al cierre, el efectivo que QUEDA en el cajón debe ser ≈ el fondo (lo demás se deposita).
-    // Por eso el "contado" del arqueo son los BILLETES que quedan (sumDenoms), NO los retiros (salieron a
-    // depositarse) ni la comisión (se deposita: comisión = Depósito 2). ⚠ Debe ir 1:1 con _banderasDeConciliacion.
-    //   teórico = Fondo + Cobros efectivo − Propina pagada − Depósito venta − Comisión(=Depósito 2)
-    var fondo = num(state.ci_corte_fondo);
+    // === Conciliación del cajón (modelo del CORTE DE PAPEL, confirmado por Germán 2026-06-19) ===
+    // El EFECTIVO cobrado del día (del POS) debe igualar lo que la cajera cuenta/deposita: efectivo
+    // final + retiros + comisión + propina pagada. El FONDO se queda (fijo) → entra y sale, neutro,
+    // NO aparece. Por eso: Contado = efectivo final + retiros + comisión (= efeFinal); Teórico =
+    // Cobros en efectivo − Propina tarjeta pagada. ⚠ Debe ir 1:1 con _banderasDeConciliacion (Código.js).
+    var fondo = num(state.ci_corte_fondo);   // se conserva por compatibilidad; no entra al arqueo (fondo fijo)
     var efeAp = num(state.ap_cobro_efectivo);
     var efeCi = num(state.ci_cobro_efectivo);
     var retAp = num(state.ap_retiro_propinas);   // propina tarjeta pagada (apertura)
     var retCi = num(state.ci_retiro_propinas);   // propina tarjeta pagada (cierre)
-    var depComision = (dep2 > 0 ? dep2 : comisionCorte);   // comisión = Depósito 2 (mismo dinero)
-    var teorico = fondo + efeAp + efeCi - retAp - retCi - dep1 - depComision;
+    var teorico = (efeAp + efeCi) - (retAp + retCi);
     state.ci_arq_teorico = teorico;
     setVal('ci_arq_teorico', fmtMoney(teorico));
-    setVal('ci_arq_contado_lbl', fmtMoney(sumDenoms));    // billetes que QUEDAN en el cajón (≈ fondo)
-    setText('arq_d_fondo', fmtMoney(fondo));
+    setVal('ci_arq_contado_lbl', fmtMoney(efeFinal));    // efectivo final + retiros + comisión
     setText('arq_d_efe_ap', fmtMoney(efeAp));
     setText('arq_d_efe_ci', fmtMoney(efeCi));
     setText('arq_d_ret_ap', '−' + fmtMoney(retAp));
     setText('arq_d_ret_ci', '−' + fmtMoney(retCi));
-    setText('arq_d_dep1', '−' + fmtMoney(dep1));
-    setText('arq_d_dep2', '−' + fmtMoney(depComision));
     setText('arq_d_teorico', fmtMoney(teorico));
-    var arqDelta = sumDenoms - teorico;
-    // Mantener en sync los campos rápidos del arqueo (cobros efectivo + depósito de la venta).
+    var arqDelta = efeFinal - teorico;
+    // Mantener en sync el campo rápido de cobros en efectivo.
     var _qe = document.getElementById('quickEfeCobro');
     if (_qe && document.activeElement !== _qe) _qe.value = (state.ci_cobro_efectivo == null ? '' : state.ci_cobro_efectivo);
-    var _qd1 = document.getElementById('quickDep1');
-    if (_qd1 && document.activeElement !== _qd1) _qd1.value = (state.ci_dep1_monto == null ? '' : state.ci_dep1_monto);
-    // Aviso SIMPLE cuando el cajón NO cuadra por un monto grande → casi siempre falta capturar un dato
-    // (cobros en efectivo o el depósito). Un Δ chico es faltante/sobrante real (lo marca el semáforo).
+    // Aviso SIMPLE cuando el cajón NO cuadra por un monto grande → casi siempre el COBRO EN EFECTIVO
+    // mal capturado. Un Δ chico es faltante/sobrante real (lo marca el semáforo).
     var avisoNeg = document.getElementById('arq_aviso_neg');
     if (avisoNeg) {
-      if ((teorico < 0) || (Math.abs(arqDelta) > 500)) {
+      if (Math.abs(arqDelta) > 500) {
         var msgN = document.getElementById('arq_aviso_neg_msg');
-        if (msgN) msgN.textContent = '⚠ El cajón no cuadra por ' + fmtMoney(Math.abs(arqDelta)) + '. Casi siempre falta capturar algo. Revisa abajo: los COBROS EN EFECTIVO del día (del POS) y tu DEPÓSITO de la venta (del comprobante).';
+        if (msgN) msgN.textContent = '⚠ El cajón no cuadra por ' + fmtMoney(Math.abs(arqDelta)) + '. Casi siempre es el COBRO EN EFECTIVO: revisa que sea el EFECTIVO TOTAL del POS (no los billetes finales). Captúralo abajo.';
         avisoNeg.style.display = '';
       } else {
         avisoNeg.style.display = 'none';
       }
     }
 
-    // Δ Arqueo = efectivo en cajón (billetes) − teórico
+    // Δ Arqueo = efectivo contado (final+retiros+comisión) − teórico (cobros − propina)
     var arqDeltaEl = document.getElementById('ci_arq_delta');
     if (arqDeltaEl) {
-      if (sumDenoms === 0 && teorico === 0) {
+      if (efeFinal === 0 && teorico === 0) {
         arqDeltaEl.value = '—';
         arqDeltaEl.style.color = '';
       } else {
@@ -3284,7 +3269,7 @@ img, svg { display: block; max-width: 100%; }
     setVal('ci_app_total', fmtMoney(apps));
     return { arqDelta: arqDelta, termDelta: termDelta, fDelta: fDelta, extra: extra, apps: apps,
              sumLote: sumLote, sumOps: sumOps, problemasPorTerminal: problemasPorTerminal,
-             arqTeorico: teorico, arqContado: sumDenoms, totCort: totCort };
+             arqTeorico: teorico, arqContado: efeFinal, totCort: totCort };
   }
 
   function recalcAll(){

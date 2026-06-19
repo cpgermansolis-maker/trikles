@@ -5249,15 +5249,13 @@ function _banderasDeConciliacion(payload) {
   var DENOMS = [1000,500,200,100,50,20,10,5,2,1]; var sumDenoms = 0;
   DENOMS.forEach(function(d){ sumDenoms += _bcNum(P['ci_corte_d'+d+'_cant']) * d; });
   var comisionCorte = _bcNum(P.ci_corte_comision);
-  var efeFinal = _bcNum(P.ci_corte_retiros) + sumDenoms + comisionCorte;  // total de efectivo manejado (para gran total)
-  var dep1 = _bcNum(P.ci_dep1_monto), dep2 = _bcNum(P.ci_dep2_monto);
-  // Modelo arqueo (Germán 2026-06-19): fondo FIJO → el efectivo que QUEDA en el cajón (contado) son los
-  // billetes (sumDenoms, ≈ fondo). El retiro salió a depositarse (no cuenta como efectivo del cajón) y
-  // la comisión = Depósito 2 (mismo dinero, se cuenta una vez). Debe ir 1:1 con recalcCierre (conciliacion.html).
-  var depComision = (dep2 > 0 ? dep2 : comisionCorte);
-  var teorico = _bcNum(P.ci_corte_fondo) + _bcNum(P.ap_cobro_efectivo) + _bcNum(P.ci_cobro_efectivo)
-              - _bcNum(P.ap_retiro_propinas) - _bcNum(P.ci_retiro_propinas) - dep1 - depComision;
-  var arqDelta = sumDenoms - teorico;
+  var efeFinal = _bcNum(P.ci_corte_retiros) + sumDenoms + comisionCorte;  // efectivo contado = final + retiros + comisión
+  // Modelo del CORTE DE PAPEL (Germán 2026-06-19): el EFECTIVO cobrado (POS) = efectivo final + retiros
+  // + comisión + propina pagada. El fondo se queda (fijo) → neutro, no aparece. Contado = efeFinal;
+  // teórico = Cobros efectivo − Propina tarjeta pagada. ⚠ Debe ir 1:1 con recalcCierre (conciliacion.html).
+  var teorico = _bcNum(P.ap_cobro_efectivo) + _bcNum(P.ci_cobro_efectivo)
+              - _bcNum(P.ap_retiro_propinas) - _bcNum(P.ci_retiro_propinas);
+  var arqDelta = efeFinal - teorico;
 
   // Terminales (con migración del schema viejo de campo único)
   var terms = Array.isArray(P.ci_terminales) ? P.ci_terminales : [];
