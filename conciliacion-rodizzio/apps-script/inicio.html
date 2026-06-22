@@ -1,0 +1,833 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inicio · Fogueira</title>
+<base target="_top">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzOCc+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSdmZycgeDE9JzAnIHkxPScwJyB4Mj0nMCcgeTI9JzEnPjxzdG9wIG9mZnNldD0nMCUnIHN0b3AtY29sb3I9JyNlOGM0NmEnLz48c3RvcCBvZmZzZXQ9JzUwJScgc3RvcC1jb2xvcj0nI2M4OWE0YScvPjxzdG9wIG9mZnNldD0nMTAwJScgc3RvcC1jb2xvcj0nIzlhNzMzMCcvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGQ9J00xNiAxLjUgQyAxNyA2LDIyIDksMjMgMTQgQyAyNCAxOCwyMiAyMSwyMCAyMiBDIDIyIDI0LDI0IDI3LDI0IDMxIEMgMjQgMzUsMjEgMzcsMTYgMzcgQyAxMSAzNyw4IDM1LDggMzEgQyA4IDI4LDEwIDI2LDExIDI0IEMgOSAyMiw3IDE5LDggMTUgQyA5IDExLDEzIDExLDE0IDcgQyAxNSA1LDE2IDMsMTYgMS41WicgZmlsbD0ndXJsKCNmZyknLz48cGF0aCBkPSdNMTYgMTYgQyAxNyAxOSwxOSAyMSwxOSAyNSBDIDE5IDI4LDE3IDMwLDE2IDMwIEMgMTUgMzAsMTMgMjgsMTMgMjUgQyAxMyAyMiwxNSAxOSwxNiAxNlonIGZpbGw9JyMwYzA5MDcnIG9wYWNpdHk9Jy41NScvPjwvc3ZnPg==">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500;1,600&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  /* ── Tokens handoff oficial Fogueira (v150) ─────────────────────── */
+  :root{
+    --ink:#0c0907; --ink-soft:#1a1310; --ink-mid:#2a201b;
+    --ember:#c4322a; --ember-hot:#e04826; --ember-deep:#8a1f17;
+    --cream:#f6f1e8; --cream-warm:#efe5d2; --cream-line:#e4d9c2;
+    --bone:#fffdf8; --slate:#2b3a4e; --slate-soft:#5d6c80;
+    --smoke:#8a8278; --gold:#c89a4a; --gold-soft:#e8c46a;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box }
+  html,body{ margin:0; padding:0 }
+  body{
+    background:var(--cream); color:var(--ink);
+    font-family:'DM Sans',system-ui,-apple-system,sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    min-height:100vh;
+  }
+  a{ color:inherit; text-decoration:none }
+  button{ font-family:inherit; cursor:pointer; border:none; background:none }
+
+  /* ── Topbar oscuro con logo ámbar ──────────────────────────────── */
+  header.app{
+    background:var(--ink); color:var(--cream);
+    border-bottom:1px solid rgba(200,154,74,.22);
+    position:sticky; top:0; z-index:30;
+  }
+  .head-row{
+    max-width:1280px; margin:0 auto; padding:18px 32px;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:20px; flex-wrap:wrap;
+  }
+  .brand-cluster{ display:flex; align-items:center; gap:18px; flex-wrap:wrap }
+  .brand-logo{ display:flex; align-items:center; gap:11px }
+  .brand-logo svg{ display:block; flex-shrink:0 }
+  .brand-logo .wordmark{
+    font-family:'DM Sans',sans-serif; font-weight:800; font-size:22px;
+    letter-spacing:.02em; color:var(--gold); line-height:1;
+  }
+  .brand-sep{ width:1px; height:32px; background:rgba(246,241,232,.15); flex-shrink:0 }
+  .brand-meta{ display:flex; flex-direction:column; gap:4px; line-height:1 }
+  .brand-eyebrow{
+    font-family:'DM Mono',monospace;
+    font-size:10px; letter-spacing:.22em;
+    color:rgba(246,241,232,.45); text-transform:uppercase;
+  }
+  .brand-name{
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500;
+    font-size:22px; color:var(--cream); letter-spacing:-.01em; line-height:1;
+  }
+  .brand-empresa{
+    font-family:'DM Sans',sans-serif; font-weight:600; font-size:10px;
+    color:var(--gold);
+    padding:5px 12px; background:rgba(200,154,74,.12);
+    border:1px solid rgba(200,154,74,.4);
+    letter-spacing:.18em; text-transform:uppercase;
+  }
+  .user-bar{ display:flex; align-items:center; gap:16px; flex-wrap:wrap }
+  .user-info{ display:flex; flex-direction:column; text-align:right; line-height:1.2; gap:3px }
+  .user-info .name{ font-weight:600; font-size:13px; color:var(--cream) }
+  .user-info .role{
+    font-family:'DM Mono',monospace; font-size:9.5px; letter-spacing:.18em;
+    color:rgba(246,241,232,.5); text-transform:uppercase;
+  }
+  .btn-logout{
+    display:inline-flex; align-items:center; gap:7px;
+    padding:10px 18px;
+    font-family:'DM Sans',sans-serif; font-size:11px; font-weight:600;
+    letter-spacing:.2em; text-transform:uppercase;
+    color:rgba(246,241,232,.7);
+    background:transparent;
+    border:1px solid rgba(246,241,232,.15);
+    transition:all .15s ease;
+  }
+  .btn-logout:hover{
+    color:var(--ember-hot);
+    border-color:var(--ember);
+    background:rgba(196,50,42,.08);
+  }
+
+  /* ── Main ──────────────────────────────────────────────────────── */
+  main{ max-width:1280px; margin:0 auto; padding:56px 32px 64px }
+
+  .welcome{ margin-bottom:48px; max-width:780px }
+  .welcome .eyebrow{
+    font-family:'DM Mono',monospace;
+    font-size:11px; letter-spacing:.24em;
+    color:var(--ember); text-transform:uppercase; font-weight:500;
+    margin-bottom:14px;
+    display:inline-flex; align-items:center; gap:10px;
+  }
+  .welcome .eyebrow::before{
+    content:""; width:24px; height:1px; background:var(--ember); opacity:.6;
+  }
+  .welcome h2{
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500;
+    font-size:60px; letter-spacing:-.015em; line-height:1.02;
+    color:var(--ink); margin:0 0 14px;
+  }
+  .welcome h2 .accent{ color:var(--gold); font-style:italic }
+  .welcome p{
+    color:var(--slate-soft); font-size:14.5px; line-height:1.6;
+    margin:0; max-width:520px;
+  }
+
+  /* ── Cert banner ───────────────────────────────────────────────── */
+  #certBanner{
+    display:none;
+    margin-bottom:40px;
+    padding:20px 24px;
+    background:rgba(196,50,42,.06);
+    border-left:3px solid var(--ember);
+    align-items:center; justify-content:space-between; gap:18px; flex-wrap:wrap;
+  }
+  #certBanner.bad{ background:rgba(138,31,23,.08); border-left-color:var(--ember-deep) }
+  #certBanner .cb-body{ flex:1; min-width:240px }
+  .cb-title{
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500;
+    font-size:22px; color:var(--ember); line-height:1.1; margin-bottom:6px;
+  }
+  #certBanner.bad .cb-title{ color:var(--ember-deep) }
+  .cb-msg{ font-size:13.5px; color:var(--slate); line-height:1.55 }
+  .cb-bar{
+    margin-top:12px; height:4px; background:rgba(12,9,7,.08);
+    overflow:hidden;
+  }
+  .cb-bar > i{ display:block; height:100%; background:var(--gold); transition:width .4s }
+  .cb-actions{ display:flex; gap:10px; flex-wrap:wrap; flex-shrink:0 }
+  .cb-cta{
+    display:inline-flex; align-items:center; gap:7px;
+    background:var(--ink); color:var(--gold);
+    padding:11px 22px;
+    font-family:'DM Sans',sans-serif; font-size:11px; font-weight:600;
+    letter-spacing:.22em; text-transform:uppercase;
+    border:1px solid var(--ink); text-decoration:none;
+    transition:background .15s;
+  }
+  .cb-cta:hover{ background:#000 }
+  .cb-alt{
+    display:inline-flex; align-items:center; gap:7px;
+    background:transparent; color:var(--ink);
+    padding:11px 18px;
+    font-family:'DM Sans',sans-serif; font-size:11px; font-weight:600;
+    letter-spacing:.18em; text-transform:uppercase;
+    border:1px solid var(--cream-line); text-decoration:none;
+    transition:all .15s;
+  }
+  .cb-alt:hover{ border-color:var(--ink); color:var(--ink) }
+
+  /* ── Module grid ───────────────────────────────────────────────── */
+  .modules-label{
+    font-family:'DM Mono',monospace;
+    font-size:10.5px; letter-spacing:.24em;
+    color:var(--smoke); text-transform:uppercase; font-weight:500;
+    margin-bottom:16px;
+  }
+  .modules-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:14px;
+  }
+  .module-card{
+    position:relative;
+    background:var(--bone);
+    border:1px solid var(--cream-line);
+    padding:28px 26px 24px;
+    cursor:pointer; text-decoration:none; color:inherit; display:block;
+    transition:border-color .15s, box-shadow .15s, transform .15s;
+  }
+  .module-card::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:2px;
+    background:transparent; transition:background .15s;
+  }
+  .module-card:hover{
+    border-color:var(--ink);
+    box-shadow:0 12px 30px -18px rgba(12,9,7,.30);
+    transform:translateY(-2px);
+  }
+  .module-card:hover::before{ background:var(--gold) }
+  .module-card.disabled{ opacity:.5; cursor:not-allowed }
+  .module-card.disabled:hover{ transform:none; border-color:var(--cream-line); box-shadow:none }
+  .module-card.disabled:hover::before{ background:transparent }
+
+  .module-card .icon{
+    font-size:28px; margin-bottom:14px; line-height:1;
+    filter:saturate(.85);
+  }
+  .module-card h3{
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500;
+    font-size:24px; letter-spacing:-.005em; line-height:1.15;
+    color:var(--ink); margin:0 0 8px;
+  }
+  .module-card p{
+    font-size:13px; color:var(--slate-soft); margin:0; line-height:1.5;
+  }
+  .module-card .pill-soon{
+    display:inline-block;
+    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.18em;
+    background:rgba(200,154,74,.12); color:var(--ink-soft);
+    border:1px solid rgba(200,154,74,.4);
+    padding:3px 9px; text-transform:uppercase; font-weight:500;
+    margin-top:14px;
+  }
+  .module-card .notif-badge{
+    position:absolute; top:12px; right:12px;
+    background:var(--ember); color:#fff;
+    font-family:'DM Mono',monospace; font-size:10px; font-weight:700;
+    padding:2px 8px; line-height:1.5;
+  }
+
+  /* ── Cajitas de grupo + submenú overlay ───────────────────────── */
+  .grupo-chip{
+    display:inline-block; font-family:'DM Mono',monospace;
+    font-size:9px; letter-spacing:.16em; text-transform:uppercase; font-weight:500;
+    color:var(--gold); border:1px solid rgba(200,154,74,.4); background:rgba(200,154,74,.10);
+    padding:3px 9px; margin-top:14px;
+  }
+  .grupo-ov{
+    position:fixed; inset:0; background:rgba(12,9,7,.55);
+    display:none; align-items:flex-start; justify-content:center;
+    z-index:80; padding:44px 16px; overflow:auto;
+  }
+  .grupo-ov.show{ display:flex }
+  .grupo-modal{
+    background:var(--cream); max-width:780px; width:100%;
+    border:1px solid var(--cream-line); box-shadow:0 24px 60px -20px rgba(12,9,7,.5);
+  }
+  .grupo-head{
+    display:flex; align-items:center; gap:14px;
+    padding:20px 26px; border-bottom:1px solid var(--cream-line); background:var(--bone);
+  }
+  .grupo-head .grupo-ico{ font-size:26px; line-height:1 }
+  .grupo-head h2{
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500;
+    margin:0; font-size:30px; color:var(--ink); flex:1;
+  }
+  .grupo-x{ font-size:28px; color:var(--smoke); line-height:1; padding:0 6px; background:none; border:none; cursor:pointer }
+  .grupo-x:hover{ color:var(--ember) }
+  .grupo-grid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+    gap:12px; padding:22px 26px;
+  }
+
+  .empty-msg{
+    grid-column:1/-1; text-align:center; color:var(--slate-soft);
+    padding:48px 24px; font-size:14px; line-height:1.6;
+    background:var(--bone); border:1px dashed var(--cream-line);
+  }
+
+  /* ── Session meta ──────────────────────────────────────────────── */
+  .session-meta{
+    margin-top:56px; padding:20px 0 0;
+    border-top:1px solid var(--cream-line);
+    font-family:'DM Mono',monospace;
+    font-size:11px; letter-spacing:.05em;
+    color:var(--smoke); line-height:1.8;
+  }
+  .session-meta strong{
+    color:var(--ink); font-weight:500;
+    font-family:'DM Sans',sans-serif; letter-spacing:.01em;
+    margin-right:4px;
+  }
+  .session-meta .sep{ color:var(--cream-line); margin:0 10px }
+
+  /* ── Mobile (reglas al final para no ser sobrescritas) ─────────── */
+  @media (max-width:640px){
+    .head-row{ padding:14px 18px; gap:12px }
+    .brand-cluster{ gap:10px; flex:1; min-width:0 }
+    .brand-sep{ display:none }
+    .brand-logo .wordmark{ font-size:18px }
+    .brand-meta{ gap:2px }
+    .brand-eyebrow{ font-size:8.5px; letter-spacing:.16em }
+    .brand-name{ font-size:16px }
+    .brand-empresa{ display:none }
+    .user-bar{ gap:10px }
+    .user-info{ display:none }
+    .btn-logout{ padding:8px 14px; font-size:10px; letter-spacing:.16em }
+    main{ padding:36px 18px 48px }
+    .welcome{ margin-bottom:36px }
+    .welcome h2{ font-size:38px }
+    .modules-grid{ gap:12px }
+    .module-card{ padding:22px 20px 20px }
+    .module-card h3{ font-size:21px }
+    #certBanner{ padding:16px 18px }
+    .cb-title{ font-size:18px }
+    .session-meta .sep{ display:block; height:0; margin:6px 0; color:transparent }
+  }
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="head-row">
+    <div class="brand-cluster">
+      <div class="brand-logo" aria-label="Fogueira">
+        <svg width="28" height="32" viewBox="0 0 32 38" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="flameGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e8c46a"/>
+              <stop offset="50%" stop-color="#c89a4a"/>
+              <stop offset="100%" stop-color="#9a7330"/>
+            </linearGradient>
+          </defs>
+          <path d="M16 1.5 C 17 6, 22 9, 23 14 C 24 18, 22 21, 20 22 C 22 24, 24 27, 24 31 C 24 35, 21 37, 16 37 C 11 37, 8 35, 8 31 C 8 28, 10 26, 11 24 C 9 22, 7 19, 8 15 C 9 11, 13 11, 14 7 C 15 5, 16 3, 16 1.5 Z" fill="url(#flameGrad)"/>
+          <path d="M16 16 C 17 19, 19 21, 19 25 C 19 28, 17 30, 16 30 C 15 30, 13 28, 13 25 C 13 22, 15 19, 16 16 Z" fill="#0c0907" opacity="0.55"/>
+        </svg>
+        <span class="wordmark" id="empWordmark">FOGUEIRA</span>
+      </div>
+      <div class="brand-sep"></div>
+      <div class="brand-meta">
+        <span class="brand-eyebrow">Conciliación · Restaurante</span>
+        <span class="brand-name">Inicio</span>
+      </div>
+      <span class="brand-empresa" id="empresaNombre">—</span>
+    </div>
+    <div class="user-bar">
+      <div class="user-info">
+        <div class="name" id="userName">—</div>
+        <div class="role" id="userRole">—</div>
+      </div>
+      <button class="btn-logout" id="btnLogoutAll" title="Invalida cualquier link o pase que hayas compartido — cierra tu sesión en TODOS los dispositivos">🔒 Salir de todos lados</button>
+      <button class="btn-logout" id="btnLogout">Cerrar sesión</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="certBanner" role="status" aria-live="polite"></div>
+
+  <div class="welcome">
+    <div class="eyebrow">Tu sesión está activa</div>
+    <h2 id="welcomeTitle">Bienvenido<span class="accent">.</span></h2>
+    <p>Selecciona el módulo en el que vas a trabajar.</p>
+  </div>
+
+  <div class="modules-label">Módulos disponibles</div>
+  <div class="modules-grid" id="modulesGrid"><div id="modulesLoading" style="grid-column:1/-1;padding:28px 0;color:#888;font-size:14px">Cargando módulos…</div></div>
+
+  <div class="session-meta" id="sessionMeta"></div>
+</main>
+
+<script>
+(function(){
+  'use strict';
+
+  var API_URL = 'https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec';
+
+  // ════════════════════════════════════════════════════════════════════
+  // BRANDING DINÁMICO multi-empresa (v152 · patrón v151).
+  // Solo llamamos al endpoint si la URL trae `?empresa=<id>`. Sin parámetro,
+  // mantenemos los defaults Fogueira (negro+ember+cream+gold del handoff).
+  // ════════════════════════════════════════════════════════════════════
+  (function aplicarBrandingDinamico(){
+    var empresaIdParam = new URLSearchParams(location.search).get('empresa');
+    if (!empresaIdParam) return;
+    var cb = '_brand_' + Date.now();
+    window[cb] = function(d){
+      try { delete window[cb]; } catch(e){}
+      if (!d || !d.ok || !d.branding) return;
+      var b = d.branding;
+      var root = document.documentElement.style;
+      if (b.color_primario)   root.setProperty('--gold',   b.color_primario);
+      if (b.color_secundario) root.setProperty('--ink',    b.color_secundario);
+      if (b.color_acento)     root.setProperty('--ember',  b.color_acento);
+      if (b.color_fondo)      root.setProperty('--cream',  b.color_fondo);
+      if (b.nombre_comercial) {
+        var w = document.getElementById('empWordmark');
+        if (w) w.textContent = String(b.nombre_comercial).toUpperCase();
+      }
+    };
+    var s = document.createElement('script');
+    s.src = API_URL + '?action=empresa_branding_get&callback=' + cb
+          + '&empresa_id=' + encodeURIComponent(empresaIdParam);
+    s.async = true;
+    document.head.appendChild(s);
+  })();
+
+  // ════════════════════════════════════════════════════════════════════
+  // Token: primero ?t= de URL, después sessionStorage. iOS Safari NO comparte
+  // sessionStorage entre páginas de Apps Script (subdominios googleusercontent
+  // distintos), así que propagamos el token en URL al navegar.
+  // ════════════════════════════════════════════════════════════════════
+  function getQuery(name){
+    var m = (location.search.match(new RegExp('[?&]' + name + '=([^&]*)')) || [])[1];
+    return m ? decodeURIComponent(m) : '';
+  }
+  var token = getQuery('t');
+  var user, empresa, sucursales;
+  if (token) {
+    try { sessionStorage.setItem('fogueira_token', token); } catch(e){}
+  } else {
+    try { token = sessionStorage.getItem('fogueira_token'); } catch(e){}
+  }
+  if (!token) {
+    (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+    return;
+  }
+
+  function urlInterna(pagina, queryExtra){
+    var url = API_URL + '?p=' + pagina + '&t=' + encodeURIComponent(token);
+    if (queryExtra) url += '&' + queryExtra;
+    return url;
+  }
+
+  // ════════════════════════════════════════════════════════════════════
+  // Módulos · cada uno con `roles` que tienen acceso.
+  // ════════════════════════════════════════════════════════════════════
+  var MODULOS = [
+    { id:'bitacora',     icon:'📋', titulo:'Bitácora del host',         desc:'Registro de comensales por servicio',                        roles:['host','admin','auditoria'],                                                              pagina:'bitacora' },
+    { id:'conciliacion', icon:'📊', titulo:'Conciliación de caja',      desc:'Cierre del día con corte y banderas rojas',                  roles:['admin','auditoria','cajera'],                                                            pagina:'conciliacion' },
+    { id:'cocina',       icon:'🍲', titulo:'Charolas Cocina',           desc:'Registro en vivo de charolas, reposiciones y mermas',        roles:['cocina','admin','auditoria'],                                                            pagina:'charolas', query:'area=cocina' },
+    { id:'churrasca',    icon:'🥩', titulo:'Charolas Churrasca',        desc:'Registro en vivo de carnes en espada / rodizio',             roles:['churrasca','admin','auditoria'],                                                         pagina:'charolas', query:'area=churrasca' },
+    { id:'reservas',     icon:'📅', titulo:'Reservaciones',             desc:'Agenda del día, llegadas, no-shows y WhatsApp',              roles:['host','admin','auditoria'],                                                              pagina:'reservaciones' },
+    { id:'admin',        icon:'⚙️', titulo:'Configuración',             desc:'Usuarios y permisos · sucursales y tarifas',                 roles:['admin'],                                                                                 pagina:'admin' },
+    { id:'historico',    icon:'📊', titulo:'Histórico de Conciliaciones',desc:'Cierres anteriores con KPIs · filtros · exportar CSV',      roles:['admin','auditoria','cajera'],                                                            pagina:'historico' },
+    { id:'curso',        icon:'🎓', titulo:'Mi curso',                  desc:'Capacitación por módulos con quizzes y certificación final', roles:['admin','auditoria','cajera','host','cocina','churrasca','encargado_piso','comprador'],     pagina:'curso' },
+    { id:'instructivo',  icon:'📖', titulo:'Mi manual',                 desc:'Guía operativa adaptada a tu rol — para consulta rápida',    roles:['admin','auditoria','cajera','host','cocina','churrasca','encargado_piso','observador','comprador'], pagina:'instructivo' },
+    { id:'recetas',      icon:'📒', titulo:'Recetas y costeo',          desc:'Catálogo de ingredientes y recetas · costo en vivo y precio sugerido', roles:['admin','auditoria','cocina','churrasca','barman','panadero','comprador'],                       pagina:'recetas' },
+    { id:'inv-churrasca',icon:'❄️', titulo:'Inventario Churrasca',      desc:'Inventario semanal · Lun-Dom · entradas/salidas día por día', roles:['admin','auditoria','cocina','churrasca','encargado_piso','gerente_restaurante','almacen'],         pagina:'inventario-churrasca' },
+    { id:'mermas',       icon:'🗑️', titulo:'Control de Mermas',         desc:'Registra insumos perdidos o desperdiciados · valorizado en $ y descontado del inventario', roles:['admin','auditoria','gerente_administrativo','cocina','churrasca','barman','panadero'], pagina:'mermas' },
+    { id:'agenda',       icon:'🗓️', titulo:'Agenda de responsables',    desc:'Quién es responsable cada día por área · plantilla semanal + descansos y coberturas', roles:['admin','auditoria','gerente_administrativo','gerente_restaurante'], pagina:'agenda' },
+    { id:'auditoria',    icon:'🔔', titulo:'Auditoría matutina',        desc:'Pendientes del día por persona · cajeras, cocina, churrasca · mensaje listo para WhatsApp', roles:['admin','auditoria','gerente_administrativo','gerente_restaurante','gerente_plaza'], pagina:'auditoria' },
+    { id:'importar-sr12',icon:'📥', titulo:'Importadores',              desc:'Importa del SoftRestaurant · Existencias (costos e inventario) y Compras (historial de precios por proveedor)', roles:['admin','comprador','gerente_administrativo','auditoria'], pagina:'importadores' },
+    { id:'flujo',        icon:'🔁', titulo:'Flujo de conciliación',     desc:'Mapa visual del flujo completo — de la reserva al banco · para dirección', roles:['admin','auditoria','gerente_administrativo'], pagina:'flujo' },
+    { id:'reporte-precios',   icon:'📈', titulo:'Análisis de precios',        desc:'Variación de costos vs importaciones anteriores · alertas · impacto en recetas', roles:['admin','auditoria','gerente_administrativo'], pagina:'reporte-precios' },
+    { id:'justificaciones',  icon:'📝', titulo:'Justificaciones de precios',  desc:'Responde las variaciones de precio solicitadas por Auditoría', roles:['comprador'], pagina:'reporte-precios' },
+    { id:'direccion',        icon:'🏛️', titulo:'Tablero Directivo',          desc:'Vigilancia de cancelaciones · solicitadas vs autorizadas · control de plaza', roles:['gerente_plaza','admin','auditoria'], pagina:'direccion' },
+    { id:'curva-precios',    icon:'📈', titulo:'Curva de precios',           desc:'Tendencia del precio de compra por proveedor · preguntas y respuestas', roles:['gerente_plaza','comprador'], pagina:'curva-precios' },
+    { id:'mensajes',         icon:'📬', titulo:'Mensajes',                    desc:'Preguntas de dirección dirigidas a ti — léelas y responde aquí', roles:['cocina','churrasca','comprador','cajera','gerente_administrativo','admin'], pagina:'mensajes' }
+  ];
+
+  // Grupos del menú: una cajita que abre un submenú con sus módulos hijos.
+  // Regla "inteligente": si el usuario ve ≥2 hijos → cajita-grupo; si ve solo 1 → ese hijo directo.
+  // (Para sumar áreas de charola futuras, agrega su id de módulo a charolas.hijos.)
+  var GRUPOS = {
+    host:         { icon:'🛎️', titulo:'Host · Sala',   desc:'Bitácora del servicio y reservaciones del día',   hijos:['bitacora','reservas'] },
+    charolas:     { icon:'👨‍🍳', titulo:'Charolas',      desc:'Registro en vivo de charolas por área de cocina', hijos:['cocina','churrasca'] },
+    capacitacion: { icon:'🎓', titulo:'Capacitación',   desc:'Tu curso y tu manual para dominar el sistema',    hijos:['curso','instructivo'] }
+  };
+  var GRUPO_DE = {};
+  Object.keys(GRUPOS).forEach(function(gid){ GRUPOS[gid].hijos.forEach(function(id){ GRUPO_DE[id] = gid; }); });
+
+  function rolPuedeVer(modulo, rol){
+    if (modulo.roles.indexOf(rol) !== -1) return true;
+    if (rol === 'gerente_administrativo' && modulo.roles.indexOf('admin') !== -1) return true;
+    if (rol === 'gerente_restaurante' && modulo.roles.indexOf('host') !== -1) return true;
+    if (rol === 'observador' && modulo.roles.indexOf('host') !== -1) return true;
+    return false;
+  }
+
+  function cardModuloHtml(m){
+    var soonBadge = m.soon ? '<span class="pill-soon">Próximamente</span>' : '';
+    var disabledClass = m.soon ? ' disabled' : '';
+    var hrefAttr = m.soon ? 'javascript:void(0)' : urlInterna(m.pagina, m.query);
+    return '<a class="module-card' + disabledClass + '" data-modulo="' + m.id + '" target="_top" href="' + hrefAttr + '">' +
+      '<div class="icon">' + m.icon + '</div>' +
+      '<h3>' + m.titulo + '</h3>' +
+      '<p>' + m.desc + '</p>' +
+      soonBadge +
+      '</a>';
+  }
+  function cardGrupoHtml(gid, g, n){
+    return '<a class="module-card" data-grupo="' + gid + '" target="_top" href="javascript:void(0)">' +
+      '<div class="icon">' + g.icon + '</div>' +
+      '<h3>' + g.titulo + '</h3>' +
+      '<p>' + g.desc + '</p>' +
+      '<span class="grupo-chip">' + n + ' adentro →</span>' +
+      '</a>';
+  }
+
+  function renderModulos(){
+    var grid = document.getElementById('modulesGrid');
+    var rol = (user.rol || '').toLowerCase();
+    var visibles = MODULOS.filter(function(m){ return rolPuedeVer(m, rol); });
+    if (visibles.length === 0) {
+      grid.innerHTML = '<div class="empty-msg">' +
+        'Tu usuario no tiene módulos asignados. Pide a la administradora que revise tu rol.' +
+        '</div>';
+      return;
+    }
+    var moduloPorId = {}; MODULOS.forEach(function(m){ moduloPorId[m.id] = m; });
+    var visibleIds = {}; visibles.forEach(function(m){ visibleIds[m.id] = true; });
+    var gruposHechos = {};
+    var html = '';
+    visibles.forEach(function(m){
+      var gid = GRUPO_DE[m.id];
+      if (gid){
+        if (gruposHechos[gid]) return;          // el grupo ya se emitió en su primer hijo
+        gruposHechos[gid] = true;
+        var hijosVis = GRUPOS[gid].hijos.filter(function(id){ return visibleIds[id]; });
+        if (hijosVis.length >= 2) html += cardGrupoHtml(gid, GRUPOS[gid], hijosVis.length);
+        else if (hijosVis.length === 1) html += cardModuloHtml(moduloPorId[hijosVis[0]]);
+        // 0 hijos visibles → no se emite nada
+      } else {
+        html += cardModuloHtml(m);
+      }
+    });
+    grid.innerHTML = html;
+    var gcards = grid.querySelectorAll('[data-grupo]');
+    for (var i=0; i<gcards.length; i++){
+      gcards[i].addEventListener('click', function(e){ e.preventDefault(); abrirGrupo(this.getAttribute('data-grupo')); });
+    }
+  }
+
+  // Submenú de un grupo (overlay, sin cambiar de pantalla).
+  function abrirGrupo(gid){
+    var g = GRUPOS[gid]; if (!g) return;
+    var rol = (user.rol || '').toLowerCase();
+    var visibleIds = {}; MODULOS.filter(function(m){ return rolPuedeVer(m, rol); }).forEach(function(m){ visibleIds[m.id] = true; });
+    var moduloPorId = {}; MODULOS.forEach(function(m){ moduloPorId[m.id] = m; });
+    var cards = g.hijos.filter(function(id){ return visibleIds[id]; }).map(function(id){ return cardModuloHtml(moduloPorId[id]); }).join('');
+    var ov = document.getElementById('grupoOverlay');
+    if (!ov){
+      ov = document.createElement('div'); ov.id = 'grupoOverlay'; ov.className = 'grupo-ov';
+      document.body.appendChild(ov);
+      ov.addEventListener('click', function(e){ if (e.target === ov) cerrarGrupo(); });
+    }
+    ov.innerHTML = '<div class="grupo-modal"><div class="grupo-head">' +
+      '<span class="grupo-ico">' + g.icon + '</span><h2>' + escapeHtml(g.titulo) + '</h2>' +
+      '<button class="grupo-x" id="grupoClose" aria-label="Cerrar">×</button></div>' +
+      '<div class="grupo-grid">' + cards + '</div></div>';
+    ov.classList.add('show');
+    document.getElementById('grupoClose').addEventListener('click', cerrarGrupo);
+  }
+  function cerrarGrupo(){ var ov = document.getElementById('grupoOverlay'); if (ov) ov.classList.remove('show'); }
+
+  function renderSessionMeta(){
+    var sucNames = (sucursales || []).map(function(s){ return s.nombre; }).join(', ') || '(sin sucursales)';
+    document.getElementById('sessionMeta').innerHTML =
+      '<strong>Empresa:</strong> ' + (empresa && empresa.nombre || '—') +
+      '<span class="sep">·</span><strong>Sucursal(es):</strong> ' + sucNames +
+      '<span class="sep">·</span><strong>Rol:</strong> ' + (user.rol || '—') +
+      '<span class="sep">·</span><strong>Email:</strong> ' + user.email;
+  }
+
+  document.getElementById('btnLogout').addEventListener('click', function(){
+    if (!confirm('¿Cerrar sesión?')) return;
+    try {
+      sessionStorage.removeItem('fogueira_token');
+      sessionStorage.removeItem('fogueira_user');
+      sessionStorage.removeItem('fogueira_empresa');
+      sessionStorage.removeItem('fogueira_sucursales');
+    } catch(e){}
+    (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+  });
+
+  // Cerrar sesión en TODOS los dispositivos: invalida cualquier link/pase ya compartido.
+  document.getElementById('btnLogoutAll').addEventListener('click', function(){
+    if (!confirm('Esto cerrará tu sesión en TODOS los dispositivos y dejará MUERTO cualquier link o pase que hayas compartido. Tendrás que volver a iniciar sesión.\n\n¿Continuar?')) return;
+    var btn = this; btn.disabled = true; btn.textContent = '…';
+    apiCall({ action:'cerrar_sesiones', token: token }, function(res){
+      // Pase lo que pase con la respuesta, cerramos la sesión local y mandamos a login.
+      try { sessionStorage.clear(); } catch(e){}
+      (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+    });
+  });
+
+  function apiCall(params, cb){
+    var cbName = '_jcb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+    var script = document.createElement('script');
+    var cleanup = function(){ try{ delete window[cbName];}catch(e){window[cbName]=undefined;} if(script.parentNode) script.parentNode.removeChild(script); };
+    var t = setTimeout(function(){ cleanup(); cb({ok:false,error:'timeout'}); }, 15000);
+    window[cbName] = function(d){ clearTimeout(t); cleanup(); cb(d); };
+    var qs = Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
+    script.onerror = function(){ clearTimeout(t); cleanup(); cb({ok:false,error:'network'}); };
+    script.src = API_URL + '?' + qs + '&callback=' + cbName;
+    document.body.appendChild(script);
+  }
+
+  function pintarUI(){
+    var empNombre = empresa && empresa.nombre ? empresa.nombre : 'Sin empresa';
+    document.getElementById('empresaNombre').textContent = empNombre;
+    document.getElementById('userName').textContent = user.nombre || user.email;
+    document.getElementById('userRole').textContent = user.rol || 'Sin rol';
+    var primerNombre = user.nombre ? user.nombre.split(' ')[0] : user.email;
+    document.getElementById('welcomeTitle').innerHTML =
+      'Hola, ' + escapeHtml(primerNombre) + '<span class="accent">.</span>';
+    renderModulos();
+    renderSessionMeta();
+    cargarBannerCertificacion();
+    cargarBadgeAprobaciones();
+    cargarBadgeCancelaciones();
+    cargarBadgePreciosComprador();
+    cargarBadgeMensajes();
+    cargarBadgeRespuestas();
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function cargarBadgeAprobaciones() {
+    var rol = (user && user.rol || '').toLowerCase();
+    if (rol !== 'gerente_administrativo' && rol !== 'admin') return;
+    apiCall({ action: 'sr12_aprobaciones_count', token: token }, function(res) {
+      if (!res || !res.ok || !res.pendientes) return;
+      var card = document.querySelector('.module-card[data-modulo="importar-sr12"]');
+      if (!card) return;
+      var badge = document.createElement('span');
+      badge.className = 'notif-badge';
+      badge.textContent = res.pendientes === 1 ? '1 aprobación pendiente' : res.pendientes + ' aprobaciones pendientes';
+      card.appendChild(badge);
+    });
+  }
+
+  // Badge para Luis (admin/gerente_admin): preguntas de cancelaciones por responder → tarjeta Tablero Directivo.
+  function cargarBadgeCancelaciones() {
+    var rol = (user && user.rol || '').toLowerCase();
+    if (rol !== 'admin' && rol !== 'gerente_administrativo') return;
+    apiCall({ action: 'cancelacion_cuest_count', token: token }, function(res) {
+      if (!res || !res.ok || !res.pendientes) return;
+      var card = document.querySelector('.module-card[data-modulo="direccion"]');
+      if (!card) return;
+      var badge = document.createElement('span');
+      badge.className = 'notif-badge';
+      badge.textContent = res.pendientes === 1 ? '1 pregunta por responder' : res.pendientes + ' preguntas por responder';
+      card.appendChild(badge);
+    });
+  }
+
+  // Badge para QUIEN PREGUNTA (Mónica/Germán): respuestas nuevas a sus preguntas → tarjeta Tablero Directivo.
+  function cargarBadgeRespuestas() {
+    var rol = (user && user.rol || '').toLowerCase();
+    if (rol !== 'gerente_plaza' && rol !== 'auditoria') return;
+    apiCall({ action: 'tablero_respuestas_count', token: token }, function(res) {
+      if (!res || !res.ok || !res.pendientes) return;
+      var card = document.querySelector('.module-card[data-modulo="direccion"]');
+      if (!card) return;
+      var badge = document.createElement('span');
+      badge.className = 'notif-badge';
+      badge.textContent = res.pendientes === 1 ? '1 respuesta nueva' : res.pendientes + ' respuestas nuevas';
+      card.appendChild(badge);
+    });
+  }
+
+  // Badge de mensajes dirigidos: preguntas de dirección por responder → tarjeta Mensajes.
+  function cargarBadgeMensajes() {
+    apiCall({ action: 'tablero_msg_count', token: token }, function(res) {
+      if (!res || !res.ok || !res.pendientes) return;
+      var card = document.querySelector('.module-card[data-modulo="mensajes"]');
+      if (!card) return;
+      var badge = document.createElement('span');
+      badge.className = 'notif-badge';
+      badge.textContent = res.pendientes === 1 ? '1 mensaje nuevo' : res.pendientes + ' mensajes nuevos';
+      card.appendChild(badge);
+    });
+  }
+
+  // Badge para el comprador: preguntas de precios por responder → tarjeta Curva de precios.
+  function cargarBadgePreciosComprador() {
+    var rol = (user && user.rol || '').toLowerCase();
+    if (rol !== 'comprador') return;
+    apiCall({ action: 'precio_cuest_count', token: token }, function(res) {
+      if (!res || !res.ok || !res.pendientes) return;
+      var card = document.querySelector('.module-card[data-modulo="curva-precios"]');
+      if (!card) return;
+      var badge = document.createElement('span');
+      badge.className = 'notif-badge';
+      badge.textContent = res.pendientes === 1 ? '1 pregunta por responder' : res.pendientes + ' preguntas por responder';
+      card.appendChild(badge);
+    });
+  }
+
+  // ════════════════════════════════════════════════════════════════════
+  // Banner certificación · prioridad:
+  //   bloqueado_por_intentos > curso pendiente > reintento > venció > examen disponible
+  // ════════════════════════════════════════════════════════════════════
+  function cargarBannerCertificacion(){
+    apiCall({ action:'examen_estado', token: token }, function(rEx){
+      if (!rEx || !rEx.ok || !rEx.estado) return;
+      var est = rEx.estado;
+      if (est.exento) return;
+      if (est.aprobado_vigente) return;
+      apiCall({ action:'curso_get', token: token }, function(rCu){
+        var curso = (rCu && rCu.ok) ? rCu : null;
+        renderBanner(est, curso);
+      });
+    });
+  }
+
+  function btnPrim(href, label){
+    return '<a href="'+href+'" target="_top" class="cb-cta">'+label+'</a>';
+  }
+  function btnAlt(href, label){
+    return '<a href="'+href+'" target="_top" class="cb-alt">'+label+'</a>';
+  }
+
+  function renderBanner(est, curso){
+    var b = document.getElementById('certBanner'); if (!b) return;
+    var cursoUrl  = urlInterna('curso');
+    var examenUrl = urlInterna('examen');
+    var manualUrl = urlInterna('instructivo');
+    var titulo, msg, esBad = false, accionPrim = '', accionSec = '';
+    var hayCurso = curso && curso.modulos && curso.modulos.length > 0;
+    var cursoPct = hayCurso ? (curso.progreso_pct || 0) : 100;
+
+    if (est.bloqueado_por_intentos) {
+      esBad = true;
+      titulo = '⛔ Sin intentos disponibles';
+      msg    = 'Agotaste los 3 intentos del examen. Pide al administrador una capacitación y reseteo.';
+      accionSec = btnAlt(manualUrl, '📖 Mi manual');
+    } else if (hayCurso && cursoPct < 100) {
+      titulo = '🎓 Continúa tu curso';
+      msg    = 'Llevas '+(curso.completados||0)+' de '+(curso.total||0)+' módulos ('+cursoPct+'%). Antes del examen final, completa todos los módulos.';
+      accionPrim = btnPrim(cursoUrl, '🎓 Ir al curso');
+      accionSec  = btnAlt(manualUrl, '📖 Manual');
+    } else if (est.intentos_usados > 0) {
+      titulo = '⚠ Reintento pendiente';
+      msg    = 'No has aprobado el examen aún. Llevas '+est.intentos_usados+' de 3 intentos. Repasa el material antes de continuar.';
+      accionPrim = btnPrim(examenUrl, '📝 Tomar examen');
+      accionSec  = btnAlt(cursoUrl,  '🎓 Repasar curso');
+    } else if (est.ultimo_intento_fecha) {
+      titulo = '⏰ Tu certificación venció';
+      msg    = 'Tu certificación se renueva cada 6 meses. Toma el examen cuando puedas.';
+      accionPrim = btnPrim(examenUrl, '📝 Renovar examen');
+      accionSec  = btnAlt(cursoUrl,  '🎓 Repasar curso');
+    } else {
+      titulo = '📝 Examen final disponible';
+      msg    = 'Has completado el curso. Toma tu examen de certificación (15 preguntas, mínimo 14/15).';
+      accionPrim = btnPrim(examenUrl, '📝 Tomar examen');
+      accionSec  = btnAlt(manualUrl, '📖 Manual');
+    }
+
+    var barraHtml = (hayCurso && cursoPct < 100 && !est.bloqueado_por_intentos)
+      ? '<div class="cb-bar"><i style="width:'+cursoPct+'%"></i></div>'
+      : '';
+
+    b.className = esBad ? 'bad' : '';
+    b.innerHTML =
+      '<div class="cb-body">' +
+        '<div class="cb-title">'+titulo+'</div>' +
+        '<div class="cb-msg">'+msg+'</div>' +
+        barraHtml +
+      '</div>' +
+      '<div class="cb-actions">'+accionPrim+accionSec+'</div>';
+    b.style.display = 'flex';
+  }
+
+  // ════════════════════════════════════════════════════════════════════
+  // Bootstrap: sessionStorage primero (PC/Android), fallback a `me` (iOS).
+  // ════════════════════════════════════════════════════════════════════
+  try {
+    user       = JSON.parse(sessionStorage.getItem('fogueira_user')       || 'null');
+    empresa    = JSON.parse(sessionStorage.getItem('fogueira_empresa')    || 'null');
+    sucursales = JSON.parse(sessionStorage.getItem('fogueira_sucursales') || '[]');
+  } catch(e){}
+
+  function sesionExpirada(motivo) {
+    var grid = document.getElementById('modulesGrid');
+    if (grid) grid.innerHTML =
+      '<div style="grid-column:1/-1;padding:20px;background:#fff8f0;border-left:4px solid #c4322a;max-width:460px">' +
+      '<strong style="color:#c4322a">Sesión terminada</strong><br>' +
+      '<span style="font-size:13px;color:#555">' + (motivo || 'Tu sesión expiró.') + '</span><br><br>' +
+      '<a href="' + API_URL + '?p=acceso" target="_top" style="display:inline-block;padding:8px 20px;background:#c4322a;color:#fff;text-decoration:none;font-size:13px">Volver al login →</a>' +
+      '</div>';
+  }
+
+  // Ruta rápida: si la URL trae urol+unom (acceso.html o cualquier página que
+  // lleve a inicio), renderizar módulos inmediatamente sin esperar al servidor.
+  var _urol = getQuery('urol');
+  var _unom = getQuery('unom');
+  if (_urol && !user) {
+    user = { rol: _urol, nombre: _unom || '', email: '', id: '', empresa_id: '' };
+  }
+
+  // Escape hatch a 5s si aún no hay datos y la llamada tarda
+  var _tardanzaTimer = setTimeout(function(){
+    var el = document.getElementById('modulesLoading');
+    if (el) el.innerHTML =
+      'Tomando más tiempo de lo usual…<br>' +
+      '<a href="' + API_URL + '?p=acceso" target="_top" style="color:#c4322a;font-size:13px;margin-top:6px;display:inline-block">¿No carga? Volver al login →</a>';
+  }, 5000);
+
+  function _limpiarTardanza(){ clearTimeout(_tardanzaTimer); }
+
+  if (user) {
+    _limpiarTardanza();
+    pintarUI();
+    // Validar en background y actualizar con datos completos (empresa, sucursales)
+    apiCall({ action:'me', token: token }, function(res){
+      if (!res.ok) { sesionExpirada('Tu sesión expiró. Vuelve a iniciar sesión.'); return; }
+      user       = res.user;
+      empresa    = res.empresa    || null;
+      sucursales = res.sucursales || [];
+      try {
+        sessionStorage.setItem('fogueira_user',       JSON.stringify(user));
+        sessionStorage.setItem('fogueira_empresa',    JSON.stringify(empresa));
+        sessionStorage.setItem('fogueira_sucursales', JSON.stringify(sucursales));
+      } catch(e){}
+      // Re-pintar solo los campos que mejoran con datos completos
+      renderSessionMeta();
+      if (document.getElementById('empresaNombre'))
+        document.getElementById('empresaNombre').textContent = empresa && empresa.nombre ? empresa.nombre : '—';
+    });
+  } else {
+    apiCall({ action:'me', token: token }, function(res){
+      _limpiarTardanza();
+      if (!res.ok || !res.user) {
+        sesionExpirada('No se pudo verificar tu sesión. ' + (res.error || 'Vuelve a iniciar sesión.'));
+        return;
+      }
+      user       = res.user;
+      empresa    = res.empresa    || null;
+      sucursales = res.sucursales || [];
+      try {
+        sessionStorage.setItem('fogueira_user',       JSON.stringify(user));
+        sessionStorage.setItem('fogueira_empresa',    JSON.stringify(empresa));
+        sessionStorage.setItem('fogueira_sucursales', JSON.stringify(sucursales));
+      } catch(e){}
+      pintarUI();
+    });
+  }
+
+})();
+</script>
+
+</body>
+</html>

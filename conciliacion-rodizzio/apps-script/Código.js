@@ -5,7 +5,7 @@
 
 // =============== Configuración ===============
 var SALT = 'fogueira-conciliacion-salt-2026';
-var ROLES_VALIDOS = ['admin','auditoria','cajera','host','cocina','churrasca','barman','panadero','encargado_piso','gerente_restaurante','gerente_administrativo','observador','comprador','gerente_plaza'];
+var ROLES_VALIDOS = ['admin','auditoria','cajera','host','cocina','churrasca','barman','panadero','encargado_piso','gerente_restaurante','gerente_administrativo','observador','comprador','gerente_plaza','almacen'];
 
 // Acciones que mutan datos. Bloqueadas en handleRequest para el rol "observador" (read-only).
 // Capa de defensa en profundidad: el frontend ya oculta los botones/forms por CSS, pero un
@@ -4085,7 +4085,7 @@ var EXAMEN_PREGUNTAS_X_INTENTO = 15;
 var EXAMEN_MIN_APROBATORIO = 14; // ≥14/15 = 93% (mínimo 90%)
 var EXAMEN_MAX_INTENTOS = 3;
 var EXAMEN_VIGENCIA_MESES = 6;
-var ROLES_EXENTOS_CERTIFICACION = ['observador','barman','panadero'];
+var ROLES_EXENTOS_CERTIFICACION = ['observador','barman','panadero','almacen'];
 
 // Hereda el rol "efectivo" del usuario para fines de examen
 // (gerente_administrativo y admin tienen su propio examen distintos)

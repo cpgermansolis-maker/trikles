@@ -1,0 +1,740 @@
+﻿<? var __tokenInyectado = '';
+try { __tokenInyectado = (queryParams && queryParams.t) ? String(queryParams.t) : ''; } catch(e){}
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventario semanal · Churrasca · Fogueira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<base target="_top">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzOCc+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSdmZycgeDE9JzAnIHkxPScwJyB4Mj0nMCcgeTI9JzEnPjxzdG9wIG9mZnNldD0nMCUnIHN0b3AtY29sb3I9JyNlOGM0NmEnLz48c3RvcCBvZmZzZXQ9JzUwJScgc3RvcC1jb2xvcj0nI2M4OWE0YScvPjxzdG9wIG9mZnNldD0nMTAwJScgc3RvcC1jb2xvcj0nIzlhNzMzMCcvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGQ9J00xNiAxLjUgQyAxNyA2LDIyIDksMjMgMTQgQyAyNCAxOCwyMiAyMSwyMCAyMiBDIDIyIDI0LDI0IDI3LDI0IDMxIEMgMjQgMzUsMjEgMzcsMTYgMzcgQyAxMSAzNyw4IDM1LDggMzEgQyA4IDI4LDEwIDI2LDExIDI0IEMgOSAyMiw3IDE5LDggMTUgQyA5IDExLDEzIDExLDE0IDcgQyAxNSA1LDE2IDMsMTYgMS41WicgZmlsbD0ndXJsKCNmZyknLz48cGF0aCBkPSdNMTYgMTYgQyAxNyAxOSwxOSAyMSwxOSAyNSBDIDE5IDI4LDE3IDMwLDE2IDMwIEMgMTUgMzAsMTMgMjgsMTMgMjUgQyAxMyAyMiwxNSAxOSwxNiAxNlonIGZpbGw9JyMwYzA5MDcnIG9wYWNpdHk9Jy41NScvPjwvc3ZnPg==">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500;1,600&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  /* ══ Tokens handoff oficial Fogueira (v160) ══ */
+  :root {
+    --ink:#0c0907; --ink-soft:#1a1310;
+    --ember:#c4322a; --ember-hot:#e04826; --ember-deep:#8a1f17;
+    --cream:#f6f1e8; --cream-warm:#efe5d2; --cream-line:#e4d9c2;
+    --bone:#fffdf8; --slate-soft:#5d6c80; --smoke:#8a8278;
+    --gold:#c89a4a; --gold-soft:#e8c46a;
+    /* Aliases legacy */
+    --navy:var(--ink); --muted:var(--slate-soft); --line:var(--cream-line); --paper:var(--cream-warm);
+    --good:#1E7F5C; --warn:var(--gold); --bad:var(--ember-deep);
+    --brand:var(--ember); --brand-deep:var(--ember-deep); --brand-tint:rgba(196,50,42,.08);
+    /* Tipografía handoff */
+    --font-sans:'DM Sans',system-ui,-apple-system,sans-serif;
+    --font-serif:'Cormorant Garamond',Georgia,serif;
+    --font-mono:'DM Mono',ui-monospace,'SF Mono',monospace;
+    --r-md:6px; --r-xl:10px; --r-2xl:12px;
+    --shadow-modal:0 20px 60px -20px rgba(12,9,7,.45);
+    --t-fast:.15s ease;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:var(--font-sans);color:var(--ink);background:var(--cream);line-height:1.5;-webkit-font-smoothing:antialiased;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;}
+
+  /* ── Topbar oscuro (handoff Fogueira) ── */
+  header.app{background:var(--ink);color:var(--cream);border-bottom:1px solid rgba(200,154,74,.22);position:sticky;top:0;z-index:30}
+  .head-row{max-width:1900px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+  .brand-cluster{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brand-flame{display:flex;align-items:center;gap:9px}
+  .brand-flame svg{display:block;flex-shrink:0}
+  .brand-flame .wordmark{font-family:'DM Sans',sans-serif;font-weight:800;font-size:18px;letter-spacing:.02em;color:var(--gold);line-height:1}
+  .brand-sep-v{width:1px;height:30px;background:rgba(246,241,232,.15);flex-shrink:0}
+  .brand-eyebrow,.topbar-sub{font-family:var(--font-mono);font-size:10px;letter-spacing:.22em;color:rgba(246,241,232,.5);text-transform:uppercase;font-weight:500;display:block;line-height:1.2}
+  .brand-name{font-family:var(--font-serif);font-style:italic;font-weight:500;font-size:22px;color:var(--cream);line-height:1.1;margin-top:3px}
+  .brand-empresa{font-family:'DM Sans',sans-serif;font-weight:600;font-size:10px;color:var(--gold);padding:5px 12px;background:rgba(200,154,74,.12);border:1px solid rgba(200,154,74,.4);letter-spacing:.18em;text-transform:uppercase}
+  .head-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:var(--r-md);font-family:var(--font-sans);font-size:12.5px;font-weight:500;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;transition:all var(--t-fast);text-decoration:none;}
+  .btn:hover{background:var(--paper);border-color:var(--brand)}
+  .btn.primary{background:var(--ink);color:var(--gold);border-color:var(--ink)}
+  .btn.primary:hover{background:#000;border-color:#000}
+  .head-actions .btn{background:rgba(246,241,232,.04);color:var(--cream);border-color:rgba(246,241,232,.18)}
+  .head-actions .btn:hover{background:rgba(200,154,74,.12);border-color:var(--gold);color:var(--cream)}
+  .head-actions .btn.primary{background:var(--gold);color:var(--ink);border-color:var(--gold);font-weight:600}
+  .head-actions .btn.primary:hover{background:var(--gold-soft);border-color:var(--gold-soft);color:var(--ink)}
+  .btn-logout{color:rgba(246,241,232,.65) !important}
+  .btn-logout:hover{background:rgba(196,50,42,.12) !important;border-color:var(--ember) !important;color:var(--ember-hot) !important}
+
+  main{max-width:1900px;margin:0 auto;padding:18px 22px}
+  .page-head{margin-bottom:18px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+  .page-head h1{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:30px;letter-spacing:-.015em;margin:0;color:var(--ink)}
+  .page-head .desc{font-size:13px;color:var(--muted);margin-top:4px}
+
+  /* Selector de semana */
+  .semana-nav{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:var(--r-xl);padding:8px 12px}
+  .semana-nav .lbl{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+  .semana-nav .val{font-family:var(--font-mono);font-size:14px;font-weight:600;color:var(--ink);min-width:120px;text-align:center}
+  .semana-nav .arr{width:32px;height:32px;border:1px solid var(--line);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;color:var(--ink)}
+  .semana-nav .arr:hover{border-color:var(--brand);color:var(--brand)}
+
+  /* KPIs de la semana */
+  .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r-xl);padding:10px 14px}
+  .kpi .lbl{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;font-weight:500}
+  .kpi .val{font-family:var(--font-sans);font-size:22px;font-weight:500;letter-spacing:-.02em;line-height:1.05;color:var(--ink);margin-top:4px;font-variant-numeric:tabular-nums}
+  .kpi.warn{border-color:rgba(185,122,27,.4)}.kpi.warn .val{color:var(--warn)}
+  .kpi.alert{border-color:rgba(159,43,30,.4);background:rgba(159,43,30,.04)}.kpi.alert .val{color:var(--bad)}
+
+  /* Sección (Congelador, Bodega, Refrigerador) */
+  .seccion{background:#fff;border:1px solid var(--line);border-radius:var(--r-xl);margin-bottom:18px;overflow:hidden}
+  .seccion-head{padding:12px 16px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:14px;cursor:pointer;user-select:none}
+  .seccion-head h2{font-family:var(--font-serif);font-style:italic;font-weight:400;font-size:22px;margin:0;color:#fff}
+  .seccion-head .conteo{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;opacity:.85}
+  .seccion-head .toggle{font-size:14px}
+  .seccion.collapsed .seccion-body{display:none}
+
+  /* Tabla horizontal estilo Excel de Marcos */
+  .tabla-wrap{overflow-x:auto;max-height:80vh}
+  table.inv{border-collapse:separate;border-spacing:0;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
+  table.inv th, table.inv td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:5px 7px;background:#fff}
+  table.inv thead th{background:var(--paper);font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;font-weight:600;position:sticky;top:0;z-index:5}
+  table.inv .col-ing{position:sticky;left:0;z-index:6;background:#fff;font-weight:600;min-width:160px;border-right:2px solid var(--line)}
+  table.inv thead .col-ing{z-index:7;background:var(--paper)}
+  table.inv .dia-grupo{background:var(--brand-tint);color:var(--brand-deep);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.06em;font-size:10.5px;font-weight:600;text-align:center}
+  table.inv td.num{text-align:right;font-variant-numeric:tabular-nums}
+  table.inv td.editable{cursor:cell;background:#fdfaf8}
+  table.inv td.editable:hover{background:rgba(64,138,191,.08)}
+  table.inv td.editable input{width:100%;border:2px solid var(--brand);background:#fff;padding:3px 5px;border-radius:3px;font-family:var(--font-mono);font-size:12px;color:var(--ink);text-align:right}
+  table.inv td.calc{background:var(--paper);color:var(--muted);font-style:italic;font-size:11.5px}
+  table.inv td.alerta{background:rgba(159,43,30,.12);color:var(--bad);font-weight:600}
+  table.inv tr:hover td:not(.col-ing){background:rgba(184,71,42,.04)}
+  table.inv tr:hover td.col-ing{background:#fbeee7}
+  table.inv tr:hover td.editable{background:rgba(184,71,42,.08)}
+  table.inv .col-total-grupo{background:rgba(30,127,92,.06);font-weight:600}
+  table.inv th.col-total-grupo{background:rgba(30,127,92,.14);color:var(--good)}
+  .empty-state{padding:32px;text-align:center;color:var(--muted);font-size:14px}
+
+  /* Sugerencia de entrada desde Compras SR12 (Paso 1 — auto-llenado) */
+  .sug-apply,.sug-info{font-family:'DM Mono',monospace;font-size:10px;margin-top:3px;padding:1px 5px;display:inline-block;line-height:1.3;white-space:nowrap}
+  .sug-apply{background:rgba(200,154,74,.20);color:#8a6a1f;border:1px solid rgba(200,154,74,.5);cursor:pointer}
+  .sug-apply:hover{background:var(--gold);color:#fff;border-color:var(--gold)}
+  .sug-info{background:rgba(200,154,74,.10);color:#8a6a1f}
+
+  /* Toast */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--good);color:#fff;padding:11px 22px;border-radius:30px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:400;opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.show{opacity:1}
+  .toast.error{background:var(--bad)}
+  .toast.warn{background:var(--warn)}
+
+  @media(max-width:720px){
+    .head-row{padding:12px 14px}
+    main{padding:14px 12px}
+    .page-head h1{font-size:22px}
+    table.inv{font-size:11.5px}
+    table.inv th, table.inv td{padding:4px 6px}
+    table.inv .col-ing{min-width:120px}
+  }
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="head-row">
+    <div class="brand-cluster">
+      <div class="brand-flame" aria-label="Fogueira">
+        <svg width="22" height="26" viewBox="0 0 32 38" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="flameGradIc" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e8c46a"/>
+              <stop offset="50%" stop-color="#c89a4a"/>
+              <stop offset="100%" stop-color="#9a7330"/>
+            </linearGradient>
+          </defs>
+          <path d="M16 1.5 C 17 6, 22 9, 23 14 C 24 18, 22 21, 20 22 C 22 24, 24 27, 24 31 C 24 35, 21 37, 16 37 C 11 37, 8 35, 8 31 C 8 28, 10 26, 11 24 C 9 22, 7 19, 8 15 C 9 11, 13 11, 14 7 C 15 5, 16 3, 16 1.5 Z" fill="url(#flameGradIc)"/>
+          <path d="M16 16 C 17 19, 19 21, 19 25 C 19 28, 17 30, 16 30 C 15 30, 13 28, 13 25 C 13 22, 15 19, 16 16 Z" fill="#0c0907" opacity="0.55"/>
+        </svg>
+        <span class="wordmark">FOGUEIRA</span>
+      </div>
+      <div class="brand-sep-v"></div>
+      <div>
+        <div class="brand-eyebrow topbar-sub">Inventario · Churrasca</div>
+        <div class="brand-name" id="brandName">Inventario semanal</div>
+      </div>
+      <span class="brand-empresa" id="empresaNombre">—</span>
+    </div>
+    <div class="head-actions">
+      <a class="btn" href="?p=inicio">← Inicio</a>
+      <button class="btn btn-logout" id="btnLogout">Cerrar sesión</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="page-head">
+    <div>
+      <h1 id="pageTitle">Inventario semanal de Churrasca</h1>
+      <div class="desc">Vista Lunes a Domingo · Inv inicial · Entrada · Salida · Total · estilo del Excel original</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <div class="semana-nav">
+        <button class="arr" id="btnPrev" title="Semana anterior">‹</button>
+        <div>
+          <div class="lbl">Semana</div>
+          <div class="val" id="semanaLbl">—</div>
+        </div>
+        <button class="arr" id="btnNext" title="Semana siguiente">›</button>
+      </div>
+      <button class="btn" id="btnAutollenar" style="display:none" title="Pone en la columna Entrada lo que se compró según el SR12 (solo las casillas vacías)">📥 Auto-llenar entradas</button>
+      <button class="btn primary" id="btnNuevaSemana" style="display:none">+ Crear nueva semana</button>
+    </div>
+  </div>
+
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <div id="contenido">
+    <div class="empty-state">Cargando…</div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<style>
+.vinc-backdrop{position:fixed;inset:0;background:rgba(12,9,7,.55);display:none;align-items:center;justify-content:center;z-index:90;padding:16px}
+.vinc-backdrop.open{display:flex}
+.vinc-modal{background:#fff;width:100%;max-width:560px;max-height:88vh;display:flex;flex-direction:column;border:1px solid var(--line,#e4d9c2);box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.vinc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line,#e4d9c2)}
+.vinc-head h3{margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:20px}
+.vinc-sub{font-size:12px;color:var(--muted,#5d6c80);margin-top:2px}
+.vinc-x{border:none;background:none;font-size:22px;cursor:pointer;color:var(--muted,#5d6c80);line-height:1}
+#vincBuscar{margin:12px 16px 0;padding:9px 11px;border:1px solid var(--line,#e4d9c2);font-size:13px;font-family:inherit}
+#vincBuscar:focus{outline:none;border-color:var(--brand,#c4322a)}
+.vinc-lista{overflow-y:auto;padding:6px 16px;flex:1;min-height:160px}
+.vinc-empty{padding:24px;text-align:center;color:var(--muted,#5d6c80);font-size:13px}
+.vinc-grupo{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5d6c80;padding:8px 4px 4px}
+.vinc-row{display:grid;grid-template-columns:62px 1fr auto;gap:10px;align-items:center;padding:8px 8px;border-bottom:1px solid #f0e9da;cursor:pointer}
+.vinc-row:hover{background:#fdfaf8}
+.vinc-row.selected{background:rgba(196,50,42,.08);box-shadow:inset 3px 0 0 var(--brand,#c4322a)}
+.vinc-row.actual{background:rgba(30,127,92,.08)}
+.vinc-row .clave{font-family:'DM Mono',monospace;font-size:11px;color:#5d6c80}
+.vinc-row .nombre{font-size:13px;font-weight:600}
+.vinc-row .pres{font-size:11px;color:#5d6c80}
+.vinc-row .stock{font-size:11.5px;text-align:right;white-space:nowrap}
+.vinc-foot{display:flex;align-items:center;gap:8px;padding:12px 16px;border-top:1px solid var(--line,#e4d9c2)}
+.vinc-btn{padding:8px 16px;font-size:13px;font-weight:600;border:1px solid var(--line,#e4d9c2);background:#fff;cursor:pointer}
+.vinc-btn.primary{background:var(--ink,#0c0907);color:var(--gold,#c89a4a);border-color:var(--ink,#0c0907)}
+.vinc-btn.danger{border-color:#9a2b1e;color:#9a2b1e}
+.vinc-btn:disabled{opacity:.45;cursor:not-allowed}
+</style>
+<div class="vinc-backdrop" id="vincBackdrop">
+  <div class="vinc-modal">
+    <div class="vinc-head">
+      <div><h3 id="vincTitle">Vincular a SR12</h3><div class="vinc-sub" id="vincSub">—</div></div>
+      <button class="vinc-x" id="vincClose" type="button">×</button>
+    </div>
+    <input type="text" id="vincBuscar" placeholder="Busca por nombre o clave del producto en el SR12…">
+    <div class="vinc-lista" id="vincLista"><div class="vinc-empty">Cargando…</div></div>
+    <div class="vinc-foot">
+      <button class="vinc-btn danger" id="vincDesvincular" type="button" style="display:none">Desvincular</button>
+      <div style="flex:1"></div>
+      <button class="vinc-btn" id="vincCancelar" type="button">Cancelar</button>
+      <button class="vinc-btn primary" id="vincConfirmar" type="button" disabled>Vincular</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var API_URL = 'https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec';
+
+  function getQuery(name){
+    var m = (location.search.match(new RegExp('[?&]' + name + '=([^&]*)')) || [])[1];
+    return m ? decodeURIComponent(m) : '';
+  }
+  var token = getQuery('t') || '<?!= __tokenInyectado ?>';
+  var user = null, empresa = null, rol = '', puedeEditar = false, puedeVincular = false;
+  if (token) { try { sessionStorage.setItem('fogueira_token', token); } catch(e){} }
+  else { try { token = sessionStorage.getItem('fogueira_token'); } catch(e){} }
+  if (!token) { (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})(); return; }
+  try {
+    user = JSON.parse(sessionStorage.getItem('fogueira_user') || 'null');
+    empresa = JSON.parse(sessionStorage.getItem('fogueira_empresa') || 'null');
+  } catch(e){}
+  var _sesionUIAplicada = false;
+  function aplicarSesionUI() {
+    if (_sesionUIAplicada) return true;
+    _sesionUIAplicada = true;
+    rol = String(user ? user.rol : '').toLowerCase();
+    var ROLES_LECTURA = ['admin','gerente_administrativo','auditoria','churrasca','cocina','encargado_piso','gerente_restaurante','almacen'];
+    if (ROLES_LECTURA.indexOf(rol) === -1) {
+      alert('Tu rol no tiene acceso al inventario de churrasca.');
+      (function(_u){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sin acceso</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Esta pantalla no es para tu rol</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Toca el botón de abajo para ir a tu inicio, donde verás las pantallas que sí puedes usar.</p><a href="'+_u+'" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">← Ir a mi inicio</a></div>';document.body.appendChild(_o);})(API_URL+'?p=inicio&t='+encodeURIComponent(token||''));
+      return false;
+    }
+    puedeEditar = ['admin','gerente_administrativo','churrasca','cocina','almacen'].indexOf(rol) !== -1;
+    puedeVincular = ['admin','gerente_administrativo','churrasca','cocina','auditoria'].indexOf(rol) !== -1;
+    document.getElementById('empresaNombre').textContent = (empresa && empresa.nombre) || 'Sin empresa';
+    (function(){ try { var b=API_URL+'?p=inicio&t='+encodeURIComponent(token||'')+(user?'&urol='+encodeURIComponent(user.rol||'')+'&unom='+encodeURIComponent(user.nombre||user.email||''):''); document.querySelectorAll('a[href*="p=inicio"]').forEach(function(a){a.href=b;}); }catch(e){} })();
+    (function(){ if (!token) return; var _cb='_brand_'+Date.now(); window[_cb]=function(d){ try{delete window[_cb];}catch(e){} if(!d||!d.ok||!d.branding||d.origen!=='empresa_config') return; var b=d.branding,rs=document.documentElement.style; if(b.color_primario) rs.setProperty('--gold',b.color_primario); if(b.color_secundario) rs.setProperty('--ink',b.color_secundario); if(b.color_acento) rs.setProperty('--ember',b.color_acento); if(b.color_fondo) rs.setProperty('--cream',b.color_fondo); if(b.nombre_comercial) document.querySelectorAll('.brand-flame .wordmark').forEach(function(w){ w.textContent=String(b.nombre_comercial).toUpperCase(); }); }; var _s=document.createElement('script'); _s.src=API_URL+'?action=empresa_branding_get&token='+encodeURIComponent(token)+'&callback='+_cb; _s.async=true; document.head.appendChild(_s); })();
+    return true;
+  }
+  if (user && !aplicarSesionUI()) return;
+
+  // ---------- API JSONP ----------
+  function apiCall(params, cb){
+    var cbName = '_jcb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+    var script = document.createElement('script');
+    var cleanup = function(){ try{ delete window[cbName];}catch(e){window[cbName]=undefined;} if(script.parentNode) script.parentNode.removeChild(script); };
+    var t = setTimeout(function(){ cleanup(); cb({ok:false,error:'timeout'}); }, 30000);
+    window[cbName] = function(d){ clearTimeout(t); cleanup(); cb(d); };
+    var qs = Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
+    script.onerror = function(){ clearTimeout(t); cleanup(); cb({ok:false,error:'network'}); };
+    script.src = API_URL + '?' + qs + '&callback=' + cbName;
+    document.body.appendChild(script);
+  }
+
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function fmtNum(n){
+    if (n == null || n === 0) return '—';
+    var num = Number(n);
+    if (isNaN(num)) return '—';
+    return num.toLocaleString('es-MX', { maximumFractionDigits: 3 });
+  }
+
+  // Toast
+  var toastTimer = null;
+  function toast(msg, type){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (type ? ' ' + type : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2000);
+  }
+
+  // Semanas ISO
+  function isoWeek(date){
+    var d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    var dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    var weekNum = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+    return d.getUTCFullYear() + '-W' + String(weekNum).padStart(2, '0');
+  }
+  function semanaAdyacente(semana, delta){
+    var m = semana.match(/^(\d{4})-W(\d{2})$/);
+    var year = Number(m[1]), week = Number(m[2]) + delta;
+    while (week < 1) { year--; week += 52; }
+    while (week > 53) { year++; week -= 52; }
+    return year + '-W' + String(week).padStart(2, '0');
+  }
+
+  // State
+  var state = {
+    semana: isoWeek(new Date()),
+    grid: [],
+    fechas: []
+  };
+
+  document.getElementById('btnPrev').addEventListener('click', function(){
+    state.semana = semanaAdyacente(state.semana, -1);
+    cargarSemana();
+  });
+  document.getElementById('btnNext').addEventListener('click', function(){
+    state.semana = semanaAdyacente(state.semana, 1);
+    cargarSemana();
+  });
+  document.getElementById('btnAutollenar').addEventListener('click', function(){
+    if (!confirm('¿Llenar las ENTRADAS de esta semana con las compras registradas en el SR12?\n\n• Suma lo comprado cada día (por la clave SR12 vinculada).\n• Solo llena las casillas vacías — NO pisa lo que ya capturaste a mano.\n• Después puedes ajustar cualquier celda manualmente.')) return;
+    var btn = document.getElementById('btnAutollenar');
+    var prev = btn.textContent; btn.disabled = true; btn.textContent = 'Llenando…';
+    apiCall({ action:'inv_churrasca_autollenar_entradas', token: token, semana_iso: state.semana }, function(res){
+      btn.disabled = false; btn.textContent = prev;
+      if (!res || !res.ok) { toast((res && res.error) || 'Error', 'error'); return; }
+      if (res.celdas_llenas > 0) {
+        toast('✓ ' + res.celdas_llenas + ' entrada(s) llenadas (' + fmtNum(res.total_cantidad) + ')');
+      } else {
+        toast(res.omitidas_ocupadas > 0 ? 'Nada por llenar: las casillas con compras ya tenían dato' : 'No hay compras nuevas que aplicar', 'warn');
+      }
+      cargarSemana();
+    });
+  });
+  document.getElementById('btnNuevaSemana').addEventListener('click', function(){
+    if (!confirm('¿Crear inventario para la semana ' + state.semana + '? Se copiará el inventario final del domingo previo como inicial del lunes.')) return;
+    apiCall({ action:'inv_churrasca_nueva_semana', token: token, semana_iso: state.semana }, function(res){
+      if (res.ok) {
+        toast('Semana creada: ' + res.filas_creadas + ' filas para ' + res.ingredientes_inventariar + ' ingredientes');
+        cargarSemana();
+      } else {
+        toast(res.error || 'Error', 'error');
+      }
+    });
+  });
+
+  function cargarSemana(){
+    document.getElementById('semanaLbl').textContent = state.semana;
+    document.getElementById('contenido').innerHTML = '<div class="empty-state">Cargando…</div>';
+    document.getElementById('btnNuevaSemana').style.display = 'none';
+    apiCall({ action:'inv_churrasca_get_semana', token: token, semana_iso: state.semana }, function(res){
+      if (!res.ok) {
+        document.getElementById('contenido').innerHTML = '<div class="empty-state" style="color:var(--bad)">' + esc(res.error || 'Error') + '</div>';
+        return;
+      }
+      state.grid = res.grid;
+      state.fechas = res.fechas;
+      // Si la semana no tiene movimientos (todas las celdas en cero), ofrecer crear
+      var algunaConDatos = res.grid.some(function(g){
+        return g.dias.some(function(d){ return d.id !== null; });
+      });
+      if (!algunaConDatos && puedeEditar) {
+        document.getElementById('btnNuevaSemana').style.display = '';
+      }
+      renderGrid();
+    });
+  }
+
+  function renderGrid(){
+    if (!state.grid.length) {
+      document.getElementById('contenido').innerHTML = '<div class="empty-state">No hay configuración de inventario. Pídele al admin que configure los ingredientes a inventariar.</div>';
+      document.getElementById('kpiRow').innerHTML = '';
+      return;
+    }
+    // KPIs de la semana
+    var totalEnt = 0, totalSal = 0, totalAlertas = 0, vinculados = 0, sinVincNombres = [];
+    var totalSug = 0, celdasSug = 0, weekHasRows = false;
+    state.grid.forEach(function(g){
+      totalEnt += g.total_entradas;
+      totalSal += g.total_salidas;
+      if (g.vinculado) vinculados++; else sinVincNombres.push(g.nombre);
+      g.dias.forEach(function(d){
+        if (d.alerta_consumo) totalAlertas++;
+        if (d.id !== null) weekHasRows = true;
+        // Casilla con sugerencia "por aplicar" = hay compras ese día y difieren de lo capturado.
+        if (Number(d.entrada_sugerida) > 0 && Number(d.entrada_sugerida) !== Number(d.entrada)) {
+          totalSug += Number(d.entrada_sugerida); celdasSug++;
+        }
+      });
+    });
+    var sinVinc = state.grid.length - vinculados;
+    document.getElementById('kpiRow').innerHTML =
+      '<div class="kpi"><div class="lbl">Ingredientes inventariar</div><div class="val">' + state.grid.length + '</div></div>' +
+      '<div class="kpi' + (sinVinc > 0 ? ' alert' : '') + '"><div class="lbl">🔗 Vinculados al SR12</div><div class="val">' + vinculados + ' / ' + state.grid.length + '</div>' + (sinVinc > 0 ? '<div style="font-size:11px;color:var(--bad,#9a2b1e);margin-top:2px">' + sinVinc + ' sin clave (no se auto-llenan)</div>' : '<div style="font-size:11px;color:#1E7F5C;margin-top:2px">listos para auto-llenar entradas</div>') + '</div>' +
+      (celdasSug > 0 ? '<div class="kpi" style="border-color:rgba(200,154,74,.55)"><div class="lbl">📥 Sugerido desde compras</div><div class="val" style="color:#8a6a1f">' + fmtNum(totalSug) + '</div><div style="font-size:11px;color:#8a6a1f;margin-top:2px">' + celdasSug + ' casilla(s) por aplicar</div></div>' : '') +
+      '<div class="kpi"><div class="lbl">Total entradas semana</div><div class="val">' + fmtNum(totalEnt) + '</div></div>' +
+      '<div class="kpi"><div class="lbl">Total salidas semana</div><div class="val">' + fmtNum(totalSal) + '</div></div>' +
+      (totalAlertas > 0 ? '<div class="kpi alert"><div class="lbl">⚠ Alertas consumo</div><div class="val">' + totalAlertas + '</div></div>' : '');
+
+    // Botón de auto-llenado: solo si puede editar, la semana ya está creada y hay sugerencias por aplicar.
+    document.getElementById('btnAutollenar').style.display = (puedeEditar && weekHasRows && celdasSug > 0) ? '' : 'none';
+
+    // Agrupar por sección
+    var secciones = { 'Congelador': [], 'Bodega': [], 'Refrigerador': [] };
+    state.grid.forEach(function(g){ if (secciones[g.seccion]) secciones[g.seccion].push(g); });
+
+    var html = '';
+    if (sinVincNombres.length) {
+      html += '<div style="background:rgba(159,43,30,.10);border-left:3px solid #9a2b1e;padding:11px 14px;margin-bottom:14px;font-size:13px">'
+        + '<strong style="color:#9a2b1e">⚠ Faltan ' + sinVincNombres.length + ' carne(s) por vincular su clave SR12.</strong> '
+        + 'Lista para pasarle al comprador (las vincula en Recetas → Ingredientes):'
+        + '<div style="margin-top:7px;font-family:\'DM Mono\',monospace;font-size:13px;color:var(--ink,#0c0907);line-height:1.7">' + sinVincNombres.map(function(n){ return '• ' + esc(n); }).join('<br>') + '</div>'
+        + '</div>';
+    }
+    ['Congelador', 'Bodega', 'Refrigerador'].forEach(function(seccion){
+      var items = secciones[seccion];
+      if (!items.length) return;
+      html += '<section class="seccion" data-seccion="' + seccion + '">' +
+        '<div class="seccion-head" data-toggle="' + seccion + '">' +
+          '<h2>' + seccion + '</h2>' +
+          '<span class="conteo">' + items.length + ' ingredientes</span>' +
+          '<span class="toggle">▼</span>' +
+        '</div>' +
+        '<div class="seccion-body">' +
+          renderSeccionTabla(items) +
+        '</div>' +
+      '</section>';
+    });
+    document.getElementById('contenido').innerHTML = html;
+
+    // Click en el chip de clave SR12 → abrir modal de vinculación (delegado, una sola vez).
+    if (puedeVincular && !window._chipVincListener) {
+      window._chipVincListener = true;
+      document.getElementById('contenido').addEventListener('click', function(e){
+        var chip = e.target.closest('[data-vincular]');
+        if (!chip) return;
+        openVincularModal(chip.getAttribute('data-vincular'), chip.getAttribute('data-nombre'), chip.getAttribute('data-clave'));
+      });
+    }
+
+    // Toggle secciones
+    document.querySelectorAll('.seccion-head').forEach(function(h){
+      h.addEventListener('click', function(){
+        var sec = h.parentElement;
+        sec.classList.toggle('collapsed');
+        h.querySelector('.toggle').textContent = sec.classList.contains('collapsed') ? '▶' : '▼';
+      });
+    });
+    // Edición inline (ignora el clic sobre el chip de sugerencia, que tiene su propia acción)
+    if (puedeEditar) {
+      document.querySelectorAll('td.editable').forEach(function(td){
+        td.addEventListener('click', function(e){
+          if (e.target.closest('.sug-apply')) return;
+          activarEdicion(td);
+        });
+      });
+    }
+
+    // Aplicar una sugerencia individual (toca el chip 📥 → pone esa entrada). Delegado, una sola vez.
+    if (puedeEditar && !window._sugApplyListener) {
+      window._sugApplyListener = true;
+      document.getElementById('contenido').addEventListener('click', function(e){
+        var chip = e.target.closest('.sug-apply');
+        if (!chip) return;
+        e.stopPropagation();
+        aplicarSugerencia(chip.getAttribute('data-ing'), chip.getAttribute('data-fecha'), Number(chip.getAttribute('data-val')));
+      });
+    }
+  }
+
+  // Pone la entrada sugerida (de compras) en una celda concreta — reusa el guardado de celda.
+  function aplicarSugerencia(ing, fecha, val){
+    if (!ing || !fecha || !(val > 0)) return;
+    apiCall({ action:'inv_churrasca_save_celda', token: token, ingrediente_id: ing, fecha: fecha, campo: 'entrada', valor: val }, function(res){
+      if (res.ok) { toast('Entrada puesta desde compras: ' + fmtNum(val)); cargarSemana(); }
+      else { toast(res.error || 'Error', 'error'); }
+    });
+  }
+
+  // Chip con la clave SR12 y el semáforo de vinculación (el "puente" para auto-llenar entradas).
+  // Si el usuario puede vincular, el chip es clickeable y abre el modal de vinculación AQUÍ MISMO.
+  function claveTag(g){
+    var style = "font-family:'DM Mono',monospace;font-size:10px;margin-top:3px;display:inline-block;padding:1px 6px";
+    var dataAttrs = '';
+    if (puedeVincular) {
+      style += ';cursor:pointer';
+      dataAttrs = ' data-vincular="' + esc(g.ingrediente_id) + '" data-nombre="' + esc(String(g.nombre||'')) + '" data-clave="' + esc(g.clave_sr12 || '') + '"';
+    }
+    if (g.vinculado) {
+      var comp = g.n_compras > 0 ? (g.n_compras + ' compras') : 'sin compras aún';
+      var tip = puedeVincular ? ('Vinculado a SR12 ' + esc(g.clave_sr12) + ' — toca para cambiar') : ('Vinculado al SR12 (clave ' + esc(g.clave_sr12) + ').');
+      return '<div' + dataAttrs + ' style="' + style + ';background:rgba(30,127,92,.10);color:#1E7F5C" title="' + tip + '">🔗 SR12 ' + esc(g.clave_sr12) + ' · ' + comp + (puedeVincular ? ' ✎' : '') + '</div>';
+    }
+    var tipNo = puedeVincular ? 'Sin clave SR12 — toca para vincularlo ahora.' : 'Sin clave SR12: las compras de este insumo NO se podrán auto-llenar hasta vincularlo.';
+    return '<div' + dataAttrs + ' style="' + style + ';background:rgba(159,43,30,.12);color:#9a2b1e" title="' + tipNo + '">⚠ sin clave SR12' + (puedeVincular ? ' · toca para vincular' : '') + '</div>';
+  }
+
+  // Chip de "entrada sugerida": lo que se compró ese día según el SR12.
+  // Si el usuario edita, es clickeable (toca → pone ese valor en la entrada). Si no, es solo informativo.
+  function sugChip(g, d){
+    var v = Number(d.entrada_sugerida || 0);
+    if (v <= 0 || v === Number(d.entrada || 0)) return ''; // sin compras o ya aplicado
+    var lab = '📥 ' + fmtNum(v);
+    if (puedeEditar && d.id) {
+      return '<div class="sug-apply" data-ing="' + esc(g.ingrediente_id) + '" data-fecha="' + d.fecha + '" data-val="' + v + '" title="Comprado el ' + esc(d.fecha) + ' según el SR12: ' + fmtNum(v) + ' ' + esc(g.unidad) + '. Toca para ponerlo como entrada.">' + lab + '</div>';
+    }
+    return '<div class="sug-info" title="Comprado el ' + esc(d.fecha) + ' según el SR12: ' + fmtNum(v) + ' ' + esc(g.unidad) + '">' + lab + '</div>';
+  }
+
+  function renderSeccionTabla(items){
+    var diasShort = ['L','M','X','J','V','S','D'];
+    var diasFull = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+    var thHead1 = '<th class="col-ing" rowspan="2">Insumo</th>';
+    var thHead2 = '';
+    state.fechas.forEach(function(f, i){
+      thHead1 += '<th colspan="4" class="dia-grupo" title="' + esc(f.fecha) + '">' + diasFull[i] + '<br>' + f.fecha.slice(5) + '</th>';
+      thHead2 += '<th class="num">Inv</th><th class="num">Ent</th><th class="num">Sal</th><th class="num">Tot</th>';
+    });
+    thHead1 += '<th colspan="3" class="col-total-grupo">Total semana</th>';
+    thHead2 += '<th class="num col-total-grupo">Ent</th><th class="num col-total-grupo">Sal</th><th class="num col-total-grupo">Inv final</th>';
+
+    var rows = items.map(function(g){
+      var celdas = '';
+      g.dias.forEach(function(d){
+        var celdaInv = (puedeEditar && d.id) ? '<td class="num editable" data-ing="' + g.ingrediente_id + '" data-fecha="' + d.fecha + '" data-campo="inv_inicial" data-actual="' + (d.inv_inicial || 0) + '">' + fmtNum(d.inv_inicial) + '</td>'
+                       : '<td class="num">' + fmtNum(d.inv_inicial) + '</td>';
+        var sug = sugChip(g, d);
+        var celdaEnt = (puedeEditar && d.id) ? '<td class="num editable" data-ing="' + g.ingrediente_id + '" data-fecha="' + d.fecha + '" data-campo="entrada" data-actual="' + (d.entrada || 0) + '">' + fmtNum(d.entrada) + sug + '</td>'
+                       : '<td class="num">' + fmtNum(d.entrada) + sug + '</td>';
+        var salClass = d.alerta_consumo ? 'num editable alerta' : 'num editable';
+        var celdaSal = (puedeEditar && d.id) ? '<td class="' + salClass + '" data-ing="' + g.ingrediente_id + '" data-fecha="' + d.fecha + '" data-campo="salida" data-actual="' + (d.salida || 0) + '" title="' + (d.alerta_consumo ? '⚠ Salida >20% del promedio histórico' : '') + '">' + fmtNum(d.salida) + (d.alerta_consumo ? ' ⚠' : '') + '</td>'
+                       : '<td class="num">' + fmtNum(d.salida) + (d.alerta_consumo ? ' ⚠' : '') + '</td>';
+        celdas += celdaInv + celdaEnt + celdaSal +
+                  '<td class="num calc">' + fmtNum(d.inv_final) + '</td>';
+      });
+      celdas += '<td class="num col-total-grupo">' + fmtNum(g.total_entradas) + '</td>' +
+                '<td class="num col-total-grupo">' + fmtNum(g.total_salidas) + '</td>' +
+                '<td class="num col-total-grupo">' + fmtNum(g.inv_final_semana) + '</td>';
+      return '<tr><td class="col-ing">' + esc(g.nombre) + ' <small style="color:var(--muted);font-weight:400">(' + esc(g.unidad) + ')</small>' + claveTag(g) + '</td>' + celdas + '</tr>';
+    }).join('');
+
+    return '<div class="tabla-wrap"><table class="inv">' +
+      '<thead><tr>' + thHead1 + '</tr><tr>' + thHead2 + '</tr></thead>' +
+      '<tbody>' + rows + '</tbody>' +
+    '</table></div>';
+  }
+
+  function activarEdicion(td) {
+    var ing = td.getAttribute('data-ing');
+    var fecha = td.getAttribute('data-fecha');
+    var campo = td.getAttribute('data-campo');
+    var actual = td.getAttribute('data-actual');
+    var input = document.createElement('input');
+    input.type = 'number';
+    input.step = '0.001';
+    input.min = '0';
+    input.value = actual;
+    var prev = td.innerHTML;
+    td.innerHTML = '';
+    td.appendChild(input);
+    input.focus();
+    input.select();
+    var guardar = function(){
+      var val = input.value;
+      if (val === '' || val === actual) { td.innerHTML = prev; return; }
+      td.innerHTML = '<span style="color:var(--muted);font-size:11px">…</span>';
+      apiCall({ action:'inv_churrasca_save_celda', token: token, ingrediente_id: ing, fecha: fecha, campo: campo, valor: val }, function(res){
+        if (res.ok) {
+          if (res.alerta_consumo) toast('⚠ Consumo anómalo (>20% del promedio)', 'warn');
+          else toast('Guardado');
+          cargarSemana();
+        } else {
+          toast(res.error || 'Error', 'error');
+          td.innerHTML = prev;
+        }
+      });
+    };
+    input.addEventListener('blur', guardar);
+    input.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+      if (e.key === 'Escape') { td.innerHTML = prev; }
+    });
+  }
+
+  document.getElementById('btnLogout').addEventListener('click', function(){
+    if (!confirm('¿Cerrar sesión?')) return;
+    sessionStorage.clear();
+    (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+  });
+
+  apiCall({ action:'me', token: token }, function(res){
+    if (!res.ok) {
+      sessionStorage.clear(); alert('Tu sesión expiró.');
+      (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+      return;
+    }
+    if (res.user) { try { sessionStorage.setItem('fogueira_user', JSON.stringify(res.user)); user = res.user; } catch(e){} }
+    if (res.empresa) { try { sessionStorage.setItem('fogueira_empresa', JSON.stringify(res.empresa)); empresa = res.empresa; } catch(e){} }
+    if (!aplicarSesionUI()) return;
+    cargarSemana();
+  });
+
+  // ===== Modal de vinculación SR12 (atajo desde el inventario) =====
+  var VINC = { ingId:'', ingNombre:'', claveActual:'', seleccionada:'', catalogo:null, cargando:false };
+
+  function scoreSimVinc(textoIng, textoSr12){
+    var norm = function(s){ return String(s||'').toLowerCase()
+      .replace(/[áàäâ]/g,'a').replace(/[éèëê]/g,'e').replace(/[íìïî]/g,'i')
+      .replace(/[óòöô]/g,'o').replace(/[úùüû]/g,'u').replace(/ñ/g,'n')
+      .replace(/[^a-z0-9 ]/g,' ').trim(); };
+    var STOP = {'de':1,'la':1,'el':1,'y':1,'a':1,'en':1,'con':1,'para':1,'por':1,'sin':1,'kg':1,'lt':1,'pza':1,'pz':1,'gr':1,'ml':1,'x':1};
+    var pi = norm(textoIng).split(/\s+/).filter(function(w){ return w.length >= 3 && !STOP[w]; });
+    var ps = norm(textoSr12).split(/\s+/).filter(function(w){ return w.length >= 3 && !STOP[w]; });
+    if (!pi.length || !ps.length) return 0;
+    var c = 0;
+    pi.forEach(function(w){
+      if (ps.indexOf(w) !== -1) c++;
+      else if (ps.some(function(s){ return s.indexOf(w) !== -1 || w.indexOf(s) !== -1; })) c += 0.5;
+    });
+    return c / Math.max(pi.length, ps.length);
+  }
+
+  function openVincularModal(ingId, ingNombre, claveActual){
+    if (!puedeVincular) return;
+    VINC.ingId = ingId; VINC.ingNombre = ingNombre || ''; VINC.claveActual = claveActual || ''; VINC.seleccionada = claveActual || '';
+    document.getElementById('vincTitle').textContent = claveActual ? 'Cambiar vínculo SR12' : 'Vincular a una clave SR12';
+    document.getElementById('vincSub').textContent = VINC.ingNombre + (claveActual ? (' · actual: ' + claveActual) : ' · sin vínculo');
+    document.getElementById('vincBuscar').value = '';
+    document.getElementById('vincDesvincular').style.display = claveActual ? '' : 'none';
+    document.getElementById('vincConfirmar').disabled = true;
+    document.getElementById('vincBackdrop').classList.add('open');
+    if (!VINC.catalogo && !VINC.cargando) cargarCatalogoVinc();
+    else renderCandidatosVinc();
+    setTimeout(function(){ try { document.getElementById('vincBuscar').focus(); } catch(e){} }, 60);
+  }
+  function cerrarVinc(){ document.getElementById('vincBackdrop').classList.remove('open'); }
+
+  function cargarCatalogoVinc(){
+    VINC.cargando = true;
+    document.getElementById('vincLista').innerHTML = '<div class="vinc-empty">Cargando catálogo SR12…<br><small>La primera vez puede tardar unos segundos.</small></div>';
+    apiCall({ action:'sr12_catalogo_list', token: token }, function(res){
+      VINC.cargando = false;
+      if (!res || !res.ok) { document.getElementById('vincLista').innerHTML = '<div class="vinc-empty" style="color:#9a2b1e">No se pudo cargar el catálogo SR12.<br><small>' + esc((res&&res.error)||'Error') + '</small></div>'; return; }
+      VINC.catalogo = res.productos || [];
+      renderCandidatosVinc();
+    });
+  }
+
+  function renderCandidatosVinc(){
+    var cont = document.getElementById('vincLista');
+    if (!VINC.catalogo) { cont.innerHTML = '<div class="vinc-empty">Cargando…</div>'; return; }
+    var q = String(document.getElementById('vincBuscar').value || '').toLowerCase().trim();
+    var res;
+    if (q) {
+      res = VINC.catalogo.filter(function(s){ return (String(s.clave_sr12||'')+' '+String(s.nombre_sr12||'')+' '+String(s.presentacion_descripcion||'')).toLowerCase().indexOf(q) !== -1; });
+    } else {
+      res = VINC.catalogo.map(function(s){ return { s:s, sc: scoreSimVinc(VINC.ingNombre, (s.nombre_sr12||'') + ' ' + (s.presentacion_descripcion||'')) }; })
+        .sort(function(a,b){ return b.sc - a.sc; }).slice(0, 80).map(function(r){ return r.s; });
+    }
+    if (!res.length) { cont.innerHTML = '<div class="vinc-empty">Sin coincidencias para "<strong>' + esc(q) + '</strong>".<br><small>Prueba con menos palabras o el código exacto.</small></div>'; return; }
+    var grupo = q ? (res.length + ' coincidencia' + (res.length === 1 ? '' : 's')) : 'Sugerencias por nombre (toca la correcta)';
+    cont.innerHTML = '<div class="vinc-grupo">' + grupo + '</div>' + res.slice(0, 200).map(function(s){
+      var esActual = String(s.clave_sr12) === VINC.claveActual;
+      var esSel = String(s.clave_sr12) === VINC.seleccionada;
+      var cls = 'vinc-row' + (esActual ? ' actual' : (esSel && !esActual ? ' selected' : ''));
+      var total = Number(s.existencia_total || 0);
+      var stock = total > 0 ? ('<strong>' + (total >= 10 ? total.toFixed(1) : total.toFixed(2)) + '</strong> ' + esc(s.unidad_base || '')) : '<span style="color:#999">sin stock</span>';
+      var pres = (s.presentacion_descripcion && s.presentacion_descripcion !== s.nombre_sr12) ? s.presentacion_descripcion : '';
+      return '<div class="' + cls + '" data-clave="' + esc(s.clave_sr12) + '">' +
+        '<span class="clave">' + esc(s.clave_sr12) + '</span>' +
+        '<div><div class="nombre">' + esc(s.nombre_sr12 || '—') + (esActual ? ' · actual' : '') + '</div>' + (pres ? '<div class="pres">' + esc(pres) + '</div>' : '') + '</div>' +
+        '<div class="stock">' + stock + '</div></div>';
+    }).join('');
+    cont.querySelectorAll('.vinc-row').forEach(function(row){
+      row.addEventListener('click', function(){
+        cont.querySelectorAll('.vinc-row.selected').forEach(function(r){ r.classList.remove('selected'); });
+        if (!row.classList.contains('actual')) row.classList.add('selected');
+        VINC.seleccionada = row.getAttribute('data-clave');
+        document.getElementById('vincConfirmar').disabled = (!VINC.seleccionada || VINC.seleccionada === VINC.claveActual);
+      });
+    });
+  }
+
+  function confirmarVinc(){
+    if (!VINC.seleccionada || VINC.seleccionada === VINC.claveActual) return;
+    var btn = document.getElementById('vincConfirmar');
+    btn.disabled = true; btn.textContent = 'Vinculando…';
+    apiCall({ action:'sr12_ingrediente_vincular', token: token, data: JSON.stringify({ ingrediente_id: VINC.ingId, clave_sr12: VINC.seleccionada }) }, function(res){
+      btn.textContent = 'Vincular';
+      if (!res || !res.ok) { btn.disabled = false; alert('No se pudo vincular: ' + ((res&&res.error) || 'error')); return; }
+      cerrarVinc();
+      toast('✓ Vinculado a SR12 ' + VINC.seleccionada);
+      cargarSemana();
+    });
+  }
+
+  function desvincularVinc(){
+    if (!VINC.claveActual) return;
+    if (!confirm('¿Quitar el vínculo SR12 de "' + VINC.ingNombre + '"? Volverá a aparecer sin clave.')) return;
+    apiCall({ action:'sr12_ingrediente_vincular', token: token, data: JSON.stringify({ ingrediente_id: VINC.ingId, clave_sr12: '' }) }, function(res){
+      if (!res || !res.ok) { alert('No se pudo desvincular: ' + ((res&&res.error) || 'error')); return; }
+      cerrarVinc();
+      toast('Vínculo quitado');
+      cargarSemana();
+    });
+  }
+
+  document.getElementById('vincClose').addEventListener('click', cerrarVinc);
+  document.getElementById('vincCancelar').addEventListener('click', cerrarVinc);
+  document.getElementById('vincConfirmar').addEventListener('click', confirmarVinc);
+  document.getElementById('vincDesvincular').addEventListener('click', desvincularVinc);
+  document.getElementById('vincBuscar').addEventListener('input', renderCandidatosVinc);
+  document.getElementById('vincBackdrop').addEventListener('click', function(e){ if (e.target.id === 'vincBackdrop') cerrarVinc(); });
+
+})();
+</script>
+
+</body>
+</html>
