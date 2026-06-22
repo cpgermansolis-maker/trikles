@@ -389,6 +389,85 @@ function handleMermaCreate(p){
     aviso: descontado ? '' : 'Registrada. Este insumo no está en el inventario configurado, así que no descontó stock (solo queda anotada y valorizada).' };
 }
 
+// ============================================================================
+//  PRODUCTOS DIRECTOS (descuento por gramaje, SIN receta) — solicitud Estefanía
+//  (RecetarioFogueira_PRD/Solicitud_Boton_Productos_Directos_Fogueira.docx).
+//
+//  Quesos / fiambres / complementos / curtidos que salen a la barra de buffet TAL
+//  CUAL, sin transformación ni receta. El de cocina pesa el montaje real (p.ej.
+//  "850 g de Queso Manchego") y el sistema descuenta EXACTAMENTE esos gramos del
+//  inventario de ese insumo. No es merma (es consumo servido).
+//
+//  Diseño ADITIVO — no toca handleCharolasCreate ni handleMermaCreate:
+//   - Deja constancia en la hoja `Charolas` con un tipo NUEVO 'directo'
+//     (descripcion = nombre del insumo, cantidad = gramos capturados, receta_id vacío),
+//     para que aparezca en la lista del día de Charolas con su etiqueta.
+//   - Reusa _mermaDescontarInsumo (mismo motor que charola/merma: suma a la salida
+//     del día en InventarioChurrasca) SOLO si el insumo está configurado como
+//     inventariable en InventarioChurrascaConfig. Si no, se registra igual (sin
+//     descontar) con aviso, como hace handleMermaCreate.
+//   - NO toca las existencias del SR12 (eso es "la foto" del POS).
+// ============================================================================
+var PRODUCTO_DIRECTO_ROLES = ['cocina','churrasca','admin','gerente_administrativo','auditoria'];
+
+function handleProductoDirectoCreate(p){
+  var u = validarToken(p.token);
+  if (!u) return { ok:false, error:'Sesión inválida' };
+  var rol = String(u.rol||'').toLowerCase();
+  if (PRODUCTO_DIRECTO_ROLES.indexOf(rol) === -1) return { ok:false, error:'Sin permisos' };
+  var data; try { data = JSON.parse(p.data || '{}'); } catch(e){ return { ok:false, error:'data inválido' }; }
+
+  // Por ahora SOLO cocina (la solicitud es exclusiva del área de cocina). Si más
+  // adelante se habilita en churrasca, basta ampliar esta validación.
+  var area = String(data.area || 'cocina').toLowerCase();
+  if (['cocina','churrasca'].indexOf(area) === -1) return { ok:false, error:'Área inválida' };
+  // Un rol de área solo registra en SU área (igual candado que las charolas).
+  if (rol === 'cocina'   && area !== 'cocina')   return { ok:false, error:'Solo productos directos de cocina' };
+  if (rol === 'churrasca' && area !== 'churrasca') return { ok:false, error:'Solo productos directos de churrasca' };
+
+  var ingId = String(data.ingrediente_id || '').trim();
+  if (!ingId) return { ok:false, error:'Elige el producto' };
+  var gramos = Number(data.gramos);
+  if (!(gramos > 0)) return { ok:false, error:'Captura el peso en gramos (mayor a 0)' };
+
+  var fecha = String(data.fecha||'').trim() || fechaToString(new Date());
+  var hora  = String(data.hora||'').trim()  || nowHHMM();
+  var sucursal_id = data.sucursal_id || ((rowsToObjects(getSheet('Sucursales')).find(function(s){ return s.empresa_id === u.empresa_id; })||{}).id || '');
+
+  var ing = rowsToObjects(getSheet('Ingredientes')).find(function(r){ return r.id === ingId && r.empresa_id === u.empresa_id; });
+  if (!ing) return { ok:false, error:'Producto no encontrado' };
+
+  // Dejar constancia en la hoja Charolas con tipo 'directo'.
+  // 13 columnas: id,empresa_id,sucursal_id,fecha,hora,area,tipo,descripcion,cantidad,
+  //              responsable_email,creado_at,receta_id,descuento_aplicado
+  var newId = uuid();
+  var nombreProd = String(ing.nombre || '').trim() || ingId;
+
+  // Descuento directo al inventario teórico SOLO si el insumo está configurado como
+  // inventariable. Se capturan gramos; se convierten a la unidad del inventario.
+  var cantDescontada = 0, descontado = false;
+  try {
+    var cfg = rowsToObjects(getSheet('InventarioChurrascaConfig')).find(function(c){
+      return c.empresa_id === u.empresa_id && c.ingrediente_id === ingId && _truthy(c.activo);
+    });
+    if (cfg){
+      // Gramos → unidad del inventario (config) o, si no la trae, la unidad_base del insumo.
+      cantDescontada = gramos * _unidadFactorBase('g', cfg.unidad || ing.unidad_base);
+      if (cantDescontada > 0){
+        _mermaDescontarInsumo(u.empresa_id, sucursal_id, fecha, ingId, cantDescontada, 'directo:' + newId, u.email);
+        descontado = true;
+      }
+    }
+  } catch(e){ try { Logger.log('Producto directo: descuento falló: ' + e); } catch(_){} }
+
+  // cantidad = gramos capturados (la unidad del registro de producto directo es SIEMPRE gramos).
+  getSheet('Charolas').appendRow([newId, u.empresa_id, sucursal_id, fecha, hora, area, 'directo',
+    nombreProd, Number(gramos.toFixed(2)), u.email, new Date(), '', descontado]);
+
+  return { ok:true, id:newId, gramos:Number(gramos.toFixed(2)), descontado:descontado,
+    aviso: descontado ? '' : 'Registrado. Este producto aún no está en el inventario configurado, así que quedó anotado pero no descontó stock. Pide a almacén/Estefanía marcarlo como inventariable.' };
+}
+
 function handleMermasList(p){
   var u = validarToken(p.token);
   if (!u) return { ok:false, error:'Sesión inválida' };
