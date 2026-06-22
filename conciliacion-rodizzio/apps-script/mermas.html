@@ -370,7 +370,8 @@ try { __areaParam = (queryParams && queryParams.area) ? String(queryParams.area)
       document.getElementById('mInsumo').value=''; document.getElementById('mCantidad').value='';
       document.getElementById('mMotivo').value=''; document.getElementById('mObs').value='';
       document.getElementById('mInsumoHint').textContent='';
-      var _md=document.getElementById('mDia'); if(_md){ _md.value=todayISO(); } // vuelve a "Hoy" tras guardar
+      // El Día elegido se CONSERVA entre registros: si están llenando todo "Ayer" de corrido (caso
+      // reporte Luis: terminan agotados y al día siguiente con calma capturan), no hay que recambiarlo.
       cargarMermas();
     });
   });
