@@ -108,6 +108,11 @@ try { __areaParam = (queryParams && queryParams.area) ? String(queryParams.area)
       </select>
     </div>
     <div class="form-grid">
+      <div class="fld full" id="mDiaWrap">
+        <label>Día de la merma</label>
+        <select id="mDia"></select>
+        <div class="hint">Normalmente “Hoy”. Si registras de madrugada la merma de anoche, elige “Ayer”.</div>
+      </div>
       <div class="fld full">
         <label>Insumo (producto)</label>
         <input type="text" id="mInsumo" list="insumosList" placeholder="Escribe para buscar… (ej. Jitomate, Pollo)" autocomplete="off">
@@ -207,6 +212,18 @@ try { __areaParam = (queryParams && queryParams.area) ? String(queryParams.area)
   function todayISO(){ var d=new Date(Date.now()-3*60*60*1000); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
   function nowHHMM(){ var d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
   function nombreMes(){ var m=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']; var d=new Date(); return m[d.getMonth()]+' '+d.getFullYear(); }
+  function _ddmm(iso){ var p=String(iso).split('-'); return p.length===3 ? p[2]+'/'+p[1] : iso; }
+  // Día de captura de la merma: default HOY (día lógico, corte 3am). Permite elegir AYER para registrar
+  // de madrugada la merma del servicio de la noche anterior, ya pasado el corte de las 3am (reporte chefs).
+  function llenarDiaMerma(){
+    var sel=document.getElementById('mDia'); if(!sel) return;
+    var hoy=todayISO();
+    var dA=new Date(Date.now()-3*60*60*1000-24*60*60*1000);
+    var ayer=dA.getFullYear()+'-'+String(dA.getMonth()+1).padStart(2,'0')+'-'+String(dA.getDate()).padStart(2,'0');
+    sel.innerHTML='<option value="'+hoy+'">Hoy ('+_ddmm(hoy)+')</option>'+
+                  '<option value="'+ayer+'">Ayer ('+_ddmm(ayer)+')</option>';
+    sel.value=hoy;
+  }
   function toast(msg,tipo){ var t=document.getElementById('toast'); t.textContent=msg; t.className='toast show'+(tipo==='error'?' error':''); setTimeout(function(){ t.classList.remove('show'); }, 2600); }
 
   // ---------- API JSONP + carga robusta ----------
@@ -273,6 +290,7 @@ try { __areaParam = (queryParams && queryParams.area) ? String(queryParams.area)
     }
     // Branding dinámico (solo sobrescribe si hay empresa_config)
     (function(){ if(!token)return; var cb='_brand_'+Date.now(); window[cb]=function(d){ try{delete window[cb];}catch(e){} if(!d||!d.ok||!d.branding||d.origen!=='empresa_config')return; var b=d.branding,rs=document.documentElement.style; if(b.color_primario)rs.setProperty('--gold',b.color_primario); if(b.color_secundario)rs.setProperty('--ink',b.color_secundario); if(b.color_acento)rs.setProperty('--ember',b.color_acento); if(b.color_fondo)rs.setProperty('--cream',b.color_fondo); if(b.nombre_comercial)document.querySelectorAll('.brand .wordmark').forEach(function(w){ w.textContent=String(b.nombre_comercial).toUpperCase(); }); }; var s=document.createElement('script'); s.src=API_URL+'?action=empresa_branding_get&token='+encodeURIComponent(token)+'&callback='+cb; s.async=true; document.head.appendChild(s); })();
+    llenarDiaMerma();
     return true;
   }
   function areaCap(a){ return ({cocina:'Cocina',churrasca:'Churrasca',barra:'Barra',cava:'Cava',panaderia:'Panadería'})[a]||a; }
@@ -339,7 +357,7 @@ try { __areaParam = (queryParams && queryParams.area) ? String(queryParams.area)
       ingrediente_id:info.id, cantidad:cantidad,
       unidad:document.getElementById('mUnidad').value, motivo:motivo,
       observacion:document.getElementById('mObs').value||'', area:area,
-      fecha:todayISO(), hora:nowHHMM(),
+      fecha:(document.getElementById('mDia')&&document.getElementById('mDia').value)||todayISO(), hora:nowHHMM(),
       sucursal_id:(sucursales&&sucursales[0]&&sucursales[0].id)||''
     };
     var btn=document.getElementById('btnRegistrar'); var txt=btn.textContent; btn.disabled=true; btn.textContent='Guardando…';
@@ -352,6 +370,7 @@ try { __areaParam = (queryParams && queryParams.area) ? String(queryParams.area)
       document.getElementById('mInsumo').value=''; document.getElementById('mCantidad').value='';
       document.getElementById('mMotivo').value=''; document.getElementById('mObs').value='';
       document.getElementById('mInsumoHint').textContent='';
+      var _md=document.getElementById('mDia'); if(_md){ _md.value=todayISO(); } // vuelve a "Hoy" tras guardar
       cargarMermas();
     });
   });
