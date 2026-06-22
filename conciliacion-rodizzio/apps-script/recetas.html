@@ -174,6 +174,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
   tr:nth-child(even) td{background:#fdfaf8}
   tr:hover td{background:var(--brand-tint)}
   tr.row-clickable{cursor:pointer}
+  .row-edit-chip{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:4px;font-size:10.5px;font-weight:600;letter-spacing:.03em;background:rgba(196,50,42,.10);color:var(--ember);white-space:nowrap;vertical-align:middle}
+  tr.row-clickable:hover .row-edit-chip{background:var(--ember);color:#fff}
   td.num{text-align:right;font-variant-numeric:tabular-nums}
   td.editable{cursor:cell;position:relative}
   td.editable:hover{background:rgba(64,138,191,.06)}
@@ -465,6 +467,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
       <div class="kpi"><div class="lbl">Total recetas</div><div class="val" id="kpiRecTot">—</div></div>
       <div class="kpi"><div class="lbl">Con instrucciones</div><div class="val" id="kpiRecConInstr">—</div></div>
       <div class="kpi warn"><div class="lbl">📝 Sin instrucciones</div><div class="val" id="kpiRecSinInstr">—</div></div>
+    </div>
+    <div id="recHintChef" style="display:none;background:rgba(196,50,42,.06);border-left:4px solid var(--ember);padding:11px 16px;border-radius:var(--r-md);font-size:13px;color:var(--ink);line-height:1.55;margin-bottom:14px">
+      👨‍🍳 <strong>Toca una receta</strong> de la lista para <strong>verla, editarla o proponer cambios</strong>.
+      Usa el botón <strong>+ Nueva receta</strong> para agregar una. Lo que propongas queda en la pestaña <strong>📋 Mis propuestas</strong>.
     </div>
     <div class="filtros">
       <span class="label">Buscar:</span>
@@ -881,13 +887,20 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
     if (rol === 'cocina' || rol === 'churrasca' || rol === 'barman' || rol === 'panadero') {
       var _areaSel = document.getElementById('recArea');
       if (_areaSel) {
-        _areaSel.value = rol;
+        // ⚠️ El rol NO siempre se llama igual que el área: 'panadero' → área 'panaderia'.
+        // 'barman' cubre DOS áreas (barra Y cava); el backend (_areasDeRol) ya le entrega
+        // solo barra+cava, así que dejamos el filtro en "Todas" ('') para que vea las dos.
+        var _ROL_A_AREA = { cocina: 'cocina', churrasca: 'churrasca', panadero: 'panaderia' };
+        _areaSel.value = _ROL_A_AREA[rol] || '';
         _areaSel.style.display = 'none';
         var _lbl = _areaSel.previousElementSibling;
         if (_lbl && _lbl.classList && _lbl.classList.contains('label')) _lbl.style.display = 'none';
       }
       var _tabMP = document.getElementById('tabMisPropuestas');
       if (_tabMP) _tabMP.style.display = 'inline-flex';
+      // Pista visible: estos roles a menudo no notaban que cada receta es accionable.
+      var _hint = document.getElementById('recHintChef');
+      if (_hint) _hint.style.display = 'block';
     }
     (function(){ if (!token) return; var _cb='_brand_'+Date.now(); window[_cb]=function(d){ try{delete window[_cb];}catch(e){} if(!d||!d.ok||!d.branding||d.origen!=='empresa_config') return; var b=d.branding,rs=document.documentElement.style; if(b.color_primario) rs.setProperty('--gold',b.color_primario); if(b.color_secundario) rs.setProperty('--ink',b.color_secundario); if(b.color_acento) rs.setProperty('--ember',b.color_acento); if(b.color_fondo) rs.setProperty('--cream',b.color_fondo); if(b.nombre_comercial) document.querySelectorAll('.brand-flame .wordmark').forEach(function(w){ w.textContent=String(b.nombre_comercial).toUpperCase(); }); }; var _s=document.createElement('script'); _s.src=API_URL+'?action=empresa_branding_get&token='+encodeURIComponent(token)+'&callback='+_cb; _s.async=true; document.head.appendChild(_s); })();
     return true;
@@ -1227,14 +1240,20 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
       tb.innerHTML = '<tr><td colspan="6" class="empty-state">Sin resultados</td></tr>';
       return;
     }
+    // Pista de acción por fila: para roles que editan, mostramos un chip "✏️ Ver / editar"
+    // (la fila YA es clickable y llama abrirReceta — el chip solo lo hace evidente, no duplica lógica).
+    var _puedeEditarRec = ROLES_EDITAN_RECETAS.indexOf(rol) !== -1;
     tb.innerHTML = lista.map(function(r){
       var areaB = r.area === 'churrasca' ? '<span class="badge b-churrasca">Churrasca</span>' : r.area === 'barra' ? '<span class="badge b-barra">Barra</span>' : r.area === 'panaderia' ? '<span class="badge b-panaderia">Panadería</span>' : r.area === 'cava' ? '<span class="badge b-cava">Cava</span>' : '<span class="badge b-cocina">Cocina</span>';
       var stB = r.activa ? '<span class="badge b-good">Activa</span>' : '<span class="badge b-bad">Inactiva</span>';
       if (r.es_elaborado) stB = '<span class="badge b-sub">Sub-receta</span>';
       var rend = r.rendimiento ? (Math.round(Number(r.rendimiento) * 1000) / 1000) + ' ' + (r.unidad_rendimiento || 'porc') : '—';
       var marca = r.sin_instrucciones ? ' <span title="Sin instrucciones documentadas" style="color:var(--warn);font-size:11px">📝</span>' : '';
+      var chip = _puedeEditarRec
+        ? ' <span class="row-edit-chip">✏️ Ver / editar</span>'
+        : '';
       return '<tr class="row-clickable" data-id="' + r.id + '">' +
-        '<td><strong>' + esc(r.nombre) + '</strong>' + marca + '</td>' +
+        '<td><strong>' + esc(r.nombre) + '</strong>' + marca + chip + '</td>' +
         '<td>' + esc(r.categoria_culinaria || '—') + '</td>' +
         '<td>' + areaB + '</td>' +
         '<td>' + esc((r.chef_responsable_email || '').split('@')[0]) + '</td>' +
