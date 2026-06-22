@@ -1,0 +1,432 @@
+<? var __tokenInyectado = '';
+try { __tokenInyectado = (queryParams && queryParams.t) ? String(queryParams.t) : ''; } catch(e){}
+var __areaParam = '';
+try { __areaParam = (queryParams && queryParams.area) ? String(queryParams.area).toLowerCase() : ''; } catch(e){} ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control de Mermas · Fogueira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0c0907; --ember:#c4322a; --ember-deep:#8a1f17; --cream:#f6f1e8; --gold:#c89a4a;
+    --paper:#fbf8f2; --line:#e4dccd; --muted:#8a7f70; --good:#1E7F5C; --bad:#8a1f17; --warn:#9a6e1a;
+    --font-serif:'Cormorant Garamond',serif; --font-sans:'DM Sans',system-ui,sans-serif; --font-mono:'DM Mono',monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5}
+  a{color:inherit}
+  /* Topbar */
+  header.app{background:var(--ink);color:var(--cream);padding:14px 22px}
+  .head-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;max-width:1100px;margin:0 auto}
+  .brand{display:flex;align-items:baseline;gap:10px}
+  .brand .wordmark{font-family:var(--font-serif);font-style:italic;font-size:22px;letter-spacing:.02em}
+  .brand .sub{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:rgba(246,241,232,.6)}
+  .head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .head-actions .empn{font-size:12px;color:rgba(246,241,232,.5)}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-family:var(--font-sans);font-size:12.5px;font-weight:500;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;text-decoration:none;transition:all .15s}
+  .btn:hover{border-color:var(--gold)}
+  .head-actions .btn{background:rgba(246,241,232,.05);color:var(--cream);border-color:rgba(246,241,232,.18)}
+  .btn-primary{background:var(--ember);color:#fff;border-color:var(--ember)}
+  .btn-primary:hover{background:var(--ember-deep);border-color:var(--ember-deep)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  /* Layout */
+  main{max-width:1100px;margin:0 auto;padding:26px 22px 60px}
+  .page-head h1{font-family:var(--font-serif);font-style:italic;font-weight:600;font-size:34px;margin:0 0 4px}
+  .page-head .desc{color:var(--muted);font-size:13.5px;margin-bottom:20px}
+  .card{background:#fff;border:1px solid var(--line);padding:18px 20px;margin-bottom:22px}
+  .card h2{font-family:var(--font-serif);font-style:italic;font-weight:600;font-size:22px;margin:0 0 4px}
+  .meta-line{font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;margin-bottom:14px}
+  .meta-line b{color:var(--ink)}
+  .form-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}
+  .form-grid .full{grid-column:1/-1}
+  .fld{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+  .fld label{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .fld input,.fld select{padding:9px 11px;font-family:var(--font-sans);font-size:14px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+  .fld input:focus,.fld select:focus{outline:none;border-color:var(--gold)}
+  .alert{padding:9px 13px;font-size:13px;margin-bottom:10px}
+  .alert.error{background:rgba(196,50,42,.08);border-left:3px solid var(--ember);color:var(--ember-deep)}
+  .alert.ok{background:rgba(30,127,92,.08);border-left:3px solid var(--good);color:var(--good)}
+  .alert.warn{background:rgba(154,110,26,.1);border-left:3px solid var(--warn);color:var(--warn)}
+  .filtros{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .kpi-total{margin-left:auto;text-align:right}
+  .kpi-total .lbl{font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .kpi-total .val{font-family:var(--font-serif);font-style:italic;font-size:30px;font-weight:600;color:var(--ember-deep)}
+  table.data{width:100%;border-collapse:collapse;font-size:13px}
+  table.data th{text-align:left;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--line);padding:8px 10px}
+  table.data td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.data td.num{text-align:right;font-family:var(--font-mono)}
+  .empty-state{text-align:center;color:var(--muted);padding:26px 12px}
+  .pill{display:inline-block;font-size:10.5px;padding:1px 7px;background:var(--paper);border:1px solid var(--line);white-space:nowrap}
+  .x-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;line-height:1}
+  .x-del:hover{color:var(--ember)}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:2px}
+  /* Toast */
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--cream);padding:11px 20px;font-size:13.5px;opacity:0;pointer-events:none;transition:all .25s;z-index:200;max-width:90vw;text-align:center}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.error{background:var(--ember-deep)}
+  @media(max-width:640px){ .form-grid{grid-template-columns:1fr} .page-head h1{font-size:28px} }
+</style>
+</head>
+<body>
+<header class="app">
+  <div class="head-row">
+    <div class="brand">
+      <span class="wordmark">FOGUEIRA</span>
+      <span class="sub">Control de Mermas</span>
+    </div>
+    <div class="head-actions">
+      <span class="empn" id="empresaNombre">—</span>
+      <a class="btn" id="btnInicio" href="#" target="_top">← Inicio</a>
+      <button class="btn" id="btnLogout" type="button">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="page-head">
+    <h1>Control de Mermas</h1>
+    <div class="desc">Registra los insumos que se perdieron o desperdiciaron. Cada merma se valoriza en pesos y descuenta del inventario teórico (no toca el SR12). Reemplaza la hoja de papel.</div>
+  </div>
+
+  <div class="card">
+    <h2>Registrar una merma</h2>
+    <div class="meta-line">Área: <b id="mMetaArea">—</b> &nbsp;·&nbsp; Responsable: <b id="mMetaResp">—</b> &nbsp;·&nbsp; Mes: <b id="mMetaMes">—</b></div>
+    <div id="mAlert"></div>
+    <div class="fld" id="mAreaWrap" style="display:none">
+      <label>Área</label>
+      <select id="mArea">
+        <option value="cocina">Cocina</option>
+        <option value="churrasca">Churrasca</option>
+        <option value="barra">Barra</option>
+        <option value="cava">Cava</option>
+        <option value="panaderia">Panadería</option>
+      </select>
+    </div>
+    <div class="form-grid">
+      <div class="fld full">
+        <label>Insumo (producto)</label>
+        <input type="text" id="mInsumo" list="insumosList" placeholder="Escribe para buscar… (ej. Jitomate, Pollo)" autocomplete="off">
+        <datalist id="insumosList"></datalist>
+        <div class="hint" id="mInsumoHint"></div>
+      </div>
+      <div class="fld">
+        <label>Cantidad</label>
+        <input type="number" id="mCantidad" min="0" step="0.001" placeholder="0">
+      </div>
+      <div class="fld">
+        <label>Unidad</label>
+        <select id="mUnidad">
+          <option value="kg">kg</option>
+          <option value="gr">gr</option>
+          <option value="lt">lt</option>
+          <option value="ml">ml</option>
+          <option value="pza">pza</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label>Motivo</label>
+        <select id="mMotivo">
+          <option value="">— Elige —</option>
+          <option>Caducidad / producto vencido</option>
+          <option>Se echó a perder / mal estado</option>
+          <option>Mal manejo / accidente (se cayó)</option>
+          <option>Se quemó / temperatura incorrecta</option>
+          <option>No pasó control de calidad</option>
+          <option>Sobreproducción (se preparó de más)</option>
+          <option>Sobrante al cierre del turno</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div class="fld full">
+        <label>Observación (opcional)</label>
+        <input type="text" id="mObs" maxlength="300" placeholder="Detalle, si aplica…">
+      </div>
+    </div>
+    <button class="btn btn-primary" id="btnRegistrar" type="button">Registrar merma</button>
+  </div>
+
+  <div class="card">
+    <div class="filtros">
+      <div class="fld" style="margin:0">
+        <label>Periodo</label>
+        <select id="fPeriodo">
+          <option value="hoy">Hoy</option>
+          <option value="mes" selected>Este mes</option>
+          <option value="todo">Todo</option>
+        </select>
+      </div>
+      <div class="kpi-total">
+        <div class="lbl">Pérdida del periodo</div>
+        <div class="val" id="totalCosto">—</div>
+      </div>
+    </div>
+    <table class="data">
+      <thead><tr>
+        <th>Fecha</th><th>Producto</th><th class="num">Cant.</th><th>Motivo</th>
+        <th class="num">$ perdido</th><th>Observación</th><th>Responsable</th><th></th>
+      </tr></thead>
+      <tbody id="tblMermas"><tr><td colspan="8" class="empty-state">Cargando…</td></tr></tbody>
+    </table>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+  var API_URL = 'https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec';
+
+  function getQuery(name){ var m=(location.search.match(new RegExp('[?&]'+name+'=([^&]*)'))||[])[1]; return m?decodeURIComponent(m):''; }
+  var token = getQuery('t') || '<?!= __tokenInyectado ?>';
+  var user, empresa, sucursales;
+  if (token) { try { sessionStorage.setItem('fogueira_token', token); } catch(e){} }
+  if (!token) { try { token = sessionStorage.getItem('fogueira_token'); } catch(e){} }
+  if (!token) { (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})(); return; }
+  try {
+    user = JSON.parse(sessionStorage.getItem('fogueira_user') || 'null');
+    empresa = JSON.parse(sessionStorage.getItem('fogueira_empresa') || 'null');
+    sucursales = JSON.parse(sessionStorage.getItem('fogueira_sucursales') || '[]');
+  } catch(e){}
+
+  var MERMA_ROLES = ['admin','gerente_administrativo','auditoria','cocina','churrasca','barman','panadero'];
+  var AREA_POR_ROL = { cocina:'cocina', churrasca:'churrasca', barman:'barra', panadero:'panaderia' };
+  var rol = '', ingMap = {};
+  var _sesionUIAplicada = false;
+
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function escAttr(s){ return esc(s).replace(/"/g,'&quot;'); }
+  function fmtMoney(n){ return '$' + (Math.round((parseFloat(n)||0)*100)/100).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  // Día LÓGICO del restaurante (corte 3am, igual que el backend): entre 00:00 y 02:59 cuenta como
+  // AYER, para que la merma de madrugada caiga en la jornada de servicio correcta (v440).
+  function todayISO(){ var d=new Date(Date.now()-3*60*60*1000); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function nowHHMM(){ var d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+  function nombreMes(){ var m=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']; var d=new Date(); return m[d.getMonth()]+' '+d.getFullYear(); }
+  function toast(msg,tipo){ var t=document.getElementById('toast'); t.textContent=msg; t.className='toast show'+(tipo==='error'?' error':''); setTimeout(function(){ t.classList.remove('show'); }, 2600); }
+
+  // ---------- API JSONP + carga robusta ----------
+  function apiCall(params, cb){
+    var cbName='_jcb_'+Date.now()+'_'+Math.floor(Math.random()*10000);
+    var s=document.createElement('script');
+    var cleanup=function(){ try{delete window[cbName];}catch(e){window[cbName]=undefined;} if(s.parentNode)s.parentNode.removeChild(s); };
+    var t=setTimeout(function(){ cleanup(); cb({ok:false,error:'timeout'}); }, 25000);
+    window[cbName]=function(d){ clearTimeout(t); cleanup(); cb(d); };
+    var qs=Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
+    s.onerror=function(){ clearTimeout(t); cleanup(); cb({ok:false,error:'network'}); };
+    s.src=API_URL+'?'+qs+'&callback='+cbName; document.body.appendChild(s);
+  }
+  function _esErrTransitorio(res){ if(!res)return true; if(res.ok)return false; var e=String(res.error||'').toLowerCase(); return e==='network'||e.indexOf('timeout')!==-1; }
+  function apiCallReintento(params, cb, intentos){
+    intentos=(intentos==null)?2:intentos;
+    apiCall(params, function(res){
+      if(res&&res.ok){ cb(res); return; }
+      if(intentos>0&&_esErrTransitorio(res)){ setTimeout(function(){ apiCallReintento(params,cb,intentos-1); },1200); return; }
+      cb(res);
+    });
+  }
+  function _errorTabla(colspan, msg, onRetry){
+    var tb=document.getElementById('tblMermas'); if(!tb)return;
+    var tr=document.createElement('tr'); var td=document.createElement('td');
+    td.colSpan=colspan; td.className='empty-state';
+    var p=document.createElement('div'); p.textContent=msg||'No se pudo cargar.'; p.style.marginBottom='12px';
+    var b=document.createElement('button'); b.type='button'; b.className='btn'; b.textContent='↻ Reintentar';
+    b.onclick=function(){ tb.innerHTML='<tr><td colspan="'+colspan+'" class="empty-state">Cargando…</td></tr>'; onRetry(); };
+    td.appendChild(p); td.appendChild(b); tr.appendChild(td); tb.innerHTML=''; tb.appendChild(tr);
+  }
+
+  // ---------- Sesión / UI ----------
+  function urlInicio(){ return API_URL+'?p=inicio&t='+encodeURIComponent(token||'')+(user?'&urol='+encodeURIComponent(user.rol||'')+'&unom='+encodeURIComponent(user.nombre||user.email||''):''); }
+  document.getElementById('btnLogout').addEventListener('click', function(){
+    if(!confirm('¿Cerrar sesión?')) return;
+    try{ sessionStorage.clear(); }catch(e){}
+    (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+  });
+
+  function aplicarSesionUI(){
+    if(_sesionUIAplicada) return true;
+    _sesionUIAplicada=true;
+    rol=String(user?user.rol:'').trim().toLowerCase();
+    if(MERMA_ROLES.indexOf(rol)===-1){
+      alert('Tu rol no tiene acceso a Control de Mermas.');
+      (function(_u){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sin acceso</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Esta pantalla no es para tu rol</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Toca el botón de abajo para ir a tu inicio, donde verás las pantallas que sí puedes usar.</p><a href="'+_u+'" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">← Ir a mi inicio</a></div>';document.body.appendChild(_o);})(urlInicio());
+      return false;
+    }
+    document.getElementById('empresaNombre').textContent=(empresa&&empresa.nombre)||'—';
+    document.getElementById('btnInicio').href=urlInicio();
+    document.getElementById('mMetaResp').textContent=(user&&(user.nombre||user.email))||'—';
+    document.getElementById('mMetaMes').textContent=nombreMes();
+    // Área: por rol; admin/gerente/auditoría pueden elegir.
+    var areaFija=AREA_POR_ROL[rol];
+    if(areaFija){
+      document.getElementById('mMetaArea').textContent=areaCap(areaFija);
+      document.getElementById('mArea').value=areaFija;
+    } else {
+      document.getElementById('mAreaWrap').style.display='';
+      var sel=document.getElementById('mArea');
+      sel.addEventListener('change', function(){ document.getElementById('mMetaArea').textContent=areaCap(sel.value); });
+      document.getElementById('mMetaArea').textContent=areaCap(sel.value);
+    }
+    // Branding dinámico (solo sobrescribe si hay empresa_config)
+    (function(){ if(!token)return; var cb='_brand_'+Date.now(); window[cb]=function(d){ try{delete window[cb];}catch(e){} if(!d||!d.ok||!d.branding||d.origen!=='empresa_config')return; var b=d.branding,rs=document.documentElement.style; if(b.color_primario)rs.setProperty('--gold',b.color_primario); if(b.color_secundario)rs.setProperty('--ink',b.color_secundario); if(b.color_acento)rs.setProperty('--ember',b.color_acento); if(b.color_fondo)rs.setProperty('--cream',b.color_fondo); if(b.nombre_comercial)document.querySelectorAll('.brand .wordmark').forEach(function(w){ w.textContent=String(b.nombre_comercial).toUpperCase(); }); }; var s=document.createElement('script'); s.src=API_URL+'?action=empresa_branding_get&token='+encodeURIComponent(token)+'&callback='+cb; s.async=true; document.head.appendChild(s); })();
+    return true;
+  }
+  function areaCap(a){ return ({cocina:'Cocina',churrasca:'Churrasca',barra:'Barra',cava:'Cava',panaderia:'Panadería'})[a]||a; }
+
+  // ---------- Catálogo de insumos (datalist) ----------
+  function cargarIngredientes(){
+    apiCallReintento({ action:'ingredientes_list', token:token }, function(res){
+      if(!res||!res.ok) return; // no es crítico para mostrar la tabla; el registro avisará si falta
+      var dl=document.getElementById('insumosList');
+      var activos=(res.ingredientes||[]).filter(function(i){ return i.activo!==false; });
+      var html='';
+      activos.forEach(function(i){
+        ingMap[String(i.nombre||'').trim().toLowerCase()]={ id:i.id, unidad_base:i.unidad_base, precio:i.precio_real_unitario };
+        html+='<option value="'+escAttr(i.nombre)+'"></option>';
+      });
+      dl.innerHTML=html;
+    });
+  }
+  // Al elegir un insumo conocido, sugerir su unidad base.
+  document.getElementById('mInsumo').addEventListener('change', function(){
+    var info=ingMap[String(this.value||'').trim().toLowerCase()];
+    var hint=document.getElementById('mInsumoHint');
+    if(info){
+      var ub=String(info.unidad_base||'').toLowerCase();
+      var map={kg:'kg',kilo:'kg',kilos:'kg',lt:'lt',l:'lt',litro:'lt',gr:'gr',g:'gr',ml:'ml',pza:'pza',pieza:'pza',pieza_s:'pza'};
+      if(map[ub]) document.getElementById('mUnidad').value=map[ub];
+      hint.textContent = info.precio ? ('Costo de referencia: '+fmtMoney(info.precio)+' / '+(info.unidad_base||'unidad')) : 'Sin costo de referencia capturado.';
+    } else { hint.textContent=''; }
+  });
+
+  // ---------- Registrar ----------
+  function setAlert(msg,tipo){ var a=document.getElementById('mAlert'); if(!msg){ a.innerHTML=''; return; } a.innerHTML='<div class="alert '+(tipo||'error')+'">'+esc(msg)+'</div>'; }
+  // Sesión vencida (caduca al cambio de día lógico, 3am): aviso claro + botón de re-login en vez del
+  // crudo "Sesión inválida" (reporte chefs: "no me deja registrar merma después de cierta hora" = en
+  // realidad sesión/link viejo que caducó). Mismo patrón que conciliación (v440).
+  function _esErrSesionM(res){
+    if(!res || res.ok) return false;
+    var e = String(res.error||'').toLowerCase();
+    if(e==='network' || e.indexOf('timeout')!==-1) return false; // transitorio ≠ sesión
+    return e.indexOf('sesi')!==-1 || e.indexOf('inválid')!==-1 || e.indexOf('invalid')!==-1 || e.indexOf('expir')!==-1 || e.indexOf('token')!==-1;
+  }
+  var _sesionExpiradaMostrada=false;
+  function mostrarSesionExpirada(){
+    if(_sesionExpiradaMostrada) return; _sesionExpiradaMostrada=true;
+    try{ sessionStorage.clear(); }catch(e){}
+    try{
+      var _o=document.createElement('div');
+      _o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';
+      _o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día (a las 3am). Vuelve a iniciar sesión para seguir registrando.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';
+      document.body.appendChild(_o);
+    }catch(e){}
+  }
+  document.getElementById('btnRegistrar').addEventListener('click', function(){
+    setAlert('');
+    var nombre=String(document.getElementById('mInsumo').value||'').trim();
+    var info=ingMap[nombre.toLowerCase()];
+    if(!info){ setAlert('Elige un insumo de la lista (escribe y selecciónalo).'); return; }
+    var cantidad=parseFloat(document.getElementById('mCantidad').value)||0;
+    if(cantidad<=0){ setAlert('Escribe una cantidad mayor a 0.'); return; }
+    var motivo=document.getElementById('mMotivo').value;
+    if(!motivo){ setAlert('Elige el motivo de la merma.'); return; }
+    var area=document.getElementById('mArea').value;
+    var data={
+      ingrediente_id:info.id, cantidad:cantidad,
+      unidad:document.getElementById('mUnidad').value, motivo:motivo,
+      observacion:document.getElementById('mObs').value||'', area:area,
+      fecha:todayISO(), hora:nowHHMM(),
+      sucursal_id:(sucursales&&sucursales[0]&&sucursales[0].id)||''
+    };
+    var btn=document.getElementById('btnRegistrar'); var txt=btn.textContent; btn.disabled=true; btn.textContent='Guardando…';
+    apiCall({ action:'merma_create', token:token, data:JSON.stringify(data) }, function(res){
+      btn.disabled=false; btn.textContent=txt;
+      if(!res||!res.ok){ if(_esErrSesionM(res)){ mostrarSesionExpirada(); return; } setAlert((res&&res.error)||'No se pudo registrar. Revisa tu internet.'); return; }
+      toast('✓ Merma registrada · '+fmtMoney(res.costo_total));
+      if(res.aviso) setAlert(res.aviso,'warn');
+      // limpiar campos de captura (conserva área)
+      document.getElementById('mInsumo').value=''; document.getElementById('mCantidad').value='';
+      document.getElementById('mMotivo').value=''; document.getElementById('mObs').value='';
+      document.getElementById('mInsumoHint').textContent='';
+      cargarMermas();
+    });
+  });
+
+  // ---------- Lista ----------
+  function rangoPeriodo(){
+    var v=document.getElementById('fPeriodo').value;
+    if(v==='hoy'){ var t=todayISO(); return {desde:t,hasta:t}; }
+    if(v==='mes'){ var d=new Date(); var ini=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-01'; return {desde:ini,hasta:todayISO()}; }
+    return {desde:'',hasta:''};
+  }
+  function cargarMermas(){
+    var r=rangoPeriodo();
+    document.getElementById('tblMermas').innerHTML='<tr><td colspan="8" class="empty-state">Cargando…</td></tr>';
+    apiCallReintento({ action:'mermas_list', token:token, fecha_desde:r.desde, fecha_hasta:r.hasta }, function(res){
+      if(!res||!res.ok){ _errorTabla(8,'No se pudieron cargar las mermas. Revisa tu internet.', cargarMermas); return; }
+      document.getElementById('totalCosto').textContent=fmtMoney(res.total_costo||0);
+      var rows=res.mermas||[];
+      if(!rows.length){ document.getElementById('tblMermas').innerHTML='<tr><td colspan="8" class="empty-state">Sin mermas en este periodo. 🎉</td></tr>'; return; }
+      var rol2=rol;
+      document.getElementById('tblMermas').innerHTML=rows.map(function(m){
+        var puedeBorrar=(['admin','gerente_administrativo','auditoria'].indexOf(rol2)!==-1)||true; // el backend valida dueño
+        var noDesc=m.descontado?'':' <span class="pill" title="No está en el inventario configurado, solo quedó anotada">sin descontar</span>';
+        return '<tr>'
+          +'<td><span class="pill">'+esc(m.fecha)+'</span><br><span style="font-size:11px;color:var(--muted)">'+esc(m.hora||'')+'</span></td>'
+          +'<td><strong>'+esc(m.ingrediente_nombre)+'</strong>'+noDesc+'</td>'
+          +'<td class="num">'+(m.cantidad)+' '+esc(m.unidad||'')+'</td>'
+          +'<td>'+esc(m.motivo||'')+'</td>'
+          +'<td class="num" style="color:var(--ember-deep);font-weight:600">'+fmtMoney(m.costo_total)+'</td>'
+          +'<td style="font-size:12px;color:var(--muted)">'+esc(m.observacion||'')+'</td>'
+          +'<td style="font-size:12px">'+esc(m.responsable||'')+'</td>'
+          +'<td>'+(puedeBorrar?'<button class="x-del" type="button" data-del="'+escAttr(m.id)+'" title="Borrar">✕</button>':'')+'</td>'
+          +'</tr>';
+      }).join('');
+      document.getElementById('tblMermas').querySelectorAll('[data-del]').forEach(function(b){
+        b.addEventListener('click', function(){ borrarMerma(b.getAttribute('data-del')); });
+      });
+    });
+  }
+  function borrarMerma(id){
+    if(!confirm('¿Borrar esta merma? Si había descontado inventario, se reintegra.')) return;
+    apiCall({ action:'merma_delete', token:token, id:id }, function(res){
+      if(!res||!res.ok){ toast((res&&res.error)||'No se pudo borrar','error'); return; }
+      toast('Merma borrada'); cargarMermas();
+    });
+  }
+  document.getElementById('fPeriodo').addEventListener('change', cargarMermas);
+
+  // ---------- Init (resiliente: un parpadeo no tira la sesión) ----------
+  function iniciar(){
+    apiCallReintento({ action:'me', token:token }, function(res){
+      if(!res||!res.ok){
+        if(_esErrTransitorio(res)){
+          _errorTabla(8,'No se pudo conectar con el servidor. Tu sesión sigue activa.', iniciar);
+          return;
+        }
+        try{ sessionStorage.clear(); }catch(e){}
+        alert('Tu sesión expiró.');
+        (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+        return;
+      }
+      user=res.user||user; empresa=res.empresa||empresa||null; sucursales=res.sucursales||sucursales||[];
+      try{
+        sessionStorage.setItem('fogueira_token',token);
+        sessionStorage.setItem('fogueira_user',JSON.stringify(user));
+        sessionStorage.setItem('fogueira_empresa',JSON.stringify(empresa));
+        sessionStorage.setItem('fogueira_sucursales',JSON.stringify(sucursales||[]));
+      }catch(e){}
+      if(!aplicarSesionUI()) return;
+      cargarIngredientes();
+      cargarMermas();
+    });
+  }
+  iniciar();
+})();
+</script>
+</body>
+</html>

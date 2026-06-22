@@ -917,7 +917,9 @@ img, svg { display: block; max-width: 100%; }
 
   // ---------- Fecha (siempre hoy, local) ----------
   function todayLocalISO(){
-    var d = new Date();
+    // Día LÓGICO del restaurante (corte 3am, igual que el backend): entre 00:00 y 02:59 todavía
+    // cuenta como AYER, para que una charola/merma de madrugada caiga en la jornada correcta (v440).
+    var d = new Date(Date.now() - 3*60*60*1000);
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
   }
   function nowHHMM(){
@@ -1185,6 +1187,20 @@ img, svg { display: block; max-width: 100%; }
     setTimeout(function(){ document.getElementById('dm_receta').focus(); }, 60);
   }
   function closeDetalleModal(){ document.getElementById('detalleModal').classList.remove('open'); dmArea = null; dmTipo = null; }
+  // Sesión vencida (caduca al cambio de día lógico, 3am): aviso claro + botón de re-login en vez
+  // del crudo "Sesión inválida" (reporte chefs Sergio/Josué: "no me deja registrar merma después
+  // de cierta hora" = en realidad sesión/link viejo que caducó). Mismo patrón que conciliación (v440).
+  var _sesionExpiradaMostrada = false;
+  function mostrarSesionExpirada(){
+    if (_sesionExpiradaMostrada) return; _sesionExpiradaMostrada = true;
+    try { sessionStorage.clear(); } catch(e){}
+    try {
+      var _o = document.createElement('div');
+      _o.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';
+      _o.innerHTML = '<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día (a las 3am). Vuelve a iniciar sesión para seguir registrando.</p><a href="' + API_URL + '?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';
+      document.body.appendChild(_o);
+    } catch(e){}
+  }
   function saveDetalleModal(){
     if (!dmArea || !dmTipo) return;
     var esMerma = (dmTipo === 'merma');
@@ -1251,6 +1267,9 @@ img, svg { display: block; max-width: 100%; }
       } else {
         var e = String((res && res.error) || '').toLowerCase();
         var esConex = (e === 'network' || e.indexOf('timeout') !== -1 || e.indexOf('sin conex') !== -1 || e.indexOf('tiempo de espera') !== -1);
+        if (!esConex && (e.indexOf('sesi') !== -1 || e.indexOf('inválid') !== -1 || e.indexOf('invalid') !== -1 || e.indexOf('expir') !== -1 || e.indexOf('token') !== -1)) {
+          mostrarSesionExpirada(); return;
+        }
         var msgErr = esConex
           ? 'Falló la conexión al guardar. Revisa tu internet y vuelve a intentar (toca Registrar otra vez).'
           : ((res && res.error) || 'No se pudo guardar');
