@@ -687,6 +687,10 @@ img, svg { display: block; max-width: 100%; }
           (propón la nueva receta, admin la aprueba)
         </div>
       </div>
+      <div class="form-row" id="dm_desc_libre_row">
+        <label for="dm_desc_libre">¿Qué serviste? <span style="text-transform:none;letter-spacing:0;color:var(--muted)">(si no está en la lista de recetas de arriba)</span></label>
+        <input type="text" id="dm_desc_libre" placeholder="Escribe el platillo que serviste…" maxlength="120" autocomplete="off">
+      </div>
       <div class="form-row" id="dm_insumos_row" style="display:none">
         <label>Insumos <span id="dm_insumos_hint" style="text-transform:none;letter-spacing:0;color:var(--muted)">(se descontarán al guardar — informativo)</span></label>
         <div id="dm_insumos_lista" style="background:var(--paper);padding:10px 14px;border-radius:6px;font-size:13px;color:var(--ink);max-height:240px;overflow-y:auto;border:1px solid var(--line)"></div>
@@ -1165,6 +1169,8 @@ img, svg { display: block; max-width: 100%; }
     cantEl.min  = esMerma ? '0.5' : '1';
     cantEl.value = porcionesPreset || 1;
     document.getElementById('dm_receta').value = '';
+    var _dlEl = document.getElementById('dm_desc_libre'); if (_dlEl) _dlEl.value = '';
+    var _dlRow = document.getElementById('dm_desc_libre_row'); if (_dlRow) _dlRow.style.display = recetaIdPreset ? 'none' : '';
     document.getElementById('dm_insumos_row').style.display = 'none';
     document.getElementById('dm_insumos_lista').innerHTML = '';
     document.getElementById('dm_preview_descuento').style.display = 'none';
@@ -1187,17 +1193,27 @@ img, svg { display: block; max-width: 100%; }
       : (parseInt(document.getElementById('dm_cantidad').value, 10) || 1);
     if (cantidad < (esMerma ? 0.5 : 1)) cantidad = esMerma ? 0.5 : 1;
     var recetaId = document.getElementById('dm_receta').value;
-    // Descripción base: nombre de receta si existe
+    // Descripción base: nombre de receta si existe; si NO hay receta, lo que el chef escribió
     var descripcion = '';
     if (recetaId) {
       var rec = (recetasCache || []).find(function(r){ return r.id === recetaId; });
       if (rec) descripcion = rec.nombre;
+    } else {
+      var libreEl = document.getElementById('dm_desc_libre');
+      descripcion = libreEl ? libreEl.value.trim() : '';
     }
     // Para mermas: incluir causa en descripción
     if (esMerma) {
       var causa = document.getElementById('dm_causa').value;
       if (causa === 'Otro') causa = document.getElementById('dm_causa_otro').value.trim() || 'Otro';
       if (causa) descripcion = descripcion ? descripcion + ' · ' + causa : causa;
+    }
+    // Candado anti "(sin descripción)" (reporte Chef Josué): no se guarda sin nombre.
+    // El nombre sale de la receta elegida o del texto «¿Qué serviste?». Sin ninguno, se detiene.
+    if (!descripcion) {
+      document.getElementById('dmAlert').innerHTML = '<div class="alert error">Elige el platillo de la lista, o si no está, escribe qué serviste en «¿Qué serviste?».</div>';
+      var _ff = document.getElementById(recetaId ? 'dm_receta' : 'dm_desc_libre'); if (_ff) _ff.focus();
+      return;
     }
     // Guardado (MUTACIÓN): NO se reintenta solo (evita doble registro). Bloqueamos el botón
     // mientras guarda y damos un mensaje claro si la conexión falla.
@@ -1224,6 +1240,7 @@ img, svg { display: block; max-width: 100%; }
         var _cancelBtn = document.getElementById('dmCancel'); if (_cancelBtn) _cancelBtn.textContent = 'Listo ✓';
         var _cantEl = document.getElementById('dm_cantidad'); if (_cantEl) _cantEl.value = esMerma ? '0.5' : '1';
         var _selR = document.getElementById('dm_receta'); if (_selR) _selR.value = '';
+        var _dlR = document.getElementById('dm_desc_libre'); if (_dlR) _dlR.value = '';
         actualizarPreviewReceta();
         if (esMerma) {
           document.getElementById('dm_causa').value = '';
@@ -1274,6 +1291,9 @@ img, svg { display: block; max-width: 100%; }
   //  - Muestra preview con mensaje según tipo (charola/reposición = vendido; merma = pérdida)
   function actualizarPreviewReceta(){
     var sel = document.getElementById('dm_receta');
+    // El campo de texto libre solo aplica cuando NO hay receta elegida (de la receta sale el nombre)
+    var descLibreRow = document.getElementById('dm_desc_libre_row');
+    if (descLibreRow) descLibreRow.style.display = sel.value ? 'none' : '';
     var preview = document.getElementById('dm_preview_descuento');
     var insumosRow = document.getElementById('dm_insumos_row');
     var insumosLista = document.getElementById('dm_insumos_lista');
