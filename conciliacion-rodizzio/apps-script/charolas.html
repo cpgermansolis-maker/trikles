@@ -1683,6 +1683,11 @@ img, svg { display: block; max-width: 100%; }
   function _totalesCharolas(arr){
     var t = { charola:0, reposicion:0, merma:0 };
     arr.forEach(function(c){ var tipo = String(c.tipo || '').toLowerCase(); if (t[tipo] !== undefined) t[tipo] += Number(c.cantidad) || 1; });
+    // Redondear: sumar mermas con decimales/medios arrastra basura de punto flotante en JS
+    // (ej. 16.759999999999998 en vez de 16.76 — reporte chef Josué, 19-jun). Limpiar el total.
+    t.charola = Math.round(t.charola * 100) / 100;
+    t.reposicion = Math.round(t.reposicion * 100) / 100;
+    t.merma = Math.round(t.merma * 100) / 100;
     return t;
   }
   function _filaCharola(c){
