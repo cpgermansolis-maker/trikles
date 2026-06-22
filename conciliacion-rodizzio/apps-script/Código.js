@@ -6392,7 +6392,7 @@ function handleCharolasList(p) {
   });
   return { ok:true, charolas: charolas.map(function(c){
     return { id:c.id, fecha:fechaToString(c.fecha), hora:horaToString(c.hora), area:c.area, tipo:c.tipo,
-             descripcion:c.descripcion, cantidad:c.cantidad, responsable_email:c.responsable_email,
+             descripcion:c.descripcion, cantidad:c.cantidad, responsable_email:c.responsable_email, receta_id:c.receta_id || '',
              creado_at: c.creado_at instanceof Date ? c.creado_at.toISOString() : (c.creado_at || '') };
   })};
 }
@@ -6412,6 +6412,12 @@ function handleCharolasCreate(p) {
   var descripcion = String(data.descripcion || '').trim(), cantidad = Number(data.cantidad) || 1;
   var sucursal_id = data.sucursal_id || ((rowsToObjects(getSheet('Sucursales')).find(function(s){ return s.empresa_id === u.empresa_id; }) || {}).id || '');
   var receta_id = String(data.receta_id || '').trim();
+  // Red de seguridad anti "(sin descripción)" (v438, reporte Chef Josué): si llega una charola
+  // con receta pero sin nombre (cualquier cliente/ruta vieja), el servidor lo deriva de la receta.
+  if (!descripcion && receta_id) {
+    var recDesc = rowsToObjects(getSheet('Recetas')).find(function(r){ return r.id === receta_id && r.empresa_id === u.empresa_id; });
+    if (recDesc && recDesc.nombre) descripcion = String(recDesc.nombre).trim();
+  }
   var newId = uuid();
   // 11 columnas históricas + receta_id + descuento_aplicado
   getSheet('Charolas').appendRow([newId, u.empresa_id, sucursal_id, fecha, hora, area, tipo, descripcion, cantidad, u.email, new Date(), receta_id, false]);
