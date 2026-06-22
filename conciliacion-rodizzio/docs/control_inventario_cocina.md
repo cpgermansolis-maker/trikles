@@ -68,9 +68,38 @@ principal). Marcar de arriba hacia abajo da el mayor control con menos esfuerzo:
 | 6 | Chicharrón · Media crema |
 | ≤5 | Harina hot cakes, Pepino, Carne molida cerdo, Queso gouda, Elote, Leche, Tahine |
 
-### Aparte: las 71 que no descuentan NADA
-Necesitan revisión caso por caso (probablemente ningún insumo inventariable, o
-receta incompleta / insumos sin vincular). Atacar después de las 🟠.
+### Las 64 que no descuentan NADA — MAPEADAS (2026-06-22)
+Ninguna está incompleta (todas tienen insumos). Ninguno de sus insumos está
+marcado inventariable. Son casi todas **platillos FRÍOS del buffet** (carpaccios,
+ensaladas, complementos) → conecta con el pendiente "alimento directo". Sacando
+el insumo PRINCIPAL (línea más cara) de cada una, se parten en 4 grupos:
+
+**Grupo 1 — proteínas/insumos fríos que SÍ vale contar** (marcar cuando almacén
+los cuente): Atún (25 charolas, ING-0196), Berenjena (21, ING-0208), Surimi (20,
+ING-0204), Salmón (18, ING-0203), Queso panela (15, ING-0192), Palmito (12,
+ING-0095), Calabaza italiana (11, ING-0211), Queso mozzarella (9, ING-0191),
+Pescado basa (8, ING-0201), Relleno de pescado (7, ING-0333), Queso gouda (3,
+ING-0188). Estos son los candidatos buenos para la 2ª tanda.
+
+**Grupo 2 — el "principal" es una SUB-RECETA** (hay que marcar el insumo crudo de
+ADENTRO, no la sub-receta): Betabel cocido (30, REC-0007), Camarones para coctel
+(17, REC-0009 → el camarón ya está marcado), Pulpo cocido (13, REC-0057),
+Vinagre para sushi (7), Soya (7), Tampico (3), Crotones (3). Revisar la sub-receta.
+
+**Grupo 3 — el "principal" es un GRAMAJE BUG** (costo absurdo por cantidad mal
+tecleada → NO marcar, primero corregir la cantidad — es la tarea de Estefanía):
+Azúcar mascabado $9,500/u (21, ING-0020), Manzana $414 (12), Papa blanca $268
+(12), Pasta de lasagna $249 (12), Tortilla $728 (1), Crema de cacahuate $393 (1),
+Gelatina de vainilla $179 (3). Al corregir el gramaje cambia el principal real.
+
+**Grupo 4 — produce barato de alta rotación** (decisión: probablemente NO se
+cuenta a diario, demasiada merma natural): Elote (17), Uvas (16+12), Lechuga (9),
+Tomate (9), Mango (9), Zanahoria (5), Plátano macho, etc.
+
+**Recomendación de orden:** (1) marcar el Grupo 1 cuando Farid esté contando;
+(2) Estefanía corrige los gramajes del Grupo 3 (ya asignado, PM-602ccee2);
+(3) Grupo 2 al revisar sub-recetas; (4) Grupo 4 se decide con almacén (quizá
+conteo semanal, no diario).
 
 ## Estado de la config actual (26 inventariables)
 Hoy marcados: 8 proteínas de churrasca (Pechuga, Costilla cerdo, Filete res, Top
