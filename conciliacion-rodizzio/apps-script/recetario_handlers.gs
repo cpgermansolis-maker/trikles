@@ -836,6 +836,25 @@ function handleIngredienteUpdate(p) {
     cambios.push({ campo: campo, anterior: anterior, nuevo: nuevo });
   });
 
+  // Blindaje unidad↔precio (lección Weslley 2026-06-23; mismo riesgo que el importador v400): si
+  // cambió la unidad_base entre unidades convertibles (kg↔g, lt↔ml) y el usuario NO mandó un costo
+  // nuevo, convertir el costo por el factor para que el precio por-unidad-base quede coherente.
+  // Antes, cambiar SOLO la unidad dejaba el precio sin convertir → se inflaba ×1000 en las recetas
+  // (azúcar $38.50/kg leído como $38.50/g). _unidadFactorBase devuelve 1 entre familias distintas
+  // (ej. kg→pza) → no toca el precio en cruces que no se pueden convertir.
+  // Solo auto-convierte si el usuario NO envió NINGÚN precio (cambió solo la unidad). Si manda un
+  // costo (aunque sea el mismo), se respeta → permite ARREGLAR un insumo mal-etiquetado (precio ya
+  // correcto, unidad equivocada) re-enviando su precio sin que el blindaje lo vuelva a convertir.
+  var _cuUnidad = cambios.find(function(c){ return c.campo === 'unidad_base'; });
+  var _costoEnviado = (p.ultimo_costo !== undefined && p.ultimo_costo !== null && String(p.ultimo_costo) !== '');
+  if (_cuUnidad && !_costoEnviado) {
+    var _f = _unidadFactorBase(String(_cuUnidad.nuevo), String(_cuUnidad.anterior));
+    var _costoAct = Number(ing.ultimo_costo) || 0;
+    if (_f && _f !== 1 && _costoAct > 0) {
+      cambios.push({ campo: 'ultimo_costo', anterior: _costoAct, nuevo: Number((_costoAct * _f).toFixed(6)), auto_conv: true });
+    }
+  }
+
   if (!cambios.length) return { ok: true, sin_cambios: true };
 
   // Guardrail: ¿este usuario hizo >20 cambios en los últimos 5 min?
@@ -890,7 +909,8 @@ function handleIngredienteUpdate(p) {
   });
   if (filasHist.length) hh.getRange(hh.getLastRow() + 1, 1, filasHist.length, filasHist[0].length).setValues(filasHist);
 
-  return { ok: true, cambios: cambios.length, alerta_masiva: alertaMasiva };
+  return { ok: true, cambios: cambios.length, alerta_masiva: alertaMasiva,
+    precio_auto_convertido: cambios.some(function(c){ return c.auto_conv; }) };
 }
 
 // =============== Fusionar insumos duplicados (v382) ===============
