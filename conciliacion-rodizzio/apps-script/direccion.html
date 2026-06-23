@@ -1230,22 +1230,43 @@ function renderBarraAlerta(res){
   var cnt = document.getElementById('baAlertaCount');
   if (cnt) cnt.textContent = '· '+(r.rojo||0)+' bajo costo · '+(r.amarillo||0)+' sospechoso';
   if (res.sin_datos){ box.innerHTML = '<div class="empty-state">Aún no hay ventas de barra cargadas (Importadores → 🍸 Ventas de bebidas).</div>'; return; }
-  var nota = '<p class="soon-note" style="margin:0 0 12px">Compara el precio de venta contra el <strong>costo del sistema</strong>. ⚠️ Si el costo está viejo, una pérdida real puede no aparecer — verifica los 🔴 contra la factura y mantén los costos al día (Existencias SR12). El insumo se empata por nombre: revísalo.</p>';
+  var nota = '<p class="soon-note" style="margin:0 0 12px">Compara el precio de venta contra el <strong>costo del sistema</strong> (botellas = costo del insumo · recetas = costo de los ingredientes). ⚠️ Si el costo está viejo, una pérdida real puede no aparecer — verifica los 🔴 contra la factura y mantén los costos al día (Existencias SR12). En botellas el insumo se empata por nombre: revísalo.</p>';
+  // Aviso call-to-action: recetas de barra/cava activas sin producto de venta ligado (no entran al control).
+  var sv = (res.sin_vincular || []);
+  var avisoVinc = '';
+  if (sv.length){
+    var ejV = sv.slice(0,4).map(function(s){ return esc(s.nombre); }).join(', ') + (sv.length>4?'…':'');
+    avisoVinc = '<p class="soon-note" style="margin:0 0 12px;border-left:3px solid var(--gold);padding-left:10px">'
+      +'<strong>'+sv.length+' receta(s) de barra/cava sin vincular</strong> a su producto de venta del POS ('+ejV+'). '
+      +'Vincúlalas en <strong>Recetas → ✏️ → Producto de venta</strong> para que entren a este control.</p>';
+  }
+  var svn = (res.sin_ventas || []);
+  var avisoVentas = svn.length
+    ? '<p class="soon-note" style="margin:0 0 12px;color:var(--muted)">'+svn.length+' receta(s) ligada(s) pero sin ventas registradas en el periodo (no se puede medir su margen todavía).</p>'
+    : '';
   var flag = (res.items||[]).filter(function(x){ return x.sev !== 'ok'; });
-  if (!flag.length){ box.innerHTML = nota + '<div class="empty-state">✓ Ninguna botella bajo costo con los costos actuales ('+(r.ok||0)+' revisadas · '+(r.sin_match||0)+' sin costo vinculado).</div>'; return; }
+  if (!flag.length){ box.innerHTML = nota + avisoVinc + avisoVentas + '<div class="empty-state">✓ Nada bajo costo con los costos actuales ('+(r.ok||0)+' revisado(s) · '+(r.sin_match||0)+' sin costo vinculado).</div>'; return; }
   var rows = flag.map(function(x){
     var badge = x.sev==='rojo'
       ? '<span style="color:#fff;background:#c4322a;padding:2px 7px;font-size:11px;white-space:nowrap">BAJO COSTO</span>'
       : '<span style="color:#6b4e00;background:#f3e2a8;padding:2px 7px;font-size:11px;white-space:nowrap">'+(x.sev==='amarillo_alto'?'COSTO RARO':'MARGEN BAJO')+'</span>';
-    return '<tr><td class="sr-prod">'+esc(x.descripcion)+' <span class="ba-gchip">'+esc(grupoBonito(x.grupo))+'</span></td>'
+    var esReceta = x.tipo === 'receta';
+    var tipoChip = esReceta
+      ? '<span class="ba-gchip" style="background:var(--gold);color:#fff">Receta</span>'
+      : '<span class="ba-gchip">Botella</span>';
+    // Última columna: en botella = insumo empatado (verificar); en receta = pour cost + área.
+    var detalle = esReceta
+      ? 'Pour cost '+(x.pour_cost!=null?x.pour_cost+'%':'—')+(x.area?' · '+esc(x.area):'')
+      : esc(x.insumo);
+    return '<tr><td class="sr-prod">'+esc(x.descripcion)+' '+tipoChip+'</td>'
       +'<td class="ba-num">'+fmtMoney(x.precio)+'</td>'
       +'<td class="ba-num">'+fmtMoney(x.costo)+'</td>'
       +'<td class="ba-num">'+(x.margen)+'%</td>'
       +'<td>'+badge+'</td>'
-      +'<td style="font-size:11px;color:var(--muted)">'+esc(x.insumo)+'</td></tr>';
+      +'<td style="font-size:11px;color:var(--muted)">'+detalle+'</td></tr>';
   }).join('');
-  box.innerHTML = nota + '<div class="table-wrap"><table class="data" style="min-width:640px"><thead><tr>'
-    +'<th>Producto</th><th style="text-align:right">Precio</th><th style="text-align:right">Costo</th><th style="text-align:right">Margen</th><th>Alerta</th><th>Insumo (verificar)</th>'
+  box.innerHTML = nota + avisoVinc + avisoVentas + '<div class="table-wrap"><table class="data" style="min-width:640px"><thead><tr>'
+    +'<th>Producto</th><th style="text-align:right">Precio</th><th style="text-align:right">Costo</th><th style="text-align:right">Margen</th><th>Alerta</th><th>Insumo / detalle</th>'
     +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 

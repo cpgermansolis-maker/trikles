@@ -3093,7 +3093,7 @@ function handleBarraAlertaBajoCosto(p){
 // (pendiente a gte_admin sobre botellas vendidas bajo costo). Solo lectura.
 function _barraAlertaBajoCostoCore(empresaId, umbralBajo, umbralAlto){
   var shV = getSheet('VentasSR12');
-  if (!shV) return { ok:true, sin_datos:true, items:[], sin_match:[], resumen:{} };
+  if (!shV) return { ok:true, sin_datos:true, items:[], sin_match:[], sin_vincular:[], sin_ventas:[], resumen:{} };
   function num(v){ var n = parseFloat(v); return isNaN(n) ? 0 : n; }
   umbralBajo = umbralBajo || 35;
   umbralAlto = umbralAlto || 88;
@@ -3158,10 +3158,69 @@ function _barraAlertaBajoCostoCore(empresaId, umbralBajo, umbralAlto){
     if (precio <= costo)        sev = 'rojo';
     else if (margen < umbralBajo) sev = 'amarillo_bajo';
     else if (margen > umbralAlto) sev = 'amarillo_alto';
-    items.push({ clave:v.clave, descripcion:v.descripcion, grupo:v.grupo, unidades:v.unidades,
+    items.push({ tipo:'botella', clave:v.clave, descripcion:v.descripcion, grupo:v.grupo, unidades:v.unidades,
       precio:Math.round(precio), insumo:best.nombre, insumo_id:best.id, costo:Math.round(costo*100)/100,
       margen:Math.round(margen), match:Math.round(bestScore*100),
       origen:String(best.precio_origen||''), sev:sev });
+  });
+
+  // 4) Segundo pase: PRODUCTOS CON RECETA (cocteles/preparados de barra/cava). v424.
+  // Para cada receta con `clave_venta_sr12` ligada, cruza su precio de venta del POS (mismas
+  // VentasSR12) contra el COSTO TOTAL de la receta (reusa el costeo de _reporteRentabilidadCore;
+  // NO se reinventa el costeo). El enlace receta→producto lo setea receta_vincular_venta.
+  // ⚠️ La clave de venta (Recetas.clave_venta_sr12) y la clave del POS (VentasSR12.clave) NO se
+  // guardan normalizadas → normalizar AMBAS con sr12NormalizarClave o no empatan (ceros a la izq).
+  var ventasPorClaveNorm = {};
+  Object.keys(porClave).forEach(function(k){
+    var pv = porClave[k];
+    var kn = sr12NormalizarClave(pv.clave);
+    if (!kn) return;
+    if (!ventasPorClaveNorm[kn]) ventasPorClaveNorm[kn] = { unidades:0, venta:0, grupo:pv.grupo };
+    ventasPorClaveNorm[kn].unidades += pv.unidades;
+    ventasPorClaveNorm[kn].venta    += pv.venta;
+  });
+
+  var rep = _reporteRentabilidadCore(empresaId);
+  var costoPorReceta = {};
+  (rep && rep.recetas ? rep.recetas : []).forEach(function(rr){ costoPorReceta[rr.id] = rr; });
+
+  var sinVentas = [], sinVincular = [];
+  rowsToObjects(getSheet('Recetas')).forEach(function(r){
+    if (r.empresa_id !== empresaId) return;
+    var area = String(r.area || '').toLowerCase();
+    var esBarra = (area === 'barra' || area === 'cava');
+    var esSub = _truthy(r.es_elaborado);
+    var activa = _truthy(r.activa);
+    var claveVenta = sr12NormalizarClave(r.clave_venta_sr12);
+
+    // Call-to-action: receta de barra/cava, activa, no subreceta, SIN producto de venta ligado.
+    if (esBarra && activa && !esSub && !claveVenta) {
+      sinVincular.push({ receta_id:r.id, nombre:String(r.nombre||''), area:area });
+      return;
+    }
+    if (!claveVenta || esSub) return;              // sin enlace, o subreceta (no se vende directo)
+
+    var rr = costoPorReceta[r.id];
+    var costo = rr ? (Number(rr.costo_total) || 0) : 0;
+    var ventas = ventasPorClaveNorm[claveVenta];
+    if (!ventas || ventas.unidades <= 0) {
+      // Ligada pero sin ventas del POS en el periodo → no se puede medir margen.
+      sinVentas.push({ receta_id:r.id, nombre:String(r.nombre||''), area:area, clave_venta_sr12:claveVenta, costo:Math.round(costo*100)/100 });
+      return;
+    }
+    var precioR = ventas.venta / ventas.unidades;
+    var margenR = precioR > 0 ? (precioR - costo) / precioR * 100 : 0;
+    var pourCost = precioR > 0 ? costo / precioR * 100 : 0;
+    var sevR = 'ok';
+    if (precioR <= costo)          sevR = 'rojo';
+    else if (margenR < umbralBajo) sevR = 'amarillo_bajo';
+    else if (margenR > umbralAlto) sevR = 'amarillo_alto';
+    // Mismos nombres de campo que botellas (descripcion/precio/costo/margen/sev) para que la UI y el
+    // auditor matutino los pinten/consuman igual; + receta_id/nombre/pour_cost propios de receta.
+    items.push({ tipo:'receta', clave:claveVenta, descripcion:String(r.nombre||''), grupo:ventas.grupo||'',
+      receta_id:r.id, nombre:String(r.nombre||''), area:area, unidades:ventas.unidades,
+      precio:Math.round(precioR), costo:Math.round(costo*100)/100, margen:Math.round(margenR),
+      pour_cost:Math.round(pourCost), sev:sevR });
   });
 
   var rank = { rojo:0, amarillo_bajo:1, amarillo_alto:2, ok:3 };
@@ -3171,9 +3230,12 @@ function _barraAlertaBajoCostoCore(empresaId, umbralBajo, umbralAlto){
     rojo: items.filter(function(x){ return x.sev==='rojo'; }).length,
     amarillo: items.filter(function(x){ return x.sev.indexOf('amarillo')===0; }).length,
     ok: items.filter(function(x){ return x.sev==='ok'; }).length,
-    sin_match: sinMatch.length
+    sin_match: sinMatch.length,
+    sin_vincular: sinVincular.length,
+    sin_ventas: sinVentas.length
   };
-  return { ok:true, items:items, sin_match:sinMatch, resumen:resumen, umbrales:{ bajo:umbralBajo, alto:umbralAlto } };
+  return { ok:true, items:items, sin_match:sinMatch, sin_vincular:sinVincular, sin_ventas:sinVentas,
+    resumen:resumen, umbrales:{ bajo:umbralBajo, alto:umbralAlto } };
 }
 
 // =====================================================================================
