@@ -45,6 +45,7 @@ var ACCIONES_WRITE_OBSERVADOR_BLOQUEADAS = {
   'users_update': true,
   'charolas_create': true,
   'charolas_delete': true,
+  'producto_directo_create': true,
   'merma_create': true,
   'merma_delete': true,
   'reservas_create': true,
@@ -7559,6 +7560,7 @@ function handleRequest(e) {
       case 'charolas_list':      result = handleCharolasList(params);      break;
       case 'charolas_create':    result = handleCharolasCreate(params);    break;
       case 'charolas_delete':    result = handleCharolasDelete(params);    break;
+      case 'producto_directo_create': result = handleProductoDirectoCreate(params); break;
       case 'merma_create':       result = handleMermaCreate(params);       break;
       case 'mermas_list':        result = handleMermasList(params);        break;
       case 'merma_delete':       result = handleMermaDelete(params);       break;
