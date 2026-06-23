@@ -748,9 +748,15 @@ img, svg { display: block; max-width: 100%; }
         <div style="margin-top:6px;font-size:11px;color:var(--muted)">Elige el insumo del catálogo. Se descontará de su inventario.</div>
       </div>
       <div class="form-row">
-        <label for="pdGramos">Peso montado (gramos)</label>
-        <input type="number" id="pdGramos" min="1" step="1" value="" placeholder="Ej. 850" inputmode="numeric">
-        <div style="margin-top:6px;font-size:11px;color:var(--muted)">Pesa el producto antes de ponerlo en la charola y captura los gramos.</div>
+        <label for="pdGramos">Peso montado</label>
+        <div style="display:flex;gap:8px;align-items:stretch">
+          <input type="number" id="pdGramos" min="0" step="any" value="" placeholder="Ej. 850" inputmode="decimal" style="flex:1">
+          <select id="pdUnidad" style="width:96px">
+            <option value="g">gramos</option>
+            <option value="kg">kilos</option>
+          </select>
+        </div>
+        <div style="margin-top:6px;font-size:11px;color:var(--muted)">Pesa el producto antes de ponerlo en la charola y captura el peso. Para piezas que se ponen <strong>enteras</strong> (ej. queso grana padano de 35 kg), elige <strong>kilos</strong> y regístralo <strong>una sola vez por pieza nueva</strong>.</div>
       </div>
     </div>
     <div class="modal-foot">
@@ -2183,6 +2189,7 @@ img, svg { display: block; max-width: 100%; }
     document.getElementById('pdProdTxt').value = '';
     document.getElementById('pdProdList').style.display = 'none';
     document.getElementById('pdGramos').value = '';
+    document.getElementById('pdUnidad').value = 'g';
     document.getElementById('pdAlert').innerHTML = '';
     document.getElementById('pdCancel').textContent = 'Cancelar';
     document.getElementById('pdModal').classList.add('open');
@@ -2230,14 +2237,15 @@ img, svg { display: block; max-width: 100%; }
   function saveProductoDirecto(){
     var ingId  = document.getElementById('pdProd').value;
     var ingTxt = document.getElementById('pdProdTxt').value.trim();
-    var gramos = parseFloat(document.getElementById('pdGramos').value);
+    var peso   = parseFloat(document.getElementById('pdGramos').value);
+    var unidad = (document.getElementById('pdUnidad').value === 'kg') ? 'kg' : 'g';
     if (!ingId) {
       document.getElementById('pdAlert').innerHTML = '<div class="alert error">Elige el producto de la lista (escribe y tócalo).</div>';
       var _p = document.getElementById('pdProdTxt'); if (_p) _p.focus();
       return;
     }
-    if (!(gramos > 0)) {
-      document.getElementById('pdAlert').innerHTML = '<div class="alert error">Captura el peso en gramos (mayor a 0).</div>';
+    if (!(peso > 0)) {
+      document.getElementById('pdAlert').innerHTML = '<div class="alert error">Captura el peso (mayor a 0).</div>';
       var _g = document.getElementById('pdGramos'); if (_g) _g.focus();
       return;
     }
@@ -2248,11 +2256,11 @@ img, svg { display: block; max-width: 100%; }
     document.getElementById('pdAlert').innerHTML = '';
     apiCall({ action:'producto_directo_create', token: token, data: JSON.stringify({
       area: pdArea || 'cocina', fecha: FECHA, hora: nowHHMM(),
-      ingrediente_id: ingId, gramos: gramos
+      ingrediente_id: ingId, peso: peso, unidad: unidad
     })}, function(res){
       if (btnG) { btnG.disabled = false; btnG.textContent = txtG; }
       if (res && res.ok) {
-        var msg = gramos + ' g · ' + (ingTxt || 'producto');
+        var msg = peso + ' ' + unidad + ' · ' + (ingTxt || 'producto');
         if (res.descontado) msg += ' · 📉 descontado del inventario';
         toast(msg);
         loadCharolas();

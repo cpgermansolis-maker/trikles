@@ -427,8 +427,12 @@ function handleProductoDirectoCreate(p){
 
   var ingId = String(data.ingrediente_id || '').trim();
   if (!ingId) return { ok:false, error:'Elige el producto' };
-  var gramos = Number(data.gramos);
-  if (!(gramos > 0)) return { ok:false, error:'Captura el peso en gramos (mayor a 0)' };
+  // Peso capturado en la unidad elegida (g por default, o kg p.ej. el queso grana padano de 35 kg
+  // que se pone entero por rueda). Se almacena/descuenta SIEMPRE en gramos-equivalente.
+  var unidad = (String(data.unidad || 'g').toLowerCase() === 'kg') ? 'kg' : 'g';
+  var peso = Number(data.peso);
+  if (!(peso > 0)) return { ok:false, error:'Captura el peso (mayor a 0)' };
+  var gramos = unidad === 'kg' ? peso * 1000 : peso;
 
   var fecha = String(data.fecha||'').trim() || fechaToString(new Date());
   var hora  = String(data.hora||'').trim()  || nowHHMM();
