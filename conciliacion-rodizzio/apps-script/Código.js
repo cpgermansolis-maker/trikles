@@ -8429,7 +8429,11 @@ function _auditoriaMatutinaCore(empresaId, fecha, suc, doWrite) {
     var bcRojo = [];
     try {
       var bc = _barraAlertaBajoCostoCore(empresaId, 35, 88);
-      if (bc && bc.ok && bc.items) bcRojo = bc.items.filter(function(x){ return x.sev === 'rojo'; });
+      // SOLO botellas en el aviso de Telegram por ahora (v424): el costo de algunas recetas (coctel)
+      // todavía tiene deuda de datos → un rojo de receta podría ser falsa alarma para Luis. En el
+      // Tablero → 🍸 Barra SÍ se ven los rojos de receta (con contexto humano). Activar recetas aquí
+      // cuando el costo de coctel esté confiable (quitar el `&& x.tipo !== 'receta'`).
+      if (bc && bc.ok && bc.items) bcRojo = bc.items.filter(function(x){ return x.sev === 'rojo' && x.tipo !== 'receta'; });
     } catch(e){}
     gteAdmins.forEach(function(c){
       var em = String(c.email||'').toLowerCase();
