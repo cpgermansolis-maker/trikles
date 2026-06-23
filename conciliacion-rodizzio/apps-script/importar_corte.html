@@ -1,0 +1,561 @@
+<? var __tokenInyectado = '';
+try { __tokenInyectado = (queryParams && queryParams.t) ? String(queryParams.t) : ''; } catch(e){}
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Importar Corte de Caja · Fogueira</title>
+<base target="_top">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzOCc+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSdmZycgeDE9JzAnIHkxPScwJyB4Mj0nMCcgeTI9JzEnPjxzdG9wIG9mZnNldD0nMCUnIHN0b3AtY29sb3I9JyNlOGM0NmEnLz48c3RvcCBvZmZzZXQ9JzUwJScgc3RvcC1jb2xvcj0nI2M4OWE0YScvPjxzdG9wIG9mZnNldD0nMTAwJScgc3RvcC1jb2xvcj0nIzlhNzMzMCcvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGQ9J00xNiAxLjUgQyAxNyA2LDIyIDksMjMgMTQgQyAyNCAxOCwyMiAyMSwyMCAyMiBDIDIyIDI0LDI0IDI3LDI0IDMxIEMgMjQgMzUsMjEgMzcsMTYgMzcgQyAxMSAzNyw4IDM1LDggMzEgQyA4IDI4LDEwIDI2LDExIDI0IEMgOSAyMiw3IDE5LDggMTUgQyA5IDExLDEzIDExLDE0IDcgQyAxNSA1LDE2IDMsMTYgMS41WicgZmlsbD0ndXJsKCNmZyknLz48cGF0aCBkPSdNMTYgMTYgQyAxNyAxOSwxOSAyMSwxOSAyNSBDIDE5IDI4LDE3IDMwLDE2IDMwIEMgMTUgMzAsMTMgMjgsMTMgMjUgQyAxMyAyMiwxNSAxOSwxNiAxNlonIGZpbGw9JyMwYzA5MDcnIG9wYWNpdHk9Jy41NScvPjwvc3ZnPg==">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500;1,600&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap">
+<!-- xlsx (sheet.js) para parsear el .XLS del corte de caja del SR12 en el navegador antes de mandar al backend -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --ink:#0c0907; --ink-soft:#1a1310; --ink-mid:#2a201b;
+    --ember:#c4322a; --ember-hot:#e04826; --ember-deep:#8a1f17;
+    --cream:#f6f1e8; --cream-warm:#efe5d2; --cream-line:#e4d9c2;
+    --bone:#fffdf8; --slate:#2b3a4e; --slate-soft:#5d6c80;
+    --smoke:#8a8278; --gold:#c89a4a; --gold-soft:#e8c46a;
+    --good:#2f7d4f; --bad:#c4322a;
+  }
+  *,*::before,*::after{ box-sizing:border-box }
+  html,body{ margin:0; padding:0 }
+  body{
+    background:var(--cream); color:var(--ink);
+    font-family:'DM Sans',system-ui,-apple-system,sans-serif;
+    line-height:1.55; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    min-height:100vh;
+  }
+  a{ color:inherit; text-decoration:none }
+  button{ font-family:inherit; cursor:pointer; border:none; background:none }
+
+  /* Topbar */
+  header.app{ background:var(--ink); color:var(--cream); border-bottom:1px solid rgba(200,154,74,.22); position:sticky; top:0; z-index:30; }
+  .head-row{ max-width:1080px; margin:0 auto; padding:18px 32px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+  .brand-cluster{ display:flex; align-items:center; gap:18px; flex-wrap:wrap }
+  .brand-logo{ display:flex; align-items:center; gap:11px }
+  .brand-logo svg{ display:block; flex-shrink:0 }
+  .brand-logo .wordmark{ font-family:'DM Sans',sans-serif; font-weight:800; font-size:22px; letter-spacing:.02em; color:var(--gold); line-height:1; }
+  .brand-sep{ width:1px; height:32px; background:rgba(246,241,232,.15); flex-shrink:0 }
+  .brand-meta{ display:flex; flex-direction:column; gap:4px; line-height:1 }
+  .brand-eyebrow{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.22em; color:rgba(246,241,232,.45); text-transform:uppercase; }
+  .topbar-sub, .brand-name{ font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500; font-size:22px; color:var(--cream); letter-spacing:-.01em; line-height:1; }
+  .head-actions{ display:flex; align-items:center; gap:12px; flex-wrap:wrap }
+  .btn-bar{ display:inline-flex; align-items:center; gap:7px; padding:10px 18px; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:rgba(246,241,232,.7); background:transparent; border:1px solid rgba(246,241,232,.15); transition:all .15s ease; text-decoration:none; }
+  .btn-bar:hover{ color:var(--gold); border-color:var(--gold); background:rgba(200,154,74,.1) }
+  .btn-logout:hover{ color:var(--ember-hot); border-color:var(--ember); background:rgba(196,50,42,.08) }
+
+  main{ max-width:1080px; margin:0 auto; padding:48px 32px 64px }
+
+  .welcome{ margin-bottom:32px; max-width:760px }
+  .welcome .eyebrow{ font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.24em; color:var(--ember); text-transform:uppercase; font-weight:500; margin-bottom:14px; display:inline-flex; align-items:center; gap:10px; }
+  .welcome .eyebrow::before{ content:""; width:24px; height:1px; background:var(--ember); opacity:.6; }
+  .welcome h2{ font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500; font-size:46px; letter-spacing:-.015em; line-height:1.04; color:var(--ink); margin:0 0 12px; }
+  .welcome h2 .accent{ color:var(--gold); font-style:italic }
+  .welcome p{ color:var(--slate-soft); font-size:14.5px; line-height:1.6; margin:0; max-width:600px; }
+
+  .panel{ background:var(--bone); border:1px solid var(--cream-line); padding:26px 26px; margin-bottom:20px; }
+  .panel-title{ font-family:'DM Mono',monospace; font-size:10.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--smoke); font-weight:500; margin:0 0 16px; }
+
+  /* Selector de fecha */
+  .fecha-row{ display:flex; align-items:flex-end; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
+  .fecha-field{ display:flex; flex-direction:column; gap:6px; }
+  .fecha-field label{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--smoke); }
+  .fecha-field input[type=date]{ font-family:'DM Mono',monospace; font-size:15px; padding:11px 14px; border:1px solid var(--cream-line); background:var(--bone); color:var(--ink); }
+  .fecha-field input[type=date]:focus{ outline:none; border-color:var(--gold) }
+  .fecha-hint{ font-size:12.5px; color:var(--slate-soft); padding-bottom:11px; }
+  .fecha-hint.auto{ color:var(--good) }
+
+  /* Estado acumulado */
+  .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px; background:var(--cream-line); border:1px solid var(--cream-line); }
+  .stat{ background:var(--bone); padding:16px 18px; }
+  .stat .v{ font-family:'Cormorant Garamond',serif; font-style:italic; font-size:34px; line-height:1; color:var(--ink); }
+  .stat .v.gold{ color:var(--gold) }
+  .stat .v.ember{ color:var(--ember-deep) }
+  .stat .l{ font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--smoke); margin-top:7px; }
+  .estado-empty{ color:var(--slate-soft); font-size:14px; }
+
+  /* Dropzone */
+  .dropzone{ border:1.5px dashed var(--cream-line); background:var(--cream-warm); padding:38px 24px; text-align:center; cursor:pointer; transition:all .15s ease; }
+  .dropzone:hover, .dropzone.dragover{ border-color:var(--gold); background:rgba(200,154,74,.08); }
+  .dropzone .dz-icon{ font-size:34px; margin-bottom:10px; }
+  .dropzone .dz-title{ font-family:'Cormorant Garamond',serif; font-style:italic; font-size:24px; color:var(--ink); margin-bottom:4px; }
+  .dropzone .dz-sub{ font-size:12.5px; color:var(--slate-soft); }
+  input[type=file]{ display:none }
+
+  .file-card{ display:flex; align-items:center; gap:14px; padding:16px 18px; border:1px solid var(--cream-line); background:var(--bone); margin-top:16px; }
+  .file-card .ic{ font-size:24px } .file-card.err .ic{ color:var(--bad) }
+  .file-card .info{ flex:1; min-width:0 }
+  .file-card .name{ font-weight:600; font-size:14px; color:var(--ink); word-break:break-all; }
+  .file-card .meta{ font-size:12.5px; color:var(--slate-soft); margin-top:2px; }
+  .file-card .meta.bad{ color:var(--bad) }
+  .file-card .x{ font-size:20px; color:var(--smoke); padding:2px 8px; line-height:1 } .file-card .x:hover{ color:var(--bad) }
+
+  /* Vista previa */
+  .preview-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:1px; background:var(--cream-line); border:1px solid var(--cream-line); margin-top:14px; }
+  .pcell{ background:var(--bone); padding:13px 14px; }
+  .pcell .v{ font-family:'Cormorant Garamond',serif; font-style:italic; font-size:26px; line-height:1; }
+  .pcell .v.gold{ color:var(--gold) } .pcell .v.good{ color:var(--good) } .pcell .v.dim{ color:var(--smoke) }
+  .pcell .l{ font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--smoke); margin-top:5px; }
+
+  .btn-primary{ display:inline-flex; align-items:center; gap:9px; margin-top:18px; padding:14px 26px; background:var(--ember); color:#fff; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; transition:background .15s; }
+  .btn-primary:hover{ background:var(--ember-deep) }
+  .btn-primary:disabled{ opacity:.5; cursor:not-allowed }
+
+  .spinner{ display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.35); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg) } }
+
+  /* Resultado */
+  .result-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1px; background:var(--cream-line); border:1px solid var(--cream-line); margin-bottom:14px; }
+  .rcell{ background:var(--bone); padding:15px 16px; }
+  .rcell .v{ font-family:'Cormorant Garamond',serif; font-style:italic; font-size:30px; line-height:1; }
+  .rcell .v.good{ color:var(--good) } .rcell .v.warn{ color:var(--gold) } .rcell .v.dim{ color:var(--smoke) } .rcell .v.ember{ color:var(--ember-deep) }
+  .rcell .l{ font-family:'DM Mono',monospace; font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--smoke); margin-top:6px; }
+  .note{ font-size:13px; color:var(--slate-soft); margin:4px 0 0; line-height:1.5; }
+  .note.ok{ color:var(--good) } .note.warn{ color:var(--ember-deep) }
+
+  table.hist{ width:100%; border-collapse:collapse; font-size:12.5px; margin-top:6px; }
+  table.hist th{ text-align:left; font-family:'DM Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--smoke); font-weight:500; padding:8px 10px; border-bottom:1px solid var(--cream-line); }
+  table.hist td{ padding:8px 10px; border-bottom:1px solid var(--cream-line); color:var(--ink-soft); }
+  table.hist tr:last-child td{ border-bottom:none }
+  table.hist td.num, table.hist th.num{ text-align:right; font-family:'DM Mono',monospace }
+
+  .callout{ border-left:3px solid var(--gold); background:rgba(200,154,74,.08); padding:13px 16px; font-size:13px; color:var(--ink-soft); margin-top:16px; line-height:1.55; }
+  .callout strong{ color:var(--ink) }
+
+  .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--cream); padding:13px 22px; font-size:13px; opacity:0; pointer-events:none; transition:all .25s ease; z-index:50; max-width:90vw; }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0) }
+  .toast.error{ background:var(--ember-deep) }
+
+  .session-meta{ margin-top:44px; padding:18px 0 0; border-top:1px solid var(--cream-line); font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.05em; color:var(--smoke); line-height:1.8; }
+  .session-meta strong{ color:var(--ink); font-weight:500; font-family:'DM Sans',sans-serif; margin-right:4px; }
+  .session-meta .sep{ color:var(--cream-line); margin:0 10px }
+  .hidden{ display:none !important }
+
+  /* Mobile (al final para no ser sobrescrito) */
+  @media (max-width:640px){
+    .head-row{ padding:14px 18px; gap:12px }
+    .brand-cluster{ gap:10px; flex:1; min-width:0 }
+    .brand-sep{ display:none }
+    .brand-logo .wordmark{ font-size:18px }
+    .brand-eyebrow{ font-size:8.5px; letter-spacing:.16em }
+    .topbar-sub, .brand-name{ font-size:0.95rem }
+    .head-actions{ gap:8px }
+    .btn-bar{ padding:8px 12px; font-size:10px; letter-spacing:.14em }
+    main{ padding:32px 18px 48px }
+    .welcome h2{ font-size:34px }
+    .panel{ padding:20px 18px }
+  }
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="head-row">
+    <div class="brand-cluster">
+      <div class="brand-logo" aria-label="Fogueira">
+        <svg width="28" height="32" viewBox="0 0 32 38" fill="none" aria-hidden="true">
+          <defs><linearGradient id="flameGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e8c46a"/><stop offset="50%" stop-color="#c89a4a"/><stop offset="100%" stop-color="#9a7330"/>
+          </linearGradient></defs>
+          <path d="M16 1.5 C 17 6, 22 9, 23 14 C 24 18, 22 21, 20 22 C 22 24, 24 27, 24 31 C 24 35, 21 37, 16 37 C 11 37, 8 35, 8 31 C 8 28, 10 26, 11 24 C 9 22, 7 19, 8 15 C 9 11, 13 11, 14 7 C 15 5, 16 3, 16 1.5 Z" fill="url(#flameGrad)"/>
+          <path d="M16 16 C 17 19, 19 21, 19 25 C 19 28, 17 30, 16 30 C 15 30, 13 28, 13 25 C 13 22, 15 19, 16 16 Z" fill="#0c0907" opacity="0.55"/>
+        </svg>
+        <span class="wordmark" id="empWordmark">FOGUEIRA</span>
+      </div>
+      <div class="brand-sep"></div>
+      <div class="brand-meta">
+        <span class="brand-eyebrow">Corte de caja · Importación POS</span>
+        <span class="topbar-sub">Importar Corte de Caja</span>
+      </div>
+    </div>
+    <div class="head-actions">
+      <a class="btn-bar" id="btnHub" href="#" target="_top">← Importadores</a>
+      <a class="btn-bar" id="btnInicio" href="#" target="_top">⌂ Inicio</a>
+      <button class="btn-bar btn-logout" id="btnLogout">Cerrar sesión</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="welcome">
+    <div class="eyebrow">El efectivo lo dice el POS, no el tecleo</div>
+    <h2>Subir el corte de caja del día<span class="accent">.</span></h2>
+    <p>Sube el reporte de <strong>Corte de caja</strong> que exportaste del SoftRestaurant (una fila por turno con el <strong>efectivo, tarjeta, vales, propina, fondo</strong>, etc.). El sistema guarda el corte <strong>por fecha</strong>: si vuelves a subir el mismo día, lo reemplaza (no duplica). Con esto, el "Cobros en efectivo" del arqueo viene del <strong>POS</strong> y ya no se teclea a mano.</p>
+  </div>
+
+  <!-- Estado acumulado -->
+  <div class="panel">
+    <p class="panel-title">Cortes ya cargados</p>
+    <div id="estadoBox"><div class="estado-empty">Cargando…</div></div>
+  </div>
+
+  <!-- Subir -->
+  <div class="panel">
+    <p class="panel-title">Subir archivo</p>
+
+    <div class="fecha-row">
+      <div class="fecha-field">
+        <label for="fechaCorte">Fecha del corte</label>
+        <input type="date" id="fechaCorte">
+      </div>
+      <div class="fecha-hint" id="fechaHint">Elige el día que cubre este corte.</div>
+    </div>
+
+    <div class="dropzone" id="dropzone">
+      <div class="dz-icon">🧾</div>
+      <div class="dz-title">Arrastra el archivo aquí o toca para elegir</div>
+      <div class="dz-sub">Acepta .xls / .xlsx · un solo archivo (el reporte de Corte de caja del SR12)</div>
+      <input type="file" id="fileInput" accept=".xls,.xlsx">
+    </div>
+    <div id="fileCardWrap"></div>
+    <div id="previewWrap"></div>
+    <div id="importBtnWrap"></div>
+
+    <div class="callout">
+      <strong>¿De dónde sale este archivo?</strong> En el SoftRestaurant es el reporte de <strong>Corte de caja</strong>. Trae <strong>idestacion, cajero, fondo, total, iva, efectivo, tarjeta, vales, propina</strong> e <strong>idturno</strong>. Sube <strong>un corte por día</strong>. Si el fin de semana hay dos servicios, el POS los une en una sola línea por día (no hay que separarlos para el arqueo de caja, que es diario).
+    </div>
+  </div>
+
+  <!-- Resultado -->
+  <div class="panel hidden" id="resultPanel">
+    <p class="panel-title">Resultado de la importación</p>
+    <div id="resultBox"></div>
+  </div>
+
+  <div class="session-meta" id="sessionMeta"></div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+  var API_URL = 'https://script.google.com/macros/s/AKfycbwYbhG9xyML1p7Yp3Il54f9wCN6qTXFSc696IVnpQ8IIxE2YGhKpbTP5gLe-tGkyXA/exec';
+
+  function getQuery(name){
+    var m = (location.search.match(new RegExp('[?&]' + name + '=([^&]*)')) || [])[1];
+    return m ? decodeURIComponent(m) : '';
+  }
+  var token = getQuery('t') || '<?!= __tokenInyectado ?>';
+  var user = null, empresa = null, rol = '';
+  if (token) { try { sessionStorage.setItem('fogueira_token', token); } catch(e){} }
+  else { try { token = sessionStorage.getItem('fogueira_token'); } catch(e){} }
+  if (!token) { (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})(); return; }
+  try {
+    user = JSON.parse(sessionStorage.getItem('fogueira_user') || 'null');
+    empresa = JSON.parse(sessionStorage.getItem('fogueira_empresa') || 'null');
+  } catch(e){}
+
+  // El backend (handleCorteCajaImportar) acepta cajera + admin/gte_admin/auditoría.
+  var ROLES_PERMITIDOS = ['admin','gerente_administrativo','auditoria','cajera'];
+
+  function urlInterna(pagina){
+    var url = API_URL + '?p=' + pagina + '&t=' + encodeURIComponent(token || '');
+    if (user) url += '&urol=' + encodeURIComponent(user.rol||'') + '&unom=' + encodeURIComponent(user.nombre||user.email||'');
+    return url;
+  }
+
+  // JSONP para lecturas chicas
+  function apiCall(params, cb){
+    var cbName = '_jcb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+    var script = document.createElement('script');
+    var cleanup = function(){ try{ delete window[cbName];}catch(e){window[cbName]=undefined;} if(script.parentNode) script.parentNode.removeChild(script); };
+    var t = setTimeout(function(){ cleanup(); cb({ok:false,error:'timeout'}); }, 20000);
+    window[cbName] = function(d){ clearTimeout(t); cleanup(); cb(d); };
+    var qs = Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
+    script.onerror = function(){ clearTimeout(t); cleanup(); cb({ok:false,error:'network'}); };
+    script.src = API_URL + '?' + qs + '&callback=' + cbName;
+    document.body.appendChild(script);
+  }
+  // POST para el payload grande (las filas parseadas del Excel)
+  function apiCallPost(params, cb){
+    fetch(API_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(params), redirect:'follow' })
+      .then(function(r){ return r.text(); })
+      .then(function(txt){ try{ cb(JSON.parse(txt)); }catch(e){ cb({ok:false,error:'Respuesta inválida: '+txt.substring(0,180)}); } })
+      .catch(function(e){ cb({ok:false,error:'Error de red: '+(e&&e.message)}); });
+  }
+
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function fmtInt(n){ var x=parseFloat(n); if(isNaN(x)) return '0'; return Math.round(x).toLocaleString('es-MX'); }
+  function fmtMoney(n){ var x=parseFloat(n); if(isNaN(x)) return '$0'; return '$'+Math.round(x).toLocaleString('es-MX'); }
+  function fmtFechaCorta(iso){ if(!iso) return '—'; try{ var d=new Date(iso+'T00:00:00'); return d.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}); }catch(e){ return iso; } }
+  function toast(msg, tipo){ var el=document.getElementById('toast'); el.textContent=msg; el.className='toast show'+(tipo?(' '+tipo):''); setTimeout(function(){ el.classList.remove('show'); },3800); }
+
+  // Fecha local (NUNCA toISOString → UTC rompe MX después de las 18:00).
+  function z2(n){ return ('0'+n).slice(-2); }
+  function hoyLocalISO(){ var d=new Date(); return d.getFullYear()+'-'+z2(d.getMonth()+1)+'-'+z2(d.getDate()); }
+
+  // Validación de rol (síncrona)
+  rol = String(user ? user.rol : '').toLowerCase();
+  if (rol && ROLES_PERMITIDOS.indexOf(rol) === -1) {
+    (function(_u){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sin acceso</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Esta pantalla no es para tu rol</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Toca el botón de abajo para ir a tu inicio, donde verás las pantallas que sí puedes usar.</p><a href="'+_u+'" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">← Ir a mi inicio</a></div>';document.body.appendChild(_o);})(urlInterna('inicio'));
+    return;
+  }
+
+  // Branding dinámico
+  (function(){
+    if (!token) return;
+    var _cb='_brand_'+Date.now();
+    window[_cb]=function(d){
+      try{delete window[_cb];}catch(e){}
+      if(!d||!d.ok||!d.branding||d.origen!=='empresa_config') return;
+      var b=d.branding, rs=document.documentElement.style;
+      if(b.color_primario) rs.setProperty('--gold',b.color_primario);
+      if(b.color_secundario) rs.setProperty('--ink',b.color_secundario);
+      if(b.color_acento) rs.setProperty('--ember',b.color_acento);
+      if(b.color_fondo) rs.setProperty('--cream',b.color_fondo);
+      if(b.nombre_comercial){ var w=document.getElementById('empWordmark'); if(w) w.textContent=String(b.nombre_comercial).toUpperCase(); }
+    };
+    var _s=document.createElement('script');
+    _s.src=API_URL+'?action=empresa_branding_get&token='+encodeURIComponent(token)+'&callback='+_cb;
+    _s.async=true; document.head.appendChild(_s);
+  })();
+
+  // Pintar topbar/meta
+  document.getElementById('btnHub').href = urlInterna('importadores');
+  document.getElementById('btnInicio').href = urlInterna('inicio');
+  document.getElementById('sessionMeta').innerHTML =
+    '<strong>Empresa:</strong> ' + esc((empresa && empresa.nombre) || '—') +
+    '<span class="sep">·</span><strong>Rol:</strong> ' + esc(user && user.rol || '—') +
+    '<span class="sep">·</span><strong>Email:</strong> ' + esc(user && user.email || '—');
+
+  document.getElementById('btnLogout').addEventListener('click', function(){
+    if (!confirm('¿Cerrar sesión?')) return;
+    try { sessionStorage.removeItem('fogueira_token'); sessionStorage.removeItem('fogueira_user'); sessionStorage.removeItem('fogueira_empresa'); sessionStorage.removeItem('fogueira_sucursales'); } catch(e){}
+    (function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#f6f1e8;color:#0c0907;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:system-ui,-apple-system,sans-serif';_o.innerHTML='<div style="max-width:420px"><div style="font-family:monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8278;margin-bottom:10px">Sesión expirada</div><h2 style="font-size:23px;margin:0 0 10px;font-weight:600">Tu sesión expiró</h2><p style="color:#5d6c80;font-size:14px;margin:0 0 20px;line-height:1.5">Por seguridad, la sesión se renueva cada día. Vuelve a iniciar sesión para continuar.</p><a href="'+API_URL+'?p=acceso" target="_top" style="display:inline-block;background:#0c0907;color:#c89a4a;padding:13px 24px;text-decoration:none;font-weight:600">Iniciar sesión</a></div>';document.body.appendChild(_o);})();
+  });
+
+  // Default del selector de fecha = hoy local.
+  document.getElementById('fechaCorte').value = hoyLocalISO();
+
+  // ─── Estado: cortes ya cargados (de los últimos días) ───
+  // Reusamos corte_caja_get día por día (no hay endpoint de resumen). Mostramos los últimos 7 días.
+  function cargarEstado(){
+    var box = document.getElementById('estadoBox');
+    var dias = [];
+    var base = new Date();
+    for (var i=0; i<7; i++){
+      var d = new Date(base.getTime() - i*86400000);
+      dias.push(d.getFullYear()+'-'+z2(d.getMonth()+1)+'-'+z2(d.getDate()));
+    }
+    var pendientes = dias.length, resultados = {};
+    dias.forEach(function(f){
+      apiCall({ action:'corte_caja_get', token:token, fecha:f }, function(res){
+        resultados[f] = (res && res.ok && res.existe) ? res : null;
+        pendientes--;
+        if (pendientes === 0) pintarEstado(dias, resultados);
+      });
+    });
+  }
+  function pintarEstado(dias, resultados){
+    var box = document.getElementById('estadoBox');
+    var conDatos = dias.filter(function(f){ return resultados[f]; });
+    if (!conDatos.length) {
+      box.innerHTML = '<div class="estado-empty">Aún no hay cortes cargados en los últimos 7 días. Sube el corte del día abajo para empezar.</div>';
+      return;
+    }
+    var html = '<table class="hist"><thead><tr><th>Fecha</th><th class="num">Turnos</th><th class="num">Efectivo</th><th class="num">Tarjeta</th><th class="num">Vales</th><th class="num">Propina</th><th>Subido por</th></tr></thead><tbody>';
+    conDatos.forEach(function(f){
+      var r = resultados[f];
+      html += '<tr><td>'+esc(fmtFechaCorta(f))+'</td><td class="num">'+fmtInt(r.turnos)+'</td><td class="num">'+fmtMoney(r.efectivo)+'</td><td class="num">'+fmtMoney(r.tarjeta)+'</td><td class="num">'+fmtMoney(r.vales)+'</td><td class="num">'+fmtMoney(r.propina)+'</td><td>'+esc(r.importado_por||'—')+'</td></tr>';
+    });
+    html += '</tbody></table>';
+    html += '<p class="note">Estos son los cortes ya guardados de los últimos 7 días. Subir de nuevo un día lo reemplaza (no duplica).</p>';
+    box.innerHTML = html;
+  }
+
+  // ─── Auto-detectar la fecha del nombre del archivo ───
+  var MESES = { enero:1, febrero:2, marzo:3, abril:4, mayo:5, junio:6, julio:7, agosto:8, septiembre:9, setiembre:9, octubre:10, noviembre:11, diciembre:12 };
+  function fechaDesdeNombre(nombre){
+    var s = String(nombre||'').toLowerCase();
+    // "cortes_de_caja 22 junio 2026" → 2026-06-22
+    var m = s.match(/(\d{1,2})\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)\s+(\d{4})/);
+    if (m && MESES[m[2]]) return m[3]+'-'+z2(MESES[m[2]])+'-'+z2(parseInt(m[1],10));
+    // "2026-06-22" o "2026_06_22"
+    m = s.match(/(20\d{2})[-_\/](\d{1,2})[-_\/](\d{1,2})/);
+    if (m) return m[1]+'-'+z2(parseInt(m[2],10))+'-'+z2(parseInt(m[3],10));
+    // "22-06-2026" o "22_06_2026"
+    m = s.match(/(\d{1,2})[-_\/](\d{1,2})[-_\/](20\d{2})/);
+    if (m) return m[3]+'-'+z2(parseInt(m[2],10))+'-'+z2(parseInt(m[1],10));
+    return '';
+  }
+
+  // ─── Parser del reporte de Corte de caja del SR12 ───
+  // Encabezados en la fila 1, datos a partir de la 2. Cols: idestacion, cajero, fondo, apertura,
+  // cierre, total, iva, efectivo, cargo, cambio, tarjeta, vales, propina, credito, idturno.
+  var COLS_CORTE = ['idestacion','cajero','fondo','total','iva','efectivo','cargo','cambio','tarjeta','vales','propina','credito','idturno'];
+
+  function parsearCorte(workbook){
+    var ws = workbook.Sheets[workbook.SheetNames[0]];
+    var filas = XLSX.utils.sheet_to_json(ws, { header:1, raw:true, cellDates:true, defval:null });
+    if (!filas.length) throw new Error('El archivo está vacío.');
+
+    // Detectar fila de encabezados: la que contenga 'efectivo' y ('idturno' o 'cajero').
+    var idxHeader = -1;
+    for (var i=0; i<Math.min(filas.length,12); i++){
+      var low = (filas[i]||[]).map(function(c){ return String(c==null?'':c).trim().toLowerCase(); });
+      if (low.indexOf('efectivo') !== -1 && (low.indexOf('idturno') !== -1 || low.indexOf('cajero') !== -1)) { idxHeader = i; break; }
+    }
+    if (idxHeader === -1) throw new Error('No reconozco este archivo. ¿Seguro que es el reporte de Corte de caja del SR12? (no encontré las columnas EFECTIVO / CAJERO / IDTURNO)');
+
+    var headers = (filas[idxHeader]||[]).map(function(c){ return String(c==null?'':c).trim().toLowerCase(); });
+    function col(name){ return headers.indexOf(name); }
+    if (col('efectivo') === -1) throw new Error('Al archivo le falta la columna EFECTIVO. Revisa que sea el reporte de Corte de caja completo.');
+
+    function g(fila, name){ var idx = col(name); return idx >= 0 ? fila[idx] : null; }
+    function numv(v){ if(v==null) return 0; var s=String(v).replace(/[,$\s]/g,''); var n=parseFloat(s); return isNaN(n)?0:n; }
+    function str(v){ return String(v==null?'':v).trim(); }
+
+    var lineas = [];
+    for (var r=idxHeader+1; r<filas.length; r++){
+      var f = filas[r] || [];
+      // Una fila válida tiene cajero o idturno y algún número en efectivo/tarjeta/total.
+      var cajero = str(g(f,'cajero'));
+      var idturno = str(g(f,'idturno'));
+      var efectivo = numv(g(f,'efectivo')), tarjeta = numv(g(f,'tarjeta')), total = numv(g(f,'total'));
+      if (!cajero && !idturno && !efectivo && !tarjeta && !total) continue;   // fila vacía/total al final
+      lineas.push({
+        idestacion: str(g(f,'idestacion')),
+        cajero: cajero,
+        fondo: numv(g(f,'fondo')),
+        total: total,
+        iva: numv(g(f,'iva')),
+        efectivo: efectivo,
+        cargo: numv(g(f,'cargo')),
+        cambio: numv(g(f,'cambio')),
+        tarjeta: tarjeta,
+        vales: numv(g(f,'vales')),
+        propina: numv(g(f,'propina')),
+        credito: numv(g(f,'credito')),
+        idturno: idturno
+      });
+    }
+    return { lineas: lineas };
+  }
+
+  // ─── Estado de archivo cargado ───
+  var archivoActual = null;
+
+  function totales(lineas){
+    var t = { efectivo:0, tarjeta:0, vales:0, propina:0, total:0, fondo:0 };
+    lineas.forEach(function(L){ t.efectivo+=L.efectivo; t.tarjeta+=L.tarjeta; t.vales+=L.vales; t.propina+=L.propina; t.total+=L.total; t.fondo+=L.fondo; });
+    return t;
+  }
+
+  function renderFileCard(){
+    var wrap = document.getElementById('fileCardWrap');
+    var prev = document.getElementById('previewWrap');
+    var btnWrap = document.getElementById('importBtnWrap');
+    if (!archivoActual){ wrap.innerHTML=''; prev.innerHTML=''; btnWrap.innerHTML=''; return; }
+    if (archivoActual.error){
+      wrap.innerHTML = '<div class="file-card err"><div class="ic">⚠</div><div class="info"><div class="name">'+esc(archivoActual.nombre)+'</div><div class="meta bad">'+esc(archivoActual.error)+'</div></div><button class="x" id="btnQuitar">×</button></div>';
+      prev.innerHTML=''; btnWrap.innerHTML='';
+    } else {
+      wrap.innerHTML = '<div class="file-card"><div class="ic">📄</div><div class="info"><div class="name">'+esc(archivoActual.nombre)+'</div><div class="meta">'+fmtInt(archivoActual.lineas.length)+' turno(s) detectado(s)</div></div><button class="x" id="btnQuitar">×</button></div>';
+      var t = totales(archivoActual.lineas);
+      prev.innerHTML = '<div class="preview-grid">' +
+        '<div class="pcell"><div class="v good">'+fmtMoney(t.efectivo)+'</div><div class="l">Efectivo</div></div>' +
+        '<div class="pcell"><div class="v gold">'+fmtMoney(t.tarjeta)+'</div><div class="l">Tarjeta</div></div>' +
+        '<div class="pcell"><div class="v dim">'+fmtMoney(t.vales)+'</div><div class="l">Vales (BZPAY)</div></div>' +
+        '<div class="pcell"><div class="v dim">'+fmtMoney(t.propina)+'</div><div class="l">Propina</div></div>' +
+        '<div class="pcell"><div class="v">'+fmtMoney(t.total)+'</div><div class="l">Total</div></div>' +
+        '</div>';
+      btnWrap.innerHTML = '<button class="btn-primary" id="btnImportar">⬆ Importar este corte</button>';
+      document.getElementById('btnImportar').addEventListener('click', importar);
+    }
+    var bq = document.getElementById('btnQuitar');
+    if (bq) bq.addEventListener('click', function(){ archivoActual=null; renderFileCard(); });
+  }
+
+  function cargarArchivo(file){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      try {
+        var data = new Uint8Array(e.target.result);
+        var wb = XLSX.read(data, { type:'array', cellDates:true });
+        var parsed = parsearCorte(wb);
+        if (!parsed.lineas.length){ archivoActual = { nombre:file.name, error:'No se detectaron filas de corte en el archivo.' }; }
+        else { archivoActual = { nombre:file.name, lineas:parsed.lineas }; }
+      } catch(err){
+        archivoActual = { nombre:file.name, error:(err && err.message) || 'Error al leer el Excel.' };
+      }
+      // Intentar autodetectar la fecha del nombre del archivo y prellenar el selector.
+      var fAuto = fechaDesdeNombre(file.name);
+      var hint = document.getElementById('fechaHint');
+      if (fAuto) {
+        document.getElementById('fechaCorte').value = fAuto;
+        hint.textContent = '✓ Fecha tomada del nombre del archivo — verifícala.';
+        hint.className = 'fecha-hint auto';
+      } else {
+        hint.textContent = 'No detecté la fecha en el nombre. Elígela arriba.';
+        hint.className = 'fecha-hint';
+      }
+      renderFileCard();
+    };
+    reader.onerror = function(){ archivoActual = { nombre:file.name, error:'No se pudo leer el archivo.' }; renderFileCard(); };
+    reader.readAsArrayBuffer(file);
+  }
+
+  // Dropzone
+  var dz = document.getElementById('dropzone');
+  var fileInput = document.getElementById('fileInput');
+  dz.addEventListener('click', function(){ fileInput.click(); });
+  fileInput.addEventListener('change', function(e){ if(e.target.files[0]) cargarArchivo(e.target.files[0]); fileInput.value=''; });
+  ['dragenter','dragover'].forEach(function(ev){ dz.addEventListener(ev,function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.add('dragover'); }); });
+  ['dragleave','drop'].forEach(function(ev){ dz.addEventListener(ev,function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.remove('dragover'); }); });
+  dz.addEventListener('drop', function(e){ if(e.dataTransfer.files[0]) cargarArchivo(e.dataTransfer.files[0]); });
+
+  // ─── Importar ───
+  function importar(){
+    if (!archivoActual || !archivoActual.lineas || !archivoActual.lineas.length) return;
+    var fecha = String(document.getElementById('fechaCorte').value || '').slice(0,10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) { toast('Elige primero la fecha del corte.', 'error'); return; }
+    var btn = document.getElementById('btnImportar');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Importando el corte del '+esc(fmtFechaCorta(fecha))+'…';
+    apiCallPost({
+      action:'corte_caja_importar', token:token,
+      data: JSON.stringify({
+        archivo: archivoActual.nombre,
+        fecha: fecha,
+        filas: archivoActual.lineas
+      })
+    }, function(res){
+      btn.disabled = false; btn.innerHTML = '⬆ Importar este corte';
+      if (!res || !res.ok){ toast('Error: '+((res&&res.error)||'desconocido'), 'error'); return; }
+      renderResultado(res);
+      archivoActual = null; renderFileCard();
+      cargarEstado();
+      toast('✓ Corte guardado: '+fmtMoney(res.efectivo)+' en efectivo del POS.');
+    });
+  }
+
+  function renderResultado(r){
+    var panel = document.getElementById('resultPanel');
+    var box = document.getElementById('resultBox');
+    var html = '<div class="result-grid">' +
+      '<div class="rcell"><div class="v good">'+fmtMoney(r.efectivo)+'</div><div class="l">Efectivo del POS</div></div>' +
+      '<div class="rcell"><div class="v warn">'+fmtMoney(r.tarjeta)+'</div><div class="l">Tarjeta</div></div>' +
+      '<div class="rcell"><div class="v dim">'+fmtMoney(r.vales)+'</div><div class="l">Vales (BZPAY)</div></div>' +
+      '<div class="rcell"><div class="v dim">'+fmtMoney(r.propina)+'</div><div class="l">Propina</div></div>' +
+      '<div class="rcell"><div class="v">'+fmtInt(r.turnos)+'</div><div class="l">Turnos guardados</div></div>' +
+      '</div>';
+    html += '<p class="note ok">✓ Corte guardado para el <strong>'+esc(fmtFechaCorta(r.fecha))+'</strong>.</p>';
+    if (r.reemplazadas) html += '<p class="note">Ya había un corte de este mismo día: se reemplazó por el que acabas de subir (no se duplica).</p>';
+    html += '<p class="note">El <strong>"Cobros en efectivo"</strong> de la conciliación de este día tomará el efectivo del POS ('+fmtMoney(r.efectivo)+'), no el tecleo de la cajera.</p>';
+    box.innerHTML = html;
+    panel.classList.remove('hidden');
+    panel.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  // Init
+  cargarEstado();
+})();
+</script>
+</body>
+</html>

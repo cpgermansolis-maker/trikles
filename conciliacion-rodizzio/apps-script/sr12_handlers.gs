@@ -2979,6 +2979,144 @@ function handleSr12VentasReset(p) {
 }
 
 // =====================================================================================
+// ★ IMPORTADOR DEL CORTE DE CAJA DEL POS (SR12) — el lado INDEPENDIENTE del arqueo ★
+// =====================================================================================
+// El POS exporta un "Corte de caja" (1 fila por turno/día) con efectivo, tarjeta, vales,
+// propina, fondo, etc. La cajera lo sube; el sistema lo guarda por FECHA. Después la
+// conciliación lo lee (corte_caja_get) para precargar "Cobros en efectivo" desde el POS
+// (no del tecleo de la cajera) → se rompe el "juez y parte".
+// El archivo NO trae columna de fecha limpia → la fecha la elige quien sube (selector,
+// con auto-relleno del nombre del archivo). Modelo "reemplazar por fecha": re-subir el
+// corte de un día PISA el anterior de esa fecha+empresa (no duplica). Si un día trae
+// varios turnos (varias filas), se guarda 1 fila por turno y la lectura agrega por fecha.
+var CORTES_CAJA_COLS = [
+  'id','empresa_id','fecha','idestacion','cajero','fondo','total','iva','efectivo',
+  'cargo','cambio','tarjeta','vales','propina','credito','idturno','importado_at','importado_por'
+];
+
+function handleCorteCajaImportar(p) {
+  var u = validarToken(p.token);
+  if (!u) return { ok:false, error:'Sesión inválida' };
+  // La cajera es quien sube su propio corte; admin/gte_admin/auditoría también.
+  if (!rolEs(u, ['admin','gerente_administrativo','auditoria','cajera'])) return { ok:false, error:'Sin permisos' };
+
+  var data;
+  try { data = JSON.parse(p.data || '{}'); } catch(e){ return { ok:false, error:'Datos inválidos' }; }
+  var filas = data.filas || [];
+  var archivo = String(data.archivo || 'corte.xls');
+  var fecha = String(data.fecha || '').slice(0,10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return { ok:false, error:'No se eligió la fecha del corte (formato AAAA-MM-DD).' };
+  if (!filas.length) return { ok:false, error:'El archivo no trae filas de corte.' };
+
+  var sh = asegurarHoja('CortesCaja', CORTES_CAJA_COLS);
+  function num(v){ var s = String(v == null ? '' : v).replace(/[,$\s]/g,''); var n = parseFloat(s); return isNaN(n) ? 0 : n; }
+  function str(v){ return String(v == null ? '' : v).trim(); }
+
+  // Modelo reemplazar-por-fecha: quitar filas previas de esta empresa con la MISMA fecha.
+  var todas = rowsToObjects(sh);
+  var conservar = todas.filter(function(r){
+    if (r.empresa_id !== u.empresa_id) return true;                       // de otra empresa: intacto
+    var f = String(fechaToString(r.fecha) || r.fecha || '').slice(0,10);
+    return f !== fecha;                                                   // misma fecha: se reemplaza
+  });
+  var reemplazadas = todas.length - conservar.length;
+
+  var importadoAt = _sr12AhoraLocalStr();
+  var nuevasFilas = [];
+  var tot = { fondo:0, total:0, iva:0, efectivo:0, cargo:0, cambio:0, tarjeta:0, vales:0, propina:0, credito:0 };
+  filas.forEach(function(F){
+    var efectivo = num(F.efectivo), tarjeta = num(F.tarjeta), vales = num(F.vales), propina = num(F.propina);
+    var fondo = num(F.fondo), total = num(F.total), iva = num(F.iva), cargo = num(F.cargo);
+    var cambio = num(F.cambio), credito = num(F.credito);
+    tot.fondo+=fondo; tot.total+=total; tot.iva+=iva; tot.efectivo+=efectivo; tot.cargo+=cargo;
+    tot.cambio+=cambio; tot.tarjeta+=tarjeta; tot.vales+=vales; tot.propina+=propina; tot.credito+=credito;
+    nuevasFilas.push([
+      uuid(), u.empresa_id, fecha, str(F.idestacion), str(F.cajero), fondo, total, iva, efectivo,
+      cargo, cambio, tarjeta, vales, propina, credito, str(F.idturno), importadoAt, u.email
+    ]);
+  });
+  if (!nuevasFilas.length) return { ok:false, error:'No se detectaron filas válidas en el corte.' };
+
+  // Reescribir la hoja: cabecera + (conservadas) + nuevas.
+  if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow()-1, CORTES_CAJA_COLS.length).clearContent();
+  var headers = CORTES_CAJA_COLS;
+  var filasConservadas = conservar.map(function(r){ return headers.map(function(h){ return r[h] !== undefined ? r[h] : ''; }); });
+  var todasFilas = filasConservadas.concat(nuevasFilas);
+  if (todasFilas.length) sh.getRange(2, 1, todasFilas.length, headers.length).setValues(todasFilas);
+
+  return {
+    ok:true,
+    fecha: fecha,
+    turnos: nuevasFilas.length,
+    reemplazadas: reemplazadas,
+    archivo: archivo,
+    // Agregados de la fecha (lo que importa para el arqueo / contraste).
+    efectivo: tot.efectivo,
+    tarjeta: tot.tarjeta,
+    vales: tot.vales,
+    propina: tot.propina,
+    fondo: tot.fondo,
+    total: tot.total,
+    iva: tot.iva,
+    cambio: tot.cambio
+  };
+}
+
+// Lectura (idempotente, NO mutante) del corte de una fecha. La consume la conciliación para
+// precargar "Cobros en efectivo" del POS. Devuelve el AGREGADO por fecha + el detalle por turno.
+function handleCorteCajaGet(p) {
+  var u = validarToken(p.token);
+  if (!u) return { ok:false, error:'Sesión inválida' };
+  var fecha = String(p.fecha || '').slice(0,10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return { ok:false, error:'Fecha inválida (AAAA-MM-DD).' };
+
+  var sh = getSheet('CortesCaja');
+  if (!sh) return { ok:true, existe:false, fecha:fecha };
+
+  var rows = rowsToObjects(sh).filter(function(r){
+    if (r.empresa_id !== u.empresa_id) return false;
+    var f = String(fechaToString(r.fecha) || r.fecha || '').slice(0,10);
+    return f === fecha;
+  });
+  if (!rows.length) return { ok:true, existe:false, fecha:fecha };
+
+  function num(v){ var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+  var tot = { fondo:0, total:0, iva:0, efectivo:0, cargo:0, cambio:0, tarjeta:0, vales:0, propina:0, credito:0 };
+  var turnos = rows.map(function(r){
+    tot.fondo+=num(r.fondo); tot.total+=num(r.total); tot.iva+=num(r.iva); tot.efectivo+=num(r.efectivo);
+    tot.cargo+=num(r.cargo); tot.cambio+=num(r.cambio); tot.tarjeta+=num(r.tarjeta); tot.vales+=num(r.vales);
+    tot.propina+=num(r.propina); tot.credito+=num(r.credito);
+    return {
+      idturno: String(r.idturno || ''), idestacion: String(r.idestacion || ''), cajero: String(r.cajero || ''),
+      fondo:num(r.fondo), total:num(r.total), iva:num(r.iva), efectivo:num(r.efectivo), cargo:num(r.cargo),
+      cambio:num(r.cambio), tarjeta:num(r.tarjeta), vales:num(r.vales), propina:num(r.propina), credito:num(r.credito),
+      importado_at: String(r.importado_at || ''), importado_por: String(r.importado_por || '')
+    };
+  });
+
+  return {
+    ok:true,
+    existe:true,
+    fecha: fecha,
+    turnos: turnos.length,
+    // Agregado por fecha (el "Cobros en efectivo" del POS = efectivo).
+    efectivo: tot.efectivo,
+    tarjeta: tot.tarjeta,
+    vales: tot.vales,
+    propina: tot.propina,
+    fondo: tot.fondo,
+    total: tot.total,
+    iva: tot.iva,
+    cambio: tot.cambio,
+    credito: tot.credito,
+    cargo: tot.cargo,
+    detalle: turnos,
+    importado_por: turnos.length ? turnos[turnos.length-1].importado_por : '',
+    importado_at: turnos.length ? turnos[turnos.length-1].importado_at : ''
+  };
+}
+
+// =====================================================================================
 // ★ TABLERO DIRECTIVO — pestaña "Barra: ventas y mix" (Vista A del Cuadre de Barra) ★
 // =====================================================================================
 // Lee VentasSR12 y arma el resumen de ventas de bebidas para el Tablero Directivo: KPIs,

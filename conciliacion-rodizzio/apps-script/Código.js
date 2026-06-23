@@ -112,6 +112,8 @@ var ACCIONES_WRITE_OBSERVADOR_BLOQUEADAS = {
   // v306 — Importador de ventas SR12 (productos vendidos · insumo del Cuadre de Barra)
   'sr12_ventas_importar': true,
   'sr12_ventas_reset': true,
+  // Importador del corte de caja del POS (efectivo/tarjeta independientes para el arqueo)
+  'corte_caja_importar': true,
   // v278 — Tablero Directivo: cuestionar/responder cancelaciones (Mónica ↔ Luis)
   'cancelacion_cuestionar': true,
   'cancelacion_responder': true,
@@ -7421,6 +7423,8 @@ var PAGINAS_HTML = {
   'importar-cancelaciones': { archivo: 'importar_cancelaciones', titulo: 'Importar Cancelaciones SR12 · Fogueira' },
   // Importador de ventas SR12 (productos vendidos · insumo del Cuadre de Barra) (v306)
   'importar-ventas':     { archivo: 'importar_ventas',      titulo: 'Importar Ventas SR12 · Fogueira' },
+  // Importador del corte de caja del POS (efectivo/tarjeta independientes para el arqueo)
+  'importar-corte':      { archivo: 'importar_corte',       titulo: 'Importar Corte de Caja · Fogueira' },
   // Manual: cómo bajar el reporte de Existencias costeado del SR12
   'manual-existencias':  { archivo: 'manual_existencias',   titulo: 'Cómo bajar el reporte SR12 · Fogueira' },
   // Manual: cómo bajar el reporte detallado de Compras del SR12 (v270)
@@ -7453,7 +7457,7 @@ function doGet(e)  {
     // - mireserva: recibe id + token de cancelación
     // - charolas: recibe area (cocina/churrasca) para filtrar la vista
     // - curso: recibe ?t=TOKEN (token de sesión) — fix para iOS y subdominios aislados
-    if (params.p === 'mireserva' || params.p === 'charolas' || params.p === 'curso' || params.p === 'bitacora' || params.p === 'conciliacion' || params.p === 'recetas' || params.p === 'historico' || params.p === 'importar-sr12' || params.p === 'importadores' || params.p === 'importar-compras' || params.p === 'importar-cancelaciones' || params.p === 'importar-ventas' || params.p === 'manual-existencias' || params.p === 'manual-compras' || params.p === 'inventario-churrasca' || params.p === 'admin' || params.p === 'reporte-precios' || params.p === 'direccion' || params.p === 'curva-precios' || params.p === 'mensajes' || params.p === 'sugerencias-sr12' || params.p === 'mermas' || params.p === 'agenda' || params.p === 'auditoria') {
+    if (params.p === 'mireserva' || params.p === 'charolas' || params.p === 'curso' || params.p === 'bitacora' || params.p === 'conciliacion' || params.p === 'recetas' || params.p === 'historico' || params.p === 'importar-sr12' || params.p === 'importadores' || params.p === 'importar-compras' || params.p === 'importar-cancelaciones' || params.p === 'importar-ventas' || params.p === 'importar-corte' || params.p === 'manual-existencias' || params.p === 'manual-compras' || params.p === 'inventario-churrasca' || params.p === 'admin' || params.p === 'reporte-precios' || params.p === 'direccion' || params.p === 'curva-precios' || params.p === 'mensajes' || params.p === 'sugerencias-sr12' || params.p === 'mermas' || params.p === 'agenda' || params.p === 'auditoria') {
       var template = HtmlService.createTemplateFromFile(pagina.archivo);
       template.queryParams = params;
       return template.evaluate()
@@ -7654,6 +7658,9 @@ function handleRequest(e) {
       // v306 — Importador de ventas SR12 (productos vendidos · insumo del Cuadre de Barra)
       case 'sr12_ventas_importar':        result = handleSr12VentasImportar(params);        break;
       case 'sr12_ventas_resumen':         result = handleSr12VentasResumen(params);         break;
+      // Importador del corte de caja del POS (efectivo/tarjeta independientes para el arqueo)
+      case 'corte_caja_importar':         result = handleCorteCajaImportar(params);         break;
+      case 'corte_caja_get':              result = handleCorteCajaGet(params);              break;
       case 'barra_alerta_bajo_costo':     result = handleBarraAlertaBajoCosto(params);      break;
       case 'sr12_ventas_reset':           result = handleSr12VentasReset(params);           break;
       case 'direccion_ventas_barra':      result = handleDireccionVentasBarra(params);      break;
