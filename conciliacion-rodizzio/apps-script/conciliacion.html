@@ -2123,6 +2123,7 @@ img, svg { display: block; max-width: 100%; }
   var conciliacionId = null;
   var conciliacionEstado = 'abierta';
   var corteActualizadoPor = '', corteActualizadoAt = '';  // v407 — quién capturó (se muestra)
+  var cortePOS = null;   // corte de caja del POS (efectivo independiente para el arqueo — fix "juez y parte")
   var saveTimer = null;
   var maxSaveTimerC = null;
   var saveRetryTimerC = null;
@@ -2275,6 +2276,8 @@ img, svg { display: block; max-width: 100%; }
         // v407 — estado del corte (quién capturó + finalizar/bloqueo)
         actualizarFinalizarCorteUI();
         if (conciliacionEstado === 'cerrada') bloquearCorteUI(); else desbloquearCorteUI();
+        // Fix "juez y parte": si hay corte del POS para este día, el efectivo viene del POS (no del tecleo).
+        cargarCortePOS(fecha);
         setSaveIndicator('idle');
         // Anti-pérdida: si hay un backup local que difiere del backend, ofrecer recuperar.
         // Si coincide (o no hay), simplemente continuamos.
@@ -2303,6 +2306,42 @@ img, svg { display: block; max-width: 100%; }
       initialLoadDone = true;
     });
   }
+  // === Fix "juez y parte" del arqueo: el EFECTIVO del día viene del POS (corte de caja), no del tecleo ===
+  // Si hay un corte importado para la fecha, el "cobros en efectivo" se toma del POS y se BLOQUEA (candado
+  // total). Si no hay corte, la cajera lo captura como siempre. El valor del POS se hornea en ci_cobro_efectivo
+  // (ap=0, el POS da el total del día) → la fórmula del arqueo y el backend lo usan sin tocar nada más.
+  function cargarCortePOS(fecha){
+    apiCallReintento({ action:'corte_caja_get', token: token, fecha: fecha }, function(res){
+      cortePOS = (res && res.ok && res.existe) ? res : null;
+      aplicarCandadoEfectivoPOS();
+    });
+  }
+  function _qselEfe(sel){ return (sel.charAt(0)==='#') ? document.getElementById(sel.slice(1)) : document.querySelector(sel); }
+  function _lockEfe(sel, val){ var el=_qselEfe(sel); if(!el) return; if(val!==undefined) el.value=val; el.readOnly=true; el.style.background='#eee5d6'; el.style.cursor='not-allowed'; el.title='Viene del corte de caja del POS'; }
+  function _unlockEfe(sel){ var el=_qselEfe(sel); if(!el) return; el.readOnly=false; el.style.background=''; el.style.cursor=''; el.title=''; }
+  function aplicarCandadoEfectivoPOS(){
+    var nota = document.getElementById('efePosNota');
+    if (cortePOS) {
+      state.ap_cobro_efectivo = 0;
+      state.ci_cobro_efectivo = cortePOS.efectivo;
+      _lockEfe('[data-k="ap_cobro_efectivo"]', 0);
+      _lockEfe('[data-k="ci_cobro_efectivo"]', cortePOS.efectivo);
+      _lockEfe('#quickEfeCobro', cortePOS.efectivo);
+      var ciIn = document.querySelector('[data-k="ci_cobro_efectivo"]');
+      if (ciIn && ciIn.parentNode) {
+        if (!nota) { nota = document.createElement('div'); nota.id='efePosNota'; nota.style.cssText='margin-top:6px;font-size:12px;background:#1c3d2e;color:#cfe8d8;padding:7px 10px;border-left:3px solid #2e8b57;line-height:1.4'; ciIn.parentNode.appendChild(nota); }
+        nota.innerHTML = '🔒 Efectivo del día tomado del <strong>POS (corte de caja)</strong>: <strong>'+fmtMoney(num(cortePOS.efectivo))+'</strong>. Ya no se captura a mano.';
+        nota.style.display = '';
+      }
+      recalcAll();
+    } else {
+      _unlockEfe('[data-k="ap_cobro_efectivo"]');
+      _unlockEfe('[data-k="ci_cobro_efectivo"]');
+      _unlockEfe('#quickEfeCobro');
+      if (nota) nota.style.display = 'none';
+    }
+  }
+
   // Campos rápidos dentro de la casilla de verificación: capturan los 2 datos que más se olvidan
   // (propina tarjeta y transferencia) DONDE la cajera está mirando, sin que tenga que ir a buscarlos
   // a §03 en el teléfono (caso Xochitl: "no me deja capturar la propina" = no la encontraba). Escriben
