@@ -5314,7 +5314,7 @@ function _banderasDeConciliacion(payload) {
   var B = {};
   B.comensales  = { sev: sev(Math.abs(apMix.delta) > 2 || Math.abs(ciMix.delta) > 2, (apMix.host+apMix.pos+ciMix.host+ciMix.pos) > 0),
                     val: 'Ap '+(apMix.delta>0?'+':'')+apMix.delta+' · Ci '+(ciMix.delta>0?'+':'')+ciMix.delta };
-  B.arqueo      = { sev: sev(Math.abs(arqDelta) > 200, !(sumDenoms === 0 && teorico === 0)), val: _bcMon(arqDelta) };
+  B.arqueo      = { sev: sev(Math.abs(arqDelta) > 20, !(sumDenoms === 0 && teorico === 0)), val: _bcMon(arqDelta) };   // tolerancia ±$20 (modo ciego)
   B.terminal    = { sev: sev(Math.abs(termDelta) > 0.5, !(sumLote === 0 && _bcNum(P.ci_term_pos) === 0)), val: _bcMon(termDelta) };
   B.pct_canc    = { sev: sev(pctCanc > 3, cobrosDia > 0), val: pctCanc.toFixed(1)+'%' };
   B.nosales     = { sev: sev(nosalesDia > 2, true), val: String(nosalesDia) };

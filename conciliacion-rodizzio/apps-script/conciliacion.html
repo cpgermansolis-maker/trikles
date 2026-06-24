@@ -1108,7 +1108,7 @@ img, svg { display: block; max-width: 100%; }
     <div class="card">
       <h3><span class="num">03</span> Cobros y propinas del servicio<button class="info-icon no-print" data-tip="Captura los <strong>totales cobrados en el bloque</strong> separados por método de pago (efectivo, tarjeta, transferencia) y las propinas. El sistema calcula automáticamente el % de propina sobre tarjeta — el rango sano es entre 8% y 20%; fuera de ese rango se levanta bandera." type="button">i</button></h3>
       <div class="grid g3">
-        <div><label>Efectivo</label><input type="number" min="0" step=".01" data-k="ap_cobro_efectivo"></div>
+        <div class="hide-cajera"><label>Efectivo</label><input type="number" min="0" step=".01" data-k="ap_cobro_efectivo"></div>
         <div><label>Tarjeta</label><input type="number" min="0" step=".01" data-k="ap_cobro_tarjeta"></div>
         <div><label>Transferencia</label><input type="number" min="0" step=".01" data-k="ap_cobro_transfer"></div>
         <div><label>Propina tarjeta</label><input type="number" min="0" step=".01" data-k="ap_propina_tar"></div>
@@ -1259,7 +1259,7 @@ img, svg { display: block; max-width: 100%; }
     <div class="card">
       <h3><span class="num">03</span> Cobros y propinas del servicio<button class="info-icon no-print" data-tip="Captura los <strong>totales cobrados en el bloque</strong> separados por método de pago (efectivo, tarjeta, transferencia) y las propinas. El sistema calcula automáticamente el % de propina sobre tarjeta — el rango sano es entre 8% y 20%; fuera de ese rango se levanta bandera." type="button">i</button></h3>
       <div class="grid g3">
-        <div><label>Efectivo</label><input type="number" min="0" step=".01" data-k="ci_cobro_efectivo"></div>
+        <div class="hide-cajera"><label>Efectivo</label><input type="number" min="0" step=".01" data-k="ci_cobro_efectivo"></div>
         <div><label>Tarjeta</label><input type="number" min="0" step=".01" data-k="ci_cobro_tarjeta"></div>
         <div><label>Transferencia</label><input type="number" min="0" step=".01" data-k="ci_cobro_transfer"></div>
         <div><label>Propina tarjeta</label><input type="number" min="0" step=".01" data-k="ci_propina_tar"></div>
@@ -1430,17 +1430,17 @@ img, svg { display: block; max-width: 100%; }
 
       <div class="divider"></div>
 
-      <h4 style="margin:0 0 10px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">
+      <h4 class="hide-cajera" style="margin:0 0 10px;font-family:var(--font-serif);font-style:italic;font-size:14px;font-weight:600">
         Conciliación del cajón
         <button class="info-icon no-print" data-tip="<strong>Cómo cuadra el efectivo (igual que tu corte de papel):</strong><br><br><strong>Efectivo contado</strong> = Efectivo final + Retiros + Comisión (lo que cuentas y depositas).<br><br><strong>Efectivo que debiste tener</strong> = Cobros en efectivo (el EFECTIVO total del POS) − Propina tarjeta pagada.<br><br>Los dos deben ser iguales (Δ ≈ 0). El <strong>fondo</strong> se queda en el cajón (fijo): entra y sale, por eso no aparece aquí." type="button">i</button>
       </h4>
-      <div class="grid g3">
+      <div class="grid g3 hide-cajera">
         <div><label>Efectivo contado (final + retiros + comisión)</label><input type="text" id="ci_arq_contado_lbl" readonly style="background:var(--bg)"></div>
         <div><label>Efectivo teórico (calculado)</label><input type="text" id="ci_arq_teorico" readonly style="background:var(--bg);font-weight:600"></div>
         <div><label>Δ Arqueo (auto)</label><input type="text" id="ci_arq_delta" readonly style="background:var(--bg)"></div>
       </div>
 
-      <div id="ci_arq_desglose" class="arq-desglose">
+      <div id="ci_arq_desglose" class="arq-desglose hide-cajera">
         <div class="arq-row"><span class="arq-lbl">+ Cobros en efectivo (Apertura)</span><span class="arq-val" id="arq_d_efe_ap">$0.00</span></div>
         <div class="arq-row"><span class="arq-lbl">+ Cobros en efectivo (Cierre)</span><span class="arq-val" id="arq_d_efe_ci">$0.00</span></div>
         <div class="arq-row"><span class="arq-lbl">− Propina tarjeta pagada (Apertura)</span><span class="arq-val" id="arq_d_ret_ap">$0.00</span></div>
@@ -1448,19 +1448,19 @@ img, svg { display: block; max-width: 100%; }
         <div class="arq-row arq-tot"><span class="arq-lbl">= Efectivo que debiste tener</span><span class="arq-val" id="arq_d_teorico">$0.00</span></div>
       </div>
 
-      <!-- Captura para el arqueo (cajera): el dato que el cajón necesita y que suele faltar -->
-      <div class="no-print" style="margin-top:12px;border:2px solid var(--gold);background:#fffdf7;padding:12px 14px">
+      <!-- Captura para el arqueo (SUPERVISOR): la cajera no ve este efectivo (modo ciego) -->
+      <div class="no-print hide-cajera" style="margin-top:12px;border:2px solid var(--gold);background:#fffdf7;padding:12px 14px">
         <div style="font-weight:600;font-size:12px;margin-bottom:8px;opacity:.85">Para que el cajón cuadre, captura el cobro en efectivo del día:</div>
         <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;max-width:340px">💵 Cobros en efectivo — el <strong>EFECTIVO total del POS</strong> (no los billetes finales)
           <input type="number" min="0" step=".01" id="quickEfeCobro" placeholder="0.00" style="max-width:170px;border-left:3px solid var(--ember);background:#fff7f2">
         </label>
       </div>
 
-      <div id="arq_aviso_neg" class="no-print" style="display:none;margin-top:12px;border:2px solid var(--ember);background:#fff3f0;padding:12px 14px">
+      <div id="arq_aviso_neg" class="no-print hide-cajera" style="display:none;margin-top:12px;border:2px solid var(--ember);background:#fff3f0;padding:12px 14px">
         <div id="arq_aviso_neg_msg" style="font-weight:600;color:var(--ember)"></div>
       </div>
 
-      <div class="grid g3" style="margin-top:14px">
+      <div class="grid g3 hide-cajera" style="margin-top:14px">
         <div><label>Faltante / sobrante asumido por<button class="info-icon no-print" data-tip="Si hay diferencia entre contado y teórico (Δ ≠ 0), nombre de quien asume la responsabilidad: típicamente el cajero del turno." type="button">i</button></label><input type="text" data-k="ci_arq_resp"></div>
         <div style="grid-column:span 2"></div>
       </div>
@@ -3238,9 +3238,9 @@ img, svg { display: block; max-width: 100%; }
     // mal capturado. Un Δ chico es faltante/sobrante real (lo marca el semáforo).
     var avisoNeg = document.getElementById('arq_aviso_neg');
     if (avisoNeg) {
-      if (Math.abs(arqDelta) > 500) {
+      if (Math.abs(arqDelta) > 20) {
         var msgN = document.getElementById('arq_aviso_neg_msg');
-        if (msgN) msgN.textContent = '⚠ El cajón no cuadra por ' + fmtMoney(Math.abs(arqDelta)) + '. Casi siempre es el COBRO EN EFECTIVO: revisa que sea el EFECTIVO TOTAL del POS (no los billetes finales). Captúralo abajo.';
+        if (msgN) msgN.textContent = '⚠ El cajón no cuadra por ' + fmtMoney(Math.abs(arqDelta)) + ' (tolerancia ±$20). Revisa el conteo de la cajera contra el efectivo del POS.';
         avisoNeg.style.display = '';
       } else {
         avisoNeg.style.display = 'none';
@@ -3256,7 +3256,7 @@ img, svg { display: block; max-width: 100%; }
       } else {
         arqDeltaEl.value = (arqDelta>0?'+':'') + fmtMoney(arqDelta);
         var absD = Math.abs(arqDelta);
-        arqDeltaEl.style.color = absD > 200 ? 'var(--rojo)' : (absD > 0 ? 'var(--ambar)' : 'var(--verde)');
+        arqDeltaEl.style.color = absD > 20 ? 'var(--rojo)' : 'var(--verde)';   // tolerancia ±$20 (modo ciego)
         arqDeltaEl.style.fontWeight = absD > 0 ? '600' : '500';
       }
     }
