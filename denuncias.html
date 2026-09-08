@@ -1389,6 +1389,23 @@ const STATE = {
 function getS(){try{const s=JSON.parse(sessionStorage.getItem(SK)||localStorage.getItem(SK+'_r')||'null');if(s&&s.expires>Date.now())return s;return null}catch(e){return null}}
 function clearS(){sessionStorage.removeItem(SK);localStorage.removeItem(SK+'_r')}
 function logout(){clearS();window.location.href='acceso.html'}
+
+// Adjunta a cada llamada la prueba de que este navegador pasó por el login.
+// Va en un solo lugar a propósito: si se pusiera llamada por llamada, la que se
+// olvide se queda sin candado y nadie lo nota.
+const _ACCIONES_CON_SESION = /^(tr_|caso_|entrevista_|evidencia_|evaluacion_|informe_)/;
+function _conSesion(params){
+  try {
+    // Solo a las acciones que el backend protege. Si se le colgara a todas, el
+    // token alargaría el URL y alguna llamada cruzaría el limite de 1800 que
+    // hace saltar a POST, que no atiende las mismas acciones.
+    if (!params || !_ACCIONES_CON_SESION.test(String(params.action || ''))) return params;
+    const s = getS();
+    if (s && s.token) return Object.assign({}, params, { token: s.token });
+  } catch(e) {}
+  return params;
+}
+
 function toggleMenu(){document.getElementById('mobileNav').classList.toggle('open')}
 function toggleNavGroup(e){ if(e) e.stopPropagation(); const g=document.getElementById('navGroup'); if(g) g.classList.toggle('open'); }
 document.addEventListener('click', e => { const g=document.getElementById('navGroup'); if(g && !g.contains(e.target)) g.classList.remove('open'); });
@@ -1405,6 +1422,7 @@ function toast(type,title,msg,dur=4000){
   clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),dur);
 }
 function apiCall(params){
+  params = _conSesion(params);
   return new Promise((resolve,reject)=>{
     const cb='dnCb_'+Date.now()+'_'+Math.floor(Math.random()*1e6);
     const s=document.createElement('script');let done=false;
@@ -1420,6 +1438,7 @@ function apiCall(params){
 // POST para payloads grandes (transcripciones, minutas, dictamenes)
 // text/plain evita preflight CORS; el backend hace JSON.parse(e.postData.contents)
 async function apiPost(params){
+  params = _conSesion(params);
   const resp = await fetch(API_BASE, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -1454,6 +1473,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const r = await apiCall({action:'tr_getConfig', usuario:s.usuario});
     document.getElementById('initialLoader').style.display='none';
+    // El servidor ya no reconoce esta sesión (token viejo o vencido). Se manda
+    // al login ANTES de que el usuario escriba nada, para no tirarle trabajo.
+    if(r && r.sesionInvalida){
+      clearS();
+      window.location.href = 'acceso.html?motivo=sesion';
+      return;
+    }
     if(r.success && r.authorized && r.keysConfigured){
       STATE.authorized = true;
       STATE.geminiKey = r.geminiKey;

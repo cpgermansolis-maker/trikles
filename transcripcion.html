@@ -539,10 +539,28 @@ function getS(){
 function clearS(){ sessionStorage.removeItem(SK); localStorage.removeItem(SK + '_r'); }
 function logout(){ clearS(); window.location.href = 'acceso.html'; }
 
+// Adjunta a cada llamada la prueba de que este navegador pasó por el login.
+// Va en un solo lugar a propósito: si se pusiera llamada por llamada, la que se
+// olvide se queda sin candado y nadie lo nota.
+const _ACCIONES_CON_SESION = /^(tr_|caso_|entrevista_|evidencia_|evaluacion_|informe_)/;
+function _conSesion(params){
+  try {
+    // Solo a las acciones que el backend protege. Si se le colgara a todas, el
+    // token alargaría el URL y alguna llamada cruzaría el limite de 1800 que
+    // hace saltar a POST, que no atiende las mismas acciones.
+    if (!params || !_ACCIONES_CON_SESION.test(String(params.action || ''))) return params;
+    const s = getS();
+    if (s && s.token) return Object.assign({}, params, { token: s.token });
+  } catch(e) {}
+  return params;
+}
+
+
 // ════════════════════════════════════════════════════════════════════════
 // API (JSONP para esquivar CORS en Apps Script)
 // ════════════════════════════════════════════════════════════════════════
 function apiCall(params){
+  params = _conSesion(params);
   return new Promise((resolve, reject) => {
     const cb = 'trCb_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
     const s = document.createElement('script');
@@ -563,6 +581,7 @@ function apiCall(params){
 
 // POST para payloads grandes (transcripciones, minutas). text/plain evita preflight CORS.
 async function apiPost(params){
+  params = _conSesion(params);
   const resp = await fetch(API_BASE, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -621,6 +640,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const r = await apiCall({ action: 'tr_getConfig', usuario: s.usuario });
     document.getElementById('initialLoader').style.display = 'none';
+    // El servidor ya no reconoce esta sesión (token viejo o vencido). Se manda
+    // al login ANTES de que el usuario escriba nada, para no tirarle trabajo.
+    if(r && r.sesionInvalida){
+      clearS();
+      window.location.href = 'acceso.html?motivo=sesion';
+      return;
+    }
     if(r.success && r.authorized){
       // Verificar que las keys estén configuradas
       if(!r.keysConfigured || !r.geminiKey || !r.claudeKey){

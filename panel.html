@@ -1322,6 +1322,23 @@ function clearS(){sessionStorage.removeItem(SK);localStorage.removeItem(SK+'_r')
 function reqAuth(){let s=getS();if(!s){s={nombre:'Administrador',rol:'SUPER_ADMIN',empresa:'CORPORATIVO',expires:Date.now()+86400000};sessionStorage.setItem(SK,JSON.stringify(s));}if(s.rol!=='ADMIN'&&s.rol!=='SUPER_ADMIN'){toast('error','Sin permisos','Solo Administradores pueden acceder al Panel de Control.');return null;}return s;}
 function logout(){if(confirm('¿Cerrar sesión?')){clearS();window.location.href='acceso.html';}}
 
+// Adjunta a cada llamada la prueba de que este navegador pasó por el login.
+// Va en un solo lugar a propósito: si se pusiera llamada por llamada, la que se
+// olvide se queda sin candado y nadie lo nota.
+const _ACCIONES_CON_SESION = /^(tr_|caso_|entrevista_|evidencia_|evaluacion_|informe_)/;
+function _conSesion(params){
+  try {
+    // Solo a las acciones que el backend protege. Si se le colgara a todas, el
+    // token alargaría el URL y alguna llamada cruzaría el limite de 1800 que
+    // hace saltar a POST, que no atiende las mismas acciones.
+    if (!params || !_ACCIONES_CON_SESION.test(String(params.action || ''))) return params;
+    const s = getS();
+    if (s && s.token) return Object.assign({}, params, { token: s.token });
+  } catch(e) {}
+  return params;
+}
+
+
 /* ══ TOAST ══ */
 function toast(type,title,msg,dur=4000){
   const icons={success:'✅',error:'❌',info:'💡',warning:'⚠️'};
@@ -1338,6 +1355,7 @@ function toast(type,title,msg,dur=4000){
 const API_BASE = API;
 
 async function apiCall(params) {
+  params = _conSesion(params);
   // Si el payload es grande (logo en base64, listas largas), el URL JSONP
   // excede los límites y falla con "Error de carga". En ese caso usamos
   // fetch POST con text/plain (no requiere preflight CORS) que Apps Script
@@ -1439,6 +1457,10 @@ async function loadTrConfig(){
   const auditorWrap = document.getElementById('tr_auditor_actual_wrap');
   try {
     const r = await apiGet({action:'tr_getConfig', usuario: s.usuario});
+    if(r && r.sesionInvalida){
+      statusEl.innerHTML = '<span style="color:var(--red)">⚠️ ' + (r.error || 'Vuelve a iniciar sesión') + '</span>';
+      return;
+    }
     if(r.success && r.authorized){
       document.getElementById('tr_gemini_key').value = r.geminiKey || '';
       document.getElementById('tr_claude_key').value = r.claudeKey || '';

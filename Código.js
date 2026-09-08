@@ -67,6 +67,96 @@ const AUDITOR_MAX_ATTEMPTS = 5;
 const AUDITOR_BLOCK_MS     = 15 * 60 * 1000; // 15 minutos
 
 // ════════════════════════════════════════════════════════════════════════
+// SESIÓN FIRMADA — el nombre de usuario NO es una credencial
+// ════════════════════════════════════════════════════════════════════════
+// El endpoint atiende sin contraseña, así que cualquiera puede escribir en la
+// URL el nombre de usuario que se le ocurra. Los módulos de Transcripción y
+// Denuncias le creían a ese nombre: bastaba conocerlo para llevarse las llaves
+// de IA o abrir un expediente de denuncia desde fuera.
+//
+// Ahora el login entrega un token firmado por el servidor y esos módulos lo
+// exigen. La llave con que se firma vive SOLO en las Propiedades del Script
+// (este repositorio es público) y se lee como FUNCIÓN, en el momento de usarla,
+// para que nunca quede congelada al cargar el archivo (lección v673).
+
+const TR_TOKEN_HORAS = 12;  // el navegador ya cierra la sesión a las 8
+
+function _trSalt() {
+  const props = PropertiesService.getScriptProperties();
+  let salt = props.getProperty('TR_SESSION_SALT');
+  if (salt) return salt;
+  // Primera vez: se genera sola. Con candado y RELECTURA adentro, porque dos
+  // peticiones simultáneas generarían llaves distintas y una pisaría a la otra.
+  const lock = LockService.getScriptLock();
+  try { lock.waitLock(10000); } catch (err) {}
+  try {
+    salt = props.getProperty('TR_SESSION_SALT');
+    if (!salt) {
+      salt = Utilities.getUuid() + '-' + Utilities.getUuid();
+      props.setProperty('TR_SESSION_SALT', salt);
+    }
+  } finally {
+    try { lock.releaseLock(); } catch (err) {}
+  }
+  return salt;
+}
+
+function _trFirma(payload) {
+  const bytes = Utilities.computeHmacSha256Signature(String(payload), _trSalt());
+  return bytes.map(function (b) {
+    return ('0' + (b < 0 ? b + 256 : b).toString(16)).slice(-2);
+  }).join('');
+}
+
+// token = base64url("usuario|vence") + "." + firma
+function _trEmitirToken(usuario) {
+  const payload = String(usuario).toLowerCase() + '|' + (Date.now() + TR_TOKEN_HORAS * 3600000);
+  return Utilities.base64EncodeWebSafe(payload) + '.' + _trFirma(payload);
+}
+
+function _trVerificarToken(token, usuario) {
+  const INVALIDA = { ok: false, error: 'Tu sesión ya no es válida. Vuelve a iniciar sesión.' };
+  if (!token) return INVALIDA;
+
+  const partes = String(token).split('.');
+  if (partes.length !== 2 || !partes[0] || !partes[1]) return INVALIDA;
+
+  let payload = '';
+  try {
+    payload = Utilities.newBlob(Utilities.base64DecodeWebSafe(partes[0])).getDataAsString();
+  } catch (err) { return INVALIDA; }
+
+  // Comparación completa: no corta al primer carácter distinto.
+  const esperada = _trFirma(payload);
+  if (esperada.length !== partes[1].length) return INVALIDA;
+  let dif = 0;
+  for (let i = 0; i < esperada.length; i++) dif |= esperada.charCodeAt(i) ^ partes[1].charCodeAt(i);
+  if (dif !== 0) return INVALIDA;
+
+  const campos = payload.split('|');
+  if (campos.length !== 2) return INVALIDA;
+  if (String(campos[0]) !== String(usuario || '').toLowerCase()) return INVALIDA;
+  if (!(Number(campos[1]) > Date.now())) {
+    return { ok: false, error: 'Tu sesión expiró. Vuelve a iniciar sesión.' };
+  }
+  return { ok: true };
+}
+
+// Las acciones de Transcripción y Denuncias. La lista va explícita y no por
+// prefijo: si mañana nace una acción del módulo, tiene que anotarse aquí a
+// propósito, y eso se ve en la revisión.
+const TR_ACCIONES_CON_SESION = [
+  'tr_getConfig', 'tr_setKeys', 'tr_setAuditorKey', 'tr_verifyAuditorKey', 'tr_requestAccess',
+  'tr_listSolicitudes', 'tr_resolveSolicitud', 'tr_save', 'tr_list', 'tr_get', 'tr_delete',
+  'caso_list', 'caso_create', 'caso_get', 'caso_update', 'caso_delete', 'caso_close', 'caso_reopen',
+  'entrevista_add', 'entrevista_delete', 'evidencia_add', 'evidencia_delete',
+  'evaluacion_save', 'informe_save', 'informe_generate',
+];
+function _exigeSesionFirmada(action) {
+  return TR_ACCIONES_CON_SESION.indexOf(String(action || '')) >= 0;
+}
+
+// ════════════════════════════════════════════════════════════════════════
 // PUNTO DE ENTRADA — Maneja todas las peticiones GET
 // ════════════════════════════════════════════════════════════════════════
 function doGet(e) {
@@ -76,6 +166,25 @@ function doGet(e) {
   const callback = p.callback || null;
 
   try {
+    // Candado de sesión. Va en la PUERTA, antes del switch: así ningún endpoint
+    // de Transcripción o Denuncias puede quedar desprotegido por descuido.
+    if (_exigeSesionFirmada(action)) {
+      const ses = _trVerificarToken(p.token, p.usuario);
+      if (!ses.ok) {
+        const negado = JSON.stringify({
+          success: false, authorized: false, sesionInvalida: true, error: ses.error
+        });
+        if (callback) {
+          return ContentService
+            .createTextOutput(callback + '(' + negado + ')')
+            .setMimeType(ContentService.MimeType.JAVASCRIPT);
+        }
+        return ContentService
+          .createTextOutput(negado)
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
     let result;
 
     switch(action) {
@@ -197,6 +306,18 @@ function doPost(e) {
   try {
     const params = JSON.parse(e.postData.contents);
     const action = params.action || '';
+
+    if (_exigeSesionFirmada(action)) {
+      const ses = _trVerificarToken(params.token, params.usuario);
+      if (!ses.ok) {
+        return ContentService
+          .createTextOutput(JSON.stringify({
+            success: false, authorized: false, sesionInvalida: true, error: ses.error
+          }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
     let result;
 
     switch(action) {
@@ -285,6 +406,10 @@ function handleLogin(params) {
           nombre:  row[4],
           email:   row[5],
           transcripcionAuth: trAuth,
+          // Prueba de que este navegador SÍ pasó por el login. Viaja dentro de
+          // la sesión que guarda la pantalla y la firma solo la puede hacer el
+          // servidor. Sin esto, Transcripción y Denuncias no atienden.
+          token:   _trEmitirToken(row[1]),
         }
       };
     }
