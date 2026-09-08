@@ -648,6 +648,11 @@ document.getElementById('btnLogin').addEventListener('click', function(e) {
 // ══════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   clearSession();
+  // Si llegó aquí porque el servidor ya no reconoció su sesión, decírselo:
+  // que lo devuelvan al login sin explicación se lee como sistema descompuesto.
+  if (new URLSearchParams(window.location.search).get('motivo') === 'sesion') {
+    showError('Tu sesión ya no es válida. Vuelve a entrar con tu usuario y contraseña.');
+  }
   document.getElementById('inputUser').focus();
 });
 
