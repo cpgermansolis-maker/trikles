@@ -2564,9 +2564,20 @@ function trSetKeys(params) {
     return { success: false, error: 'Solo el SuperAdmin puede configurar las keys' };
   }
   const props = PropertiesService.getScriptProperties();
-  if (params.geminiKey !== undefined) props.setProperty(TR_KEYS.GEMINI, String(params.geminiKey || '').trim());
-  if (params.claudeKey !== undefined) props.setProperty(TR_KEYS.CLAUDE, String(params.claudeKey || '').trim());
-  return { success: true, message: 'Keys actualizadas' };
+
+  // Un campo vacio NO borra la llave guardada. Antes si: bastaba que la pantalla
+  // no lograra cargar la configuracion para que el campo viajara en blanco y
+  // pisara una llave buena. Lo unico que protegia eso era un candado en el
+  // navegador, y un candado que vive solo en la pantalla no protege al servidor.
+  const gemini = String(params.geminiKey || '').trim();
+  const claude = String(params.claudeKey || '').trim();
+  const guardadas = [];
+  if (gemini) { props.setProperty(TR_KEYS.GEMINI, gemini); guardadas.push('Google'); }
+  if (claude) { props.setProperty(TR_KEYS.CLAUDE, claude); guardadas.push('Claude'); }
+  if (!guardadas.length) {
+    return { success: false, error: 'No llego ninguna key para guardar' };
+  }
+  return { success: true, message: 'Key de ' + guardadas.join(' y ') + ' actualizada' };
 }
 
 // ── Helpers para clave de auditor (hash + control de bloqueo) ────────────

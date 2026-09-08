@@ -1456,7 +1456,18 @@ async function loadTrConfig(){
   const auditorEl   = document.getElementById('tr_auditor_status');
   const auditorWrap = document.getElementById('tr_auditor_actual_wrap');
   try {
-    const r = await apiGet({action:'tr_getConfig', usuario: s.usuario});
+    // Reintenta antes de rendirse. La llamada viaja como script (JSONP) y un
+    // tropiezo de red la tumba entera; con un solo intento, ese tropiezo dejaba
+    // los campos vacios y al SuperAdmin sin poder guardar nada.
+    let r = null, ultimoFallo = null;
+    for(let intento = 0; intento < 3; intento++){
+      try { r = await apiGet({action:'tr_getConfig', usuario: s.usuario}); break; }
+      catch(err){
+        ultimoFallo = err;
+        if(intento < 2) await new Promise(res => setTimeout(res, 1500 * (intento + 1)));
+      }
+    }
+    if(!r) throw ultimoFallo || new Error('sin respuesta');
     if(r && r.sesionInvalida){
       statusEl.innerHTML = '<span style="color:var(--red)">⚠️ ' + (r.error || 'Vuelve a iniciar sesión') + '</span>';
       return;
@@ -1483,7 +1494,12 @@ async function loadTrConfig(){
       statusEl.innerHTML = '<span style="color:var(--red)">❌ No autorizado</span>';
     }
   } catch(e) {
-    statusEl.innerHTML = '<span style="color:var(--red)">Error al cargar</span>';
+    // Que no se lea como "no se puede hacer nada": las llaves siguen guardadas
+    // en el servidor y ahora se puede pegar una sola y guardarla.
+    statusEl.innerHTML = '<span style="color:var(--red)">No se pudo leer la configuracion. '
+      + 'Las keys guardadas NO se perdieron. Puedes pegar la que quieras cambiar y guardar; '
+      + 'la que dejes vacia se queda como esta.</span>';
+    console.error('tr_getConfig', e);
   }
 }
 
@@ -1524,13 +1540,20 @@ async function guardarTrKeys(){
   const s = getS(); if(!s) return;
   const geminiKey = document.getElementById('tr_gemini_key').value.trim();
   const claudeKey = document.getElementById('tr_claude_key').value.trim();
-  if(!geminiKey || !claudeKey){
-    toast('error','Campos requeridos','Pega ambas API keys antes de guardar.'); return;
+  // Se puede guardar UNA sola. Exigir las dos dejaba atrapado al SuperAdmin
+  // cuando la carga fallaba: el campo que no se pudo traer quedaba vacio y el
+  // boton se negaba, sin manera de reponer la llave que si tenia a la mano.
+  if(!geminiKey && !claudeKey){
+    toast('error','Nada que guardar','Pega al menos una API key.'); return;
   }
   document.getElementById('tr_btn_save_keys').style.display='none';
   document.getElementById('tr_saving_keys').style.display='flex';
   try {
-    const r = await apiPost({action:'tr_setKeys', usuario:s.usuario, geminiKey, claudeKey});
+    // Solo se manda lo que trae contenido: lo que no viaja, no se toca.
+    const envio = {action:'tr_setKeys', usuario:s.usuario};
+    if(geminiKey) envio.geminiKey = geminiKey;
+    if(claudeKey) envio.claudeKey = claudeKey;
+    const r = await apiPost(envio);
     if(r.success){
       toast('success','Keys guardadas','Las API keys fueron actualizadas correctamente.');
       loadTrConfig();
