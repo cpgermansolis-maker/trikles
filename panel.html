@@ -1553,7 +1553,19 @@ async function guardarTrKeys(){
     const envio = {action:'tr_setKeys', usuario:s.usuario};
     if(geminiKey) envio.geminiKey = geminiKey;
     if(claudeKey) envio.claudeKey = claudeKey;
-    const r = await apiPost(envio);
+    // Reintenta, igual que la carga. El guardado viaja por el MISMO camino
+    // fragil (JSONP) que fallaba: de nada sirve arreglar la lectura si el
+    // pegado de la key se pierde por un tropiezo y hay que empezar de cero.
+    // Repetir es inofensivo: guardar dos veces la misma key deja lo mismo.
+    let r = null, ultimoFallo = null;
+    for(let intento = 0; intento < 3; intento++){
+      try { r = await apiPost(envio); break; }
+      catch(err){
+        ultimoFallo = err;
+        if(intento < 2) await new Promise(res => setTimeout(res, 1500 * (intento + 1)));
+      }
+    }
+    if(!r) throw ultimoFallo || new Error('sin respuesta');
     if(r.success){
       toast('success','Keys guardadas','Las API keys fueron actualizadas correctamente.');
       loadTrConfig();

@@ -1357,7 +1357,7 @@ function mensajeIAUsuario(e){
     if(/permission to access the file|the file .*(does not exist|is not in an active)/.test(m))
       return 'El audio no alcanzó a quedar listo antes de transcribirlo. Intenta de nuevo en un momento.';
     if(/\b401\b|\b403\b|unauthorized|forbidden|authentication|permission|api.?key/.test(m))
-      return 'El servicio de inteligencia artificial no está configurado correctamente. Contacta al administrador del sistema.';
+      return 'La llave del servicio de inteligencia artificial ya no es válida. Hay que reponerla en Panel de Control → Transcripción.';
     if(/\b429\b|\b503\b|\b529\b|\b500\b|\b502\b|\b504\b|overload|unavailable|too many|rate.?limit/.test(m))
       return 'El servicio está saturado en este momento. Intenta de nuevo en unos minutos.';
     return 'No se pudo completar el procesamiento con la inteligencia artificial. Intenta de nuevo más tarde.';
