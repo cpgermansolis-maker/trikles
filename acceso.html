@@ -565,6 +565,10 @@ async function doLogin() {
       rol:     u.rol,
       empresa: u.empresa,
       email:   u.email || '',
+      // La prueba de sesion firmada por el servidor. Este objeto se arma campo
+      // por campo, asi que lo que no se anote aqui NO se guarda y se pierde en
+      // silencio: sin el token, Transcripcion y Denuncias rebotan al login.
+      token:   u.token || '',
       expires: Date.now() + CONFIG.SESSION_HOURS * 3600000
     });
     btn.innerHTML = '<span class="btn-text">✓ ACCESO CONCEDIDO</span>';
