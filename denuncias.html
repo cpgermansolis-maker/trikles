@@ -1350,6 +1350,12 @@ function mensajeIAUsuario(e){
   if(esProveedor){
     if(/credit|balance|billing|saldo|insufficient|quota|purchase|payment|fund/.test(m))
       return 'El servicio de inteligencia artificial no está disponible en este momento. Por favor avisa al administrador del sistema.';
+    // Un archivo que todavia no termino de procesarse se reporta como falta de
+    // permiso SOBRE EL ARCHIVO. Eso no es un problema de configuracion, y mandar
+    // al usuario con el administrador lo lleva por el camino equivocado. Va ANTES
+    // que la rama de permisos porque si no, esa se lo come.
+    if(/permission to access the file|the file .*(does not exist|is not in an active)/.test(m))
+      return 'El audio no alcanzó a quedar listo antes de transcribirlo. Intenta de nuevo en un momento.';
     if(/\b401\b|\b403\b|unauthorized|forbidden|authentication|permission|api.?key/.test(m))
       return 'El servicio de inteligencia artificial no está configurado correctamente. Contacta al administrador del sistema.';
     if(/\b429\b|\b503\b|\b529\b|\b500\b|\b502\b|\b504\b|overload|unavailable|too many|rate.?limit/.test(m))
@@ -3166,12 +3172,25 @@ async function uploadAudioToGemini(file, apiKey, onProgress){
   });
   const f = uploadResult.file || uploadResult;
   if(!f.uri) throw new Error('Gemini no retornó URI');
-  let tries = 0;
-  while(f.state && f.state !== 'ACTIVE' && tries < 20){
+  // Esperar a que el archivo quede LISTO. Antes se esperaban 40 segundos y, al
+  // agotarse, se SEGUÍA de largo con el archivo a medio procesar: el proveedor
+  // responde que no hay permiso para ese archivo y el usuario terminaba leyendo
+  // "no está configurado correctamente", que lo manda con el administrador por
+  // algo que no es de configuración.
+  const listoLimite = Date.now() + 5 * 60 * 1000;
+  while(f.state !== 'ACTIVE'){
+    if(Date.now() > listoLimite){
+      throw new Error('El audio no alcanzó a quedar listo. Vuelve a intentarlo en un momento; si dura varias horas, pruébalo en partes.');
+    }
     await new Promise(r => setTimeout(r, 2000));
     const check = await fetch(f.uri.replace(/^https?:\/\/[^/]+/,'https://generativelanguage.googleapis.com')+'?key='+encodeURIComponent(apiKey));
-    if(check.ok){ const d = await check.json(); if(d.state) f.state = d.state; if(d.state==='ACTIVE')break; if(d.state==='FAILED')throw new Error('Gemini marcó FAILED'); }
-    tries++;
+    if(check.ok){
+      const d = await check.json();
+      // Si no reporta estado, no hay nada que esperar (antes el ciclo ni corria).
+      if(!d.state) break;
+      f.state = d.state;
+      if(d.state === 'FAILED') throw new Error('No se pudo leer este audio. Prueba convertirlo a MP3 o grabarlo de nuevo.');
+    }
   }
   return { uri:f.uri, mimeType:mime, name:f.name };
 }
